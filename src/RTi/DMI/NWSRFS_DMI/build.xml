@@ -1,0 +1,524 @@
+<!-- 
+================================================================================
+Ant build.xml file for creating the NWSRFS DMI files
+================================================================================
+2002-08-28	J. Thomas Sapienza, RTi	Initial Version.
+2002-09-05	JTS, RTi		Brought in line with the template
+					build.xml file.  No reliace on the 
+					J drive anymore.
+2002-10-15	JTS, RTi		Changed paths from jdk_1.1.8 and 
+					jdk_1.4.0 to jdk_118 and jdk_140.
+2002-10-25	Morgan Love, RTi	Added NwsrfsRatingCurve.
+2003-07-24	Steven A. Malers, RTi	Add ESPTraceEnsemble.
+2003-10-06	JTS, RTi		Default compiler is now 1.4.2.
+2003-12-02	SAM, RTi		Add NWSRFS_ConvertJulianHour_JDialog.
+2004-04-22	Scott Townsend, RTi	Modified all of the files including
+					this ant build file to use the newer
+					nameing scheme of NWSRFS_XXX.java
+					in preparation of building a new NWSRFS
+					based DMI package that reads the FS5 
+					files directly. Also added several new
+					classes which will be used:
+						NWSRFS_DMI
+						NWSRFS_TimeSeries
+						NWSRFS_Parameters
+						NWSRFS_States
+2004-07-08	JTS, RTi		Added the NWSRFSGUI classes to the
+					classpath.
+2004-07-26	AML, RTi		Added the NWSRFS_Util.java
+2004-08-26	SAT, RTi		Added the NWSRFS_PPPINDEX.java and
+					NWSRFS_PRDINDEX
+2004-09-01	SAM, RTi		* Added NWSRFS_ConvertJulianHour_JDialog
+					  from the old NWSRFS package.
+					* Added NWSRFS_TS_InputFilter_JPanel.
+2004-09-28	SAT, RTi		Added NWSRFS_MAP, NWSRFS_MAT, and
+                                        NWSRFS_USER classes to be built.
+2004-10-12	SAT, RTi		Modified to run in both windows and
+					Linux.
+2004-11-01	SAT, RTi		Added NWSRFS_PDBRRS to list of source to
+					compile.
+2004-11-03	SAM, RTi		Fix so only class files are referenced
+					in the class path.
+2004-11-03	SAT, RTi		Added NWSRFS_PDBDLY to list of source to
+					compile.
+2004-11-08	SAM, RTi		* Re-added NWSRFS_TS_InputFilter_JPanel.
+					  Apparently it got deleted from the
+					  compile list somehow.
+2004-11-23	SAM, RTi		* Re-added
+					  NWSRFS_ConvertJulianHour_JDialog
+					  for the third time.
+2006-01-17	JTS, RTi		Added writeNWSRFSESPTraceEnsemble_JDialog.
+2006-01-18	JTS, RTi		* Added readNwsCard_*.
+					* Added NWSCardTS.
+2006-10-03	SAM, RTi		* Added NWSRFS_USERPARM.
+================================================================================
+EndHeader
+-->
+
+<project name="libNWSRFSDMIJava" default="compile" basedir="../../../..">
+
+<description>
+	Build file for the NWSRFS DMI library.
+</description>
+
+<!--
+================================================================================
+	Global Build Properties
+================================================================================
+-->
+<condition property="os_sep" value="/">
+<and>
+	<os family="unix" />
+</and>
+</condition>
+<condition property="os_sep" value="\">
+<and>
+	<os family="windows" />
+</and>
+</condition>
+
+<property name="package" value="RTi${os_sep}DMI${os_sep}NWSRFS_DMI"/>
+<property name="src" location="src"/>
+<!-- the next property ("build") should not have a trailing / on the path.
+     ie, it can be "classes", but not "classes/".  Otherwise, alternate version
+     compilation won't work. -->
+<property name="build" location="classes"/>
+
+<property name="latest_version" value="JDK 1.4.2"/>
+
+<!--
+================================================================================
+	Classpath and other path components
+================================================================================
+-->
+<!--
+================================================================================
+INIT_142
+	Initialization of environment variables for using JDK 1.4.2
+================================================================================
+-->
+<target name="init_142"
+	description="Set-up of the environment variables for a JDK 1.4.2 build">
+	<property name="build_subversion" value="_142" />
+
+	<condition property="jdk_home" value="/usr/java">
+	<and>
+		<os family="unix" />
+	</and>
+	</condition>
+	<condition property="jdk_home" value="i:\DEVELOP\jdk_142">
+	<and>
+		<os family="windows" />
+	</and>
+	</condition>
+
+	<condition property="executable" value="${jdk_home}/bin/javac">
+	<and>
+		<os family="unix" />
+	</and>
+	</condition>
+	<condition property="executable" value="${jdk_home}\bin\javac">
+	<and>
+		<os family="windows" />
+	</and>
+	</condition>
+
+	<condition property="jre_home" value="${jdk_home}/jre/jre_142">
+	<and>
+		<os family="unix" />
+	</and>
+	</condition>
+	<condition property="jre_home" value="\develop\jre_142">
+	<and>
+		<os family="windows" />
+	</and>
+	</condition>
+
+	<condition property="blessed_dir" value="/develop/bin">
+	<and>
+		<os family="unix" />
+	</and>
+	</condition>
+	<condition property="blessed_dir" value="\develop\bin">
+	<and>
+		<os family="windows" />
+	</and>
+	</condition>
+
+	<condition property="blessed_classes_dir" 
+		value="/develop/classes${build_subversion}">
+	<and>
+		<os family="unix" />
+	</and>
+	</condition>
+	<condition property="blessed_classes_dir" 
+		value="\develop\classes${build_subversion}">
+	<and>
+		<os family="windows" />
+	</and>
+	</condition>
+
+	<condition property="blessed_javadoc_dir" 
+		value="/develop/javadoc${build_subversion}">
+	<and>
+		<os family="unix" />
+	</and>
+	</condition>
+	<condition property="blessed_javadoc_dir" 
+		value="\develop\javadoc${build_subversion}">
+	<and>
+		<os family="windows" />
+	</and>
+	</condition>
+	
+ 	<property name="includes"
+		value="
+			${package}${os_sep}NWSRFS_DMI.java
+			${package}${os_sep}NWSRFS.java
+			${package}${os_sep}NWSRFS_BASN.java
+			${package}${os_sep}NWSRFS_Carryover.java
+			${package}${os_sep}NWSRFS_CarryoverGroup.java
+			${package}${os_sep}NWSRFS_ConvertJulianHour_JDialog.java
+			${package}${os_sep}NWSRFS_ESPTraceEnsemble.java
+			${package}${os_sep}NWSRFS_FCRCPTR.java
+			${package}${os_sep}NWSRFS_FCSEGPTR.java
+			${package}${os_sep}NWSRFS_ForecastGroup.java
+			${package}${os_sep}NWSRFS_MAP.java
+			${package}${os_sep}NWSRFS_MAP_JTree.java
+			${package}${os_sep}NWSRFS_MAP_JList.java
+			${package}${os_sep}NWSRFS_MAT.java
+			${package}${os_sep}NWSRFS_NTWK.java
+			${package}${os_sep}NWSRFS_Operation.java
+			${package}${os_sep}NWSRFS_ORRS.java
+			${package}${os_sep}NWSRFS_PDBINDEX.java
+			${package}${os_sep}NWSRFS_PDBDLY.java
+			${package}${os_sep}NWSRFS_PDBRRS.java
+			${package}${os_sep}NWSRFS_PPPINDEX.java
+			${package}${os_sep}NWSRFS_PRDINDEX.java
+			${package}${os_sep}NWSRFS_RatingCurve.java
+			${package}${os_sep}NWSRFS_RatingCurve_JList.java
+			${package}${os_sep}NWSRFS_RatingCurve_JTree.java
+			${package}${os_sep}NWSRFS_Segment.java
+			${package}${os_sep}NWSRFS_Station.java
+			${package}${os_sep}NWSRFS_Station_JList.java
+			${package}${os_sep}NWSRFS_System_JTree.java
+			${package}${os_sep}NWSRFS_SystemMaintenance.java
+			${package}${os_sep}NWSRFS_Tree_JPanel.java
+			${package}${os_sep}NWSRFS_TimeSeries.java
+			${package}${os_sep}NWSRFS_TS_InputFilter_JPanel.java
+			${package}${os_sep}NWSRFS_Util.java
+			${package}${os_sep}NWSRFS_USER.java
+			${package}${os_sep}NWSRFS_USERPARM.java
+			${package}${os_sep}NWSRFS_Test.java
+
+			${package}${os_sep}NWSRFS_Station_JPanel.java
+			${package}${os_sep}NWSRFS_Station_CellRenderer.java
+			${package}${os_sep}NWSRFS_Station_TableModel.java
+
+			${package}${os_sep}NWSRFS_MAP_JPanel.java
+			${package}${os_sep}NWSRFS_MAP_CellRenderer.java
+			${package}${os_sep}NWSRFS_MAP_TableModel.java
+
+			${package}${os_sep}NWSRFS_RatingCurve_JPanel.java
+			${package}${os_sep}NWSRFS_RatingCurve_CellRenderer.java
+			${package}${os_sep}NWSRFS_RatingCurve_TableModel.java
+
+			${package}${os_sep}writeNWSRFSESPTraceEnsemble_Command.java
+			${package}${os_sep}writeNWSRFSESPTraceEnsemble_JDialog.java
+
+			${package}${os_sep}readNwsCard_Command.java
+			${package}${os_sep}readNwsCard_JDialog.java
+			${package}${os_sep}NWSCardTS.java
+	" />
+		
+	<property name="compiler" value="modern"/>
+	<path id="classpath">
+		<pathelement location="${build}${build_subversion}"/>
+		<pathelement location="${blessed_classes_dir}"/>
+	</path>
+</target>
+
+<!--
+================================================================================
+COMPILE
+	Generic routine to compile for a given version
+================================================================================
+-->
+<target name="compile_generic"
+	description="Generic target for compiling source code">
+
+	<tstamp/>
+	<mkdir dir="${build}${build_subversion}" />
+	
+	<!-- Compile the java code from ${src} into ${build} -->
+	<javac srcdir="${src}"
+		debug="yes"
+		deprecation="true"
+		fork="yes"
+		includes="${includes}"
+		destdir="${build}${build_subversion}"
+		verbose="false"
+		executable="${executable}"
+		compiler="${compiler}">
+		<classpath refid="classpath"/>
+	</javac>
+</target>
+
+<!--
+================================================================================
+COMPILE
+	[Default Target]
+	This is the default target.  This is executed when ant is run without
+	any other arguments.  When a new JDk version is used and a target built
+	for it, the 'depends' argument in this target should be changed to point
+	to the new target.
+================================================================================
+-->
+<target name="compile"
+	depends="142"
+	description="Compile target for the latest java version"/>
+
+<!--
+================================================================================
+COMPILE
+	Version 1.4.2 Compile
+================================================================================
+-->
+<target name="142"
+	depends="init_142, compile_generic"
+	description="Compile target for JDK 1.4.2"/>
+
+<!--
+================================================================================
+JAVADOC
+	Generic target for handling javadocing for a given version
+================================================================================
+-->
+<target name="javadoc_generic"
+	description="Target for creating Javadocs">
+	<javadoc
+		destdir="${basedir}${os_sep}javadoc${build_subversion}">
+		<classpath refid="classpath"/>
+		<fileset dir="${src}"
+			includes="${includes}"/>
+	</javadoc>
+</target>	
+
+<!-- 
+================================================================================
+JAVADOC
+	Latest version Javadoc.  When a new JDK is added, the 'depends' 
+	argument should be updated to point to the new target.
+================================================================================
+-->
+<target name="javadoc"
+	depends="javadoc_142"
+	description="Target for creating Javadocs for latest JDK"/>
+
+<!-- 
+================================================================================
+JAVADOC
+	Javadoc for JDK 1.4.2
+================================================================================
+-->
+<target name="javadoc_142"
+	depends="init_142, javadoc_generic"
+	description="Target for creating Javadocs for 1.4.2"/>
+
+<!-- 
+================================================================================
+CLEAN
+	Generic target for doing a clean for a given version
+================================================================================
+-->
+<target name="clean_generic"
+	description="Generic target for deleting class files">
+	<!-- Delete the ${build} tree -->
+	<delete dir="${build}${build_subversion}"/>
+	<delete dir="javadoc${build_subversion}"/>
+</target>
+
+<!-- 
+================================================================================
+CLEAN
+	Latest version clean.  When a new JDk is added, the 'depends' argument
+	should be updated to point to the new target.
+================================================================================
+-->
+<target name="clean"
+	depends="clean_142"
+	description="Target for deleting the latest version's class files"/>
+
+<!-- 
+================================================================================
+CLEAN
+	Version 1.4.2 clean
+================================================================================
+-->
+<target name="clean_142" 
+	depends="init_142, clean_generic"	
+	description="Target for deleting JDK 1.4.2 class files"/>
+
+<!-- 
+================================================================================
+INSTALL
+	Generic target for doing an install for a given version
+================================================================================
+-->
+<target name="install_generic"
+	description="Generic target for installing class files">
+	<delete>
+		<fileset 
+			dir="${blessed_classes_dir}${os_sep}${package}"
+			includes="**/*.class"/>
+	</delete>		
+	<copy todir="${blessed_classes_dir}${os_sep}${package}"
+		overwrite="yes">
+		<fileset dir="${build}${build_subversion}${os_sep}${package}">
+			<include name="*.class"/>
+		</fileset>
+	</copy>
+</target>
+<!-- 
+================================================================================
+INSTALL
+	Latest version install.  When a new JDK version is used, the 'depends'
+	argument should be updated to point to the new target.
+================================================================================
+-->
+<target name="install"
+	depends="install_142"
+	description="Target for installing the latest version's classes"/>
+
+<!-- 
+================================================================================
+INSTALL
+	Version 1.4.2 install
+================================================================================
+-->
+<target name="install_142"
+	depends="init_142, install_generic"
+	description="Target for installing JDk 1.4.2 classes"/>
+
+<!-- 
+================================================================================
+INSTALL JAVADOC
+	Generic target for doing a Javadoc install for a given version
+================================================================================
+-->
+<target name="install_javadoc_generic"
+	description="Target for installing javadoc files">
+	<copy todir="${blessed_javadoc_dir}"
+		overwrite="yes">
+		<fileset dir="${basedir}${os_sep}javadoc${build_subversion}">
+			<include name="RTi\**"/>
+		</fileset>
+	</copy>
+</target>
+
+<!-- 
+================================================================================
+INSTALL JAVADOC
+	Latest version Javadoc install.  When a new JDK is used, the 'depends'
+	arguments should be changed to point to the new target.
+================================================================================
+-->
+<target name="install_javadoc"
+	depends="install_javadoc_142"
+	description="Target for installing latest javadoc files"/>
+
+<!-- 
+================================================================================
+INSTALL JAVADOC
+	Target for installing JDK 1.4.2 Javadocs
+================================================================================
+-->
+<target name="install_javadoc_142"
+	depends="init_142, install_javadoc_generic"
+	description="Target for installing JDK 1.4.2 files"/>
+
+<!-- 
+================================================================================
+RUN
+	Generic target for handling runs for a given version
+================================================================================
+-->
+<target name="run_generic"
+	description="Generic target for running the class">
+	<java classname="RTi.DMI.NWSRFS_DMI.NWSRFS_Test"
+		fork="true"
+		dir="${jre_home}\bin">
+		<jvmarg value="-mx128m"/>
+		<jvmarg value="-Djava.compiler=NONE"/>
+		<classpath refid="classpath"/>		
+	</java>
+</target>
+
+<!-- 
+================================================================================
+RUN
+	Target for running the latest JDK version.  When a new JDK is used,
+	the 'depends' argument should be changed to point to the new target.
+================================================================================
+-->
+<target name="run"
+	depends="run_142"
+	description="Target for running with the latest classes"/>
+
+<!-- 
+================================================================================
+RUN
+	Target for running the program with JDK 1.4.2
+================================================================================
+-->
+<target name="run_142"
+	depends="init_142, run_generic"
+	description="Target for running with JDK 1.4.2 classes"/>
+
+<!-- 
+================================================================================
+FULL
+	Target for doing a full run for the latest JDK version.  When a new JDK
+	is used, the 'depends' argument should be changed to point to the new
+	target.
+================================================================================
+-->
+<target name="full"
+	depends="full_142"
+	description="Cleans, builds, javadocs and installs the latest JDK"/>
+
+<!-- 
+================================================================================
+FULL
+	Target for doing a full run for JDK 1.4.2
+================================================================================
+-->
+<target name="full_142"
+	depends="init_142, clean_142, 142, javadoc_142, install_142, 
+		install_javadoc_142"
+	description="Cleans, builds, javadocs and installs JDK 1.4.0"/>
+
+<!-- 
+================================================================================
+HELP
+	Help
+================================================================================
+-->
+<target name="help"
+	description="Help on the targets that can be run in this build file">
+<echo>
+Valid targets are:
+[default]           - compiles with ${latest_version}
+javadoc             - creates javadoc documentation for ${latest_version}
+install             - copies ${latest_version} classes to blessed dir
+install_javadoc     - installs the ${latest_version} javadocs
+clean               - deletes ${latest_version} classes directory
+run                 - runs ${latest_version} ...
+full                - cleans, builds, javadocs and installs ${latest_version}
+</echo>
+</target>
+
+<target name="br"
+	depends="compile, run"/>
+
+</project>
