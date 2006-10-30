@@ -312,7 +312,7 @@ private String __filename;		// The name opened by this class.  Note
 					// that this is different from the
 					// __espfname read from the ESP trace
 					// ensemble itself.
-private RandomAccessFile __traceRAF;	// The object that will open and read
+private EndianRandomAccessFile __traceRAF;	// The object that will open and read
 					// from the ESP file.
 private boolean __traceRAFOpen;		// Test to see whether or not the Random
 					// Access File __traceRAF is open or
@@ -1458,7 +1458,7 @@ throws Exception
 	// Check to see if RandomAccessFile is open
 	if(!__traceRAFOpen)
 	{
-		__traceRAF = new RandomAccessFile(__filename,"r"); 
+		__traceRAF = new EndianRandomAccessFile(__filename,"r"); 
 		__traceRAFOpen = true;
 	}
 
@@ -1600,7 +1600,7 @@ throws Exception
 	// Check to see if RandomAccessFile is open
 	if(!__traceRAFOpen)
 	{
-		__traceRAF = new RandomAccessFile(__filename,"r"); 
+		__traceRAF = new EndianRandomAccessFile(__filename,"r"); 
 		__traceRAFOpen = true;
 	}
 
@@ -2675,7 +2675,7 @@ throws Exception
 	String prsf_string;
 	String full_fname = null;
 	File f = null;
-	RandomAccessFile traceRAF;
+	EndianRandomAccessFile traceRAF;
 
 	// Determine if the passed in filename is an absolute or relative
 	// path
@@ -2691,7 +2691,7 @@ throws Exception
 	}
 
 	// Open RandomAccessFile
-	traceRAF = new RandomAccessFile(full_fname,"rw"); 
+	traceRAF = new EndianRandomAccessFile(full_fname,"rw"); 
 
 	// This is important because the read code uses the ESP file name to
 	// get the TSIdent information...

@@ -1,0 +1,401 @@
+<!-- Author  :  Kurt Tometich
+	 Date    :  9/19/2006
+	 Purpose :  provides functions to compile, test and
+	            run source code
+	 Targets :
+	 			clean
+	 			compile
+				compileTest
+				test
+	 			runDev
+	 			runOp
+	 			javadoc
+				jar
+	 			help
+	 			
+-->
+
+<project name="buildTemplate" basedir="../" default="compile">
+
+	<!-- === Set file separator depending on OS ===-->
+	<condition property="sep" value="/">
+		<and>
+       		<os family="unix" />
+		</and>
+	</condition>
+	<condition property="sep" value="\">
+		<and>
+       		<os family="windows" />
+		</and>
+	</condition>
+
+	<!-- set the javac location for OS type -->
+	<condition property="executable" value="/home/sharedLibs/j2sdk1.4.2_12/bin/javac">
+		<and>
+	    	<os family="unix" />
+		</and>
+	</condition>
+	
+	<condition property="executable" value="I:\develop\jdk_142\bin\javac">
+		<and>
+		       	<os family="windows" />
+		</and>
+	</condition>
+		
+	<!-- set the jhome variable depending on OS type -->
+	<condition property="jhome" value="/home/sharedLibs/j2sdk1.4.2_12/bin/javac">
+		<and>
+			    <os family="unix" />
+		</and>
+	</condition>
+		
+	<condition property="jhome" value="I:\develop\jdk_142\bin\javac">
+		<and>
+			    <os family="windows" />
+		</and>
+	</condition>
+		
+	<!-- set the jhome variable depending on OS type -->
+	<condition property="jvm" value="/home/sharedLibs/j2sdk1.4.2_12">
+		<and>
+				<os family="unix" />
+		</and>
+	</condition>
+			
+	<condition property="jvm" value="I:\DEVELOP\jre_142">
+		<and>
+				<os family="windows" />
+		</and>
+	</condition>
+	
+	
+	<!--============= General Properties =============-->
+	<property name="src.dir"	     location="src"  />
+	<property name="build.dir"	     location="build" />
+	<property name="dist.dir"        location="dist" />
+	<property name="doc.dir"		 location="doc" />
+	<property name="buildwork.dir"   location="${build.dir}${sep}work" />
+	<property name="buildtest.dir"   location="build${sep}test" />
+	<property name="test.dir"	     location="test${sep}unit${sep}src" />
+	<property name="testOp.dir"      location="test${sep}operational" />
+	<property name="jdoc.dir"	     location="doc${sep}javadoc" />
+	<property name="ext.dir"         location="externals" />
+	<property name="graphics.dir"    location="graphics" />
+	<property name="package"     	 value="RTi${sep}DMI${sep}NWSRFS_DMI" />
+	<property name="nsis.dir"		 location="NSIS" />
+	<property name="executable"  	 
+		location="I:${sep}develop${sep}jdk_142${sep}bin${sep}javac" />
+	<property name="classname"   	 value="" />
+	<property name="testSuite"  	 value="RTi.DMI.NWSRFS_DMI.testSuite" />
+	<property name="jarfname"    	 value="NWSRFS_DMI_142.jar" />
+	<property name="regTest.dir"	 location="test${sep}regression${sep}src" />
+	<property name="command_file"    value="Regression.NWSRFS_DMI" />
+	
+	<!--================ Dependencies ==================-->
+	<property name="RTi_jar"	  
+			value="${ext.dir}${sep}RTi_Common${sep}RTi_142.jar" />
+	
+	<!-- =========== Compiler Properties ===============-->
+	<property name="compiler" value="modern" />
+	
+	<!-- set classpath -->
+	<path id="classpath">
+		<pathelement location="${RTi_jar}" />
+		<pathelement location="${buildtest.dir}" />
+		<pathelement location="${buildwork.dir}" />
+		<pathelement location="."/>
+	</path>
+	
+	<path id="classpathOp">
+		<pathelement location="${RTi_jar}" />
+		<pathelement location="${dist.dir}${sep}${jarfname}" />
+		<pathelement location="."/>
+	</path>
+	
+	<!-- current timestamp -->
+	<tstamp>
+	  <format property="TODAY" pattern="MM/dd/yyyy hh:mm" locale="en"/> 	
+  	  <format property="jarDate" pattern="yyyy-MM-dd hh:mm" locale="en" />
+	</tstamp>
+	
+	
+<!--===================================================
+	Target:   clean
+	Function: cleans the build/work and build/test
+	          directories to ensure a clean compilation
+====================================================-->
+<target name="clean" description="remove compiled files">
+	
+	<!-- delete build stuff -->
+	<delete dir="${buildwork.dir}" />
+	<delete dir="${build.dir}" />
+
+	<!-- delete javadoc stuff -->
+	<delete dir="${jdoc.dir}" />
+	
+</target>
+
+<!--===================================================
+	Target:   compile
+	Function: compiles code for this project and places
+			  the compiled code in the build/work dir
+====================================================-->
+<target name="compile" >
+
+	<echo>
+********* COMPILING SOURCE ************
+	  destdir     : ${buildwork.dir}
+	  executable  : ${executable}
+	  compiler    : ${compiler}
+***************************************
+	</echo>
+
+	<mkdir dir="${buildwork.dir}" />
+	
+	<javac srcdir 		= "${src.dir}${sep}${package}"
+           destdir 		= "${buildwork.dir}"
+		   classpathref = "classpath"
+           debug 		= "on"
+	       fork 		= "yes"
+	       listfiles 	= "true"
+	       deprecation 	= "true"
+	       executable 	= "${executable}"
+	       compiler 	= "${compiler}"
+	/>
+
+</target>
+
+
+<!--========================================================
+	Target: compileTest
+	Function: to compile the code under test/src
+==========================================================-->
+<target name="compileTest" depends="compile">
+
+	<echo>
+********* COMPILING TEST ************
+	  srcdir      : ${test.dir}${sep}${package}
+	  destdir     : ${build.dir}${sep}test
+	  executable  : ${executable}
+	  compiler    : ${compiler}
+***************************************
+	</echo>
+
+	<mkdir dir="${build.dir}${sep}test" />
+	
+	<javac srcdir 		= "${test.dir}${sep}${package}"
+	       destdir 	    = "${build.dir}${sep}test"
+           classpathref = "classpath"
+           debug 		= "on"
+	       fork 		= "yes"
+	       listfiles 	= "true"
+	       deprecation 	= "true"
+	       executable 	= "${executable}"
+	       compiler 	= "${compiler}"
+	/>
+
+</target>
+
+	
+<!--===================================================
+	Target:   test
+	Function: runs Junit tests and outputs results
+====================================================-->
+<target name="test" depends="compileTest">
+
+	<junit printsummary="yes" fork="yes" dir="conf">
+		<formatter type="xml"/>
+		<classpath refid="classpath" />
+		<test name="${testSuite}"
+		  outfile="test${sep}unit${sep}results${sep}${proj_name}" />
+	</junit>
+
+</target>
+	
+	
+<!--===================================================
+	Target:   runDev
+	Function: runs the executable or java class from
+			  the build directory for quick development
+			  testing
+====================================================-->
+<target name="runDev" depends="compile">
+	
+	<echo message="HOME:   ${testOp.dir}" />
+	
+	<java classname="${classname}" fork="true">
+		<jvmarg    value = "-mx256m" />
+		<jvmarg    value = "-Djava.compiler=NONE" />
+		<arg       value = "-home" />
+		<arg	   value = "${testOp.dir}" />
+		<classpath refid = "classpath" />   
+	</java>	
+
+</target>
+
+
+<!--===================================================
+	Target:   runOp
+	Function: runs the executable from the dist jar
+			  for operational testing
+====================================================-->
+	<target name="runOp" depends="jar">
+		
+		<echo message="HOME:   ${testOp.dir}" />
+		
+		<java classname="${classname}" fork="true">
+			<jvmarg    value = "-mx256m" />
+			<jvmarg    value = "-Djava.compiler=NONE" />
+			<arg       value = "-home" />
+			<arg	   value = "${testOp.dir}" />
+			<classpath refid = "classpathOp" />   
+		</java>	
+
+	</target>
+	
+	
+<!--===================================================
+	Target:   javadoc
+	Function: generates the javadocs for this product
+====================================================-->
+<target name="javadoc">
+
+	<echo>
+********** Creating Javadocs **************
+   Destination:     ${jdoc.dir}
+   From Dir   :     ${src.dir}${sep}${package} 
+*******************************************
+	</echo>
+	
+	<!-- cleanup old javadocs -->
+	<delete dir="${jdoc.dir}" />
+
+	<!-- make dir jdocs --> 
+	<mkdir dir="${jdoc.dir}" />
+
+	<javadoc destdir="${jdoc.dir}" >
+		<classpath refid="classpath"/>
+		<fileset dir="${src.dir}${sep}${package}" >
+    	  		<include name="*.java"/>
+    		</fileset>
+	</javadoc>	
+
+
+</target>
+
+
+<!--=====================================================
+	Target: jar 
+=======================================================-->
+<target name="jar" depends="compile" >
+    
+	<echo>
+********** Creating jar file *****************
+   Destination:    ${dist.dir}
+   source dir :    ${buildwork.dir}
+   jar filename:   ${jarfname}
+**********************************************
+	</echo>
+
+	
+	<copy todir="${buildwork.dir}" >
+		<fileset dir="graphics" />
+	</copy>
+	
+    <mkdir dir="${dist.dir}"/>
+    <jar jarfile="${dist.dir}${sep}${jarfname}" basedir="${buildwork.dir}" >
+	<manifest >
+    	<attribute name="Author"    value="Riverside Technology, inc. (RTi)"/>
+      	<attribute name="Address1"  value="2290 E. Prospect Road, Suite 1"/>
+      	<attribute name="Address2"  value="Fort Collins, CO 80525"/>
+        <attribute name="Phone"     value="970-484-7573"/>
+		<attribute name="Web"       value="http://www.riverside.com"/>
+		<attribute name="BuildDate" value="${jarDate}"/>
+        <attribute name="Contents"  value="Contains NWSRFS_DMI Classes"/>
+      </manifest>
+
+    </jar>
+
+</target>
+
+<!--=================================================
+	Target: regTest
+	Function: to regression test this product.
+			  currently there are no regression tests
+===================================================-->
+<target name="regTest"  >
+	
+	<!--
+	<java classname="${classname}" fork="true" >
+		<jvmarg    value = "-mx256m" />
+		<jvmarg    value = "-Djava.compiler=NONE" />
+		<arg       value = "-home" />
+		<arg	   value = "${testOp.dir}" />
+		<arg	   value = "-commands" />
+		<arg	   value = "${regTest.dir}${sep}${command_file}" />
+		<classpath refid = "classpathOp" />   
+	</java>	
+	-->
+	
+	<!-- run perl script to parse output and display results -->
+	<!--
+	<exec dir="${regTest.dir}" executable="perl" >
+		<arg value="parseOutput.pl" />
+	</exec>
+	-->
+	
+</target>
+
+	
+<!--===================================================
+	Target:   help
+	Function: prints out info on targets and properties
+====================================================-->
+<target name="help">
+	<echo>
+		------------- build.xml Help ---------------
+		VALID TARGETS:
+
+                compile      uses properies $src and $build
+
+		compileTest  compiles the test source
+                     code from $test to the
+                     $build/$test dir
+
+		test         runs the junit tests for
+                             this product.  uses 
+
+		clean        cleans the build directories
+                             using 
+
+		runDev       runs the application from the class files in
+					 build${sep}work
+		
+		runOp		 runs the application from the jar file in
+					 dist folder
+
+		javadoc      generates the javadocs using
+		             using $jdoc as dest dir and $src/$package
+		             as the source directory  
+
+		jar          jars class files into $jarfname    
+		             under $dist
+
+		help         shows this message
+
+		
+
+		PROPERTIES:
+
+            	Everything with a '$' sign is a property.
+            	To override a property use: -Dpropertyname=value
+            	Example: ant -Dsrc=C:/sandbox
+		
+	</echo>
+
+</target>
+
+
+</project>
+
+
