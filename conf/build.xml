@@ -93,7 +93,7 @@
 	
 	<!--================ Dependencies ==================-->
 	<property name="RTi_jar"	  
-			value="${ext.dir}${sep}RTi_Common${sep}RTi_142.jar" />
+			value="${ext.dir}${sep}RTi_Common${sep}RTi_Common_142.jar" />
 	
 	<!-- =========== Compiler Properties ===============-->
 	<property name="compiler" value="modern" />
@@ -352,46 +352,33 @@
 	Function: prints out info on targets and properties
 ====================================================-->
 <target name="help">
-	<echo>
-		------------- build.xml Help ---------------
-		VALID TARGETS:
+	
+<echo>
 
-                compile      uses properies $src and $build
+TARGET         FUNCTION
+===========================================================
+compile        compiles source code
 
-		compileTest  compiles the test source
-                     code from $test to the
-                     $build/$test dir
+compileTest    compiles the test source code
 
-		test         runs the junit tests for
-                             this product.  uses 
+test           runs the junit tests for this product
 
-		clean        cleans the build directories
-                             using 
+clean          removes the build directories
 
-		runDev       runs the application from the class files in
-					 build${sep}work
+runDev         runs the application using class files
 		
-		runOp		 runs the application from the jar file in
-					 dist folder
+runOp          runs the application from the dist jar file
 
-		javadoc      generates the javadocs using
-		             using $jdoc as dest dir and $src/$package
-		             as the source directory  
+javadoc        generates javadocs from source code
 
-		jar          jars class files into $jarfname    
-		             under $dist
-
-		help         shows this message
-
+jar            copies class files into a single jar file in dist    
 		
-
-		PROPERTIES:
-
-            	Everything with a '$' sign is a property.
-            	To override a property use: -Dpropertyname=value
-            	Example: ant -Dsrc=C:/sandbox
-		
-	</echo>
+install        creates the executable install file
+	
+help           shows the help for this build file
+===========================================================
+	
+</echo>
 
 </target>
 

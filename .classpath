@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="externals/RTi_Common/RTi_142.jar"/>
+	<classpathentry kind="lib" path="externals/RTi_Common/RTi_Common_142.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
