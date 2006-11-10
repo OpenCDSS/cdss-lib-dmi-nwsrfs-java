@@ -142,17 +142,9 @@
 ====================================================-->
 <target name="compile" >
 
-	<echo>
-********* COMPILING SOURCE ************
-	  destdir     : ${buildwork.dir}
-	  executable  : ${executable}
-	  compiler    : ${compiler}
-***************************************
-	</echo>
-
 	<mkdir dir="${buildwork.dir}" />
 	
-	<javac srcdir 		= "${src.dir}${sep}${package}"
+	<javac srcdir 		= "${src.dir}"
            destdir 		= "${buildwork.dir}"
 		   classpathref = "classpath"
            debug 		= "on"
@@ -171,15 +163,6 @@
 	Function: to compile the code under test/src
 ==========================================================-->
 <target name="compileTest" depends="compile">
-
-	<echo>
-********* COMPILING TEST ************
-	  srcdir      : ${test.dir}${sep}${package}
-	  destdir     : ${build.dir}${sep}test
-	  executable  : ${executable}
-	  compiler    : ${compiler}
-***************************************
-	</echo>
 
 	<mkdir dir="${build.dir}${sep}test" />
 	
@@ -260,13 +243,6 @@
 ====================================================-->
 <target name="javadoc">
 
-	<echo>
-********** Creating Javadocs **************
-   Destination:     ${jdoc.dir}
-   From Dir   :     ${src.dir}${sep}${package} 
-*******************************************
-	</echo>
-	
 	<!-- cleanup old javadocs -->
 	<delete dir="${jdoc.dir}" />
 
@@ -289,15 +265,6 @@
 =======================================================-->
 <target name="jar" depends="compile" >
     
-	<echo>
-********** Creating jar file *****************
-   Destination:    ${dist.dir}
-   source dir :    ${buildwork.dir}
-   jar filename:   ${jarfname}
-**********************************************
-	</echo>
-
-	
 	<copy todir="${buildwork.dir}" >
 		<fileset dir="graphics" />
 	</copy>
