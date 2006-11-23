@@ -77,6 +77,9 @@
 //					  of RandomAccessFile for the binary
 //					  files.  This allows for more
 //					  flexibility when reading.
+// 2006-11-22	SAM, RTi		Clean up the readTimeSeries() method to
+//					not be so convoluted.  Add more Javadoc
+//					to benefit other developers.
 //-----------------------------------------------------------------------------
 // EndHeader
 
@@ -10256,27 +10259,34 @@ must be of the form:
 If this is an NWSRFS TimeSeries implementation then the TSIDENT will have 
 one of the following forms:
 <pre>
-	TSID."NWRFS".DATATYPE.TIMESTEP.(OBS/FUT/BOTH).(NWSRFS_FS5Files/NWSRFS_ESPTraceEnsemble)
+	TSID."NWRFS".DATATYPE.TIMESTEP~NWSRFS_FS5Files
+	TSID."NWRFS".DATATYPE.TIMESTEP.BOTH~NWSRFS_FS5Files
+		-> Return all available data
+	TSID."NWRFS".DATATYPE.TIMESTEP.OBS~NWSRFS_FS5Files
+		-> Return only observed data
+	TSID."NWRFS".DATATYPE.TIMESTEP.FUT~NWSRFS_FS5Files
+		-> Return only future data
+	TSID."NWRFS".DATATYPE.TIMESTEP.FUT~NWSRFS_ESPTraceEnsemble
+		-> Avoid the above for now.  Use TSTool or use the
+		-> NWSRFS_ESPTraceEnsemble.readTimeSeries() method instead
 </pre>
-The scenario needs to be either OBS or FUT or BOTH where OBS returns just the 
-observed data, FUT will return the future data if any, and BOTH will concatenate 
-both observed and future data. If no scenario is specified it returns both. Also
-the INPUT_TYPE can be either NWSRFS_FS5Files or NWSRFS_ESPTraceEnsemble to delineate
-what kind of NWSRFS data is being opened. The DIRECTORY will describe where the
-input datafiles reside. If blank and INPUT_TYPE is NWSRFS_FS5Files then APPS_DEFAULTS
-will be used to get the directory where the binary database resides. If blank and
-INPUT_TYPE is NWSRFS_ESPTraceEnsemble then it will look in the current directory.
+If no scenario is specified it returns observed and future data.  Future data
+mainly apply to MAP and MAT time series.
+The DIRECTORY will describe where the input datafiles reside. If blank and
+INPUT_TYPE is NWSRFS_FS5Files then APPS_DEFAULTS will be used to get the
+directory where the binary database resides.  If blank and INPUT_TYPE is
+NWSRFS_ESPTraceEnsemble then it will look in the current directory.
 
 Some examples are as follows:
 <pre>
-	APP5M.NWSRFS.QINE.6Hour.OBS.NWSRFS_FS5Files  
-	PRLI.NWSRFS.SQME.1Hour.NWSRFS_FS5File~/projects/ipco/ofs/files/ipco/fs5files  
+   APP5M.NWSRFS.QINE.6Hour.OBS.NWSRFS_FS5Files  
+   PRLI.NWSRFS.SQME.1Hour.NWSRFS_FS5File~/projects/ipco/ofs/files/ipco/fs5files 
 </pre><p>
 Prints various debugging messages at Status level 10.
-@param req_date1 DateTime for the start of the query (specify 
+@param requested_date1 DateTime for the start of the query (specify 
 null to read the entire time series).  The time zone will be reset to "Z"
 (currently no automatic conversion from other time zones to "Z").
-@param req_date2 DateTime for the end of the query (specify 
+@param requested_date2 DateTime for the end of the query (specify 
 null to read the entire time series).  The time zone will be reset to "Z"
 (currently no automatic conversion from other time zones to "Z").
 @param req_units requested data units (specify null or blank string to 
@@ -10285,8 +10295,8 @@ return units from the database).
 only read header information).
 @exception if there is an error reading the time series.
 */
-public TS readTimeSeries(String tsident_string, DateTime req_date1,
-DateTime req_date2, String req_units, boolean read_data) 
+public TS readTimeSeries(String tsident_string, DateTime requested_date1,
+DateTime requested_date2, String req_units, boolean read_data) 
 throws Exception {
 	String routine = "NWSRFS_DMI.readTimeSeries";
 	int tsDTInterval = -1;
@@ -10302,23 +10312,24 @@ throws Exception {
 	// a copy of what was passed in so that we do not change the calling
 	// code.
 
-	// REVISIT SAM 2006-10-03
-	// It is bad to reuse an incoming parameter this way - need to change
-	// code throughout.
-	if ( req_date1 != null ) {
-		DateTime req_date1_temp = new DateTime ( req_date1 );
-		req_date1 = new DateTime ( req_date1_temp );
+	// Use a local copy of the DateTimes so that calling code is not
+	// impacted.
+
+	DateTime req_date1 = null;
+	DateTime req_date2 = null;
+	if ( requested_date1 != null ) {
+		req_date1 = new DateTime ( requested_date1 );
 		req_date1.setTimeZone("Z");
 	}
 	if ( req_date2 != null ) {
-		DateTime req_date2_temp = new DateTime ( req_date2 );
-		req_date2 = new DateTime ( req_date2_temp );
+		req_date2 = new DateTime ( requested_date2 );
 		req_date2.setTimeZone("Z");
 	}
 
 //Message.printStatus(10,routine,"TSIdent String = "+tsident_string);
 
-	// Get TSIdent info
+	// Get TSIdent parts to do the read.
+
 	TSIdent tsident = new TSIdent(tsident_string);
 	String dataLoc = tsident.getLocation();
 	String dataSource = tsident.getSource();
@@ -10328,6 +10339,9 @@ throws Exception {
 	String dataScenario = tsident.getScenario();
 	String inputType = tsident.getInputType();
 	String inputDir = tsident.getInputName();
+	// REVISIT SAM 2006-11-22
+	// If this method only reads one time series, then why is the wildcard
+	// even of interest?
 	if(!interval.equalsIgnoreCase("*")) {
 		timeInt = (TimeInterval.parseInterval(interval));
 		tsDTInterval = timeInt.getMultiplier();
@@ -10354,7 +10368,7 @@ throws Exception {
 			tsident.getInputName(), read_data);
 		// REVISIT (JTS - 2004-08-21)
 		// ts never instantiated above -- gonna get null pointers
-		// if this if() { is ever entered.
+		// if this if() {} is ever entered.
 		ts = new HourTS();
 		ts.setIdentifier(tsident);
 		ts.setInputName(inputDir);
@@ -10364,33 +10378,53 @@ throws Exception {
 	}
 	else if (inputType.equalsIgnoreCase("NWSRFS_FS5Files") ||
 		inputType.length() == 0) {
+		// Read the requested time series from the binary FS5 Files
+		// specified by the input directory...
 		NWSRFS_TimeSeries tsObject = null;
 		NWSRFS_TimeSeries tsObject2 = null;
 		TSIterator tsi = null;
-		// This is the NWSRFS TimeSeries implementation.
-		if (dataScenario == null || dataScenario.equalsIgnoreCase("")) {
+		if (	(dataScenario == null) ||
+			dataScenario.equalsIgnoreCase("")) {
+			// The requested time series identifier did not specify
+			// a scenario so treat as both below (return observed
+			// and future data).
 			dataScenario = "both";
 		}
 
-		// If this is a segment identifier
+		// Get the input directory to use for time series header
+		// information.
+
 		if(openedWithAppsDefaults()) {
 			inputDir = "";
 		}
 		else if (inputDir != null && inputDir.length() > 0 &&
 		    !inputDir.equalsIgnoreCase("Use Apps Defaults")) {
 			if(!inputDir.equalsIgnoreCase(getFS5FilesLocation())) {
-				throw new Exception("The Time Series: "+
-				tsident_string+" does not reside in the"+
+				// A set of FS5 Files is currently opened but
+				// does not match the request.  This should not
+				// normally be the case.
+				throw new Exception("The time series \""+
+				tsident_string + "\" does not reside in the"+
 				" opened FS5Files binary database: "+
 				getFS5FilesLocation());
 			}
 		}
-		else {
+		else {	// A valid FS5Files input directory has been
+			// specified...
 			inputDir = getFS5FilesLocation();
 		}
 		
-		// if this is a timeseries identifier ...
-		// Get the TimeSeries object.
+		// The datatype sub-type indicates whether data are raw (from
+		// the preprocessor database PPDB) or processed (from the
+		// processed database PDB).  Read a NWSRFS_TimeSeries from the
+		// appropriate database.  This will contain separate TS
+		// instances for observed and future data.
+
+		// REVISIT SAM 2006-11-22
+		// Not sure why it is done this way, but try to simplify a lot
+		// of the following code to clarify handling of observed and
+		// future data.  Need to further clean up when there is time.
+
 		if(subDataType.equalsIgnoreCase("PPDB")) {
 			tsObject = readTimeSeriesPDB(dataLoc, dataType, 
 				tsDTInterval, read_data);
@@ -10401,36 +10435,63 @@ throws Exception {
 				tsDTInterval, read_data);
 		}
 		
-		// If no TS data populate a default object
-		if(read_data && tsObject == null) {
+		// REVISIT SAM 2006-11-22
+		// Why not return null or throw an exception if nothing returned
+		// above?  Why only check if data are NOT to be read?
+
+		if ( !read_data ) {
+			// Only time series header information were requested.
+			if ( tsObject == null ) {
+				// Have no data so return null...
+				return null;
+			}
+			else {	// Have a time series so return the observed
+				// time series with its header...
+				return tsObject.getObservedTS();
+				// REVISIT SAM 2006-11-22
+				// The header should take into account the
+				// future data also.
+			}
+		}
+		else if ( tsObject == null) {
+			// Want to return a time series with data, but no data
+			// are available.  Populate a default object so that the
+			// following logic can continue and return the header
+			// information and missing data.
 			tsObject = new NWSRFS_TimeSeries(dataLoc, dataType,
 				tsDTInterval);
 		}
-		else if(!read_data && tsObject == null){
-//Message.printStatus(1,routine,"I am in readTimeSeries: !read_data and tsObject == null!");
-			return null;
-		}
-		else if(!read_data) {
-			return tsObject.getObservedTS();
-		}
+
+		// So if here the time series data are to be read (not just
+		// the header).
+
+		// Observed and future TS from the FS5Files, to be processed
+		// more below...
+		TS observedTS = tsObject.getObservedTS();
+		TS futureTS = null;	// Set below if MAP/FMAP
 
 		// KAT commented out 2006-10-3 
 		//Message.printStatus ( 2, routine,
 		//"After creating time series, date1 = ", tsObject.getDate1() +
 		//" date2 = " + tsObject.getDate2() );
 		
-		// if this TimeSeries is a MAP TS and 
-		// both observed and future data are desired 
-		// need to then get TS for the FMAP datatype
-		if (dataType.equalsIgnoreCase("MAP") 
-		    && dataScenario.equalsIgnoreCase("both") && read_data) {
-			// put tsObject into tsObject 
-			// future data
+		// If this time series has data type of MAP TS and both
+		// observed and future data are desired, then read the FMAP
+		// datatype.
+		// REVISIT SAM 2006-11-22
+		// Why does NWSRFS_TimeSeries have observed and future time
+		// series if we need to do two reads?
+
+		if ( dataType.equalsIgnoreCase("MAP") 
+		    && (dataScenario.equalsIgnoreCase("both") ||
+			dataScenario.equalsIgnoreCase("fut")) ) {
+			// Read the future MAP (FMAP)...
 			try {
 				tsObject2 = readTimeSeriesPRD(dataLoc,"FMAP",
 				new Integer(interval).intValue(),true);
 				tsObject.setIPTFUT(tsObject2.getIPTREG());
 				tsObject.setFutureTS(tsObject2.getObservedTS());
+				futureTS = tsObject.getFutureTS();
 			}
 			catch (Exception e) {
 				exceptionCount++;
@@ -10439,252 +10500,143 @@ throws Exception {
 			}
 		}
 
-		// If dataScenario is "BOTH" combine the observed and 
-		// future TS objects in the TimeSeries into one TS 
-		// object else Return one or the other. Note that 
-		// even if dataScenario is "BOTH" but there is no 
-		// future TS only the observed is returned with no 
-		// attempt to combine.
-		if (dataScenario.equalsIgnoreCase("both") 
-			&& tsObject.getIPTFUT() > 0 && read_data) {
-			// Create the TS object as an HourTS
-			ts = new HourTS();
+		// Create an hourly time series to be returned and initialize
+		// basic information...
 
-			// Set data type in TS object
-			ts.setDataType(dataType);
-//			tsident.setInputType("NWSRFS_FS5Files");
-			ts.setInputName("\""+getFS5FilesLocation()+":"+
-				__dbFileNames[tsObject.getPrdIndex()]+"\"");
-//			tsident.setInputName(inputDir);
-			
-			ts.setIdentifier(tsident_string);
+		ts = new HourTS();
+		// Set data type in TS object
+		ts.setDataType(dataType);
+		// REVISIT SAM 2006-11-22
+		// Need to remove or use...
+		//tsident.setInputType("NWSRFS_FS5Files");
+		ts.setInputName("\""+getFS5FilesLocation()+":"+
+			__dbFileNames[tsObject.getPrdIndex()]+"\"");
+		// REVISIT SAM 2006-11-22
+		// Need to remove or use...
+		//tsident.setInputName(inputDir);
+		// Set from the original request...
+		ts.setIdentifier(tsident_string);
+		// Get information from one of these time series...
+		if ( observedTS != null ) {
+			ts.setDataUnits ( observedTS.getDataUnits() );
+			ts.setDataInterval( observedTS.getDataIntervalBase(),
+				observedTS.getDataIntervalMult());
+			ts.setDescription(observedTS.getDescription());
+			ts.addToComments ( observedTS.getComments() );
+		}
+		else if ( futureTS != null ) {
+			ts.setDataUnits ( futureTS.getDataUnits() );
+			ts.setDataUnits ( futureTS.getDataUnits() );
+			ts.setDataInterval( futureTS.getDataIntervalBase(),
+				futureTS.getDataIntervalMult());
+			ts.setDescription(futureTS.getDescription());
+		}
+		// Always append this if available...
+		if ( futureTS != null ) {
+			ts.addToComments ( futureTS.getComments() );
+		}
 
-			// Now check dates and add to TS object
-			if (req_date1 != null && req_date2 != null) {
-				ts.setDate1(req_date1);
-				ts.setDate2(req_date2);
-			}
-			else if (req_date1 != null) {
-				ts.setDate1(req_date1);
-				if (tsObject.getFutureTS() != null) {
-					ts.setDate2(tsObject.getFutureTS()
-						.getDate2());
-				}
-				else if (tsObject.getObservedTS() 
-					!= null) {
-					ts.setDate2(tsObject.getObservedTS()
-						.getDate2());
-				}
-				else {
-					throw new Exception(
-						"The Observed and "
-						+ "Future TimeSeries "
-						+ "were empty.");
-				}
-			}
-			else if (req_date2 != null) {
-			ts.setDate2(req_date2);
-				if (tsObject.getObservedTS() != null) {
-					ts.setDate1(tsObject.getObservedTS()
-						.getDate1());
-				}
-				else if (tsObject.getFutureTS() 
-					!= null) {
-					ts.setDate1(tsObject.getFutureTS()
-						.getDate1());
-				}
-				else {
-					throw new Exception(
-						"The Observed and "
-						+ "Future TimeSeries "
-						+ "were empty.");
-				}
-			}
-			else {
-				if (tsObject.getObservedTS() != null 
-					&& tsObject.getFutureTS() 
-					!= null) {
-					ts.setDate1(tsObject.getObservedTS()
-						.getDate1());
-					ts.setDate2(tsObject.getFutureTS()
-						.getDate2());
-				}
-				else if (tsObject.getObservedTS() 
-					!= null) {
-					ts.setDate1(tsObject.getObservedTS()
-						.getDate1());
-					ts.setDate2(tsObject.getObservedTS()
-						.getDate2());
-				}
-				else if (tsObject.getFutureTS() 
-					!= null) {
-					ts.setDate1(tsObject.getFutureTS()
-						.getDate1());
-					ts.setDate2(tsObject.getFutureTS()
-						.getDate2());
-				}
-				else {
-					throw new Exception(
-						"The Observed and "
-						+ "Future TimeSeries "
-						+ "were empty.");
-				}
-			}
+		// The observed time series was needed for header information
+		// above but don't need it anymore if it was not requested.  Set
+		// it to null so that it is not processed below.
+		// REVISIT SAM 2006-11-22
+		// Need to get the header information for above, considering
+		// observed and future, not just observed.
+		
+		if (	!dataScenario.equalsIgnoreCase("both") &&
+			!dataScenario.equalsIgnoreCase("obs") ) {
+			observedTS = null;
+		}
 
-			// Set other TS object values	
-			if (tsObject.getObservedTS() != null) {
-				ts.setDataInterval(tsObject.getObservedTS()
-					.getDataIntervalBase(),
-					tsObject.getObservedTS()
-					.getDataIntervalMult());
-				ts.setDescription(tsObject.getObservedTS()
-					.getDescription());
-				for (int i = 0;
-					i < ((Vector)tsObject
-					.getObservedTS().getComments()).size();
-					i++) {
-					ts.addToComments((String)
-						((Vector)
-						tsObject.getObservedTS()
-						.getComments()).elementAt(i));
-				}
-			}
-			else if (tsObject.getFutureTS() != null) {
-				ts.setDataInterval(tsObject.getFutureTS()
-					.getDataIntervalBase(),
-					tsObject.getFutureTS()
-					.getDataIntervalMult());
-				ts.setDescription(tsObject.getFutureTS()
-					.getDescription());
-				for (int i = 0;
-					i < ((Vector)tsObject
-					.getFutureTS().getComments()).size();
-					i++) {
-					ts.addToComments((String)
-						((Vector)
-						tsObject.getFutureTS()
-						.getComments()).elementAt(i));
-				}
-			}
-			else {
-				throw new Exception("The Observed and "
-					+ "Future TimeSeries were empty.");
-			}
+		// Set the DateTimes for the time series, based on the available
+		// data and requested DateTimes.  Set the original DateTimes in
+		// the time series to that available in the FS5Files and the
+		// normal DateTimes to what is requested (if specified).  The
+		// longest period of observed and future data are used, when
+		// both are read.
 
-			// Check units and add to TS object
-			if (tsObject.getObservedTS() != null) {
-				ts.setDataUnits((String)tsObject
-					.getObservedTS().getDataUnits());
+		DateTime d1 = null;	// For transfer
+		DateTime d2 = null;
+		if ( observedTS != null ) {
+			// Are supposed to be processing observed data...
+			d1 = observedTS.getDate1();
+			if ( d1 != null ) {
+				ts.setDate1Original(d1);
 			}
-			else if (tsObject.getFutureTS() != null) {
-				ts.setDataUnits((String)tsObject
-					.getFutureTS().getDataUnits());
+			d2 = observedTS.getDate2();
+			if ( d2 != null ) {
+				ts.setDate2Original(d2);
 			}
-			else {
-				throw new Exception("The Observed and "+
-				"Future TimeSeries were empty.");
+		}
+		if ( futureTS != null ) {
+			// Are supposed to be processing future data...
+			d1 = futureTS.getDate1();
+			if ( (d1 != null) &&d1.lessThan(ts.getDate1Original())){
+				ts.setDate1Original(d1);
 			}
-
-			// Allocate data space
-			ts.allocateDataSpace();
-
-			// Iterate through the Observed TimeSeries 
-			// and insert into the new HourTS object
-			if (tsObject.getObservedTS() != null) {
-				tsi = tsObject.getObservedTS().iterator();
-
-				while (tsi.next() != null) {
-					ts.setDataValue(tsi.getDate(),
-						tsi.getDataValue());
-				}
+			d2 = futureTS.getDate2();
+			if((d2 != null)&&d2.greaterThan(ts.getDate2Original())){
+				ts.setDate2Original(d2);
 			}
+		}
 
-			// Iterate through the Future TimeSeries 
-			// and insert into the new HourTS object
-			if (tsObject.getFutureTS() != null) {
+		// Now have the original dates from the data.  Set the active
+		// dates for memory allocation by defaulting to the original
+		// dates overridden by the user request...
+
+		if ( requested_date1 != null ) {
+			ts.setDate1 ( requested_date1 );
+		}
+		else {	ts.setDate1 ( ts.getDate1Original() );
+		}
+		if ( requested_date2 != null ) {
+			ts.setDate2 ( requested_date2 );
+		}
+		else {	ts.setDate2 ( ts.getDate2Original() );
+		}
+
+		// Allocate data space using the DateTimes...
+
+		ts.allocateDataSpace();
+
+		// Iterate through the observed time series and insert data
+		// values into the time series to be returned.  For now iterate
+		// through all the data (there won't be much) and allow data
+		// outside the period to be ignored)...
+
+		if ( observedTS != null ) {
+			tsi = observedTS.iterator();
+
+			while (tsi.next() != null) {
+				ts.setDataValue(tsi.getDate(),
+					tsi.getDataValue());
+			}
+		}
+
+		// Iterate through the future time series and insert data values
+		// into the time series to be returned.  Start iterating using
+		// the last date in the observed time series, if it is
+		// available, because the observed data are more relevant.
+
+		if ( futureTS != null ) {
+			d1 = observedTS.getDate2();
+			if ( d1 == null ) {
+				// Just iterate through all future data...
 				tsi = tsObject.getFutureTS().iterator();
-
-				while (tsi.next() != null) {
-					ts.setDataValue(tsi.getDate(),
-						tsi.getDataValue());
-				}
 			}
-		}
-		else if (((dataScenario.equalsIgnoreCase("both") 
-			&& tsObject.getIPTFUT() <= 0) 
-			|| dataScenario.equalsIgnoreCase("obs")) && read_data) {
-			// Now check dates
-			if (req_date1 != null && req_date2 != null) {
-				tsObject.getObservedTS().setDate1(req_date1);
-				tsObject.getObservedTS().setDate2(req_date2);
-			}
-			else if (req_date1 != null) {
-				tsObject.getObservedTS().setDate1(req_date1);
-			}
-			else if (req_date2 != null) {
-				tsObject.getObservedTS().setDate2(req_date2);
+			else {	// Iterate from the next date after observed
+				// data, to the end of future data...
+				d1.addInterval (
+					observedTS.getDataIntervalBase(),
+					observedTS.getDataIntervalMult() );
+				tsi = tsObject.getFutureTS().iterator(
+					d1, futureTS.getDate2());
 			}
 
-			// Now do the copy constructor to insert 
-			// the TimeSeries for output.
-			try {
-				ts = (HourTS)(tsObject.getObservedTS());
-				
-				// Set data type in TS object
-				ts.setDataType(dataType);
-//				tsident.setInputType("NWSRFS_FS5Files");
-				ts.setInputName("\""+getFS5FilesLocation()+":"+
-				__dbFileNames[tsObject.getPrdIndex()]+"\"");
-//				tsident.setInputName(inputDir);
-				ts.setIdentifier(tsident_string);
-				ts.setDataUnits((String)tsObject
-					.getObservedTS().getDataUnits());
+			while (tsi.next() != null) {
+				ts.setDataValue(tsi.getDate(),
+					tsi.getDataValue());
 			}
-			catch (NullPointerException NPe) {
-				exceptionCount++;
-				Message.printWarning(10, routine,
-					"getObservedTS() was null.");
-			}
-		}
-		else if (dataScenario.equalsIgnoreCase("fut") && read_data) {
-			// Now check dates
-			if (req_date1 != null && req_date2 != null) {
-				tsObject.getFutureTS().setDate1(req_date1);
-				tsObject.getFutureTS().setDate2(req_date2);
-			}
-			else if (req_date1 != null) {
-				tsObject.getFutureTS().setDate1(req_date1);
-			}
-			else if (req_date2 != null) {
-				tsObject.getFutureTS().setDate2(req_date2);
-			}
-
-			// Now do the copy constructor to insert 
-			// the TimeSeries for output.
-			try {
-				ts = (HourTS)tsObject.getFutureTS();
-				
-				// Set data type in TS object
-				ts.setDataType(dataType);
-//				tsident.setInputType("NWSRFS_FS5Files");
-				ts.setInputName("\""+getFS5FilesLocation()+":"+
-					__dbFileNames[tsObject.getPrdIndex()]+"\"");
-//				tsident.setInputName(inputDir);
-				ts.setIdentifier(tsident_string);
-				ts.setDataUnits((String)tsObject
-					.getFutureTS().getDataUnits());
-			}
-			catch (NullPointerException NPe) {
-				exceptionCount++;
-				Message.printWarning(10, routine,
-					"getFutureTS() was null.");
-			}
-		}
-		else if(read_data) {
-			Message.printWarning(10, routine,
-				"Incorrect TSIdent value "
-				+ "for Scenario. It needs to be one "
-				+ "of: OBS, FUT, or BOTH.");
 		}
 	}
 	else {
@@ -10695,14 +10647,13 @@ throws Exception {
 	}
 	
 	// Check to see if the TS has data! If not through an error.
-	if(read_data && ts.getDataSize() <= 0 ) {
-		throw new Exception("The requested Time Series: "+
-		tsident_string+" had no data!");
+	if ( read_data && ts.getDataSize() <= 0 ) {
+		throw new Exception("The requested time series \""+
+		tsident_string + "\" had no data!");
 	}
 	
 	// Convert Units to requested type
-	if(req_units != null && ts != null &&
-	ts.getDataSize() > 0) {
+	if ( req_units != null && ts != null && ts.getDataSize() > 0) {
 		TSUtil.convertUnits(ts,req_units);
 	}
 	
