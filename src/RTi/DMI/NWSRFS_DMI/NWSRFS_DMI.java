@@ -146,6 +146,8 @@ import RTi.Util.Time.DateTime;
 import RTi.Util.Time.StopWatch;
 import RTi.Util.Time.TimeInterval;
 
+import RTi.GRTS.TSGraph;
+
 /**
 The NWSRFS_DMI class interacts with the NWSRFS Fortran database. This class also
 opens several "index" files from the Forecast Component (FC) and Preprocessor 
@@ -10321,7 +10323,7 @@ throws Exception {
 		req_date1 = new DateTime ( requested_date1 );
 		req_date1.setTimeZone("Z");
 	}
-	if ( req_date2 != null ) {
+	if ( requested_date2 != null ) {
 		req_date2 = new DateTime ( requested_date2 );
 		req_date2.setTimeZone("Z");
 	}
@@ -10563,7 +10565,7 @@ throws Exception {
 			if ( d1 != null ) {
 				ts.setDate1Original(d1);
 			}
-			d2 = observedTS.getDate2();
+			d2 = observedTS.getDate2();	
 			if ( d2 != null ) {
 				ts.setDate2Original(d2);
 			}
@@ -10583,14 +10585,17 @@ throws Exception {
 		// Now have the original dates from the data.  Set the active
 		// dates for memory allocation by defaulting to the original
 		// dates overridden by the user request...
-
-		if ( requested_date1 != null ) {
-			ts.setDate1 ( requested_date1 );
+		if ( req_date1 != null ) {
+			DateTime req_date1_nearest = new DateTime(
+					TSGraph.getNearestDateTimeLessThanOrEqualTo(req_date1, observedTS));
+			ts.setDate1 ( req_date1_nearest );
 		}
 		else {	ts.setDate1 ( ts.getDate1Original() );
 		}
-		if ( requested_date2 != null ) {
-			ts.setDate2 ( requested_date2 );
+		if ( req_date2 != null ) {
+			DateTime req_date2_nearest = new DateTime(
+					TSGraph.getNearestDateTimeLessThanOrEqualTo(req_date2, observedTS));
+			ts.setDate2 ( req_date2_nearest );
 		}
 		else {	ts.setDate2 ( ts.getDate2Original() );
 		}
