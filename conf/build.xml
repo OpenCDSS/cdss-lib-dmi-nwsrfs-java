@@ -36,7 +36,7 @@
 		</and>
 	</condition>
 	
-	<condition property="executable" value="I:\develop\jdk_142\bin\javac">
+	<condition property="executable" value="S:\develop\jdk_142\bin\javac">
 		<and>
 		       	<os family="windows" />
 		</and>
@@ -49,7 +49,7 @@
 		</and>
 	</condition>
 		
-	<condition property="jhome" value="I:\develop\jdk_142\bin\javac">
+	<condition property="jhome" value="S:\develop\jdk_142\bin\javac">
 		<and>
 			    <os family="windows" />
 		</and>
@@ -62,7 +62,7 @@
 		</and>
 	</condition>
 			
-	<condition property="jvm" value="I:\DEVELOP\jre_142">
+	<condition property="jvm" value="S:\DEVELOP\jre_142">
 		<and>
 				<os family="windows" />
 		</and>
@@ -84,7 +84,7 @@
 	<property name="package"     	 value="RTi${sep}DMI${sep}NWSRFS_DMI" />
 	<property name="nsis.dir"		 location="NSIS" />
 	<property name="executable"  	 
-		location="I:${sep}develop${sep}jdk_142${sep}bin${sep}javac" />
+		location="S:${sep}develop${sep}jdk_142${sep}bin${sep}javac" />
 	<property name="classname"   	 value="" />
 	<property name="testSuite"  	 value="RTi.DMI.NWSRFS_DMI.testSuite" />
 	<property name="jarfname"    	 value="NWSRFS_DMI_142.jar" />
