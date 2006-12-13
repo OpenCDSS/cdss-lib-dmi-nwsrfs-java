@@ -8825,7 +8825,8 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	int startObsJul = tsFile.getJULBEG();
 
 	if (tsFile.getIPTFUT() == 0) {
-		// If true no future data ...
+		// No future data so read observed data...
+		Message.printStatus( 2, routine, "No future data are available.");
 		endObsJul = startObsJul + (int)tsFile.getNTSNUM()
 			* (int)tsFile.getIDTINT();
 
@@ -8843,6 +8844,9 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		dtTempEnd.setTimeZone("Z");
 		tsFile.getObservedTS().setDate2(dtTempEnd);
 		tsFile.getObservedTS().setDate2Original(dtTempEnd);
+		Message.printStatus (2,routine,"Observed start=" + dtTempStart);
+		Message.printStatus (2,routine,"Observed end=" + dtTempEnd);
+		
 
 		// Set identifier string
 		tsident_string = tsFile.getTSID()+".NWSRFS."+
@@ -8877,6 +8881,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 			__fs5FilesLocation.length()-1)+"\"");
 	}
 	else {
+		Message.printStatus( 2, routine, "Future data are available.");
 		endObsJul = startObsJul + ((int)tsFile.getIPTFUT()
 			- (int)tsFile.getIPTREG() - 1) 
 			* (int)tsFile.getIDTINT();
@@ -8936,6 +8941,8 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		dtTempEnd = NWSRFS_Util.getDateFromJulianHour1900(endFutJul);
 		dtTempEnd.setTimeZone("Z");
 		tsFile.getFutureTS().setDate2(dtTempEnd);
+		Message.printStatus (2,routine,"Future start=" + dtTempStart);
+		Message.printStatus (2,routine,"Future end=" + dtTempEnd);
 		tsFile.getFutureTS().allocateDataSpace();
 		tsFile.getFutureTS().setDataInterval(TimeInterval.HOUR, 
 			(int)tsFile.getIDTINT());
@@ -8954,7 +8961,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 			__fs5FilesLocation.length()-1)+"\"");
 	}
 	
-	// Just checking to see if data exisit do not read Data
+	// Just checking to see if data exist do not read Data
 	if(!readData) 
 	{
 		EDIS.close();
@@ -10361,8 +10368,8 @@ throws Exception {
 		+ "\n          scenario   = " + dataScenario
 		+ "\n          input type = " + inputType
 		+ "\n          input Dir  = " + inputDir + "\n");
-	Message.printStatus(10, routine, "Start Date: " + req_date1 + "\n");
-	Message.printStatus(10, routine, "End Date: " + req_date2 + "\n");
+	Message.printStatus(2, routine, "Requested start Date: " + req_date1 + "\n");
+	Message.printStatus(2, routine, "Requested end Date: " + req_date2 + "\n");
 	Message.printStatus(10, routine, "Units: " + req_units + "\n");
 
 	if (inputType.equalsIgnoreCase("NWSRFS_ESPTraceEnsemble")) {
@@ -10463,6 +10470,7 @@ throws Exception {
 			tsObject = new NWSRFS_TimeSeries(dataLoc, dataType,
 				tsDTInterval);
 		}
+		
 
 		// So if here the time series data are to be read (not just
 		// the header).
@@ -10470,7 +10478,21 @@ throws Exception {
 		// Observed and future TS from the FS5Files, to be processed
 		// more below...
 		TS observedTS = tsObject.getObservedTS();
-		TS futureTS = null;	// Set below if MAP/FMAP
+		Message.printStatus(2, routine, "From DB observed start Date: " + observedTS.getDate1());
+		Message.printStatus(2, routine, "From DB observed end Date: " + observedTS.getDate2());
+		// Time series other than MAP have observed and future data in a linear array.
+		// However the code called above will split the data into observed and future
+		// time series so we need to reassemble the data.  If the data type is MAP,
+		// then an additional read will be done below for future data.
+		
+		TS futureTS = tsObject.getFutureTS();
+		
+		if ( futureTS != null ) {
+			Message.printStatus(2, routine, "After first read, DB future start Date: " + futureTS.getDate1());
+			Message.printStatus(2, routine, "After first read, DB future end Date: " + futureTS.getDate2());
+		}
+		else {	Message.printStatus ( 2, routine, "No future data so no future dates.");
+		}
 
 		// KAT commented out 2006-10-3 
 		//Message.printStatus ( 2, routine,
@@ -10487,7 +10509,12 @@ throws Exception {
 		if ( dataType.equalsIgnoreCase("MAP") 
 		    && (dataScenario.equalsIgnoreCase("both") ||
 			dataScenario.equalsIgnoreCase("fut")) ) {
-			// Read the future MAP (FMAP)...
+			// Read the future MAP (FMAP).
+			// REVISIT SAM 2006-12-12
+			// FMAP time series are returned below as observed and
+			// then set in the future time series.  This is confusing
+			// and needs to be corrected.
+			Message.printStatus( 2, routine, "Reading FMAP for " + dataLoc );
 			try {
 				tsObject2 = readTimeSeriesPRD(dataLoc,"FMAP",
 				new Integer(interval).intValue(),true);
@@ -10500,8 +10527,14 @@ throws Exception {
 				// REVISIT (JTS - 2004-08-18)
 				// do something here?
 			}
+			if ( futureTS != null ) {
+				Message.printStatus(2, routine, "After FMAP read, future start Date: " + futureTS.getDate1());
+				Message.printStatus(2, routine, "After FMAP read, future end Date: " + futureTS.getDate2());
+			}
+			else {	Message.printStatus ( 2, routine, "No future data so no future dates.");
+			}
 		}
-
+		
 		// Create an hourly time series to be returned and initialize
 		// basic information...
 
@@ -10560,7 +10593,7 @@ throws Exception {
 		DateTime d1 = null;	// For transfer
 		DateTime d2 = null;
 		if ( observedTS != null ) {
-			// Are supposed to be processing observed data...
+			// Transfer observed data into returned time series...
 			d1 = observedTS.getDate1();
 			if ( d1 != null ) {
 				ts.setDate1Original(d1);
@@ -10571,7 +10604,7 @@ throws Exception {
 			}
 		}
 		if ( futureTS != null ) {
-			// Are supposed to be processing future data...
+			// Transfer future data into returned time series...
 			d1 = futureTS.getDate1();
 			if ( (d1 != null) &&d1.lessThan(ts.getDate1Original())){
 				ts.setDate1Original(d1);
@@ -10603,13 +10636,16 @@ throws Exception {
 		// Allocate data space using the DateTimes...
 
 		ts.allocateDataSpace();
+		Message.printStatus(2, routine, "Returned TS start Date: " + ts.getDate1());
+		Message.printStatus(2, routine, "Returned TS end Date: " + ts.getDate2());
 
 		// Iterate through the observed time series and insert data
 		// values into the time series to be returned.  For now iterate
 		// through all the data (there won't be much) and allow data
 		// outside the period to be ignored)...
 
-		if ( observedTS != null ) {
+		if ( (observedTS != null) && (observedTS.getDate1() != null) && 
+				(observedTS.getDate2() != null) ) {
 			tsi = observedTS.iterator();
 
 			while (tsi.next() != null) {
@@ -10623,7 +10659,8 @@ throws Exception {
 		// the last date in the observed time series, if it is
 		// available, because the observed data are more relevant.
 
-		if ( futureTS != null ) {
+		if ( (futureTS != null) && (futureTS.getDate1() != null) &&
+				(futureTS.getDate2() != null) ) {
 			d1 = observedTS.getDate2();
 			if ( d1 == null ) {
 				// Just iterate through all future data...
