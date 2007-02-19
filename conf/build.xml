@@ -88,6 +88,7 @@
 	<property name="classname"   	 value="" />
 	<property name="testSuite"  	 value="RTi.DMI.NWSRFS_DMI.testSuite" />
 	<property name="jarfname"    	 value="NWSRFS_DMI_142.jar" />
+	<property name="extjarfname"     value="NWSRFS_DMI_142_Extended.jar" />
 	<property name="regTest.dir"	 location="test${sep}regression${sep}src" />
 	<property name="command_file"    value="Regression.NWSRFS_DMI" />
 	
@@ -269,6 +270,9 @@
 		<fileset dir="graphics" />
 	</copy>
 	
+	<delete 
+	file="${buildwork.dir}${sep}RTi/DMI/NWSRFS_DMI/NWSRFS_ESPTraceEnsemble.class" />
+	
     <mkdir dir="${dist.dir}"/>
     <jar jarfile="${dist.dir}${sep}${jarfname}" basedir="${buildwork.dir}" >
 	<manifest >
@@ -279,6 +283,31 @@
 		<attribute name="Web"       value="http://www.riverside.com"/>
 		<attribute name="BuildDate" value="${jarDate}"/>
         <attribute name="Contents"  value="Contains NWSRFS_DMI Classes"/>
+      </manifest>
+
+    </jar>
+
+</target>
+	
+<!--=====================================================
+	Target: jar 
+=======================================================-->
+<target name="Extended_jar" depends="compile" >
+    
+	<copy todir="${buildwork.dir}" >
+		<fileset dir="graphics" />
+	</copy>
+	
+    <mkdir dir="${dist.dir}"/>
+    <jar jarfile="${dist.dir}${sep}${extjarfname}" basedir="${buildwork.dir}" >
+	<manifest >
+    	<attribute name="Author"    value="Riverside Technology, inc. (RTi)"/>
+      	<attribute name="Address1"  value="2290 E. Prospect Road, Suite 1"/>
+      	<attribute name="Address2"  value="Fort Collins, CO 80525"/>
+        <attribute name="Phone"     value="970-484-7573"/>
+		<attribute name="Web"       value="http://www.riverside.com"/>
+		<attribute name="BuildDate" value="${jarDate}"/>
+        <attribute name="Contents"  value="Contains NWSRFS_DMI Extended Classes"/>
       </manifest>
 
     </jar>
