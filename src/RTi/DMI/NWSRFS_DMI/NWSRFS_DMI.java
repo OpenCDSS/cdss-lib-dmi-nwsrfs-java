@@ -10390,7 +10390,6 @@ throws Exception {
 		// Read the requested time series from the binary FS5 Files
 		// specified by the input directory...
 		NWSRFS_TimeSeries tsObject = null;
-		NWSRFS_TimeSeries tsObject2 = null;
 		TSIterator tsi = null;
 		if (	(dataScenario == null) ||
 			dataScenario.equalsIgnoreCase("")) {
@@ -10512,26 +10511,54 @@ throws Exception {
 			// Read the future MAP (FMAP).
 			// REVISIT SAM 2006-12-12
 			// FMAP time series are returned below as observed and
-			// then set in the future time series.  This is confusing
-			// and needs to be corrected.
-			Message.printStatus( 2, routine, "Reading FMAP for " + dataLoc );
+			// then set in the future time series.  This is
+			// confusing and needs to be corrected.
+			Message.printStatus( 2, routine,
+			"Requested time series is MAP so read FMAP for " +
+			dataLoc );
 			try {
+				NWSRFS_TimeSeries tsObject2 = 
 				tsObject2 = readTimeSeriesPRD(dataLoc,"FMAP",
-				new Integer(interval).intValue(),true);
+					tsDTInterval,true);
+				if ( tsObject2 == null ) {
+					Message.printStatus(2, routine,
+					"No FMAP time series available for "+
+					dataLoc + " FMAP " + tsDTInterval );
+				}
+				else {	// Use the data...
 				tsObject.setIPTFUT(tsObject2.getIPTREG());
 				tsObject.setFutureTS(tsObject2.getObservedTS());
 				futureTS = tsObject.getFutureTS();
+				// For troubleshooting/understanding code...
+				TS obsts2 = tsObject.getObservedTS();
+				if ( obsts2 != null ) {
+					Message.printStatus(2, routine,
+					"After FMAP read, observed start Date: "
+					+ obsts2.getDate1());
+					Message.printStatus(2, routine,
+					"After FMAP read, observed end Date: " +
+					obsts2.getDate2());
+				}
+				}
 			}
 			catch (Exception e) {
+				Message.printWarning ( 2, routine,
+				"Error reading FMAP (no future data will be " +
+				"processed): " );
+				Message.printWarning ( 2, routine, e );
 				exceptionCount++;
-				// REVISIT (JTS - 2004-08-18)
-				// do something here?
+				futureTS = null;
 			}
 			if ( futureTS != null ) {
-				Message.printStatus(2, routine, "After FMAP read, future start Date: " + futureTS.getDate1());
-				Message.printStatus(2, routine, "After FMAP read, future end Date: " + futureTS.getDate2());
+				Message.printStatus(2, routine,
+				"After FMAP read, future start Date: " +
+				futureTS.getDate1());
+				Message.printStatus(2, routine,
+				"After FMAP read, future end Date: " +
+				futureTS.getDate2());
 			}
-			else {	Message.printStatus ( 2, routine, "No future data so no future dates.");
+			else {	Message.printStatus ( 2, routine,
+				"No future data so no future dates.");
 			}
 		}
 		

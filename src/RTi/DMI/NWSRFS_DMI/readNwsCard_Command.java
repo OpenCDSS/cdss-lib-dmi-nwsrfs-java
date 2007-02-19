@@ -14,6 +14,8 @@
 // 2006-01-04	JTS, RTi		Corrected many problems after review by
 //					SAM.
 // 2006-01-18	JTS, RTi		Moved from RTi.TS package.
+// 2007-02-16	SAM, RTi		Use new CommandProcessor interface.
+//					Clean up code based on Eclipse feedback.
 //------------------------------------------------------------------------------
 
 package RTi.DMI.NWSRFS_DMI;
@@ -330,7 +332,6 @@ throws InvalidCommandSyntaxException, InvalidCommandParameterException {
 	// if no = is found, then this is the old format of parsing (see
 	// above).
 	if (index < 0) {
-		String routine = "TSEngine.do_readNwsCard";
 		// Reparse to strip quotes from file name...
 		Vector tokens = StringUtil.breakStringList ( command, "=(,)",
 				StringUtil.DELIM_ALLOW_STRINGS);
@@ -467,8 +468,9 @@ throws InvalidCommandParameterException,
 	// Get the command properties not already stored as members.
 	String InputFile = _parameters.getValue("InputFile");
 	String NewUnits = _parameters.getValue("NewUnits");
-	String InputStart = _parameters.getValue("InputStart");
-	String InputEnd = _parameters.getValue("InputEnd");
+	// TODO SAM 2007-02-18 Need to enable InputStart and InputEnd handling.
+	//String InputStart = _parameters.getValue("InputStart");
+	//String InputEnd = _parameters.getValue("InputEnd");
 	String Read24HourAsDay = _parameters.getValue("Read24HourAsDay");
 	String Alias = _parameters.getValue("Alias");
 
@@ -497,7 +499,6 @@ throws InvalidCommandParameterException,
 			props);			// whether to read 24 hour 
 						// as day.
 			
-
 		if ( TSList != null ) {
 			TSCount = TSList.size();
 			message = "Read \"" + TSCount
@@ -526,20 +527,32 @@ throws InvalidCommandParameterException,
 	if ( TSList != null && TSCount > 0 ) {
 		// Get the list of time series currently in the command
 		// processor.
-		Vector TSResultsList = (Vector)
-			_processor.getPropContents ( "TSResultsList" );
-		if ( TSResultsList == null ) {
+		Vector TSResultsList_Vector = null;
+		try { Object o = _processor.getPropContents( "TSResultsList" );
+				TSResultsList_Vector = (Vector)o;
+		}
+		catch ( Exception e ){
+			message = "Cannot get time series list to add new time series.  Creating new list.";
+			Message.printDebug ( 10,routine,message);
+		}
+		if ( TSResultsList_Vector == null ) {
 			// Not a warning because this can be the first command.
-			TSResultsList = new Vector();
+			TSResultsList_Vector = new Vector();
 		}
-
+		// Add to the time series...
 		for ( int i=0; i<TSCount; i++ ) {
-			TSResultsList.addElement ( TSList.elementAt(i) );
+			TSResultsList_Vector.addElement ( TSList.elementAt(i) );
 		}
-
-		// Reset the time series list in the processor.
-		_processor.setPropContents ( "TSResultsList", TSResultsList );
-
+		// Now set back in the processor...
+		try {	_processor.setPropContents ( "TSResultsList", TSResultsList_Vector );
+		}
+		catch ( Exception e ){
+			message = "Cannot set updated time series list.  Skipping.";
+			Message.printWarning ( warning_level,
+				MessageUtil.formatMessageTag(
+				command_tag, ++warning_count),
+				routine,message);
+		}
 	} 
 	else {
 		message = "Read zero time series from the NWS Card file \"" 
