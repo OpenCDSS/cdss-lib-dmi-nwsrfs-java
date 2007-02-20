@@ -11,20 +11,16 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.io.File;
-
 import java.util.Vector;
 
 import javax.swing.JFrame;
-
-import RTi.TS.TS;
-import RTi.TS.TSCommandProcessor;
 
 import RTi.Util.Message.Message;
 import RTi.Util.Message.MessageUtil;
 
 import RTi.Util.IO.Command;
 import RTi.Util.IO.CommandException;
+import RTi.Util.IO.CommandProcessorRequestResultsBean;
 import RTi.Util.IO.CommandWarningException;
 import RTi.Util.IO.InvalidCommandParameterException;
 import RTi.Util.IO.InvalidCommandSyntaxException;
@@ -34,8 +30,6 @@ import RTi.Util.IO.PropList;
 import RTi.Util.IO.SkeletonCommand;
 
 import RTi.Util.String.StringUtil;
-
-import RTi.Util.Time.DateTime;
 
 /**
 <p>
@@ -80,22 +74,26 @@ throws InvalidCommandParameterException {
 	
 	// Get the property values. 
 	String OutputFile = parameters.getValue("OutputFile");
-	String CarryoverGroup = parameters.getValue("CarryoverGroup");
-	String ForecastGroup = parameters.getValue("ForecastGroup");
-	String Segment = parameters.getValue("Segment");
-	String SegmentDescription = parameters.getValue("SegmentDescription");
-	String Latitude = parameters.getValue("Latitude");
-	String Longitude = parameters.getValue("Longitude");
-	String RFC = parameters.getValue("RFC");
+	// TODO KAT 2007-02-20 Implement checks on all parameters
+	//String CarryoverGroup = parameters.getValue("CarryoverGroup");
+	//String ForecastGroup = parameters.getValue("ForecastGroup");
+	//String Segment = parameters.getValue("Segment");
+	//String SegmentDescription = parameters.getValue("SegmentDescription");
+	//String Latitude = parameters.getValue("Latitude");
+	//String Longitude = parameters.getValue("Longitude");
+	//String RFC = parameters.getValue("RFC");
 	String TSList = parameters.getValue("TSList");
 	
 	// OutputFile
 	if (OutputFile != null && OutputFile.length() != 0 ) {
 		OutputFile = IOUtil.getPathUsingWorkingDir(OutputFile);
-		File f = new File(OutputFile);
 	} 
 	else {
 		warning += "\nThe Output File must be specified.";
+	}
+	
+	if( TSList == null || TSList.length() == 0 ) {
+		TSList = "AllTS";
 	}
 
 	// Throw an InvalidCommandParameterException in case of errors.
@@ -206,6 +204,7 @@ throws InvalidCommandParameterException,
 	       message = null;
 	
 	int warning_count = 0;
+	int log_level = 3;	// Log message level for non-user warnings
 
 	// Get the command properties not already stored as members.
 	String OutputFile = _parameters.getValue ( "OutputFile" );
@@ -217,21 +216,43 @@ throws InvalidCommandParameterException,
 	String Longitude = _parameters.getValue ( "Longitude" );
 	String RFC = _parameters.getValue ( "RFC" );
 	String TSList = _parameters.getValue ( "TSList" );
-	
+		
 	Vector tslist = null;
-	if ((TSList != null) && TSList.equalsIgnoreCase("SelectedTS") ) {
-		tslist = ((TSCommandProcessor)getCommandProcessor())
-			.getTimeSeriesToProcess("SelectedTS", null);
+	PropList request_params = new PropList ( "" );
+	request_params.set ( "TSList", TSList );
+	//request_params.set ( "TSID", TSID );
+	CommandProcessorRequestResultsBean bean = null;
+	try { bean =
+		_processor.processRequest( "GetTimeSeriesToProcess", request_params);
 	}
-	else {
-		// Default is to output all time series...
-		tslist = ((TSCommandProcessor)getCommandProcessor())
-			.getTimeSeriesToProcess("AllTS", null);
+	catch ( Exception e ) {
+		message = "Error requesting GetTimeSeriesToProcess(TSList=\"" + TSList +
+		" from processor).";
+		Message.printWarning(warning_level,
+				MessageUtil.formatMessageTag( command_tag, ++warning_count),
+				routine, message );
 	}
-
-	Vector tssublist = (Vector)tslist.elementAt(0);
-	if ((tssublist == null) && (tssublist.size() == 0)) {
-		message = "Unable to find time series to write using TSID \"" 
+	PropList bean_PropList = bean.getResultsPropList();
+	Object o_TSList = bean_PropList.getContents ( "TSToProcessList" );
+	if ( o_TSList == null ) {
+		message = "Unable to find time series to scale using TSList=\"" + TSList +
+		".";
+		Message.printWarning ( log_level,
+		MessageUtil.formatMessageTag(
+		command_tag,++warning_count), routine, message );
+	}
+	else {	tslist = (Vector)o_TSList;
+		if ( tslist.size() == 0 ) {
+			message = "Unable to find time series to write using TSList=\"" + 
+			TSList + ".";
+			Message.printWarning ( log_level,
+				MessageUtil.formatMessageTag(
+				command_tag,++warning_count), routine, message );
+		}
+	}
+	
+	if ((tslist == null) && (tslist.size() == 0)) {
+		message = "Unable to find time series to write using TSList=\"" 
 			+ TSList + "\".";
 		Message.printWarning ( warning_level,
 			MessageUtil.formatMessageTag(

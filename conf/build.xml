@@ -95,6 +95,8 @@
 	<!--================ Dependencies ==================-->
 	<property name="RTi_jar"	  
 			value="${ext.dir}${sep}RTi_Common${sep}RTi_Common_142.jar" />
+	<property name="TSCommandProcessor"
+			value="${ext.dir}${sep}TSCommandProcessor${sep}TSCommandProcessor_142.jar" />
 	
 	<!-- =========== Compiler Properties ===============-->
 	<property name="compiler" value="modern" />
@@ -102,6 +104,7 @@
 	<!-- set classpath -->
 	<path id="classpath">
 		<pathelement location="${RTi_jar}" />
+		<pathelement location="${TSCommandProcessor}" />
 		<pathelement location="${buildtest.dir}" />
 		<pathelement location="${buildwork.dir}" />
 		<pathelement location="."/>
@@ -109,6 +112,7 @@
 	
 	<path id="classpathOp">
 		<pathelement location="${RTi_jar}" />
+		<pathelement location="${TSCommandProcessor}" />
 		<pathelement location="${dist.dir}${sep}${jarfname}" />
 		<pathelement location="."/>
 	</path>
