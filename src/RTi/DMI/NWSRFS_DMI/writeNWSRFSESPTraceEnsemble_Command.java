@@ -200,7 +200,7 @@ throws InvalidCommandParameterException,
        CommandWarningException,
        CommandException
 {
-	String routine = "TSEngine.do_writeNWSRFSESPTraceEnsemble",
+	String routine = "writeNWSRFSESPTraceEnsemble_Command.runCommand",
 	       message = null;
 	
 	int warning_count = 0;
@@ -216,6 +216,11 @@ throws InvalidCommandParameterException,
 	String Longitude = _parameters.getValue ( "Longitude" );
 	String RFC = _parameters.getValue ( "RFC" );
 	String TSList = _parameters.getValue ( "TSList" );
+	
+	if ( (TSList == null) || (TSList.length() == 0) ) {
+		// Default...
+		TSList = "AllTS";
+	}
 		
 	Vector tslist = null;
 	PropList request_params = new PropList ( "" );
@@ -227,7 +232,7 @@ throws InvalidCommandParameterException,
 	}
 	catch ( Exception e ) {
 		message = "Error requesting GetTimeSeriesToProcess(TSList=\"" + TSList +
-		" from processor).";
+		"\" from processor).";
 		Message.printWarning(warning_level,
 				MessageUtil.formatMessageTag( command_tag, ++warning_count),
 				routine, message );
@@ -251,13 +256,14 @@ throws InvalidCommandParameterException,
 		}
 	}
 	
-	if ((tslist == null) && (tslist.size() == 0)) {
+	if ((tslist == null) || (tslist.size() == 0)) {
 		message = "Unable to find time series to write using TSList=\"" 
 			+ TSList + "\".";
 		Message.printWarning ( warning_level,
 			MessageUtil.formatMessageTag(
 			command_tag,++warning_count), routine, message );
 	}
+	Message.printStatus( 2, routine, "Will write " + tslist.size() + " time series traces.");
 
 	PropList props = new PropList ( "writeNWSRFSESPTraceEnsemble" );
 	// Transfer properties to that needed by ESP...
@@ -284,8 +290,7 @@ throws InvalidCommandParameterException,
 	}
 	
 	try {
-		NWSRFS_ESPTraceEnsemble esp = new NWSRFS_ESPTraceEnsemble( 
-			(Vector)(tslist.elementAt(0)), props );
+		NWSRFS_ESPTraceEnsemble esp = new NWSRFS_ESPTraceEnsemble( tslist, props );
 		esp.writeESPTraceEnsembleFile ( OutputFile );
 	}
 	catch (Exception e) {
@@ -294,6 +299,7 @@ throws InvalidCommandParameterException,
 		Message.printWarning(warning_level,
 			MessageUtil.formatMessageTag(command_tag, 
 				++warning_count), routine, message);
+		Message.printWarning ( 3, routine, e );
 	}
 	
 	// Throw CommandWarningException in case of problems.

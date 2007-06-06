@@ -79,7 +79,6 @@ private SimpleJButton	__cancel_JButton = null,// Cancel Button
 			__browse_JButton = null,// Browse Button
 			__ok_JButton = null,	// Ok Button
 			__path_JButton = null;	// Button to add/remove path
-private JFrame		__parent_JFrame = null;	// parent Frame GUI class
 private Command		__command = null;
 private String		__working_dir = null;	// Working directory.
 private JTextArea	__Command_JTextArea=null;// Command as TextField
@@ -306,7 +305,6 @@ throws Throwable
 	__ok_JButton = null;
 	__path_JButton = null;
 	__browse_JButton = null;
-	__parent_JFrame = null;
 	__working_dir = null;
 	super.finalize ();
 }
@@ -322,8 +320,7 @@ should have a time series identifier and optionally comments.
 TSEngine.getTSIdentifiersFromCommands().
 */
 private void initialize (	JFrame parent, Command command)
-{	__parent_JFrame = parent;
-	__command = command;
+{	__command = command;
 	CommandProcessor processor = __command.getCommandProcessor();
 	
 	try { Object o = processor.getPropContents ( "WorkingDir" );

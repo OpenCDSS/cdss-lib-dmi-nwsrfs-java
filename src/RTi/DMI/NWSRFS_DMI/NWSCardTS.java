@@ -106,6 +106,9 @@
 //					period longer than the data in the file
 //					was selected, readTimeSeries would 
 //					break.
+// 2007-05-02	SAM, RTi		Handle case where run period for traces starts
+//					on the last day of month, which converts to the first day
+//					of the next month - DID NOT FINISH WORK.
 // ----------------------------------------------------------------------------
 // EndHeader
 
@@ -1330,21 +1333,21 @@ throws IOException {
 				if ( Message.isDebugOn ) {
 					Message.printDebug(2, routine, "\n" );
 					Message.printDebug(2, routine, 
-						"Header 1 content is: '");
+						"DATACARD header 2 content is: '");
 					Message.printDebug(2, routine, 
-						"datatype      is '" 
+						"datatype       = '" 
 						+ datatype        + "'");
 					Message.printDebug(2, routine, 
-						"units          is '" 
+						"units          = '" 
 						+ units          + "'");
 					Message.printDebug(2, routine, 
-						"HourMultiplier is '" 
+						"HourMultiplier = '" 
 						+ HourMultiplier + "'");
 					Message.printDebug(2, routine, 
-						"location       is '" 
+						"location       = '" 
 						+ location       + "'");
 					Message.printDebug(2, routine, 
-						"description    is '" 
+						"description    = '" 
 						+ description    + "'"); 
 				}
 
@@ -1474,7 +1477,7 @@ throws IOException {
 				// Now put together a format string for
 				// StringUtil.fixedRead()...  The value from the
 				// datevalue file will be something like F9.3 so
-				// need to throw away what is after the dash...
+				// need to throw away what is after the period...
 				if ( fformat.indexOf(".") >= 0 ) {
 					// Remove the trailing ".N"...
 					fformat =
@@ -1502,15 +1505,15 @@ throws IOException {
 				if ( Message.isDebugOn ) {
 					Message.printDebug(dl, routine, "\n");
 					Message.printDebug(dl, routine, 
-						"Header 2 content is: '");
+						"DATACARD header 2 content is: '");
 					Message.printDebug(dl, routine, 
-						"date1_file       is '" 
+						"date1_file       = '" 
 						+ date1_file.toString() + "'");
 					Message.printDebug(dl, routine, 
-						"date2_file       is '" 
+						"date2_file       = '" 
 						+ date2_file.toString() + "'");
 					Message.printDebug(dl, routine, 
-						"fixed_format    is '" 
+						"fixed_format     = '" 
 						+ fixed_format         + "'"); 
 				}	
 
@@ -1686,14 +1689,26 @@ throws IOException {
 			// to iterate.
 			// date1_ts and date2_ts are also used to allocate data
 			// space for the returning time series.
-			if ( req_date1 != null ) { date1_ts = req_date1;  }
-			else                     { date1_ts = runPeriodStart; }
-			if ( req_date2 != null ) { date2_ts = req_date2;  }
-			else                     { date2_ts = runPeriodEnd; }
+			if ( req_date1 != null ) {
+				date1_ts = req_date1;
+			}
+			else {
+				date1_ts = runPeriodStart;
+			}
+			if ( req_date2 != null ) {
+				date2_ts = req_date2;
+			}
+			else { date2_ts = runPeriodEnd;
+			}
 
 			// Set the time series date1 and date2.
 			ts.setDate1 ( new DateTime( date1_ts ) );
 			ts.setDate2 ( new DateTime( date2_ts ) );
+			
+			if ( Message.isDebugOn ) {
+				Message.printDebug ( dl, routine, "Time series trace period is " +
+					date1_ts + " to " + date2_ts );
+			}
 
 			// Now set dates used to read from the file traces.
 			// date1, date2 and idate (see below) are only used to
@@ -2012,14 +2027,15 @@ else {
 
 				if ( Message.isDebugOn ) {
 					Message.printDebug ( dl, routine, 
-						"Adjusted #data in line is:"
-						+ size);
+						"#data on line =" + size );
 					Message.printDebug ( dl, routine, 
-						"Idate is: "+ idate.toString());
+						"Idate = " + idate );
 					Message.printDebug ( dl, routine, 
-						"Date1 is: " +date1.toString());
+						"Idate_ts = " + idate_ts );
 					Message.printDebug ( dl, routine, 
-						"Date2 is: " +date2.toString());
+						"Date1 = " + date1 );
+					Message.printDebug ( dl, routine, 
+						"Date2 = " + date2 );
 				}
 
 				// Processing data.

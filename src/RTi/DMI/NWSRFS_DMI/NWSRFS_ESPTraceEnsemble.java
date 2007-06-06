@@ -648,8 +648,17 @@ throws Exception
 	String routine = "NWSRFS_ESPTraceEnsemble";
 	initialize();	// Mostly blanks, conditional settings.
 
+	// FIXME SAM 2007-06-06 Should not need an NWSRFS DMI instance.  Should just
+	// write with binary file writer.
 	// Create a limited NWSRFS_DMI to do the write.
-	__dmi = new NWSRFS_DMI();
+	try {	__dmi = new NWSRFS_DMI();
+	}
+	catch ( Exception e ) {
+		Message.printWarning( 3, routine, "Unable to create NWSRFS DMI instance." );
+		Message.printWarning( 3, routine, e );
+		// Not sure if this is a problem but rethrow...
+		throw e;
+	}
 
 	// Make the value of the dmi's endianess Big Endian to write the trace
 	__big_endian = true;
@@ -662,6 +671,12 @@ throws Exception
 	}
 	__ts = new HourTS[size];
 	for ( int i = 0; i < size; i++ ) {
+		if ( !(tslist.elementAt(i) instanceof HourTS) ) {
+			Message.printWarning ( 3, routine,
+			"ESP traces can only be hourly time series.  " +
+			"An attempt is being made to use time series with a different interval.");
+			throw new Exception ( "Other than Hour interval passed to ESP trace ensemble constructor.");
+		}
 		__ts[i] = (HourTS)tslist.elementAt(i);
 	}
 
@@ -2284,6 +2299,7 @@ throws Exception
 	// Determine the full path to the file using the working directory...
 
 	String full_fname = IOUtil.getPathUsingWorkingDir(fname);
+	Message.printStatus( 2, routine, "Writing ensemble file \"" + full_fname + "\"" );
 
 	// Delete the old file if it exists to avoid leftover bytes in the
 	// file...

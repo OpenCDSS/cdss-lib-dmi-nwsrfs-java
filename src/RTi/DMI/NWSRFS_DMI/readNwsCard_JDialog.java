@@ -72,7 +72,6 @@ private SimpleJButton	__browse_JButton = null,// File browse button
 						// absolute path.
 			__cancel_JButton = null,// Cancel Button
 			__ok_JButton = null;	// Ok Button
-private JFrame		__parent_JFrame = null;	// parent JFrame
 private Command		__command = null;
 private String		__working_dir = null;	// Working directory.
 private JTextField	__Alias_JTextField = null,// Alias for time series.
@@ -287,7 +286,6 @@ throws Throwable {
 	__path_JButton = null;
 	__cancel_JButton = null;
 	__ok_JButton = null;
-	__parent_JFrame = null;
 	__command = null;
 	__working_dir = null;
 	__Alias_JTextField = null;
@@ -307,7 +305,6 @@ Instantiates the GUI components.
 @param command Command to edit.
 */
 private void initialize(JFrame parent, Command command) {
-	__parent_JFrame = parent;
 	__command = command;
 	CommandProcessor processor = __command.getCommandProcessor();
 	
@@ -426,6 +423,9 @@ private void initialize(JFrame parent, Command command) {
 	__Read24HourAsDay_JComboBox.addActionListener(this);
 	JGUIUtil.addComponent(main_JPanel, __Read24HourAsDay_JComboBox,
 		1, y, 3, 1, 1, 0, insetsTLBR, GridBagConstraints.NONE, GridBagConstraints.WEST);
+	JGUIUtil.addComponent(main_JPanel, new JLabel (
+		"Convert 24Hour interval to 1Day interval (default=False)."),
+		3, y, 3, 1, 0, 0, insetsTLBR, GridBagConstraints.NONE, GridBagConstraints.WEST );
 
 	JGUIUtil.addComponent(main_JPanel, new JLabel ( "Period to read:" ), 
 		0, ++y, 1, 1, 0, 0, insetsTLBR, GridBagConstraints.NONE, GridBagConstraints.EAST);
