@@ -475,6 +475,12 @@ IFP.
 private String __fs5FilesLocation = null;
 
 /**
+The input name, used with time series.  This may often be the same as the FS5 Files location,
+but in the future may be a virtual handle on the database.
+*/
+private String __input_name = "";
+
+/**
 Indicate whether the DMI was opened with Apps Defaults.  This is used, for
 example, in TSTool, to automatically define the InputName part of time series
 identifiers.
@@ -1221,6 +1227,13 @@ public String getFS5FilesLocation() {
 	else
 		return __fs5FilesLocation.substring(0,__fs5FilesLocation.
 			length()-1);
+}
+
+/**
+Return the input name, used with time series identifiers.
+*/
+public String getInputName ()
+{	return __input_name;
 }
 
 /** 
@@ -12437,6 +12450,15 @@ throws Exception {
 	}
 
 	raFile.seek(position);
+}
+
+/**
+Set the input name, used with time series identifiers.
+@param input_name The input name associated with the FS5 Files, often the path to
+the directory containing the files.
+*/
+public void setInputName ( String input_name )
+{	__input_name = input_name;
 }
 
 /**
