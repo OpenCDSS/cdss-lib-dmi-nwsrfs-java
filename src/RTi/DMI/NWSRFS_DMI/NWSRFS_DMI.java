@@ -555,6 +555,7 @@ throws Exception {
 	}
 	else {
 		__fs5FilesLocation = __fs5FilesLocation.trim();
+		setInputName ( __fs5FilesLocation );
 	
 		if (!__fs5FilesLocation.endsWith(File.separator)) {
 			// If the ofs_fs5files environment variable 
@@ -574,6 +575,7 @@ public NWSRFS_DMI(NWSRFS_DMI dmi) {
 	initialize();
 	
 	__fs5FilesLocation = 	dmi.getFS5FilesLocation();
+	__input_name = dmi.getInputName();
 	__opened_with_AppsDefaults = dmi.openedWithAppsDefaults();
 	__NWSRFS_DBFiles = 	dmi.getNWSRFSDBFiles(); 
 	__useFS5Files = 	dmi.usingFS5Files(); 
@@ -605,6 +607,7 @@ public NWSRFS_DMI(String directory) {
 	initialize();
 
 	__fs5FilesLocation = directory;
+	setInputName ( directory );
 	__opened_with_AppsDefaults = false;
 	
 	// If input string is empty or equals "stand alone" then print message
@@ -1361,7 +1364,7 @@ public boolean[] isOpen() {
 Open the NWSRFS processed database files.
 @throws Exception if an error occurs while trying to determine database 
 endianness 
-*/ 
+*/
 public void open() 
 throws Exception {
 	// Test whether the database binary files are big or little endian.
@@ -2824,7 +2827,7 @@ Message.printDebug(1,routine,IOe);
 		if(tsDataType[i].equalsIgnoreCase("MAPX")) {
 		for(int k = 0; k < 6; k++) {
 			tsIdentCheck = tsID[i]+".NWSRFS."+tsDataType[i]+"."+
-				tsIntCheck[k]+"Hour~NWSRFS_FS5Files";
+				tsIntCheck[k]+"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			if(readTimeSeries(tsIdentCheck,null,null,null,false) !=
 				null) {
 					tsDTInterval[i] = tsIntCheck[k];
@@ -8867,12 +8870,12 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		
 		// Set the TS object Identifier
 		if(tsFile.getTSDTInterval() == 0) {
-			tsident_string += "*~NWSRFS_FS5Files";
+			tsident_string += "*~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		else {
 			tsident_string += tsFile.getTSDTInterval()+
-				"Hour~NWSRFS_FS5Files";
+				"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		
@@ -8918,12 +8921,12 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		
 		// Set the TS object Identifier
 		if(tsFile.getTSDTInterval() == 0) {
-			tsident_string += "*~NWSRFS_FS5Files";
+			tsident_string += "*~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		else {
 			tsident_string += tsFile.getTSDTInterval()+
-				"Hour~NWSRFS_FS5Files";
+				"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		
@@ -10867,7 +10870,7 @@ throws Exception
 					parseDataType = dt.getAbbreviation();
 
 					// If interval is * we need to loop
-					// through some default inetrvals
+					// through some default inetervals
 					// like 1Hour,3Hour, 6Hour,12Hour,
 					// 18Hour, and 24Hour
 					if(interval.equalsIgnoreCase("*")) {
@@ -11027,7 +11030,7 @@ throws Exception
 			if(pdbIndex.getPCPPTR(i) > 0) {
 				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
 					"PP24-PPDB.24Hour"+
-					"~NWSRFS_FS5Files";
+					"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 					
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
@@ -11039,7 +11042,7 @@ throws Exception
 			if(pdbIndex.getTMPPTR(i) > 0) {
 				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
 					"TA24-PPDB.24Hour"+
-					"~NWSRFS_FS5Files";
+					"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 					
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
@@ -11055,7 +11058,7 @@ throws Exception
 				interval.equalsIgnoreCase("*"))) {
 				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
 					"PP24-PPDB.24Hour"+
-					"~NWSRFS_FS5Files";
+					"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 					
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
@@ -11067,7 +11070,7 @@ throws Exception
 				interval.equalsIgnoreCase("*"))) {
 				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
 					"TA24-PPDB.24Hour"+
-					"~NWSRFS_FS5Files";
+					"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 					
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
@@ -11136,7 +11139,7 @@ throws Exception
 							getADDDTP(i,j)+
 							"-PPDB."+
 							intervalArray[k]+"Hour"+
-							"~NWSRFS_FS5Files";
+							"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 						
 							// Add the tsIdentString to the 
 							// TSIDent Vector
@@ -11152,7 +11155,7 @@ throws Exception
 						tsIdentString = pdbIndex.
 						getSTAID(i)+".NWSRFS."+pdbIndex.
 						getADDDTP(i,j)+"-PPDB."+
-						timeInt+"~NWSRFS_FS5Files";
+						timeInt+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 						
 						// Add the tsIdentString to the 
 						// TSIDent Vector
@@ -11232,7 +11235,7 @@ throws Exception
 							getADDDTP(i,j)+
 							"-PPDB."+
 							intervalArray[k]+"Hour"+
-							"~NWSRFS_FS5Files";
+							"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 						
 							// Add the tsIdentString to the 
 							// TSIDent Vector
@@ -11248,7 +11251,7 @@ throws Exception
 						tsIdentString = pdbIndex.
 						getSTAID(i)+".NWSRFS."+pdbIndex.
 						getADDDTP(i,j)+"-PPDB."+
-						timeInt+"~NWSRFS_FS5Files";
+						timeInt+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 						
 						// Add the tsIdentString to the 
 						// TSIDent Vector
@@ -11470,12 +11473,12 @@ throws Exception
 			// Now create the TSIdent String
 			if(dataScenario.equalsIgnoreCase("both")) {
 				tsIdentString=tsid + ".NWSRFS." + dataType + "."
-				+ dataIntString +"~NWSRFS_FS5Files";
+				+ dataIntString +"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			}
 			else {
 				tsIdentString=tsid + ".NWSRFS." + dataType + "."
 				+ dataIntString + "."
-				+dataScenario+"~NWSRFS_FS5Files";
+				+dataScenario+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			}
 			// Now fill the Vector with TSIdent objects
 			tsidVector.add(new TSIdent(tsIdentString));
@@ -11571,11 +11574,11 @@ throws Exception {
 		
 		// Set the TS object Identifier
 		if(tsDTInterval == 0) {
-			tsident_string += "*~NWSRFS_FS5Files";
+			tsident_string += "*~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			ITS.setIdentifier(tsident_string);
 		}
 		else {
-			tsident_string += tsDTInterval+"Hour~NWSRFS_FS5Files";
+			tsident_string += tsDTInterval+"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			ITS.setIdentifier(tsident_string);
 		}
 		
