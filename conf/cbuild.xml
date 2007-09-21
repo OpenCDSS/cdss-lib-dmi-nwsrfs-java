@@ -1,0 +1,5 @@
+<project name="NWSRFS_DMI" default="compile-java" basedir="../">
+    
+    <import file="../../rtibuild/common-build.xml"/>
+    
+</project>

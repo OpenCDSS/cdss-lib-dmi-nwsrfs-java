@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <!-- Do not use Project Properties customizer when editing this file manually. -->
+            <name>NWSRFS_DMI</name>
+            <properties>
+                <property name="ant.script">conf/cbuild.xml</property>
+                <property-file>conf/product-user.properties</property-file>
+                <property-file>conf/product.properties</property-file>
+            </properties>
+            <folders>
+                <source-folder>
+                    <label>src</label>
+                    <type>java</type>
+                    <location>src</location>
+                </source-folder>
+                <source-folder>
+                    <label>unit tests</label>
+                    <type>java</type>
+                    <location>test/unit/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>operational tests</label>
+                    <type>java</type>
+                    <location>test/operational/src</location>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <script>${ant.script}</script>
+                    <target>jar</target>
+                </action>
+                <action name="Compile">
+                    <script>${ant.script}</script>
+                    <target>compile-java-no-deps</target>
+                    <property name="fork.javac">false</property>
+                </action>
+                <action name="clean">
+                    <script>${ant.script}</script>
+                    <target>clean</target>
+                </action>
+                <action name="javadoc">
+                    <script>${ant.script}</script>
+                    <target>javadoc</target>
+                </action>
+                <action name="run">
+                    <script>${ant.script}</script>
+                    <target>run</target>
+                </action>
+                <action name="test">
+                    <script>${ant.script}</script>
+                    <target>test-product</target>
+                </action>
+                <action name="test.single">
+                    <script>${ant.script}</script>
+                    <target>-test-single</target>
+                    <property name="test.type">unit</property>
+                    <context>
+                        <property>files</property>
+                        <folder>test/unit/src</folder>
+                        <pattern>.*\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="test.single">
+                    <script>${ant.script}</script>
+                    <target>-test-single</target>
+                    <property name="test.type">operational</property>
+                    <context>
+                        <property>files</property>
+                        <folder>test/operational/src</folder>
+                        <pattern>.*\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="rebuild">
+                    <script>${ant.script}</script>
+                    <target>clean</target>
+                    <target>compile-java-no-deps</target>
+                </action>
+                <action name="compile.single">
+                    <script>${ant.script}</script>
+                    <target>-compile-selected</target>
+                    <context>
+                        <property>files</property>
+                        <folder>src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="run.single">
+                    <script>${ant.script}</script>
+                    <target>-run-selected-file</target>
+                    <property name="use.reload.agent">false</property>
+                    <property name="fork.javac">false</property>
+                    <context>
+                        <property>files</property>
+                        <folder>src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="debug.single">
+                    <script>${ant.script}</script>
+                    <target>-debug-selected-files</target>
+                    <property name="use.reload.agent">false</property>
+                    <property name="fork.javac">false</property>
+                    <context>
+                        <property>classname</property>
+                        <folder>src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="Reload">
+                    <script>${ant.script}</script>
+                    <target>-redefine</target>
+                </action>
+                <action name="Clean.Tests">
+                    <script>${ant.script}</script>
+                    <target>-clean-tests</target>
+                </action>
+                <action name="run.single">
+                    <script>${ant.script}</script>
+                    <target>-run-selected-file</target>
+                    <context>
+                        <property>files</property>
+                        <folder>test/unit/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+            </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>build/work</location>
+                <script>${ant.script}</script>
+                <build-target>jar</build-target>
+            </export>
+            <export>
+                <type>jar</type>
+                <location>dist/NWSRFS_DMI_1_0.jar</location>
+                <script>${ant.script}</script>
+                <build-target>jar</build-target>
+            </export>
+            <view>
+                <items>
+                    <source-folder style="packages">
+                        <label>src</label>
+                        <location>src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>unit tests</label>
+                        <location>test/unit/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>operational tests</label>
+                        <location>test/operational/src</location>
+                    </source-folder>
+                    <source-file>
+                        <location>${ant.script}</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="Compile"/>
+                    <ide-action name="build"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="Clean.Tests"/>
+                    <ide-action name="javadoc"/>
+                    <ide-action name="run"/>
+                    <ide-action name="test"/>
+                    <ide-action name="rebuild"/>
+                    <ide-action name="debug"/>
+                    <ide-action name="Reload"/>
+                </context-menu>
+            </view>
+            <subprojects>
+                <project>../beans</project>
+            </subprojects>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
+            <compilation-unit>
+                <package-root>src</package-root>
+                <classpath mode="compile">${build.classpath}</classpath>
+                <built-to>build/work</built-to>
+                <built-to>dist/NWSRFS_DMI_1_0.jar</built-to>
+                <source-level>1.4</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>test/unit/src</package-root>
+                <unit-tests/>
+                <classpath mode="compile">${test.classpath}</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>test/operational/src</package-root>
+                <unit-tests/>
+                <classpath mode="compile">${test.classpath}</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+        </java-data>
+        <junit-version xmlns="http://www.netbeans.org/ns/junit/1" value="junit4"/>
+    </configuration>
+</project>

@@ -15,7 +15,7 @@
 	 			
 -->
 
-<project name="buildTemplate" basedir="../" default="compile">
+<project name="NWSRFS_DMI" basedir="../" default="compile">
 
 	<!-- === Set file separator depending on OS ===-->
 	<condition property="sep" value="/">
@@ -70,6 +70,7 @@
 	
 	
 	<!--============= General Properties =============-->
+        <property name="list.files" value="false"/>
 	<property name="src.dir"	     location="src"  />
 	<property name="build.dir"	     location="build" />
 	<property name="dist.dir"        location="dist" />
@@ -153,8 +154,8 @@
            destdir 		= "${buildwork.dir}"
 		   classpathref = "classpath"
            debug 		= "on"
-	       fork 		= "yes"
-	       listfiles 	= "true"
+	       fork 		= "no"
+	       listfiles 	= "${list.files}"
 	       deprecation 	= "true"
 	       executable 	= "${executable}"
 	       compiler 	= "${compiler}"
@@ -382,6 +383,7 @@ help           shows the help for this build file
 
 </target>
 
+<target name="compile-java" depends="compile"/>
 
 </project>
 
