@@ -4,5 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="externals/RTi_Common/RTi_Common_142.jar"/>
 	<classpathentry kind="lib" path="externals/TSCommandProcessor/TSCommandProcessor_142.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="build"/>
 </classpath>
