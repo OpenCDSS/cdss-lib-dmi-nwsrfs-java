@@ -75,7 +75,7 @@
 	<property name="build.dir"	     location="build" />
 	<property name="dist.dir"        location="dist" />
 	<property name="doc.dir"		 location="doc" />
-	<property name="buildwork.dir"   location="${build.dir}${sep}work" />
+	<property name="buildwork.dir"   location="${build.dir}" />
 	<property name="buildtest.dir"   location="build${sep}test" />
 	<property name="test.dir"	     location="test${sep}unit${sep}src" />
 	<property name="testOp.dir"      location="test${sep}operational" />
