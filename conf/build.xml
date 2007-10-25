@@ -384,6 +384,7 @@ help           shows the help for this build file
 </target>
 
 <target name="compile-java" depends="compile"/>
+<target name="test-product"/>
 
 </project>
 
