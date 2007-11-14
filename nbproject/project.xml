@@ -153,7 +153,7 @@
             </ide-actions>
             <export>
                 <type>folder</type>
-                <location>build</location>
+                <location>${build.dir}</location>
                 <script>${ant.script}</script>
                 <build-target>jar</build-target>
             </export>
@@ -202,7 +202,7 @@
             <compilation-unit>
                 <package-root>src</package-root>
                 <classpath mode="compile">${build.classpath}</classpath>
-                <built-to>build</built-to>
+                <built-to>${build.dir}</built-to>
                 <built-to>dist/NWSRFS_DMI_1_0.jar</built-to>
                 <source-level>1.4</source-level>
             </compilation-unit>
