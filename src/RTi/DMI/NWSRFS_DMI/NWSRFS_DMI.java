@@ -198,7 +198,7 @@ private final int
 		__PDBDLY4  =	27,
 		__PDBDLY5  =	28,
 		__USERPARM  =	29;
-		// REVISIT SAM 2006-10-03 The order is probably not important -
+		// TODO SAM 2006-10-03 The order is probably not important -
 		// why not just list alphabetically to match file listing?
 		// Scott's comments above do not add up the number of files
 		// listed.
@@ -515,7 +515,7 @@ PRDTSn.
 */
 protected NWSRFS_PRDINDEX _prdindex = null;
 
-// REVISIT 05/26/2004 SAT -- There is a problem with file locking. The 
+// TODO 05/26/2004 SAT -- There is a problem with file locking. The 
 // Fortran binary database files could be open by NWSRFS while the DMI is
 // being used. This could have some repercussions in being able to find all
 // of the available data or having what was once a correct record number 
@@ -781,7 +781,7 @@ boolean readOFSFS5Files, boolean readWrite) {
 		}
 	}
 	catch (Exception e) {
-		// REVISIT (JTS - 2004-08-18)
+		// TODO (JTS - 2004-08-18)
 		// why not handle the exception, get more information about
 		// what failed and print some warning messages?
 		__isOpen[filePointer] = false;
@@ -1027,7 +1027,7 @@ throws Exception {
 				" binary database file");
 		}
 
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 4 and 5		
 		EDIS = read(__NWSRFS_DBFiles[prdIndex],0, 4, 5);
 		if (unitNum == EDIS.readEndianInt()) {
@@ -1541,7 +1541,7 @@ protected void parseOperationRecord(EndianDataInputStream EDIS,
 NWSRFS_Segment segObj, boolean deepRead) throws Exception 
 {
 	// Now mark the EndianDataInputStream for rewinding.
-	// REVISIT (JTS - 2004-08-21)
+	// TODO (JTS - 2004-08-21)
 	// explain the magic number 2
 	EDIS.mark(segObj.getNP() + segObj.getNT() + segObj.getNTS() + 2);
 
@@ -1593,7 +1593,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 	{
 
 	// Get a vector of Data Types and put into a Vector of Strings! 
-	// REVISIT -- sat 2004-11-24 Should do globally at startup!
+	// TODO -- sat 2004-11-24 Should do globally at startup!
 	Vector dtVect = DataType.getDataTypesData();
 	Vector dtVectString = new Vector();
 	for(i = 0; i < dtVect.size(); i++) {
@@ -1672,7 +1672,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 		// pull them out if they exist. Place all strings of the
 		// PO array into a vector for parsing later.
 		poArray = new Vector();
-		// REVISIT (JTS - 2004-08-21)
+		// TODO (JTS - 2004-08-21)
 		// explain the magic number 7
 		for (j = thisOPRecord + 7; j < nextOPRecord; j++) 
 		{
@@ -1733,7 +1733,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					parseTemp = parseTemp.trim();
 					tsExists++;
 
-					// REVISIT (JTS - 2004-08-21)
+					// TODO (JTS - 2004-08-21)
 					// what do the different values of 
 					// tsExists mean??
 
@@ -2058,7 +2058,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 						(String)poArray.elementAt(j));
 					parseTemp = parseTemp.trim();
 					tsExists++;
-					// REVISIT (JTS - 2004-08-21)
+					// TODO (JTS - 2004-08-21)
 					// what do the different values of 
 					// tsExists mean??
 
@@ -2111,7 +2111,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					tsExists = 0;
 
 					// Skip one array spot
-					// REVISIT (JTS - 2004-08-19)
+					// TODO (JTS - 2004-08-19)
 					// explain WHY
 					j++;
 				}
@@ -2356,7 +2356,7 @@ if (pIndex == 3 || pIndex == 4 || pIndex == 5) {
 		tSize = 0;
 		opIndex = 0;
 
-// REVISIT (SAT 2004-08-24) Why even read in the T array? 
+// TODO (SAT 2004-08-24) Why even read in the T array? 
 // It does not add any thing to the the operation data and just 
 // consumes resources. I will remove it and see if things
 // preformance improves.
@@ -2442,12 +2442,13 @@ Message.printDebug(1,routine,IOe);
 			{
 			// If the op number from database exceeds what we expect
 			// set opnum to 0 or "none" operation
-			if(opNumberP[i] > 53)
+			if ( opNumberP[i] > 53 ) {
+                Message.printWarning(2, routine, "Parsing operations does not handle opnum>53. "
+                        + "Trying to parse " + opNumberP[i] + " " + opName[i] );
 				opNumberP[i] = 0;
+            }
 			
-			OP = new NWSRFS_Operation(
-				__operationNames[opNumberP[i]],
-				opName[i],segObj);
+			OP = new NWSRFS_Operation( __operationNames[opNumberP[i]], opName[i],segObj);
 
 			// Fill public data values for the Operation.
 			OP.setOpNumber(opNumberP[i]);
@@ -2475,7 +2476,7 @@ Message.printDebug(1,routine,IOe);
 
 				// Now loop through the t array values and put 
 				// into the proper Operation.
-// REVISIT (SAT 2004-08-24) Getting ride of T array
+// TODO (SAT 2004-08-24) Getting rid of T array
 /*				for (j = 0;j < tIndex; j++) 
 				{
 					// Check to see Operation numbers 
@@ -2509,7 +2510,7 @@ Message.printDebug(1,routine,IOe);
 	catch (OutOfMemoryError OOMe) 
 	{
 		// Create a RunTime object to call GC
-		// REVISIT (JTS - 2004-08-19)
+		// TODO (JTS - 2004-08-19)
 		// this does NOTHING -- garbage collection is not guaranteed
 		// to run at all.
 		Runtime.getRuntime().gc();
@@ -2615,9 +2616,9 @@ Message.printDebug(1,routine,IOe);
 //	+ "\" \"" + tsDataType[tsIndex] + "\"");
 
 		// check to make sure this is not a duplicate TSID
-		// REVISIT TS BUG (JTS - 2004-08-20)
+		// TODO TS BUG (JTS - 2004-08-20)
 		// I added this
-		// REVISIT (SAT - 2004-08-24)
+		// TODO (SAT - 2004-08-24)
 		// No this must not be done!! It will keep timeseries 
 		// with different intervals from showing up!!
 //		for (int k = 0; k < tsIndex; k++) {
@@ -2632,7 +2633,7 @@ Message.printDebug(1,routine,IOe);
 		//Field 5 - [type field name here]
 		tsDTInterval[tsIndex] = (int)EDIS.readEndianFloat();
 
-// Definately REVISIT (SAT 8-27-2004) I am running out of time right now to
+// Definately TODO (SAT 8-27-2004) I am running out of time right now to
 // fix this but I need to figure out what I can skip here. Somehow my choice
 // broke the code.....
 //		if(deepRead) {
@@ -2656,7 +2657,7 @@ Message.printDebug(1,routine,IOe);
 			// type. Now if the TimeSeries indicator shows it is an 
 			// Internal TS Then have to fill Vectors differently.
 		
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 4
 			
 			if (tsIndicator[tsIndex] == 4) 
@@ -2672,7 +2673,7 @@ Message.printDebug(1,routine,IOe);
 				// into a Vector.
 				tsAddInformation[tsIndex] = new Vector();
 				opIndex1 = 0;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 10
 				for (j = thisOPRecord + 10; j < nextOPRecord; j++) 
 				{
@@ -2713,7 +2714,7 @@ Message.printDebug(1,routine,IOe);
 
 				for (j = 0; j < tsExtNVAL[tsIndex]; j++) 
 				{
-					// REVISIT (JTS - 2004-08-19)
+					// TODO (JTS - 2004-08-19)
 					// the next line needs an explanation
 					if ((j - 2) <= 0) 
 					{
@@ -2761,7 +2762,7 @@ Message.printDebug(1,routine,IOe);
 
 				tsAddInformation[tsIndex] = new Vector();
 				opIndex2 = 0;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 13			
 				for (j = (thisOPRecord + 13 + tsExtNVAL[tsIndex]);
 					j<nextOPRecord; j++) 
@@ -2784,7 +2785,7 @@ Message.printDebug(1,routine,IOe);
 			break;
 		}
 
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 12
 
 		// Determine index and size for next operation loop
@@ -2809,7 +2810,7 @@ Message.printDebug(1,routine,IOe);
 	int[] tsIntCheck = {1,3,6,12,18,24};
 	for (i = 0; i < tsIndex && tsIndex <= 100; i++) 
 	{
-		// REVISIT SAT 2004-11-24 Here is a time consuming loop that is
+		// TODO SAT 2004-11-24 Here is a time consuming loop that is
 		// very neccessary. Since not all of the Time Series found in op
 		// table contain data we need to check to see if the op table
 		// made a mistake in the interval! (This was noticed first in
@@ -2949,7 +2950,7 @@ if (j == 3) {
 					{
 						// This is done to break 
 						// out of outer loop
-// REVISIT TS BUG (JTS - 2004-08-19)
+// TODO TS BUG (JTS - 2004-08-19)
 // did this in order to try fixing TS bug in system tree ...
 //						j = pIndex; 
 					}
@@ -2964,7 +2965,7 @@ if (j == 3) {
 					// the TS in that operation is not included 
 					// in the TS array.  Could come back 
 					// to haunt me here.
-					// REVISIT (SAT)
+					// TODO (SAT)
 					// if gonna be haunted, revisit
 					// Create a new TimeSeries Object
 //Message.printStatus(1,routine, "PLOT_TUL Operation adding TS");
@@ -3010,7 +3011,7 @@ if (j == 3) {
 	catch (OutOfMemoryError OOMe) 
 	{
 		// Create a RunTime object to call GC
-		// REVISIT (JTS - 2004-08-19)
+		// TODO (JTS - 2004-08-19)
 		// this does NOTHING -- garbage collection is not guaranteed
 		// to run at all.		
 		Runtime.getRuntime().gc();
@@ -5512,7 +5513,7 @@ record which is turned into a byteArrayInputStream.
 protected EndianDataInputStream read(EndianRandomAccessFile raFile,
 long recordNumber, int byteLength) throws Exception 
 {
-	// REVISIT (JTS - 2004-08-19)
+	// TODO (JTS - 2004-08-19)
 	// this method is the same as the next one!!
 	// overload this one and have it call the next one with the number
 	// of bytes to read -- perhaps if bytesToRead is -1 then just read
@@ -5569,7 +5570,7 @@ throws Exception, EOFException, NullPointerException {
 	return read(raFile, recordNumber, byteLength, bytesToRead, false);
 }
 
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // being used for testing efficiency of read operations -- leave in for now ...
 protected EndianDataInputStream read(EndianRandomAccessFile raFile,
 long recordNumber, int byteLength,int bytesToRead, boolean testing) 
@@ -5788,7 +5789,7 @@ throws Exception {
 	// Check if the the database binary file is open as a
 	// Random Access object
 
-	// REVISIT (JTS - 2004-08-19)
+	// TODO (JTS - 2004-08-19)
 	// this variable is set throughout the class and is ALWAYS defined
 	// to be true.  Can it be removed??
 
@@ -5799,7 +5800,7 @@ throws Exception {
 			+ __dbFileNames[__FCCARRY] + " binary database file");
 	}
 
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 40
 
 	// Number of bytes to read for Carryover for each slot for the Segment.
@@ -5928,7 +5929,7 @@ throws Exception {
 	String parseChar = null;
 	if (!deepRead) {
 		// Skip the bytes not needed
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 44 and 25
 		bytesToSkip = 44;
 		EDIS.skipBytes(bytesToSkip);
@@ -5982,7 +5983,7 @@ throws Exception {
 		cgFile.setNRSLOT(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 		
 		// Bytes 13-16 are skipped
-		// REVISIT (JTS - 2004-08-21)
+		// TODO (JTS - 2004-08-21)
 		// why?
 		EDIS.readEndianInt();
 		
@@ -6026,7 +6027,7 @@ throws Exception {
 			}
 			catch (NullPointerException NPe) {
 				exceptionCount++;
-				// REVISIT (JTS - 2004-08-18)
+				// TODO (JTS - 2004-08-18)
 				// handle this?
 				break;
 			}
@@ -6054,7 +6055,7 @@ throws Exception {
 		cgFile.setNFG(checkInt(EDIS.readEndianInt(), 0, 10000, -1));
 
 		// Field 4 - skip - [type field name here]
-		// REVISIT (JTS - 2004-08-21)
+		// TODO (JTS - 2004-08-21)
 		// why?
 		EDIS.readEndianInt();
 
@@ -6172,7 +6173,7 @@ throws Exception {
 	}
 	catch (NullPointerException NPe) {
 		exceptionCount++;
-		// REVISIT (JTS - 2004-08-18)
+		// TODO (JTS - 2004-08-18)
 		// do something?
 	}
 
@@ -6181,7 +6182,7 @@ throws Exception {
 	return cgFile;
 }	
 
-// REVISIT - 2004-05-27 SAT Possibly put in a search pattern to get a 
+// TODO - 2004-05-27 SAT Possibly put in a search pattern to get a 
 // subset list
 /** 
 This method will return the IDS of all the carryover group defined in the 
@@ -6198,7 +6199,7 @@ throws Exception {
 	String routine = "NWSRFS_DMI.readCarryoverGroupList";
 	int cgIDSLength = 0;
 
-	// REVISIT (JTS - 2004-08-19)
+	// TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed?	
 	boolean readOFSFS5Files = true;
@@ -6240,7 +6241,7 @@ Message.printStatus(10,routine,"NWR: "+cgFile.getNWR());
 Message.printStatus(10,routine,"NRSLOT: "+cgFile.getNRSLOT());
 
 	// Bytes 13-16 are skipped
-	// REVISIT (JTS - 2004-08-21)
+	// TODO (JTS - 2004-08-21)
 	// explain why
 	EDIS.readEndianInt();
 
@@ -6421,7 +6422,7 @@ throws Exception {
 
 	// Check if the the database binary file is open as a
 	// Random Access object
-// REVISIT (JTS - 2004-08-19)
+// TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed?	
 	boolean readOFSFS5Files = true;
@@ -6495,14 +6496,14 @@ throws Exception {
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-			// REVISIT (JTS - 2004-08-21)
+			// TODO (JTS - 2004-08-21)
 			// maybe print a warning or something?
 			EDIS.close();
 			break;
 		}
 		catch (NullPointerException NPe) {
 			exceptionCount++;
-			// REVISIT (JTS - 2004-08-21)
+			// TODO (JTS - 2004-08-21)
 			// maybe print a warning or something?
 			EDIS.close();
 			break;
@@ -6528,7 +6529,7 @@ throws Exception {
 
 	// Check if the the database binary file is open as a
 	// Random Access object
-// REVISIT (JTS - 2004-08-19)
+// TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed?	
 	boolean readOFSFS5Files = true;
@@ -6612,13 +6613,13 @@ throws Exception {
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // handle exception?		
 			break;
 		}
 		catch (NullPointerException NPe) {
 			exceptionCount++;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // handle exception?		
 			break;
 		}
@@ -6671,7 +6672,7 @@ throws Exception {
 
 	// Check if the the database binary file is open as a
 	// Random Access object
-// REVISIT (JTS - 2004-08-19)
+// TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed?	
 	boolean readOFSFS5Files = true;
@@ -6728,7 +6729,7 @@ throws Exception {
 					0, 100000, -1));
 	
 				// Skip bytes not needed
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // why not just combine all these things into a single line?
 				bytesToSkip = 20;
 				EDIS.skipBytes(bytesToSkip);
@@ -6796,7 +6797,7 @@ throws Exception {
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // handle exception?		
 			break;
 		}
@@ -6816,7 +6817,7 @@ throws Exception {
 	// Set the file position
 	rewind(__NWSRFS_DBFiles[__FCFGLIST]);
 	if (fgFile.getIREC() > 0) {
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 8	
 		seek(__NWSRFS_DBFiles[__FCFGLIST], (fgFile.getIREC() - 1) * 8,
 			readOFSFS5Files);
@@ -6876,7 +6877,7 @@ throws Exception {
 	// a specific CG. This means that looping through the entire file 
 	// comparing the CGID's to find all of the forecast groups is required.
 	// First create an instance of NWSRFS_ForecastGroup
-// REVISIT (JTS - 2004-08-19)
+// TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed?	
 	boolean readOFSFS5Files = true;
@@ -6940,7 +6941,7 @@ throws Exception {
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // handle exception?		
 			break;
 		}
@@ -7020,7 +7021,7 @@ throws Exception {
 	return mapArea;
 }
 
-// REVISIT - SAT - 09/20/2004 - Need to create NWSRFS_MAPArea, etc. objects
+// TODO - SAT - 09/20/2004 - Need to create NWSRFS_MAPArea, etc. objects
 // so the readMAPArea() methods can be written to actually get and store the
 // PPDB data for the Areal PPDB parameter types.
 /**
@@ -7492,12 +7493,12 @@ throws Exception {
 	}
 
 	// Determine the number of records and bytes to read for this segment
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 2	
 	int nwords = 2 + segObject.getNP() + segObject.getNT() 
 		+ segObject.getNTS();
 	int recordLengthInWords = (int)(__byteLength[__FCPARAM] / 4);
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 1	
 	int recordNum = (int)((nwords + recordLengthInWords - 1)
 		/ recordLengthInWords);
@@ -7507,7 +7508,7 @@ throws Exception {
 	rewind(__NWSRFS_DBFiles[__FCPARAM]);
 
 //sw3.start();
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 1
 	EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCPARAM],
 		segObject.getIPREC() - 1, __byteLength[__FCPARAM], bytesToRead,
@@ -8744,7 +8745,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	// Read the header record. Remember that recordNum is the record number
 	// read from the PRDINDEX file. First must get the length of the header
 	// prior to the full read.
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic numbers 64 and 6	
 	EDIS = read(RA,recordNum-1, 64, 6);
 	// Field 1 - [type field name here]
@@ -8770,7 +8771,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	tsFile.setNTSMAX((short)EDIS.readEndianShort());
 
 	// Now get the number of bytes to read to get the rest of the header
-	// REVISIT (JTS - 2004-08-18)
+	// TODO (JTS - 2004-08-18)
 	// should probably explain these magic numbers
 	EDIS.close();
 	int bytesToRead = ((int)tsFile.getLTSHDR()
@@ -8993,7 +8994,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	// Now seek to the beginning of the record + location of first regular
 	// data value in record. Remember the minimum length of a TS header 
 	// is 72 bytes then add the length of any extra header info.
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 64 and 72	
 	if (recordNum > 0) {
 		seek(RA, (recordNum - 1) * 64
@@ -9002,7 +9003,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	}
 
 	// Read the data and insert into the HourTS object
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 64	
 	EDIS = read(RA, 0, 64, obsDataNum * __WORDSIZE);
 	float floatValue;
@@ -9027,7 +9028,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		// Now seek to the beginning of the record + location 
 		// of first future data value in record. The minimum 
 		// length of a TS header is 72.
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 64 and 72		
 		if (recordNum > 0) {
 			seek(RA,
@@ -9038,7 +9039,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		}
 
 		// Read the data and insert into the HourTS object
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 64		
 		EDIS = read(RA, 0, 64, 
 			futDataNum * __WORDSIZE);
@@ -9085,7 +9086,7 @@ throws Exception {
 
 	// Check if the the database binary file is open as a
 	// Random Access object
-// REVISIT (JTS - 2004-08-19)
+// TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed? 	
 	boolean readOFSFS5Files = true;
@@ -9494,7 +9495,7 @@ throws Exception {
 		// Also need the array size for the P,T, and TS arrays.
 		if (!deepRead) {
 			// Skip bytes
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // so instead of reading the value in order to skip it, why not just
 // do a forward seek 8 bytes (or whatever)?			
 			bytesToSkip = 56;
@@ -9504,7 +9505,7 @@ throws Exception {
 			segFile.setIPREC(EDIS.readEndianInt());
 
 			// Skip more bytes
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // so instead of reading the value in order to skip it, why not just
 // do a forward seek 8 bytes (or whatever)?			
 			bytesToSkip = 80;
@@ -10328,7 +10329,7 @@ throws Exception {
 	TimeInterval timeInt = null;
 	TS ts = null;
 
-	// REVISIT SAM 2006-10-03
+	// TODO SAM 2006-10-03
 	// Allow other than Z-time to be requested - need to decide whether to
 	// automatically shift or query in Z time only.
 
@@ -10364,7 +10365,7 @@ throws Exception {
 	String dataScenario = tsident.getScenario();
 	String inputType = tsident.getInputType();
 	String inputDir = tsident.getInputName();
-	// REVISIT SAM 2006-11-22
+	// TODO SAM 2006-11-22
 	// If this method only reads one time series, then why is the wildcard
 	// even of interest?
 	if(!interval.equalsIgnoreCase("*")) {
@@ -10391,7 +10392,7 @@ throws Exception {
 	if (inputType.equalsIgnoreCase("NWSRFS_ESPTraceEnsemble")) {
 		NWSRFS_ESPTraceEnsemble espTE = readESPTraceEnsemble(
 			tsident.getInputName(), read_data);
-		// REVISIT (JTS - 2004-08-21)
+		// TODO (JTS - 2004-08-21)
 		// ts never instantiated above -- gonna get null pointers
 		// if this if() {} is ever entered.
 		ts = new HourTS();
@@ -10444,7 +10445,7 @@ throws Exception {
 		// appropriate database.  This will contain separate TS
 		// instances for observed and future data.
 
-		// REVISIT SAM 2006-11-22
+		// TODO SAM 2006-11-22
 		// Not sure why it is done this way, but try to simplify a lot
 		// of the following code to clarify handling of observed and
 		// future data.  Need to further clean up when there is time.
@@ -10459,7 +10460,7 @@ throws Exception {
 				tsDTInterval, read_data);
 		}
 		
-		// REVISIT SAM 2006-11-22
+		// TODO SAM 2006-11-22
 		// Why not return null or throw an exception if nothing returned
 		// above?  Why only check if data are NOT to be read?
 
@@ -10472,7 +10473,7 @@ throws Exception {
 			else {	// Have a time series so return the observed
 				// time series with its header...
 				return tsObject.getObservedTS();
-				// REVISIT SAM 2006-11-22
+				// TODO SAM 2006-11-22
 				// The header should take into account the
 				// future data also.
 			}
@@ -10517,7 +10518,7 @@ throws Exception {
 		// If this time series has data type of MAP TS and both
 		// observed and future data are desired, then read the FMAP
 		// datatype.
-		// REVISIT SAM 2006-11-22
+		// TODO SAM 2006-11-22
 		// Why does NWSRFS_TimeSeries have observed and future time
 		// series if we need to do two reads?
 
@@ -10525,7 +10526,7 @@ throws Exception {
 		    && (dataScenario.equalsIgnoreCase("both") ||
 			dataScenario.equalsIgnoreCase("fut")) ) {
 			// Read the future MAP (FMAP).
-			// REVISIT SAM 2006-12-12
+			// TODO SAM 2006-12-12
 			// FMAP time series are returned below as observed and
 			// then set in the future time series.  This is
 			// confusing and needs to be corrected.
@@ -10584,12 +10585,12 @@ throws Exception {
 		ts = new HourTS();
 		// Set data type in TS object
 		ts.setDataType(dataType);
-		// REVISIT SAM 2006-11-22
+		// TODO SAM 2006-11-22
 		// Need to remove or use...
 		//tsident.setInputType("NWSRFS_FS5Files");
 		ts.setInputName("\""+getFS5FilesLocation()+":"+
 			__dbFileNames[tsObject.getPrdIndex()]+"\"");
-		// REVISIT SAM 2006-11-22
+		// TODO SAM 2006-11-22
 		// Need to remove or use...
 		//tsident.setInputName(inputDir);
 		// Set from the original request...
@@ -10617,7 +10618,7 @@ throws Exception {
 		// The observed time series was needed for header information
 		// above but don't need it anymore if it was not requested.  Set
 		// it to null so that it is not processed below.
-		// REVISIT SAM 2006-11-22
+		// TODO SAM 2006-11-22
 		// Need to get the header information for above, considering
 		// observed and future, not just observed.
 		
@@ -11330,7 +11331,7 @@ throws Exception
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-		// REVISIT (JTS - 2004-08-21)
+		// TODO (JTS - 2004-08-21)
 		// expensive!
 			break;
 		}
@@ -11975,7 +11976,7 @@ throws Exception {
 	
 	// Loop through an unused portion of the first record.
 	for (i = 0; i < 7; i++) {
-		// REVISIT (JTS - 2004-08-18)
+		// TODO (JTS - 2004-08-18)
 		// why not just skip ahead 32 (or is it 64?) bytes?
 		EDIS.readEndianInt();
 	}
@@ -12119,7 +12120,7 @@ throws Exception {
 				+ __dbFileNames[prdIndex] + " binary database file");
 		}
 
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // explain the magic number 4 and 5		
 		EDIS = read(__NWSRFS_DBFiles[prdIndex],0, 4, 5);
 		if (tsFile.getIUNIT() == EDIS.readEndianInt()) {
@@ -12367,7 +12368,7 @@ non-null Vector is guaranteed; however, the list may be zero-length.
 */
 public Vector readUSERPARMList ()
 throws Exception
-{	// REVISIT SAM 2006-10-03
+{	// TODO SAM 2006-10-03
 	// Not sure why Scott was doing things the way he did.  It seems like
 	// the following is easier to understand.  Maybe he thought that reading
 	// the bytes and then parsing performed better?
@@ -12385,7 +12386,7 @@ throws Exception
 		return list;
 	}
 	// Read the records in the file...
-	// REVISIT SAM 2006-10-03
+	// TODO SAM 2006-10-03
 	// Add intelligent messages for end of file detection...
 	byte[] b = new byte[__byteLength[__USERPARM] -12];// Ignored bytes at
 							// end of rec
@@ -12668,7 +12669,7 @@ throws Exception {
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // handle exception?			
 			// just catch this and go on
 		}
@@ -12696,7 +12697,7 @@ throws Exception {
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-// REVISIT (JTS - 2004-08-21)
+// TODO (JTS - 2004-08-21)
 // handle exception?			
 			// just catch and go on
 		}
@@ -12896,7 +12897,7 @@ throws Exception {
 }
 
 
-// REVISIT (JTS)
+// TODO (JTS)
 // simply used as a test for counting the number of times exceptions are thrown
 // in various places.  They can definitely be removed later.
 public static int exceptionCount = 0;
