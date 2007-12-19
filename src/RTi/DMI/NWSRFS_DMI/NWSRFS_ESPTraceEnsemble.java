@@ -221,7 +221,7 @@ in the historical year that is input for the trace.
 </pre>
 
 <br>
-REVISIT SAM 2004-04-06
+TODO SAM 2004-04-06
 A historical ESP trace ensemble is ... need to finish this later.  The
 conditional simulation is the initial focus.  SAM thinks the only reason ESP
 trace files are used for historical data is so that ESPADP can analyze them.
@@ -246,7 +246,7 @@ try {	e = new ESPTraceEnsemble(filename);
 The format of the ESP trace ensemble file is as follows.  Each record is 124
 4-byte words (496 bytes total).
 <pre>
-REVISIT SAM 2004-04-07 Need to complete this documentation, especially to
+TODO SAM 2004-04-07 Need to complete this documentation, especially to
 correlate the word in the file with the internal data member.  Also document in 
 the TSTool appendix - SAM is working on a skeleton.
 Record 1 - Identification information
@@ -435,7 +435,7 @@ private float __xlong = (float)0.0;	// Longitude of segment in decimal
 // stored above (e.g., __xlat).  Where there is potential confusion (e.g., with
 // dates, a copy is stored in the header data below).
 
-// REVISIT SAM 2004-04-07 Can the following be renamed or be phased out?  Some
+// TODO SAM 2004-04-07 Can the following be renamed or be phased out?  Some
 // of this seems to be redundant with the above and may be used only by ESPADP
 // during accumulations.
 
@@ -510,12 +510,12 @@ throws Exception
 
 	initialize();
 
-	// REVISIT SAM 2004-12-01 I do not see why this is needed!  The read
+	// TODO SAM 2004-12-01 I do not see why this is needed!  The read
 	// and write can occur independent of the DMI.
 
 	// Create a limited NWSRFS_DMI to do the read and write.
 	__dmi = new NWSRFS_DMI();
-//	__big_endian = __dmi.getIsBigEndian();
+	//__big_endian = __dmi.getIsBigEndian();
 
 	readHeader();
 	if ( read_data ) {
@@ -569,7 +569,7 @@ throws Exception
 	}
 }
 
-// REVISIT SAM 2004-04-07 - probably need to add more properties below to
+// TODO SAM 2004-04-07 - probably need to add more properties below to
 // set all the data that are needed.
 
 /**
@@ -724,7 +724,7 @@ throws Exception
 	// Need to set the date information at once to be able to make sense
 	// of things.
 	__start_date = new DateTime (__ts[0].getDate1());
-	// REVISIT SAM 2004-11-29 Why is this commented out - can it be removed?
+	// TODO SAM 2004-11-29 Why is this commented out - can it be removed?
 	//	__start_date.addHour ( __nlstz+__noutds );	// One interval less than start
 
 	__carryover_date = new DateTime ( __start_date );
@@ -739,7 +739,7 @@ throws Exception
 	Message.printStatus ( 2, routine, "Start date (24 local) = " +
 		start_date24 );
 	__end_date = new DateTime ( __ts[0].getDate2() );
-	// REVISIT SAM 2004-11-29 Why is this commented out - can it be removed?
+	// TODO SAM 2004-11-29 Why is this commented out - can it be removed?
 	//	__end_date.addHour ( __nlstz+__noutds );	// One interval less than start
 
 	DateTime end_date24 = NWSRFS_Util.toDateTime24(__end_date, true);
@@ -1233,7 +1233,7 @@ protected Vector getHeaderStrings ( TS tsin )
 	strings.addElement("PRSFFlag = " + __prsf_flag );
 	strings.addElement("UserComments = \"" + __esptext + "\"");
 
-	// REVISIT SAM 2004-04-07 - need to evaluate whether the following
+	// TODO SAM 2004-04-07 - need to evaluate whether the following
 	// make sense or just make the information more confusing.
 
 	/* Extra stuff that may not be needed
@@ -1393,7 +1393,7 @@ private void initialize ()
 	__ts_id = "";
 	__ts_type = "";
 	__ts_dt = 0;
-	// REVISIT SAM 2004-04-07 - what really is the meaning of the version?
+	// TODO SAM 2004-04-07 - what really is the meaning of the version?
 	// Can we document the differences in the file contents and make the
 	// code handle appropriately?
 	__format_ver = (float)1.01;	// Value used in examples as of
@@ -1417,7 +1417,7 @@ private void initialize ()
 	__lhlst = 0;
 	__ncm = 0;
 	__nlstz = 0;
-	// REVISIT
+	// TODO
 	//__yrwtrec = 0;
 	__irec = 2;	// Default record for first data line 
 	__espfname = "";
@@ -1428,7 +1428,7 @@ private void initialize ()
 	__calibration_flag = 0;
 	__error_model_flag = 0;
 	__prsf_flag = 0;	// Default for no PRSF.
-	// REVISIT - not ported from C+...
+	// TODO - not ported from C+...
 	//_histArray = new float* [MAX_TOTAL];
 	__xlat = (float)0.0;
 	__xlong = (float)0.0;
@@ -2054,7 +2054,7 @@ throws Exception
 
 	// ldarun in the file is already in local time because that is what
 	// ESP writes - use the local hour to convert, as per Jay Day
-	// REVISIT - should __lhlst be put in here?
+	// TODO - should __lhlst be put in here?
 	DateTime ldarun_date = NWSRFS_Util.mdyh1(__ldarun, __lhlst );
 	Message.printStatus ( 2, routine,
 		"ldarun as local date/time = " +
@@ -2092,7 +2092,7 @@ throws Exception
 	__hdr_id_creationdate.setMinute(__now[3] - (__now[3] / 100) * 100);
 	// Seconds are not tracked.
 
-	// REVISIT - original C++ code had something here about weights.
+	// TODO - original C++ code had something here about weights.
 
 	// Now set the data members of the trace ensemble
 
@@ -2102,16 +2102,16 @@ throws Exception
 	else {	__prsf_flag = 0;
 	}
 
-	// REVISIT
+	// TODO
 	//__time_zone.setNumber ( __nlstz, noutds );
 
-	// REVISIT - need to handle data types her to get the time scale
+	// TODO - need to handle data types her to get the time scale
 	// ACCM, MEAN, INST, etc.
 
 	// Break the data type description by commas, and only use the first
 	// token in the list.
 
-	// REVISIT - apparently comes out of the data type information
+	// TODO - apparently comes out of the data type information
 	//Vector desc_list = StringUtil.breakStringList ( words, ",",
 	//		StringUtil.DELIM_SKIP_BLANKS );
 	//__hdr_id_datatypedesc ( (String)desc_list.elementAt(0) );
@@ -2132,7 +2132,7 @@ throws Exception
 	Message.printStatus ( 2, routine,
 	"Trace end local time (end of forecast) = " + __end_date );
 
-	// REVISIT SAM 2004-04-07 
+	// TODO SAM 2004-04-07 
 	// These are stored but not really supported yet - we might want to
 	// remove redundant data members and rename if appropriate.
 
@@ -2262,7 +2262,7 @@ throws Exception
 	DateValueTS.writeTimeSeriesList ( getTimeSeriesVector(), filename );
 }
 
-/* REVISIT - sat 2004-11-30
+/* TODO - sat 2004-11-30
   The following two write methods are really quite different. One uses an
 EndianDataOutputStream (EDOS) to write the file (the preferred method)
 the other does the bytes shifts manually then does a straight write to
@@ -2290,7 +2290,7 @@ throws Exception
 	int i,recordIndex;
 	String routine = "NWSRFS_ESPTraceEnsemble.writeESPTraceEnsembleFile";
 	File f = null;
-	// REVISIT SAM 2004-12-01 Both of the following approaches seem to
+	// TODO SAM 2004-12-01 Both of the following approaches seem to
 	// give the same results.  At some point may want to do a performance
 	// test and pick the fastest.
 	//EndianDataOutputStream fp;
@@ -2312,7 +2312,7 @@ throws Exception
 	// Open EndianRandomAccessFile with the defined endian-ness and replace
 	// current file if it exists.
 
-	// REVISIT SAM 2004-12-01  SAT was using the __dmi.write() method to 
+	// TODO SAM 2004-12-01  SAT was using the __dmi.write() method to 
 	// open the file.  Why is this necessary?  There may be times that
 	// an ESP trace ensemble file needs to be written independent of any
 	// DMI.  What benefit is there to use the DMI?
@@ -2654,7 +2654,7 @@ throws Exception
 	fp = null;
 }
 
-// REVISIT SAM 2004-12-01 The byte conversions below seem to work like this:
+// TODO SAM 2004-12-01 The byte conversions below seem to work like this:
 // The file is always big-endian because of the defaults.  The byte shifts
 // convert to little endian in memory.  The write method writes as big-endian,
 // which essentially passes through the data.  Therefore, the in-memory little

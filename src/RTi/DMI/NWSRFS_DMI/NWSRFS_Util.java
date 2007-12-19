@@ -597,7 +597,7 @@ throws Exception
 	return julianDay;
 }
 
-// REVISIT - are hours 0-23 or 1-24?
+// TODO - are hours 0-23 or 1-24?
 /**
 Calculates a Julian Hour from a given date and returns it.  Julian hours
 start at 1 on January 1, 1900 @ 0100, and go up from there (ie, 
@@ -631,7 +631,7 @@ database files.
 @return the valid data intervals for a time series data type.
 */
 public static Vector getDataTypeIntervals ( NWSRFS_DMI dmi, String datatype )
-{	// REVISIT SAM 2004-09-01 - need to determine if performance will
+{	// TODO SAM 2004-09-01 - need to determine if performance will
 	// allow determining the intervals that are actually defined for the
 	// data type.
 	Vector intervals = new Vector ( 8 );
@@ -682,7 +682,7 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 						boolean include_desc,
 						boolean include_preprocessor_db,
 						boolean include_processed_db )
-{	// REVISIT SAM 2004-09-01 - need to determine if performance will
+{	// TODO SAM 2004-09-01 - need to determine if performance will
 	// allow determining the data types that are actually defined in the
 	// database.
 	String routine = "NWSRFS_Util.getTimeSeriesDataTypes";
@@ -767,7 +767,7 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 		// for preprocessor data types.
 		try {	// This will place the data types in the global
 			// IOUtil.DataType space...
-			// REVISIT SAM 2004-09-07 - need to initialize the
+			// TODO SAM 2004-09-07 - need to initialize the
 			// data types once and not read here each time.
 			dmi.readDataTypeList ();
 			Vector v = DataType.getDataTypesData();
@@ -796,7 +796,7 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 			}
 		}
 		catch ( Exception e ) {
-			// REVISIT SAM 2004-09-01 will get an exception if apps
+			// TODO SAM 2004-09-01 will get an exception if apps
 			// defaults are NOT used.  Need to configure the
 			// DATATYPE file in the TSTool.cfg for this case!
 		}
@@ -1517,10 +1517,8 @@ public static String get_apps_defaults(String request)
 	// app-defaults files to pull from the users enviornment.
 	appDFile = new String[4];
 	appDFile[0] = "APPS_DEFAULTS_USER";	// apps-defaults personal file
-	appDFile[1] = "APPS_DEFAULTS_PROG";	// apps-defaults for specific
-						// program
-	appDFile[2] = "APPS_DEFAULTS_SITE";	// apps-defaults for local site
-						// file
+	appDFile[1] = "APPS_DEFAULTS_PROG";	// apps-defaults for specific program
+	appDFile[2] = "APPS_DEFAULTS_SITE";	// apps-defaults for local site	file
 	appDFile[3] = "APPS_DEFAULTS";		// apps-defaults default file
 
 	// Check to see if this is a UNIX/Linux machine. If not return null.
@@ -1548,13 +1546,11 @@ public static String get_apps_defaults(String request)
 		// Loop through the app-defaults files  
 		for(appDFileIndex=0;appDFileIndex < 4;appDFileIndex++)
 		{
-			if((appDFileValue = getenv(appDFile[appDFileIndex]))
-				!= null)
+			if((appDFileValue = getenv(appDFile[appDFileIndex]))!= null)
 			{
 				// Now check to see if the token value is in the
 				// app-defaults file if so we return it.
-				if((requestValue =
-				get_token(request,appDFileValue)) != null)
+				if((requestValue = get_token(request,appDFileValue)) != null)
 				{
 					return requestValue;
 				}
@@ -1583,57 +1579,49 @@ public static String keyFromAppsDefaults( String token ) {
 	String result = null;
 
 	String cmd = "get_apps_defaults " + token;
-	String[] cmd_arr = {"get_apps_defaults",  token };
 	
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 15, routine, 
-		"Command to run: \"" + cmd + "\"." );
+		Message.printDebug( 15, routine, "Command to run: \"" + cmd + "\"." );
 	}
 
 	//set up process manager to run it...
 	Vector v = null;
 	int exitstat = -99;
-	ProcessManager pm = new ProcessManager( cmd );
-	pm.setCommandInterpreter(null);
 	try {
+        ProcessManager pm = new ProcessManager( cmd );
+        pm.setCommandInterpreter(null);
 		pm.saveOutput( true );
 		pm.run();
 		v = pm.getOutputVector();
 		//v = pm.runUntilFinished();
 		exitstat = pm.getExitStatus();
-		if (( exitstat == 0 ) && ( v != null ) && 
-			( v.size() > 0 )) {
+		if (( exitstat == 0 ) && ( v != null ) && ( v.size() > 0 )) {
 			//then command ran successfully
 			result = (String)v.elementAt( 0 );
 			if ( Message.isDebugOn ) {
-				Message.printDebug( 25, routine, 
-				"Value returned from running: \"" +
-				cmd + "\" is: \"" + result + "\"." );
+				Message.printDebug( 25, routine, "Value returned from running: \"" + cmd + "\" is: \"" + result + "\"." );
 			}
 		}
 		else {
 			//there was an error running the command.
-			Message.printWarning( 2, routine,
-			"Unable to run command: \"" + cmd +
-			"\" successfully.  Please check the apps defaults.");
+			Message.printWarning( 3, routine,
+			"Unable to run command: \"" + cmd +	"\" successfully.  Please check the apps defaults.");
 			//returns null
 		}
 	}
 	catch ( Exception e ) {
 		Message.printWarning( 2, routine, 	
-		"Unable to run command: \"" + cmd +
-		"\" successfully.  Please check the apps defaults.");
-		Message.printWarning( 2, routine, e );
+		"Unable to run command: \"" + cmd + "\" successfully.  Please check the apps defaults.");
+		Message.printWarning( 3, routine, e );
 	}
 	//clean up
 	v = null;
-	pm = null;
 	
 	return result;
 
-} //end keyFromAppsDefaults
+}
 
-// REVISIT SAM 2004-09-01 the PropList code works on the Apps Defaults format?
+// TODO SAM 2004-09-01 the PropList code works on the Apps Defaults format?
 /**
 Search the supplied apps-defaults file for the given request token. This
 method needs to be finished to allow for referback variables (tokens) in an
@@ -1714,7 +1702,7 @@ private static String get_token(String request, String appsDefaultsFile)
 		if(isDone)
 			return checkString;
 	}
-	// REVISIT SAM 2004-09-01 - no need to catch separately and not much
+	// TODO SAM 2004-09-01 - no need to catch separately and not much
 	// value added with the message.
 	catch(EOFException EOFe)
 	{
@@ -1745,7 +1733,7 @@ private static String get_token(String request, String appsDefaultsFile)
 	return null;
 }
 
-// REVISIT SAM 2004-09-01 This should be in IOUtil, etc., if it is useful
+// TODO SAM 2004-09-01 This should be in IOUtil, etc., if it is useful
 /**
 This method is a replacement method for the System.getenv, which was deprecated.
 @param request is the request string to search the users environment.
@@ -2911,7 +2899,7 @@ public static String increment_nwsrfsDays2( String nwsdate, int increment ) {
 } //end increment_nwsrfsDays2
 
 
-// REVISIT SAM 2004-11-02 Remove this method after confirming that
+// TODO SAM 2004-11-02 Remove this method after confirming that
 // plotTimeSeries() works from the NWSRFS_System_JTree
 /**
 Method used to create a plot of the selected Time Series from 
@@ -3050,7 +3038,7 @@ public static void plotSelectedTimeSeries( Vector ts_names_vect, NWSRFS nwsrfs )
 	
 }//end plotSelectedTimeSeries
 
-// REVISIT SAM 2004-11-02 Over time enhance this method to configure the plot
+// TODO SAM 2004-11-02 Over time enhance this method to configure the plot
 // based on data type, etc.  For example, display precipitation plots as
 // bars.  Can also configure to plot multiple graphs on a page.  For now, just
 // display everything as line graphs.
