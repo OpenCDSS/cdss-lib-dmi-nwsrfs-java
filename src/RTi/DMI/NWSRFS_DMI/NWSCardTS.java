@@ -272,8 +272,8 @@ public static boolean isNWSCardFile ( String filename )
 {
 	BufferedReader in = null;
 	String full_fname = IOUtil.getPathUsingWorkingDir ( filename );
-	try {	in = new BufferedReader ( new InputStreamReader(
-				IOUtil.getInputStream ( full_fname )) );
+	try {
+        in = new BufferedReader ( new InputStreamReader( IOUtil.getInputStream ( full_fname )) );
 
 		// Read lines and check for common NWS Card file strings
 		String string = null;
@@ -325,22 +325,18 @@ public static boolean isNWSCardTraceFile ( String filename )
 
 	try {
 		String full_fname = IOUtil.getPathUsingWorkingDir ( filename );
-		BufferedReader inBufferedReader = new BufferedReader (
-			new InputStreamReader( IOUtil.getInputStream (
-				full_fname ) ) );
+		BufferedReader inBufferedReader = new BufferedReader (new InputStreamReader( IOUtil.getInputStream (full_fname)));
 
 		is_NWSCardTraceFile = isNWSCardTraceFile ( inBufferedReader );
 
 		inBufferedReader.close();
 		inBufferedReader = null;
 
-		return  is_NWSCardTraceFile;
+		return is_NWSCardTraceFile;
 
 	}
 	catch ( Exception e ) {
-
 		return false;
-
 	}
 }
 
@@ -445,12 +441,7 @@ throws IOException
 	try {
         BufferedReader in = new BufferedReader ( new InputStreamReader(	IOUtil.getInputStream ( full_fname )) );
 		// Don't have a requested time series...
-		ts = readTimeSeries (   (TS)null, 
-					in,
-					req_date1,
-					req_date2,
-					req_units,
-					read_data );
+		ts = readTimeSeries ( (TS)null, in,	req_date1, req_date2, req_units, read_data );
 			
 		// Set some time series properties.	
 		ts.setInputName ( fname );
@@ -487,7 +478,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static TS readTimeSeries ( String 	tsident_string,
+public static TS readTimeSeries ( String tsident_string,
 				  String 	fname,
 				  DateTime 	req_date1,
 				  DateTime 	req_date2,
@@ -512,20 +503,15 @@ throws IOException
 			IOUtil.getInputStream ( full_fname ) ) );
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine, "Unable to open file \"" + fname + "\"" );
-			full_fname = null;
-			return null;	
+            String message = "Unable to open file \"" + fname + "\"";
+			Message.printWarning( 2, routine, message );
+			throw new IOException ( message );	
 		}
 		
 		// Read a NWS Card single time series file.
 		try {				
 			// Don't have a requested time series...
-			ts = readTimeSeries ( (TS) null,
-					      in,
-					      req_date1,
-					      req_date2,
-					      req_units,
-					      read_data );
+			ts = readTimeSeries ( (TS) null, in, req_date1, req_date2, req_units, read_data );
 			
 			// Set some time series properties.
 			ts.setInputName  ( fname );
@@ -541,9 +527,7 @@ throws IOException
 			Message.printWarning ( 2, routine, msg );
 			Message.printWarning ( 3, routine, e );
 			in.close();
-			in = null;
-			full_fname = null;
-			return null;
+			throw new IOException ( msg );
 		}	
 	}
 	else {
@@ -558,12 +542,7 @@ throws IOException
 			// setting time series properties in the higher level
 			// method overloads, should be properly moved to the 
 			// lower level processing overload.  
-			TSList = readTimeSeriesList ( (TS) null,
-				      		      fname,
-				      		      req_date1,
-				      		      req_date2,
-				      		      req_units,
-				      		      read_data );
+			TSList = readTimeSeriesList ( (TS) null, fname, req_date1, req_date2, req_units, read_data );
 			
 			// Retrieve only the requested time series from the
 			// returning vector 
@@ -586,7 +565,7 @@ throws IOException
 			msg = "Error reading the NWS Card Trace file \"" + fname + "\"";
 			Message.printWarning ( 2, routine, msg );
 			Message.printWarning ( 3, routine, e );
-			return null;
+			throw new IOException ( msg );
 		}
 	}
 	
@@ -618,12 +597,8 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-private static TS readTimeSeries ( TS req_ts,
-				  BufferedReader in,
-				  DateTime req_date1,
-				  DateTime req_date2,
-				  String req_units,
-				  boolean read_data )
+private static TS readTimeSeries ( TS req_ts, BufferedReader in, DateTime req_date1, DateTime req_date2,
+				  String req_units, boolean read_data )
 throws IOException				  
 {
 	//String	routine = "NWSCardTS.readTimeSeries";
@@ -639,13 +614,7 @@ throws IOException
 	// "false", even if the file is a NWS Card Trace file.  This ensure
 	// that the file will alwasy be processed as a NWS Card single time
 	// series file and the returning time series is the one expected. 
-	TSList = readTimeSeriesList ( false,
-				      req_ts,
-				      in,
-				      req_date1,
-				      req_date2,
-				      req_units,
-				      read_data );
+	TSList = readTimeSeriesList ( false, req_ts, in, req_date1, req_date2, req_units, read_data );
 
 	// One time series is expected. So make sure the returned vector is not
 	// null and contains one element. Retrieve the element.
@@ -655,8 +624,7 @@ throws IOException
 		}
 	}
 
-	// Return the reference to the time series or null if the time series
-	// was not properly read.
+	// Return the reference to the time series or null if the time series was not properly read.
 	return ts;
 }
 
@@ -675,19 +643,11 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static Vector readTimeSeriesList ( String fname,
-					  DateTime req_date1,
-					  DateTime req_date2,
-					  String req_units,
-					  boolean read_data )
+public static Vector readTimeSeriesList ( String fname, DateTime req_date1, DateTime req_date2,
+					  String req_units, boolean read_data )
 throws IOException
 {
-	return readTimeSeriesList ( 	null,
-					fname,
-				      	req_date1,
-				     	req_date2,
-				      	req_units,
-				      	read_data );
+	return readTimeSeriesList (	null, fname, req_date1,	req_date2, req_units, read_data );
 }
 
 /**
@@ -711,16 +671,11 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static Vector readTimeSeriesList ( TS req_ts,
-					  String fname,
-					  DateTime req_date1,
-					  DateTime req_date2,
-					  String req_units,
-					  boolean read_data )
+public static Vector readTimeSeriesList ( TS req_ts, String fname, DateTime req_date1, DateTime req_date2,
+					  String req_units, boolean read_data )
 throws IOException
 {
-	return readTimeSeriesList(req_ts, fname, req_date1, req_date2, 
-		req_units, read_data, null);
+	return readTimeSeriesList(req_ts, fname, req_date1, req_date2, req_units, read_data, null);
 }
 
 /**
@@ -778,14 +733,7 @@ throws IOException {
 		in = new BufferedReader(new InputStreamReader( IOUtil.getInputStream(full_fname)));
 
 		// Read the time series list
-		TSList = readTimeSeriesList ( 	is_nwsCardTrace,
-						req_ts,
-				      		in,
-				      		req_date1,
-				     		req_date2,
-				      		req_units,
-				      		read_data,
-						props);
+		TSList = readTimeSeriesList ( is_nwsCardTrace, req_ts, in, req_date1, req_date2, req_units, read_data, props);
 				      		
 		// Update the time series InputType (NWSCard) and InputName
 		// (fname) properties.
@@ -810,7 +758,9 @@ throws IOException {
 		full_fname = null;
 	}
 	catch (Exception e) {
-		Message.printWarning(2, routine, "Unable to open file \"" + fname + "\"");
+        String message = "Unable to open file \"" + fname + "\"";
+		Message.printWarning(2, routine, message );
+        throw new IOException ( message );
 	}
 
 	return TSList;
@@ -846,13 +796,8 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-private static Vector readTimeSeriesList ( boolean is_nwsCardTrace,
-					  TS req_ts,
-					  BufferedReader in,
-					  DateTime req_date1,
-					  DateTime req_date2,
-					  String req_units,
-					  boolean read_data )
+private static Vector readTimeSeriesList ( boolean is_nwsCardTrace, TS req_ts, BufferedReader in,
+					  DateTime req_date1, DateTime req_date2, String req_units, boolean read_data )
 throws IOException {
 	return readTimeSeriesList(is_nwsCardTrace, req_ts, in, req_date1,
 		req_date2, req_units, read_data, null);
@@ -864,8 +809,7 @@ It will read all the traces from a NWS Card Trace file or a single time series
 from a NWS Card file. 
 This private method overload is called from the public overload versions
 returning a single time series and a vector of time series, where the 
-BufferedReader object is instantiated and additional post processing are still
-performed.
+BufferedReader object is instantiated and additional post processing are still performed.
 @return a vector containing reference to one or more time series (or null in 
 case of problems) when processing a NWS Card or a NWS Card Trace file.
 @param is_nwsCardTrace flag indicating that the file is to be read as a NWS Card
@@ -1011,7 +955,7 @@ throws IOException {
 	            string = in.readLine();
 	            if ( string == null ) {
 	                throw new IOException(
-	                        "EOF while parsing the general header at line \"" + string + "\" of a NWS Trace Card file.");
+	                    "EOF while parsing the general header at line \"" + string + "\" of a NWS Trace Card file.");
 	            }
 	            ++line_count;
 
