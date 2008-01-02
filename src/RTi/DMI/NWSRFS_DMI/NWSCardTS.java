@@ -2175,8 +2175,7 @@ will be converted on output.
 writing the header) (<b>currently not used</b>).
 @exception IOException if there is an error writing the file.
 */
-public static void writeTimeSeries (	TS ts, String fname,
-					DateTime req_date1, DateTime req_date2,
+public static void writeTimeSeries ( TS ts, String fname, DateTime req_date1, DateTime req_date2,
 					String req_units, boolean write_data )
 throws IOException
 {
@@ -2184,11 +2183,11 @@ throws IOException
 
 	String full_fname = IOUtil.getPathUsingWorkingDir ( fname );
 	//try {	out = new PrintWriter (new FileWriter(full_fname));
-	try {	out = new PrintWriter ( new FileOutputStream ( full_fname ) );
+	try {
+        out = new PrintWriter ( new FileOutputStream ( full_fname ) );
 	}
 	catch ( Exception e ) {
-		String message =
-		"Error opening \"" + full_fname + "\" for writing.";
+		String message = "Error opening \"" + full_fname + "\" for writing.";
 		Message.printWarning ( 2, "NWSCardTS.writeTimeSeries", message);
 		out = null;
 		throw new IOException ( message );
@@ -2210,12 +2209,10 @@ will be converted on output.
 @param write_data Indicates whether data should be written.
 @exception IOException if there is an error writing the file.
 */
-public static void writeTimeSeries (	TS ts, PrintWriter fp,
-					DateTime req_date1, DateTime req_date2,
+public static void writeTimeSeries ( TS ts, PrintWriter fp,	DateTime req_date1, DateTime req_date2,
 					String req_units, boolean write_data )
 throws IOException
-{	String	cfmt = "%10.3f", dimension, nfmt = "F10.3", message,
-		routine="NWSHourTS.writePersistent";
+{	String	cfmt = "%10.3f", dimension, nfmt = "F10.3", message, routine="NWSHourTS.writePersistent";
 
 	if ( ts == null ) {
 		message = "Time series is null, cannot continue.";
@@ -2228,6 +2225,10 @@ throws IOException
 		Message.printWarning( 2, routine, message );
 		throw new IOException ( message );
 	}
+    if ( Message.isDebugOn ) {
+        Message.printDebug ( 2, routine, "Requesting to write NWS card file for period " + req_date1 +
+            " to " + req_date2 + " units=" + req_units );
+    }
 
 	// The default output format is OK for normal values up to -9999.999 or
 	// 99999.999.  However, sometimes very large numbers are encountered.
@@ -2278,7 +2279,7 @@ throws IOException
 	// Else use the 10.3 default originally defined.
 
 	// Get the interval information.  This is used primarily for iteration.
-	// The intput time series must be hourly or 1Day.
+	// The input time series must be hourly or 1Day.
 
 	int data_interval_base = ts.getDataIntervalBase();
 	int data_interval_mult = ts.getDataIntervalMult();
@@ -2298,19 +2299,23 @@ throws IOException
 	"   DESCRIPTION=" + ts.getDescription() );
 
 	// Set dates to write...
-	DateTime	date1 = new DateTime ( DateTime.PRECISION_HOUR ),
-			date2 = new DateTime ( DateTime.PRECISION_HOUR );
+	DateTime date1 = new DateTime ( DateTime.PRECISION_HOUR );
+	DateTime date2 = new DateTime ( DateTime.PRECISION_HOUR );
+    boolean req_date1_boolean = false;
+    boolean req_date2_boolean = false;
 	if ( req_date1 != null ) {
-		date1 = req_date1;
+		date1 = new DateTime(req_date1);
+        req_date1_boolean = true;
 	}
 	else {
-        date1 = ts.getDate1();
+        date1 = new DateTime(ts.getDate1());
 	}
 	if ( req_date2 != null ) {
-		date2 = req_date2;
+		date2 = new DateTime(req_date2);
+        req_date2_boolean = true;
 	}
 	else {
-        date2 = ts.getDate2();
+        date2 = new DateTime(ts.getDate2());
 	}
 
 	// Adjust the dates to make sure they line up with even months.  Use
@@ -2354,12 +2359,11 @@ throws IOException
 			date2.setHour(0);
 		}
 	}
-	// If outputting one month, the above may adjust the end time back to
-	// the start of the month...
+	// If outputting one month, the above may adjust the end time back to the start of the month...
 	if ( date2.lessThan ( date1 ) ) {
 		date2.addMonth ( 1 );
 	}
-	Message.printStatus ( 1, routine, "Dates for NWS Card output are " + date1.toString() + " to "+	date2.toString() );
+	Message.printStatus ( 2, routine, "Dates for NWS Card output file (complete month) are " + date1.toString() + " to " +	date2.toString() );
 
     // Construct as DATE_FAST.  Otherwise, setting the hour to 24 below will throw an exception.
     
@@ -2460,13 +2464,11 @@ throws IOException
 	}
 
 	// Get the conversion factors to use for output.  Don't call
-	// TSUtil.convertUnits because we don't want to alter the time
-	// series itself...
+	// TSUtil.convertUnits because we don't want to alter the time series itself...
 	double mult = 1.0;
 	double add = 0.0;
 	boolean convert_units = false;
-	if (	(req_units != null) && (req_units.length() != 0) &&
-		!req_units.equalsIgnoreCase(ts.getDataUnits()) ) {
+	if ( (req_units != null) && (req_units.length() != 0) && !req_units.equalsIgnoreCase(ts.getDataUnits()) ) {
 		try {
             DataUnitsConversion conversion=DataUnits.getConversion ( ts.getDataUnits(), req_units );
 			mult = conversion.getMultFactor();
@@ -2499,8 +2501,7 @@ throws IOException
 	// This impacts where the check for the new month occurs.
 
 	// The starting date must always results in a CARD file date at the
-	// first position of the month, even if missing data need to be
-	// inserted.
+	// first position of the month, even if missing data need to be inserted.
 
 	// If hourly, need to initialize this since in general will only be
 	// initialized after processing a data value...
@@ -2514,6 +2515,7 @@ throws IOException
 	}
 
 	String location = StringUtil.formatString(id.getLocation(),"%-12.12s");
+    double missing = ts.getMissing();   // used when printing outside requested period
 	for ( ; date.lessThanOrEqualTo(date2);
 		date.addInterval(data_interval_base,data_interval_mult) ) {
 		// For hour data:
@@ -2546,15 +2548,19 @@ throws IOException
 
 		// Append the data to the buffer...
 
+        value = ts.getDataValue(date);
+        if ( (req_date1_boolean && date.lessThan(req_date1)) || (req_date2_boolean && date.greaterThan(req_date2)) ) {
+            // Date being processed is outside the requested period so use missing.
+            value = missing;
+        }
 		if ( convert_units ) {
-			value =	ts.getDataValue(date);
 			if ( !ts.isDataMissing(value) ) {
 				value = value*mult + add;
 			}
 			buffer.append( StringUtil.formatString(value,cfmt));
 		}
 		else {
-            buffer.append( StringUtil.formatString(	ts.getDataValue(date),cfmt) );
+            buffer.append( StringUtil.formatString(value,cfmt) );
 		}
 
 		// Determine whether the line should be printed.
@@ -2571,9 +2577,8 @@ throws IOException
 			month_card = month;
 			year_card = date.getYear();
 			if ( (data_interval_base == TimeInterval.HOUR) && (date.getDay() == 1) && (date.getHour() == 0) ) {
-				// Might have situation where 1 day is left over
-				// at the end of month.  Internally it is in the
-				// 0th hour of the first day of the next month
+				// Might have situation where 1 day is left over at the end of month.
+                // Internally it is in the 0th hour of the first day of the next month
 				// so need to set the month right.
 				--month_card;
 				if ( month_card == 0 ) {
