@@ -6,7 +6,7 @@
             <!-- Do not use Project Properties customizer when editing this file manually. -->
             <name>NWSRFS_DMI</name>
             <properties>
-                <property name="ant.script">conf/cbuild.xml</property>
+                <property name="ant.script">conf/build.xml</property>
                 <property-file>conf/product-user.properties</property-file>
                 <property-file>conf/product.properties</property-file>
             </properties>
@@ -203,7 +203,7 @@
                 <package-root>src</package-root>
                 <classpath mode="compile">${build.classpath}</classpath>
                 <built-to>${build.dir}</built-to>
-                <built-to>dist/NWSRFS_DMI_1_0.jar</built-to>
+                <built-to>${jar.file}</built-to>
                 <source-level>1.4</source-level>
             </compilation-unit>
             <compilation-unit>
