@@ -135,11 +135,9 @@ import RTi.Util.IO.DataUnits;
 import RTi.Util.IO.DataUnitsConversion;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.IO.PropList;
-
+import RTi.Util.Math.MathUtil;
 import RTi.Util.Message.Message;
-
 import RTi.Util.String.StringUtil;
-
 import RTi.Util.Time.DateTime;
 import RTi.Util.Time.TimeInterval;
 import RTi.Util.Time.TimeUtil;
@@ -2213,6 +2211,7 @@ public static void writeTimeSeries ( TS ts, PrintWriter fp,	DateTime req_date1, 
 					String req_units, boolean write_data )
 throws IOException
 {	String	cfmt = "%10.3f", dimension, nfmt = "F10.3", message, routine="NWSHourTS.writePersistent";
+    int ndpl = 6;           // Number of data per line.
 
 	if ( ts == null ) {
 		message = "Time series is null, cannot continue.";
@@ -2255,7 +2254,7 @@ throws IOException
 	// and
 	// >= -9999999.
 	//
-	// Else undefined for now - hopefully it will not happen.
+	// Else if > 99999999 pick a format that will allow one space beyond what is needed
 
 	TSLimits limits = ts.getDataLimits();
 	double min = limits.getMinValue();
@@ -2276,6 +2275,12 @@ throws IOException
 		nfmt = "F10.0";
 		cfmt = "%10.0f";
 	}
+    else if ( max > 99999999 || (min < -999999999) ) {
+        // Make the format enough to display the value and have one space extra and allow for negative.
+        int ndigits = (int)MathUtil.log10(Math.max(Math.abs(max),Math.abs(min))) + 3;
+        nfmt = "F" + ndigits + ".0";
+        cfmt = "%" + ndigits + ".0f";
+    }
 	// Else use the 10.3 default originally defined.
 
 	// Get the interval information.  This is used primarily for iteration.
@@ -2428,8 +2433,7 @@ throws IOException
 	"   DATA TIME INTERVAL=" +
 	StringUtil.formatString(hours,"%2d") + " HOURS" );
 
-	fp.println (
-	"$  OUTPUT FORMAT=(3A4,2I2,I4,6" + nfmt + ")" );
+	fp.println ( "$  OUTPUT FORMAT=(3A4,2I2,I4," + ndpl + nfmt + ")" );
 
     // Print the 2 non-comment header cards...
 
@@ -2448,8 +2452,6 @@ throws IOException
 	interval_mult_string + "   " +
 	StringUtil.formatString(id.getLocation(),"%-12.12s") + "   " +
 	ts.getDescription() );
-
-	int ndpl = 6;			// Number of data per line.
 
 	fp.println (
         StringUtil.formatString(date1_file.getMonth(),"%2d") + "  " +
