@@ -6,9 +6,9 @@
             <!-- Do not use Project Properties customizer when editing this file manually. -->
             <name>NWSRFS_DMI</name>
             <properties>
-                <property name="ant.script">conf/build.xml</property>
                 <property-file>conf/product-user.properties</property-file>
                 <property-file>conf/product.properties</property-file>
+                <property name="ant.script">conf/build.xml</property>
             </properties>
             <folders>
                 <source-folder>
