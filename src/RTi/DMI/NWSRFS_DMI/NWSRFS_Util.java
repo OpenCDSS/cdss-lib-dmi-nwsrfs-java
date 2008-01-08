@@ -110,7 +110,7 @@ import RTi.Util.Time.DateTime;
 import RTi.Util.Time.TimeUtil;
 
 /**
-The NWSRFS_Util class stores NWSRFS-relateed utility functions.
+The NWSRFS_Util class stores NWSRFS-related utility functions.
 */
 public class NWSRFS_Util {
 
@@ -1437,7 +1437,83 @@ public static DateTime toDateTime24 ( DateTime datetime, boolean always_copy )
 	}
 }
 
+/** 
+Resolve the value of an NWSRFS apps-defaults requested string.
+	
+<pre> 
+The requested string to be resolved is supplied as the string
+variable <request>, the resolved request is returned as the string
+variable <reply>.
+ 
+Request resolution occurs in one of three ways:
+ 
+1. an environment variable matching in name to <request> is found;
+<reply>  is then the value of that environment variable,
+ 
+2. <request> is found as a match in a file that establishes
+token - resource (t-r) relationships.  Three files may be scanned in
+this order:
+	APPS_DEFAULTS_USER ..... a personal user's set of tokens (typically $HOME/.Apps_defaults)
+	APPS_DEFAULTS_PROG ..... a program specific set of tokens
+	APPS_DEFAULTS_SITE ..... a site wide set of tokens
+	APPS_DEFAULTS .......... a system-wide (national) set of tokens
+		to find the first token match to get a request.
 
+3. if <request> can not be resolved, <reply> is assigned as the null string.
+
+Each file is scanned from top to bottom looking for the first match
+between <request> and a defined token.  The syntax needed in either file is:
+ 
+	<token> <delimiter> <resource>
+ 
+where:
+	<token> is defined as a string delimited by white space or <delimiter>,
+	<delimiter>  is the : (colon),
+	<resource> is any string, the value returned depends on certain file
+	conventions:
+
+	1. A valid t-r requires a valid token followed by a valid resource,
+	2. the t-r relationship must be contained on a single line,
+	3. no white space needs to surround <delimiter>,
+	4. comments are indicated by a #,
+	5. neither <token> nor <resource> can begin with a # or :,
+	6. a # or a : can be embedded within <resource>,
+	7. <resource> can contain white space if it is bounded by the ' or "
+	   characters,
+	8. blank lines are allowed in the file,
+	9. referbacks are indicated by $(...). The '...' is resolved
+		the same way any other token is, and is substituted for
+		the $(...) string to compose the final resource value.
+	10. Multiple referbacks are allowed in <resource>, but embedded
+		referbacks are not allowed (i.e. no $($(...)) allowed).
+	11. First in wins.  That is, first finding of <token>
+		matching <request> uses that resource value, even if null.
+
+A sample of a t-r file:
+#-----------------------------------------------------------------------
+#  This is a comment line; so was previous line. Blank lines are
+#   intentional and are allowed in file.
+
+ofs_level     : testcase	# this is a comment on valid t-r
+ofs_reor_lvl  : test:reor	# ':' allowed in body of <resource>
+ofs_inpt_grp  : "test  case"	# white space allowed in <resource>
+
+ofs_file_grp  : /home/$(ofs_level)/files # referback to prior token;
+				# returned resource will be
+				#  /home/testcase/files
+
+ofs_xxx       xxx		# invalid t-r, no delimiter
+ofs_yyy    : #yyy		# invalid t-r, no resource
+</pre> 
+
+@param request is the requested apps-defaults String token to find.
+@return the value of the apps-defaults String token if found or null if not found.
+*/
+public static String getAppsDefaults ( String request )
+{
+	return __AppsDefaults.getToken( request );
+}
+	
 /** 
 Resolve the value of an NWSRFS apps-defaults requested string.
 	
@@ -1509,6 +1585,7 @@ ofs_yyy    : #yyy		# invalid t-r, no resource
 
 @param request is the requested apps-defaults String token to find.
 @return is the value of the apps-defaults String token if found or null.
+@deprecated Use getAppsDefaults().
 */
 public static String get_apps_defaults(String request)
 {
@@ -1576,6 +1653,7 @@ in and returns the results.
 @return  Value returned from running "get_apps_defaults" with the token
 passed in.  If nothing is returned from the get_apps_defaults command, 
 the method will return null.
+@deprecated Use getAppsDefaults().
 */
 public static String keyFromAppsDefaults( String token ) {
 	String routine = _class + ".pathFromAppsDefaults";
