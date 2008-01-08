@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import RTi.Util.IO.IOUtil;
+import RTi.Util.Message.Message;
 
 /**
  * Provides functionality to resolve app_defaults tokens. App_defaults
@@ -112,31 +114,51 @@ public class AppsDefaults
    // --------------------------------------------------------------
    public AppsDefaults()
    {
+	  String routine = "AppsDefaults";
       _appsDefaultsUserFilePath = System.getenv(APPS_DEFAULTS_USER);
       if (_appsDefaultsUserFilePath == null)
       {
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_USER is null");
+         Message.printStatus ( 2, routine, "SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_USER is null" );
       }
       else
       	{
+    	  _appsDefaultsUserFilePath = IOUtil.getPathUsingWorkingDir(_appsDefaultsUserFilePath);
       		_logger.info("APPS_DEFAULTS_USER: " + _appsDefaultsUserFilePath);
+      		Message.printStatus ( 2, routine, "APPS_DEFAULTS_USER: " + _appsDefaultsUserFilePath );
       	}
       _appsDefaultsProgramFilePath = System.getenv(APPS_DEFAULTS_PROG);
       if (_appsDefaultsProgramFilePath == null)
       {
+    	  Message.printStatus ( 2, routine, "SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_PROG is null");
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_PROG is null");
+      }
+      else {
+    	  _appsDefaultsProgramFilePath = IOUtil.getPathUsingWorkingDir(_appsDefaultsProgramFilePath);
+    	  _logger.info("APPS_DEFAULTS_PROG: " + _appsDefaultsProgramFilePath);
+    	  Message.printStatus ( 2, routine,"APPS_DEFAULTS_PROG: " + _appsDefaultsProgramFilePath);
       }
       
       _appsDefaultsSiteFilePath = System.getenv(APPS_DEFAULTS_SITE);
       if(_appsDefaultsSiteFilePath == null) 
-      {
+      {	 Message.printStatus ( 2, routine,"SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_SITE is null");
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_SITE is null");
+      }
+      else {
+    	  _appsDefaultsSiteFilePath = IOUtil.getPathUsingWorkingDir(_appsDefaultsSiteFilePath);
+    	  _logger.info("APPS_DEFAULTS_SITE: " + _appsDefaultsSiteFilePath);
+    	  Message.printStatus ( 2, routine,"APPS_DEFAULTS_SITE: " + _appsDefaultsSiteFilePath);
       }
      
       _appsDefaultsNationalFilePath = System.getenv(APPS_DEFAULTS);
       if (_appsDefaultsNationalFilePath == null)
-      {
+      {Message.printStatus ( 2, routine,"SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS is null");
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS is null");
+      }
+      else {
+    	  _appsDefaultsNationalFilePath = IOUtil.getPathUsingWorkingDir(_appsDefaultsNationalFilePath);
+    	  _logger.info("APPS_DEFAULTS: " + _appsDefaultsNationalFilePath);
+    	  Message.printStatus ( 2, routine,"APPS_DEFAULTS: " + _appsDefaultsNationalFilePath);
       }
 
       return;

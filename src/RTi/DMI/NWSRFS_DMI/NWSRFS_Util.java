@@ -127,6 +127,11 @@ public final static int[] monthYearDays =
 	{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
 /**
+The single AppsDefaults instance used to get Apps Defaults.
+*/
+private static AppsDefaults __AppsDefaults = new AppsDefaults();
+
+/**
 NWSRFS routine to return the number of days in the month.
 @return the number of days in the month.
 @param Y1 4-digit year.
@@ -1575,6 +1580,9 @@ the method will return null.
 public static String keyFromAppsDefaults( String token ) {
 	String routine = _class + ".pathFromAppsDefaults";
 
+	return __AppsDefaults.getToken( token );
+	/* FIXME SAM 2008-01-07 Rely on the AppsDefaults class and evaluate whether 
+	 * old RTi code can be phased out
 	//string to return	
 	String result = null;
 
@@ -1618,7 +1626,7 @@ public static String keyFromAppsDefaults( String token ) {
 	v = null;
 	
 	return result;
-
+	*/
 }
 
 // TODO SAM 2004-09-01 the PropList code works on the Apps Defaults format?
