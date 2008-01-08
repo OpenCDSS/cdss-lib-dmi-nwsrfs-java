@@ -1381,8 +1381,7 @@ C  MONTH KNOWN - COMPUTE DAY OFFSET FROM MONTH
 /**
 Return a DateTime that has hours 0-23, using as input a date/time that uses
 hours 0-24.  A copy of the supplied DateTime is first
-made.  If the hour is 24, then the hour is set to 0 and the day is increased by
-1.
+made.  If the hour is 24, then the hour is set to 0 and the day is increased by 1.
 @param datetime a DateTime instance to copy and evaluate.
 @param always_copy If true, always create a copy, even if no adjustment is
 made.  If false, only create a copy if an adjustment is required.
@@ -1401,7 +1400,8 @@ public static DateTime toDateTime23 ( DateTime datetime, boolean always_copy )
 			// Always make a copy...
 			return new DateTime ( datetime );
 		}
-		else {	// Return the instance that was passed in...
+		else {
+            // Return the instance that was passed in...
 			return datetime;
 		}
 	}
@@ -1420,18 +1420,21 @@ made.  If false, only create a copy if an adjustment is required.
 public static DateTime toDateTime24 ( DateTime datetime, boolean always_copy )
 {	if ( datetime.getHour() == 0 ) {
 		// Need convert hour 0 of the current day to hour 24 of the
-		// previous day, handling changes to month as usual...
-		DateTime dt = new DateTime ( datetime );
+		// previous day, handling changes to month as usual.
+        // DO NOT use strict DateTime because hour 24 is not normally accepted.
+		DateTime dt = new DateTime ( datetime, DateTime.DATE_FAST );
 		dt.addDay ( -1 );
 		dt.setHour ( 24 );
 		return dt;
 	}
-	else {	// No change needed.
+	else {
+        // No change needed.
 		if ( always_copy ) {
 			// Always make a copy...
-			return new DateTime ( datetime );
+			return new DateTime ( datetime, DateTime.DATE_FAST );
 		}
-		else {	// Return the instance that was passed in...
+		else {
+            // Return the instance that was passed in...
 			return datetime;
 		}
 	}
