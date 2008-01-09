@@ -94,6 +94,12 @@ public class AppsDefaults
    private static final char SINGLE_QUOTE = '\'';
 
    private static final int RECUR_LIMIT = 40;
+   
+   /**
+   Does the JVM have a working System.getEnv() method?
+   Java 1.4.2 does not but others do.
+   */
+   private static boolean __jvmhas_getenv = true;    
 
    private int _recursionCount = 0;
 
@@ -115,7 +121,17 @@ public class AppsDefaults
    public AppsDefaults()
    {
 	  String routine = "AppsDefaults";
-      _appsDefaultsUserFilePath = System.getenv(APPS_DEFAULTS_USER);
+	  String version = System.getProperty("java.version");
+	  System.out.println ( "version is " + version );
+	  if ( version.startsWith("1.4.2")) {
+	      __jvmhas_getenv = false;
+	  }
+	  if ( __jvmhas_getenv ) {
+	      _appsDefaultsUserFilePath = System.getenv(APPS_DEFAULTS_USER);
+	  }
+	  else {
+	      _appsDefaultsUserFilePath = NWSRFS_Util.getenv(APPS_DEFAULTS_USER);
+	  }
       if (_appsDefaultsUserFilePath == null)
       {
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_USER is null");
@@ -127,7 +143,12 @@ public class AppsDefaults
       		_logger.info("APPS_DEFAULTS_USER: " + _appsDefaultsUserFilePath);
       		Message.printStatus ( 2, routine, "APPS_DEFAULTS_USER: " + _appsDefaultsUserFilePath );
       	}
-      _appsDefaultsProgramFilePath = System.getenv(APPS_DEFAULTS_PROG);
+      if ( __jvmhas_getenv ) {
+          _appsDefaultsProgramFilePath = System.getenv(APPS_DEFAULTS_PROG);
+      }
+      else {
+          _appsDefaultsProgramFilePath = NWSRFS_Util.getenv(APPS_DEFAULTS_PROG);
+      }
       if (_appsDefaultsProgramFilePath == null)
       {
     	  Message.printStatus ( 2, routine, "SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_PROG is null");
@@ -139,7 +160,12 @@ public class AppsDefaults
     	  Message.printStatus ( 2, routine,"APPS_DEFAULTS_PROG: " + _appsDefaultsProgramFilePath);
       }
       
-      _appsDefaultsSiteFilePath = System.getenv(APPS_DEFAULTS_SITE);
+      if ( __jvmhas_getenv ) {
+          _appsDefaultsSiteFilePath = System.getenv(APPS_DEFAULTS_SITE);
+      }
+      else {
+          _appsDefaultsSiteFilePath = NWSRFS_Util.getenv(APPS_DEFAULTS_SITE);
+      }
       if(_appsDefaultsSiteFilePath == null) 
       {	 Message.printStatus ( 2, routine,"SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_SITE is null");
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS_SITE is null");
@@ -150,7 +176,12 @@ public class AppsDefaults
     	  Message.printStatus ( 2, routine,"APPS_DEFAULTS_SITE: " + _appsDefaultsSiteFilePath);
       }
      
-      _appsDefaultsNationalFilePath = System.getenv(APPS_DEFAULTS);
+      if ( __jvmhas_getenv ) {
+          _appsDefaultsNationalFilePath = System.getenv(APPS_DEFAULTS);
+      }
+      else {
+          _appsDefaultsNationalFilePath = NWSRFS_Util.getenv(APPS_DEFAULTS);
+      }
       if (_appsDefaultsNationalFilePath == null)
       {Message.printStatus ( 2, routine,"SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS is null");
          _logger.info("SystemEnvironmentVariableNULL: The system environment variable APPS_DEFAULTS is null");
@@ -236,7 +267,13 @@ public class AppsDefaults
       // System.out.println("recursion count = " + _recursionCount);
 
       // Attempt to get the value directly from the system environment.
-      String envValue = System.getenv(tokenName);
+      String envValue = null;
+      if ( __jvmhas_getenv ) {
+          envValue = System.getenv(tokenName);
+      }
+      else {
+          envValue = NWSRFS_Util.getenv(tokenName);
+      }
       
       // if token is available as an environment variable, use its value
       if (envValue != null)

@@ -1364,7 +1364,7 @@ C  MONTH KNOWN - COMPUTE DAY OFFSET FROM MONTH
       		Message.printDebug ( 2, routine, " **EXIT MDYH1" );
 	}
 
-	DateTime date = new DateTime ( DateTime.PRECISION_HOUR );
+	DateTime date = new DateTime ( DateTime.PRECISION_HOUR | DateTime.DATE_FAST );
 	date.setYear ( Y );
 	date.setMonth ( M );
 	date.setDay ( D );
@@ -1514,7 +1514,16 @@ ofs_yyy    : #yyy		# invalid t-r, no resource
 */
 public static String getAppsDefaults ( String request )
 {
-	return __AppsDefaults.getToken( request );
+    String version = System.getProperty("java.version");
+    System.out.println ( "version is " + version );
+    if ( version.startsWith("1.4.2")) {
+        // Newer approach...
+        return __AppsDefaults.getToken( request );
+    }
+    else {
+        // OK if deprecated.  At some point will hide this version as private.
+        return get_apps_defaults ( request );
+    }
 }
 	
 /** 
@@ -1824,11 +1833,11 @@ private static String get_token(String request, String appsDefaultsFile)
 
 // TODO SAM 2004-09-01 This should be in IOUtil, etc., if it is useful
 /**
-This method is a replacement method for the System.getenv, which was deprecated.
+This method is a replacement method for the System.getenv, which was deprecated in Java 1.4.2 (back in 1.5).
 @param request is the request string to search the users environment.
 @return is the value of the return String token if found or null.
 */
-private static String getenv(String request)
+public static String getenv(String request)
 {
 	int i, tokenIndex = -1, exitstat = -999;
 	String routine = "NWSRFS_Util.getenv";
