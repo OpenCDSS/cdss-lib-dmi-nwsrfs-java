@@ -1514,16 +1514,7 @@ ofs_yyy    : #yyy		# invalid t-r, no resource
 */
 public static String getAppsDefaults ( String request )
 {
-    String version = System.getProperty("java.version");
-    System.out.println ( "version is " + version );
-    if ( version.startsWith("1.4.2")) {
-        // Newer approach...
-        return __AppsDefaults.getToken( request );
-    }
-    else {
-        // OK if deprecated.  At some point will hide this version as private.
-        return get_apps_defaults ( request );
-    }
+    return __AppsDefaults.getToken( request );
 }
 	
 /** 
@@ -1852,6 +1843,8 @@ public static String getenv(String request)
 		// properties if so return it.
 		if((returnValue = System.getProperty(request)) != null)
 		{
+			Message.printStatus(2, routine, "Found value of \"" + request +
+					"\"  = \"" + returnValue + "\" in system properties." );
 			return returnValue;
 		}
 		else	// Have to make a OS call to get the environment
@@ -1926,14 +1919,15 @@ public static String getenv(String request)
 			}
 			else
 			{
+				Message.printStatus(2, routine, "Cannot get environment variable \"" + request +
+						"\" on Windows.  Not supported.  Returning null." );
 				return null;
 			}
 		}
 	}
 	catch(NullPointerException NPe)
 	{
-		Message.printWarning(2,routine,
-		"An Exception occured: "+NPe.getMessage());
+		Message.printWarning(2,routine, "An Exception occured: "+NPe.getMessage());
 		return null;
 	}
 }
