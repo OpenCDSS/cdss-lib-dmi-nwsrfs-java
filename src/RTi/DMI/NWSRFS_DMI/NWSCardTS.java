@@ -756,8 +756,9 @@ throws IOException {
 		full_fname = null;
 	}
 	catch (Exception e) {
-        String message = "Unable to open file \"" + fname + "\"";
-		Message.printWarning(2, routine, message );
+        String message = "Unable to read file \"" + fname + "\"";
+		Message.printWarning(3, routine, message );
+		Message.printWarning(3, routine, e );
         throw new IOException ( message );
 	}
 
@@ -1872,8 +1873,7 @@ else {
 				// different numbers of values in a month do not
 				// cause conversion errors.
 
-				tokens = StringUtil.fixedRead (
-					string.substring(20), fixed_format );
+				tokens = StringUtil.fixedRead (	string.substring(20), fixed_format );
 
 				// Size can be less if at end of month.  Since
 				// the values are read as strings, check for

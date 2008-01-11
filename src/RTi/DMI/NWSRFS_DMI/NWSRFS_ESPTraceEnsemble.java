@@ -603,7 +603,7 @@ private float __xlong = (float)0.0;
 // of this seems to be redundant with the above and may be used only by ESPADP
 // during accumulations.
 
-private TSIdent __hdr_id = null;		// Standard RTi TSIdent.
+//private TSIdent __hdr_id = null;		// Standard RTi TSIdent.
 /*
 private float __hdr_id_accumcrit = (float)0.0;	// NWS __hdr_id accumulation
 						// criteria
@@ -852,6 +852,9 @@ throws Exception
 	if ( prop_val != null ) {
 		__seg_id = prop_val;
 	}
+	// TODO SAM 2008-01-11 Evaluate how __ts_id changes as this code writes the ensemble, compared
+	// to what comes out of the ensemble from ESP.  it seems that once in the tracefile, this can no longer
+	// be used and the trace file name needs to be used to read (to be consistent with how ESP handles).
 	__ts_id = __ts[0].getLocation();
 	__ts_type = __ts[0].getDataType();
 	// __hdr_id_data_interval_mult_orig is used in the write method.
@@ -1679,20 +1682,16 @@ throws Exception
 		date.setHour ( __ts_dt );
 		// Convert back to 0-23 hour...
 		date = NWSRFS_Util.toDateTime23(date,true);
-		// Loop through the number of conditional months (the month is
-		// incr...
+		// Loop through the number of conditional months (the month is incr???...
 		for ( icm = 0; icm < __ncm; icm++ ) {
 			// Loop through the records in the month...
 			idata = 0;	// Reset array position.
 			if ( Message.isDebugOn ) {
-				Message.printDebug ( 1, routine,
-				"Reading trace [" + its + "] " +
-				__ts[its].getSequenceNumber() +
-				" conditional month [" + icm + "]" );
+				Message.printDebug ( 1, routine, "Reading trace [" + its + "] " +
+				__ts[its].getSequenceNumber() + " conditional month [" + icm + "]" );
 			}
 			for (	int ir = 0; ir < nrecpermonth; ir++ ) {
-				// Loop through the data in the month,
-				// incrementing the hour to assign the data...
+				// Loop through the data in the month, incrementing the hour to assign the data...
 				for ( i = 0; i < ndata; i++ ) {
 					// Read the data from the DMI
 					EDIS = __dmi.read(__traceRAF,0,4);
@@ -1741,8 +1740,7 @@ throws Exception
 			if ( Message.isDebugOn ) {
 				Message.printDebug ( 1, routine,
 				"Transferring " + ndays + " days, " + ntran +
-				" values for historical " + hdate +
-				" starting at " + date );
+				" values for historical " + hdate +	" starting at " + date );
 			}
 			for (	idata = 0; idata < ntran;
 				idata++, date.addHour(__ts_dt) ) {
@@ -2261,39 +2259,31 @@ throws Exception
 	Message.printStatus ( 2, routine, "Trace start local time (one interval after carryover) = " + __start_date );
 	Message.printStatus ( 2, routine, "Trace end local time (end of forecast) = " + __end_date );
 
-	// TODO SAM 2004-04-07 
-	// These are stored but not really supported yet - we might want to
-	// remove redundant data members and rename if appropriate.
-
-	__hdr_id = new TSIdent ( __espfname );
-	__hdr_id.setLocation ( __hdr_id.getSource() );
-	__hdr_id.setSource ( "NWSRFS" );
-	__hdr_id.setScenario ( "" );
-	__hdr_id.setInputType ( "NWSRFS_ESPTraceEnsemble" );
-	__hdr_id.setInputName ( __filename );
-	__hdr_id.setInterval(""+StringUtil.atoi(__hdr_id.getInterval())+"Hour");
-	/*
-	__hdr_id_vartype = VARTYPE_NONE;
-	__hdr_id_vartype_orig = VARTYPE_NONE;
-	__hdr_id_accumvar = ACCUMVAR_MEAN;
-	__hdr_id_accumdir = 1;
-	__hdr_id_accumcrit = (float)0.0;
-	__hdr_id_probFunction = FUNCTION_EMPIRICAL;
-	__hdr_id_nRanges = 3;
-	__hdr_id_probRanges = new float[3];		// Defaults (not read
-	__hdr_id_probRanges[0] = (float)0.75;		// from file?)
-	__hdr_id_probRanges[1] = (float)0.5;
-	__hdr_id_probRanges[2] = (float)0.25;
-	*/
-	__hdr_id.setType ( __ts_type );
-	/*
-	__hdr_id_data_interval_base = TimeInterval.HOUR;
-	__hdr_id_data_interval_mult = __ts_dt;
-	__hdr_id_data_interval_base_orig = TimeInterval.HOUR;
-	__hdr_id_data_interval_mult_orig = __ts_dt;
-	__hdr_id_units_orig = __ts_unit;
-	__hdr_id_missing = (float)-999.0;
-	*/
+	// Initialize with the ESP filename (what ESP thinks it was at the time of writing),
+	// because it has the form:
+	//
+	// SEGid.TSid.DataType.Interval
+	//
+	// And the TSid is not available in the same form in the binary header file information.
+	// For example, a trace file may have the name:
+	//
+	// CSCI.CSCI2.SQIN.06.CS
+	//
+	// Internally, the ESP header has "CSCI" for both "seg_id" and "ts_id".  There does not appear
+	// to be any internal header information (at least as read at this time) that has "CSCI2".
+	
+	File espfname_File = new File ( __espfname );
+	TSIdent ident_file = new TSIdent ( espfname_File.getName() );
+	// Now create the main TSIdent and get the location from the data source in the above.
+	TSIdent ident = new TSIdent ( );
+	ident.setLocation ( ident_file.getSource() );
+	ident.setSource ( "NWSRFS" );
+	ident.setType ( __ts_type );
+	ident.setInterval ( "" + __ts_dt + "Hour" );
+	ident.setScenario ( "" );
+	ident.setInputType ( "NWSRFS_ESPTraceEnsemble" );
+	// Full path, regardless of what the ESP trace file originally had...
+	ident.setInputName ( __filename );
 
 	// Now loop through each trace and set the appropriate header items.
 	// With the exception of the alias and sequence number, all of the fields are the same.
@@ -2308,7 +2298,7 @@ throws Exception
 		// TSIdent is more streamlined than the NWS version, we only
 		// set some information...
 
-		__ts[i].setIdentifier ( new TSIdent(__hdr_id) );
+		__ts[i].setIdentifier ( new TSIdent(ident) );
 		// The sequence number is used for the historical year...
 		__ts[i].setSequenceNumber ( __iy + i );
 
@@ -2318,12 +2308,11 @@ throws Exception
 		__ts[i].setDate2 ( new DateTime(__end_date) );
 		__ts[i].setDate2Original ( new DateTime(__end_date) );
 		Message.printStatus ( 2, routine, "Setting TS[" + i +
-		"] " + __ts[i].getSequenceNumber() +
-		" period to " + __ts[i].getDate1() + " - " +__ts[i].getDate2());
+		"] " + __ts[i].getSequenceNumber() + " period to " + __ts[i].getDate1() + " - " +__ts[i].getDate2());
 		__ts[i].setDataInterval ( TimeInterval.HOUR, __ts_dt );
 		__ts[i].setDataUnits ( __ts_unit );
 		__ts[i].setDescription ( __segdesc );
-		__ts[i].setAlias ( __hdr_id.getLocation() + "_Trace_" +	__ts[i].getSequenceNumber() );
+		__ts[i].setAlias ( ident.getLocation() + "_Trace_" + __ts[i].getSequenceNumber() );
 
 		// Use comments for now to pass information and troubleshoot...
 
