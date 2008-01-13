@@ -847,14 +847,14 @@ throws Exception
 	// List in general order of data in the trace file...
 
 	// __format_ver set in the initialize() method.
+	// However, the segment ID is NOT used in the TSID (the second part of the ensemble file name,
+	// which has the time series ID is used).  Therefore the segment must be provided with a property
+	// if it does not match the TSID.
 	__seg_id = __ts[0].getLocation();
 	String prop_val = props.getValue ( "Segment" );
 	if ( prop_val != null ) {
 		__seg_id = prop_val;
 	}
-	// TODO SAM 2008-01-11 Evaluate how __ts_id changes as this code writes the ensemble, compared
-	// to what comes out of the ensemble from ESP.  it seems that once in the tracefile, this can no longer
-	// be used and the trace file name needs to be used to read (to be consistent with how ESP handles).
 	__ts_id = __ts[0].getLocation();
 	__ts_type = __ts[0].getDataType();
 	// __hdr_id_data_interval_mult_orig is used in the write method.
@@ -1776,11 +1776,12 @@ throws Exception
 	TZ localTZ;
 	Vector tzMatches;
 	DateTime temp_date;
-	float shift = (float).01;	// This is added to integers that are
-					// read as float to make sure that the
-					// truncated integer is the proper
-					// value, in case the precision of the
-					// write rounded under.
+	// This is added to integers that are read as float to make sure that the
+    // truncated integer is the proper value, in case the precision of the
+    // write rounded under.
+	// ESP writes some floats with the .01 already added, but better to add again
+	// to be better safe than sorry.
+	float shift = (float).01;
 
 	// Check to see if RandomAccessFile is open
 	if(!__traceRAFOpen)
@@ -1794,8 +1795,7 @@ throws Exception
 	// not need to be rewound.
 	__dmi.rewind(__traceRAF);
 
-	// Read the header record from the dmi which is a __headerLength byte
-	// record
+	// Read the header record from the dmi which is a __headerLength byte record
 	EDIS = __dmi.read(__traceRAF,0,__headerLength);
 
 	// Now parse the record for the header information. It is vital to know
@@ -1803,7 +1803,7 @@ throws Exception
 	// correctly.  The version might have an effect here so will need to
 	// revisit later to implement the version changes.
 	//
-	// Format version. Float value
+	// Word 1, Bytes 1-4 Format version. Float value
 	floatValue = EDIS.readEndianFloat();
 
 	// Check to see if there is an endianess problem! The format version
@@ -1841,7 +1841,7 @@ throws Exception
 
 	Message.printStatus ( 2, routine, "Read version = \"" + __format_ver + "\"");
 
-	// Segment Id. An 8 character string value
+	// Words 2-3, Bytes 5-12.  Segment Id. An 8 character string value
 	charValue = new char[8];
 	for(i=0;i<8;i++)
 	{
@@ -1853,7 +1853,7 @@ throws Exception
 
 	Message.printStatus ( 2, routine, "Read seg_id = \"" + __seg_id + "\"");
 
-	// Time series Id. An 8 character string value
+	// Bytes 13 - 20 Time series Id. An 8 character string value
 	charValue = new char[8];
 	for(i=0;i<8;i++)
 	{
@@ -1865,7 +1865,7 @@ throws Exception
 
 	Message.printStatus ( 2, routine, "Read ts_id = \"" + __ts_id + "\"");
 
-	// Time series type. A 4 character string value
+	// 21 Time series type. A 4 character string value
 	charValue = new char[4];
 	for(i=0;i<4;i++)
 	{
@@ -1882,14 +1882,14 @@ throws Exception
 	
 	__ts_dt = (int)(floatValue + shift);
 	
-	Message.printStatus ( 2, routine, "Read interval = " +__ts_dt );
+	Message.printStatus ( 2, routine, "Read interval = " +__ts_dt + " (float=" + floatValue + ")" );
 
 	// Simulation flag. A value of 0 is a CS, 1 is HS, 2 is OBS. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 	
 	__simflag = (int)(floatValue + shift);
 	
-	Message.printStatus ( 2, routine, "Read simflag = " + __simflag );
+	Message.printStatus ( 2, routine, "Read simflag = " + __simflag + " (float=" + floatValue + ")");
 	// NWS apparently has different values...
 	if ( __simflag == SIMFLAG_CONDITIONAL ) {
 	}
@@ -1940,70 +1940,74 @@ throws Exception
 
 	__im = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read im = " + __im );
+	Message.printStatus ( 2, routine, "Read im = " + __im + " (float=" + floatValue + ")");
 	
 	// Year of the first day of the first time series in the file.  A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__iy = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read iy = " + __iy );
+	Message.printStatus ( 2, routine, "Read iy = " + __iy + " (float=" + floatValue + ")");
 
 	// Start of the traces as a julian day relative to 12/31/1899.  A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__idarun = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read idarun = " + __idarun + " (see below for local time)");
+	Message.printStatus ( 2, routine, "Read idarun = " + __idarun + " (float=" + floatValue +
+	        ") (see below for local time)");
 
 	// End of the traces as a julian day relative to 12/31/1899.  A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ldarun = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ldarun = " + __ldarun + " (see below for local time)");
+	Message.printStatus ( 2, routine, "Read ldarun = " + __ldarun + " (float=" + floatValue +
+	        ") (see below for local time)");
 
 	// Carryover day (1-31). A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ijdlst = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ijdlst = " + __ijdlst + " (see below for local time)");
+	Message.printStatus ( 2, routine, "Read ijdlst = " + __ijdlst + " (float=" + floatValue +
+	        ") (see below for local time)");
 
 	// Carryover hour (1-24). A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ihlst = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ihlst = " + __ihlst );
+	Message.printStatus ( 2, routine, "Read ihlst = " + __ihlst + " (float=" + floatValue + ")");
 
 	// Last day of the forecast as a julian day relative to 12/31/1899.  A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ljdlst = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ljdlst = " + __ljdlst + " (see below for local time)");
+	Message.printStatus ( 2, routine, "Read ljdlst = " + __ljdlst + " (float=" + floatValue +
+	        ") (see below for local time)");
 
 	// Last hour of forecast (1-24) in zulu time. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__lhlst = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read lhlst = " + __lhlst );
+	Message.printStatus ( 2, routine, "Read lhlst = " + __lhlst + " (float=" + floatValue + ")");
 
 	// Number of traces. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__n_traces = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read n_traces = " + __n_traces );
+	Message.printStatus ( 2, routine, "Read n_traces = " + __n_traces + " (float=" + floatValue + ")");
 
 	// Number of conditional months. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ncm = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ncm = " + __ncm );
+	Message.printStatus ( 2, routine, "Read ncm = " + __ncm + " (float=" + floatValue + ")");
 
 	// NWSRFS time zone relative to zulu. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
@@ -2015,21 +2019,21 @@ throws Exception
         __nlstz = (int)(floatValue - shift);
     }
 
-	Message.printStatus ( 2, routine, "Read nlstz = " + __nlstz );
+	Message.printStatus ( 2, routine, "Read nlstz = " + __nlstz + " (float=" + floatValue + ")");
 
 	// NWSRFS daylight savings time flag. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__noutds = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read noutds = " + __noutds );
+	Message.printStatus ( 2, routine, "Read noutds = " + __noutds + " (float=" + floatValue + ")");
 
 	// Number of record of the first trace data. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__irec = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read irec = " + __irec );
+	Message.printStatus ( 2, routine, "Read irec = " + __irec + " (float=" + floatValue + ")");
 
 	// Unit dimensions for NWS, data units. A 4 character string
 	charValue = new char[4];
@@ -2139,8 +2143,7 @@ throws Exception
 	parseChar = new String(charValue);
 	prsf_string = parseChar.trim();
 
-	Message.printStatus ( 2, routine,
-		"Read prsf_string = \"" +prsf_string+ "\"");
+	Message.printStatus ( 2, routine, "Read prsf_string = \"" +prsf_string+ "\"");
 
 	// User comments. An 80 character string
 	charValue = new char[80];
@@ -2159,7 +2162,7 @@ throws Exception
 
 	__adjcount = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read adjcount = " + __adjcount );
+	Message.printStatus ( 2, routine, "Read adjcount = " + __adjcount + " (float=" + floatValue + ")");
 
 	// Get the local timezone abbreviation.
 	tzMatches = TZ.getMatchingDefinedTZ(__nlstz*60,__noutds);
@@ -2401,8 +2404,14 @@ series and then call this method.
 public void writeESPTraceEnsembleFile ( String fname )
 throws Exception
 {
-	// Local variables
 	int i;
+	// This is added to integers that are read as float to make sure that the
+    // truncated integer is the proper value, in case the precision of the
+    // write rounded under.
+    // ESP does not seem to be consistent in how it writes some integers as floats:
+	// sometimes .01 is added and sometimes not, but write here
+    // to be better safe than sorry.
+    float shift = (float).01;
 	String routine = "NWSRFS_ESPTraceEnsemble.writeESPTraceEnsembleFile";
 	File f = null;
 	// TODO SAM 2004-12-01 Both of the following approaches seem to
@@ -2418,9 +2427,29 @@ throws Exception
 
 	// Delete the old file if it exists to avoid leftover bytes in the file...
 
-	f = new File ( full_fname );
+	f = new File ( full_fname  );
 	if ( f.exists() ) {
-		f.delete();
+	    Message.printStatus ( 2, routine, "Deleting the old trace file \"" + full_fname +
+	            "\" before writing to new one.");
+		boolean stat = f.delete();
+		Message.printStatus ( 2, routine, "Return status from delete:  " + stat );
+		// Wait for the file to disappear from the system but only wait a couple of seconds
+		DateTime now;
+		DateTime later = new DateTime ( DateTime.DATE_CURRENT );
+		later.addSecond ( 3 );
+		while ( true ) {
+		    f = new File ( full_fname  );
+		    if ( !f.exists() ) {
+		        break;
+		    }
+		    now = new DateTime ( DateTime.DATE_CURRENT );
+            if ( now.greaterThan(later) ) {
+                if ( f.exists() ) {
+                    Message.printStatus ( 2, routine, "Still exists after 3 seconds but not waiting any longer." );
+                }
+                break;
+            }
+		}
 	}
 
 	// Open EndianRandomAccessFile with the defined endian-ness and replace current file if it exists.
@@ -2472,11 +2501,13 @@ throws Exception
 
 	// Time series data interval.  A 4 byte integer written as a float.
 	Message.printStatus (2,routine,"Writing data interval \""+__ts_dt+"\"");
-	fp.writeEndianFloat((float)__ts_dt);
+	float floatval = (float)__ts_dt + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Simulation flag. A 4 byte integer written as a float.
 	Message.printStatus ( 2, routine,"Writing simflag \"" + __simflag+"\"");
-	fp.writeEndianFloat((float)__simflag);
+	floatval = (float)__simflag + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Time series units. A 4 byte String
 	Message.printStatus ( 2, routine, "Writing ts_unit \""+__ts_unit+"\"" );
@@ -2486,64 +2517,88 @@ throws Exception
 	// The "now" current date and time. This is 5 4 byte integers, as floats
 	DateTime now = new DateTime ( DateTime.DATE_CURRENT );
 	Message.printStatus ( 2, routine, "Writing datetime \"" + now + "\"" );
-	fp.writeEndianFloat((float)now.getMonth());	// Month
-	fp.writeEndianFloat((float)now.getDay());	// Day
-	fp.writeEndianFloat((float)now.getYear());	// Year
+	floatval = (float)now.getMonth() + shift;
+	fp.writeEndianFloat(floatval);	// Month
+	floatval = (float)now.getDay() + shift;
+	fp.writeEndianFloat(floatval);	// Day
+	floatval = (float)now.getYear() + shift;
+	fp.writeEndianFloat(floatval);	// Year
 	// Hour/Min...
-	fp.writeEndianFloat((float)(now.getHour()*100 + now.getMinute()));
-	fp.writeEndianFloat((float)now.getSecond());	// Sec/Milisec
+	floatval = (float)(now.getHour()*100 + now.getMinute()) + shift;
+	fp.writeEndianFloat(floatval);
+	floatval = (float)now.getSecond() + shift;
+	fp.writeEndianFloat(floatval);	// Sec/Milisec
 
 	// Month of the first day of the Time series. A 4 byte integer as float.
 	Message.printStatus ( 2, routine, "Writing im \"" + __im + "\"" );
-	fp.writeEndianFloat((float)__im);
+	floatval = (float)__im + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Year of the first day of the Time series. A 4 byte integer
 	Message.printStatus ( 2, routine, "Writing iy \"" + __iy + "\"" );
-	fp.writeEndianFloat((float)__iy);
+	floatval = (float)__iy + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Start of the traces. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing start of traces idarun \"" + __idarun + "\"");
-	fp.writeEndianFloat((float)__idarun);
+	floatval = (float)__idarun + shift;
+	fp.writeEndianFloat(floatval);
 
 	// End of traces. A 4 byte integer
 	Message.printStatus ( 2, routine, "Writing end of traces ldarun \"" + __ldarun + "\"" );
-	fp.writeEndianFloat((float)__ldarun);
+	floatval = (float)__ldarun + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Carryover day. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing carryover day ijdlst \"" + __ijdlst + "\"" );
-	fp.writeEndianFloat((float)__ijdlst);
+	floatval = (float)__ijdlst + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Carryover hour. A 4 byte integer
 	Message.printStatus ( 2, routine, "Writing carryover hour ihlst \"" + __ihlst + "\"" );
-	fp.writeEndianFloat((float)__ihlst);
+	floatval = (float)__ihlst + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Last day of forecast. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing last day of forecast ljdlst \"" + __ljdlst + "\"" );
-	fp.writeEndianFloat((float)__ljdlst);
+	floatval = (float)__ljdlst + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Last hour of forecast. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing last hour of forecast lhlst \"" + __lhlst + "\"" );
-	fp.writeEndianFloat((float)__lhlst);
+	floatval = (float)__lhlst + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Number of traces. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing number of traces n_traces \"" + __n_traces + "\"" );
-	fp.writeEndianFloat((float)__n_traces);
+	floatval = (float)__n_traces + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Number of conditional months. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing number of conditional months ncm \"" + __ncm+"\"");
-	fp.writeEndianFloat((float)__ncm);
+	floatval = (float)__ncm + shift;
+	fp.writeEndianFloat(floatval);
 
 	// NWSRFS Time zone. A 4 byte integer
 	Message.printStatus ( 2, routine,"Writing time zone nlstz \"" + __nlstz+ "\"");
-	fp.writeEndianFloat((float)__nlstz);
+	floatval = (float)__nlstz;
+	if ( __nlstz < 0 ) {
+	    floatval -= shift;
+	}
+	else if ( __nlstz > 0 ) {
+	    floatval += shift;
+	}
+	fp.writeEndianFloat(floatval);
 
 	// The NWSRFS daylight savings time flag. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing daylight saving time noutds \"" + __noutds + "\"" );
-	fp.writeEndianFloat((float)__noutds);
+	floatval = (float)__noutds + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Record number of the first trace data. A 4 byte integer as a float
 	Message.printStatus ( 2, routine, "Writing first record with trace data \"" +__irec+"\"");
-	fp.writeEndianFloat((float)__irec);
+	floatval = (float)__irec + shift;
+	fp.writeEndianFloat(floatval);
 
 	// The unit dimensions from the NWS data units. A 4 byte String
 	Message.printStatus ( 2, routine, "Writing unit dimensions dim \"" + __dim + "\"" );
@@ -2610,11 +2665,15 @@ throws Exception
 
 	// Adjustment counter. A 4 byte integer as float
 	Message.printStatus ( 2, routine, "Writing adjustment counter \"" + __adjcount + "\"" );
-	fp.writeEndianFloat((float)__adjcount);
+	floatval = (float)__adjcount + shift;
+	fp.writeEndianFloat(floatval);
 
 	// Words 104-124. There needs to be 84 bytes of nulls written to the file
 	string = StringUtil.formatString ( __esptext.trim(), "%-84.84s" );
 	fp.writeEndianChar1(string);
+	if ( Message.isDebugOn ) {
+	    Message.printDebug ( 1, routine, "After writing header, file size is " + fp.length());
+	}
 	
 	// Write the data...
 
@@ -2629,6 +2688,7 @@ throws Exception
 	DateTime date;	// Date/time to used to transfer data array to time series.
 	DateTime hdate;	// Date/time to used to evaluate a historical date/time.
 	float missing_float = (float)-999.0;
+	int ndata_written = 0;    // Count of data bytes written below
 	try {
 	    // Loop through the number of time series traces...
     	for ( int its = 0; its < __n_traces; its++ ) {
@@ -2689,15 +2749,13 @@ throws Exception
     			// period because data outside the period will be
     			// ignored (and should be missing).
     			if ( Message.isDebugOn ) {
-    				Message.printDebug ( 1, routine,
-    				"Transferring " + ndays + " days, " + ntran +
-    				" values for historical " + hdate + " starting at " + date );
-    				Message.printDebug(1, routine, "The first trace data values are:");
+			        Message.printDebug ( 1, routine,
+			                "Transferring " + ndays + " days, " + ntran +
+			                " values for historical " + hdate + " starting at " + date );
     			}
-    			for (	idata = 0; idata < ntran;
-    				idata++, date.addHour(__ts_dt) ) {
+    			for ( idata = 0; idata < ntran;	idata++, date.addHour(__ts_dt) ) {
     				// Add a debug statement to check the first trace!
-    				if(Message.isDebugOn && its == 0) {
+    				if(Message.isDebugOn ) { //&& its == 0) {
     					Message.printDebug(1, routine,
     					date.toString(DateTime.FORMAT_YYYY_MM_DD_HHmm)+
     					" "+__ts[its].getDataValue(date));
@@ -2712,15 +2770,36 @@ throws Exception
     			idata = 0;	// Reset array position.
     			if ( Message.isDebugOn ) {
     				Message.printDebug ( 1, routine, "Writing trace [" + its + "] " +
-    				__ts[its].getSequenceNumber() + " conditional month [" + icm + "]" );
+    				__ts[its].getSequenceNumber() + " conditional month [" + icm + "]: " +
+    				ntran + " data values, " + ntran2 + " overall with missing to pad to 31 days." );
     			}
     
     			// Loop through the data in the month, incrementing the hour to assign the data...
     			for ( i = 0; i < ntran2; i++ ) {
     				fp.writeEndianFloat(data[i]); 
     			}
-    		}
+                ndata_written += ntran2;
+    		} // End conditional months
+     	} // End traces
+        // ESP will try to read full records (124 values per record).
+        // If the number of months happens to not have written a
+        // full record, padd it out with missing here.
+    	if ( Message.isDebugOn ) {
+    	    Message.printDebug (1, routine, "For all data, wrote " + ndata_written + " values.  File size = " + fp.length());
     	}
+        int ndata_extra = 124 - ndata_written%124;
+        if ( ndata_extra > 0 ) {
+            if ( Message.isDebugOn ) {
+                Message.printDebug (1, routine, "Writing " + ndata_extra +
+                    " missing values at end to fill out last record.  File size before writing extra = " + fp.length());
+            }
+            for ( i = 0; i < ndata_extra; i++ ) {
+                fp.writeEndianFloat(missing_float); 
+            }
+        }
+        if ( Message.isDebugOn ) {
+            Message.printDebug (1, routine, "File size after all writing = " + fp.length());
+        }
 	}
 	catch ( Exception e ) {
 		// Should not happen if loops above are correct...
