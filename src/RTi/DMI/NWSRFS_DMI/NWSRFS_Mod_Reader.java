@@ -2,11 +2,13 @@ package RTi.DMI.NWSRFS_DMI;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import RTi.Util.IO.FileCollector;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.Message.Message;
 
@@ -19,19 +21,24 @@ public class NWSRFS_Mod_Reader
 /**
 Mod file to be read.
 */
-private String __filename = null;
-	
+private String _filename = null;
+private List mods = new ArrayList();	
 /**
 Constructor that takes a file name.
 */
 public NWSRFS_Mod_Reader ( String filename )
 throws IOException
 {
-	__filename = filename;
+	_filename = filename;
 	File f = new File ( filename );
-	if ( !f.canRead() ) {
-		throw new IOException ( "File is not readable: \"" + filename + "\"");
-	}
+	if ( !f.canRead() )
+	  {
+	    throw new IOException ( "File is not readable: \"" + filename + "\"");
+	  }
+	else 
+	  {
+	    read(mods);
+	  }
 }
 
 /**
@@ -63,37 +70,48 @@ and returned.
 */
 public List read ( List list )
 throws IOException
-{	if ( list == null ) {
+{	
+  if ( list == null ) 
+    {
 		list = new Vector();
 	}
 	BufferedReader f = null;
-	f = new BufferedReader ( new InputStreamReader( IOUtil.getInputStream ( __filename )) );
+	f = new BufferedReader ( new InputStreamReader( IOUtil.getInputStream ( _filename )) );
 	String line;
-	Vector modstrings = new Vector();
-	while ( true ) {
-		line = f.readLine();
-		if ( line != null ) {
-			line = line.trim();
-			if ( line.length() == 0 ) {
-				// Blank line
-				continue;
-			}
-		}
-		if ( (line == null) || line.startsWith(".") ) {
+	Vector modstrings= new Vector();
+
+	while ( true ) 
+	  {
+	    line = f.readLine();
+	    if ( line != null )
+	      {
+	        line = line.trim();
+	        if ( line.length() == 0 )
+	          {
+	            // Blank line
+	            continue;
+	          }
+	      }
+		if ( (line == null) || line.startsWith(".") )
+		  {
 			// Start of a Mod (and end of previous mod)
 			// If have other lines for the Mod, parse to get an instance
-			if ( modstrings.size() > 0 ) {
+			if ( modstrings.size() > 0 ) 
+			  {
 				// Have a list of strings from before.  Parse the mods
 				NWSRFS_Mod mod = parseMod(modstrings);
-				if ( mod != null ) {
+				if ( mod != null ) 
+				  {
 					list.add ( mod );
-				}
-			}
-			if ( line == null ) {
-				// Done.
-				break;
-			}
-			else {
+				  }
+			  }
+			if ( line == null ) 
+			  {
+			    // Done.
+			    break;
+			  }
+			else
+			  {
 				// Create a new list of mods and append...
 				modstrings = new Vector();
 				modstrings.add ( line );
@@ -104,4 +122,44 @@ throws IOException
 	return list;
 }
 
+/** 
+ * Test harness
+ * @param args
+ */
+public static void main(String args[])
+{
+  String OFS_MODS_DIR = "ofs_mods_dir";
+  System.out.println("Test convertTSCHNG_MAP_ModsToFMAPMods");
+  
+  // Get App defaults
+  String modsDirString = NWSRFS_Util.getAppsDefaults(OFS_MODS_DIR);
+  System.out.println("AppsDefault " +OFS_MODS_DIR + ": "+ modsDirString);
+  
+  // check !null check exists, check readable, check directory
+  if(modsDirString == null)throw new RuntimeException("AppsDefaultNull: " 
+      + OFS_MODS_DIR);
+  File modsDir = new File(modsDirString);
+  if (!modsDir.isDirectory()) throw new RuntimeException("NotADirectory: modsDirString");
+  if (!modsDir.canRead()) throw new RuntimeException("NotADirectory: modsDirString");
+  
+  // Get files
+  FileCollector fileCollector =new FileCollector(modsDirString, "", false);
+  List fileNames =fileCollector.getFiles();
+
+  NWSRFS_Mod_Reader _modReader;
+  //iterate over the files
+  for (int i = 0; i < fileNames.size(); i++)
+    {
+      try
+        {
+          _modReader = new NWSRFS_Mod_Reader((String)fileNames.get(i));
+        }
+      catch (IOException e)
+        {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+    }
+  
+}
 }
