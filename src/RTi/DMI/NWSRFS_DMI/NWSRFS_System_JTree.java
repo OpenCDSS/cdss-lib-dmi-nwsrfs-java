@@ -490,8 +490,7 @@ public void displayTreeData() {
 		//get carryover group user picked when GUI initiated
 		main_cg = IOUtil.getPropValue("CARRYOVERGROUP");
 		if ( Message.isDebugOn ) {
-			Message.printDebug( 2, routine,
-			"Carryover Group for NWSRFSGUI Session= " + main_cg );
+			Message.printDebug( 2, routine,	"Carryover Group for NWSRFSGUI Session= " + main_cg );
 		}
 	}
 
@@ -547,8 +546,11 @@ public void displayTreeData() {
 		// if null then get all carryover groups (dangerous!)
 		//NWSRFSGUI can ONLY have 1 carryovergroup.  SnowUpdating
 		//GUI does not have that restriction.
+		// SAM TODO Need to evaluate why to limit carryover group display.
+		// Allow "*" specified as default to show all carryover groups.
 		if(!cg.getCGID().equalsIgnoreCase(main_cg) && 
-		cg != null && __forNWSRFSGUI ) {
+				!cg.getCGID().equals("*") &&
+				(cg != null && __forNWSRFSGUI) ) {
 			continue;
 		}
 		if ( cg == null ) {
