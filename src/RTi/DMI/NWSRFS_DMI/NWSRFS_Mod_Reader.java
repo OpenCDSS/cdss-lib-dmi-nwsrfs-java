@@ -50,7 +50,8 @@ private NWSRFS_Mod parseMod ( List modstrings )
 {	String routine = "NWSRFS_Mod_Reader.parseMod";
 	String line = (String)modstrings.get(0);
 	try {
-		if ( line.startsWith(NWSRFS_ModType.TSCHNG.toString()) ) {
+		// TODO: needs dot in  front! if ( line.startsWith(NWSRFS_ModType.TSCHNG.toString()) ) {
+    if ( line.startsWith(".TSCHNG")){
 			// TSCHNG Mod...
 			return NWSRFS_Mod_TSCHNG.parse ( modstrings );
 		}
@@ -92,7 +93,7 @@ throws IOException
 	            continue;
 	          }
 	      }
-		if ( (line == null) || line.startsWith(".") )
+		if ( (line != null) || line.startsWith(".") )
 		  {
 			// Start of a Mod (and end of previous mod)
 			// If have other lines for the Mod, parse to get an instance
