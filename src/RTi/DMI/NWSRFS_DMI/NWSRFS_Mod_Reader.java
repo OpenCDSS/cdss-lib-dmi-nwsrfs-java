@@ -1,9 +1,11 @@
 package RTi.DMI.NWSRFS_DMI;
 
+import java.awt.font.LineMetrics;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -11,6 +13,7 @@ import java.util.Vector;
 import RTi.Util.IO.FileCollector;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.Message.Message;
+import RTi.Util.Time.DateTime;
 
 /**
 Class to read Mod files and return Mod instances.
@@ -22,23 +25,23 @@ public class NWSRFS_Mod_Reader
 Mod file to be read.
 */
 private String _filename = null;
-private List mods = new ArrayList();	
+private List _modList = new ArrayList();	
 /**
 Constructor that takes a file name.
 */
 public NWSRFS_Mod_Reader ( String filename )
 throws IOException
 {
-	_filename = filename;
-	File f = new File ( filename );
-	if ( !f.canRead() )
-	  {
-	    throw new IOException ( "File is not readable: \"" + filename + "\"");
-	  }
-	else 
-	  {
-	    read(mods);
-	  }
+  _filename = filename;
+  File f = new File ( filename );
+  if ( !f.canRead() )
+    {
+      throw new IOException ( "File is not readable: \"" + filename + "\"");
+    }
+  else 
+    {
+      read();
+    }
 }
 
 /**
@@ -46,14 +49,15 @@ Parse a List of strings for a Mod.  The first line will contain the mod type.
 TODO SAM 2008-01-14 Evaluate moving to factory or other.  This is good enough for now.
 @param modstrings List of strings for the mod.
 */
-private NWSRFS_Mod parseMod ( List modstrings )
-{	String routine = "NWSRFS_Mod_Reader.parseMod";
+private NWSRFS_Mod parseMod ( List modstrings, int modLineStart )
+{	
+  String routine = "NWSRFS_Mod_Reader.parseMod";
 	String line = (String)modstrings.get(0);
 	try {
 		// TODO: needs dot in  front! if ( line.startsWith(NWSRFS_ModType.TSCHNG.toString()) ) {
     if ( line.startsWith(".TSCHNG")){
 			// TSCHNG Mod...
-			return NWSRFS_Mod_TSCHNG.parse ( modstrings );
+			return NWSRFS_Mod_TSCHNG.parse ( modstrings, modLineStart);
 		}
 	}
 	catch ( Exception e ) {
@@ -69,60 +73,87 @@ Read a Mod file.
 and returned.
 @return list of Mod instances.
 */
-public List read ( List list )
+public void read ()
 throws IOException
 {	
-  if ( list == null ) 
-    {
-		list = new Vector();
-	}
-	BufferedReader f = null;
-	f = new BufferedReader ( new InputStreamReader( IOUtil.getInputStream ( _filename )) );
+	LineNumberReader f = null;
+	f = new LineNumberReader( new InputStreamReader( IOUtil.getInputStream ( _filename )));
 	String line;
+  int modLineStart = 1; // Line # for start of mod
 	Vector modstrings= new Vector();
-
-	while ( true ) 
+  boolean inMod = false;
+	/*
+	 * Scan for mod, all mods begin w/ dot
+	 * For now only ".TSCHNG mods are of interest
+	 * A mod is terminated by another mod, a blank line or EOF
+	 */
+	while ( true) 
 	  {
 	    line = f.readLine();
-	    if ( line != null )
+	    System.out.println(f.getLineNumber() +" >> " + line);
+	    if (line == null)
 	      {
-	        line = line.trim();
-	        if ( line.length() == 0 )
+	        if (inMod)
 	          {
-	            // Blank line
-	            continue;
+	            emitMod(modstrings, modLineStart);
 	          }
+	        break;
 	      }
-		if ( (line != null) || line.startsWith(".") )
+	    if ( line.startsWith(".") )
+	      {
+	        if (inMod)
+	          {
+	            emitMod(modstrings, modLineStart);
+	            modstrings.clear();
+	          }
+	        modLineStart = f.getLineNumber();
+	        line = line.trim();
+	        modstrings.add ( line );
+	        inMod = true;
+	      }
+	    else if (line.length() == 0)
+	      {
+	        if (inMod)
+	          {
+	           
+	            // Create new NWSRFS_Mod & emit
+	            emitMod(modstrings, modLineStart);
+	            modstrings.clear();
+	            inMod = false;
+	          }
+	        else
+	          {/* skip */}
+	      }
+		else
 		  {
-			// Start of a Mod (and end of previous mod)
-			// If have other lines for the Mod, parse to get an instance
-			if ( modstrings.size() > 0 ) 
-			  {
-				// Have a list of strings from before.  Parse the mods
-				NWSRFS_Mod mod = parseMod(modstrings);
-				if ( mod != null ) 
-				  {
-					list.add ( mod );
-				  }
-			  }
-			if ( line == null ) 
-			  {
-			    // Done.
-			    break;
-			  }
-			else
-			  {
-				// Create a new list of mods and append...
-				modstrings = new Vector();
-				modstrings.add ( line );
-			}
-		}
-	}
-	f.close();
-	return list;
-}
+		    modstrings.add ( line );
+		  }
+	  } // eof while
+	
+	// TODO f.close();
 
+} // eof read
+
+private void emitMod(Vector modStrings, int line)
+{
+  // Only able to process TSCHNG mods so...
+  if (!((String)modStrings.elementAt(0)).startsWith(".TSCHNG")) 
+    {
+      return;
+    }
+      
+  NWSRFS_Mod mod = parseMod(modStrings, line);
+  
+  if ( mod != null) 
+    {
+      System.out.println ("==> " + mod);
+      // Only interested in "MAP" datatype
+      if (mod.getTsDataType().equals("MAP"))
+        {
+          _modList.add ( mod );
+        }
+    }
+}
 /** 
  * Test harness
  * @param args
@@ -133,7 +164,8 @@ public static void main(String args[])
   System.out.println("Test convertTSCHNG_MAP_ModsToFMAPMods");
   
   // Get App defaults
-  String modsDirString = NWSRFS_Util.getAppsDefaults(OFS_MODS_DIR);
+  // TODO String modsDirString = NWSRFS_Util.getAppsDefaults(OFS_MODS_DIR);
+  String modsDirString = "test/unit/data";
   System.out.println("AppsDefault " +OFS_MODS_DIR + ": "+ modsDirString);
   
   // check !null check exists, check readable, check directory
@@ -147,7 +179,7 @@ public static void main(String args[])
   FileCollector fileCollector =new FileCollector(modsDirString, "", false);
   List fileNames =fileCollector.getFiles();
 
-  NWSRFS_Mod_Reader _modReader;
+  NWSRFS_Mod_Reader _modReader = null;
   //iterate over the files
   for (int i = 0; i < fileNames.size(); i++)
     {
@@ -162,5 +194,20 @@ public static void main(String args[])
         }
     }
   
+  // Convert the .TSCHNG mods to FMAP
+  //TODO: dre: I don't know where to get this from
+  DateTime now = new DateTime(DateTime.DATE_CURRENT);
+  List fMAPMods = NWSRFS_Mod_Util.convertTSCHNG_MAP_ModsToFMAPMods(_modReader.getMods(), now);  
+  
+  NWSRFS_Mod_Util.writeTSCHNG_MAT_ModsToTSEDIT(fMAPMods, now,
+  "test/unit/results/FMAPMODS.IFP");
+}
+
+/**
+ * @return
+ */
+private List getMods()
+{
+  return _modList;
 }
 }

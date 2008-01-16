@@ -11,7 +11,7 @@ public abstract class NWSRFS_Mod
 /**
 Mod type (e.g., TSCHNG)
 */
-private NWSRFS_ModType __type = null;
+protected NWSRFS_ModType __type = null;
 
 /**
 Segment to which the Mod applies.
@@ -36,12 +36,12 @@ private String __tsid = null;
 /**
 Time series data type which the Mod applies.
 */
-private String __tstype = null;
+private String __tsDataType = null;
 
 /**
 Time series interval to which the Mod applies.
 */
-private int __tsint = 0;
+private int __tsInterval = 0;
 
 /**
 Return the end date/time (for last data value).
@@ -78,17 +78,17 @@ public String getTsid ( )
 /**
 Return the time series interval.
 */
-public int getTsint ( )
+public int getTsInterval ( )
 {
-	return __tsint;
+	return __tsInterval;
 }
 
 /**
 Return the time series data type.
 */
-public String getTstype ( )
+public String getTsDataType ( )
 {
-	return __tstype;
+	return __tsDataType;
 }
 
 /**
@@ -126,17 +126,23 @@ public void setTsid ( String tsid )
 /**
 Set the time series data type.
 */
-public void setTsint ( int tsint )
+public void setTsInterval ( int tsint )
 {
-	__tsint = tsint;
+	__tsInterval = tsint;
 }
 
 /**
 Set the time series data type.
 */
-public void setTstype ( String tstype )
+public void setTsDataType ( String tstype )
 {
-	__tstype = tstype;
+	__tsDataType = tstype;
 }
 
+public String toString()
+{
+  String s = "NWSRFS_ModType:" + __type + " start:" + __start + " end:" + __end
+  + " segid:"+ __segment +" tsid:"+ __tsid + " datatype:"+ __tsDataType;
+  return s;
+}
 }
