@@ -165,8 +165,11 @@ private void emitMod(Vector modStrings, int line)
 public static void main(String args[])
 {
   String OFS_MODS_DIR = "ofs_mods_dir";
-  System.out.println("Test convertTSCHNG_MAP_ModsToFMAPMods");
-  System.out.println(" Be sure to check temperature conversion...");
+  System.out.println("*** Test convertTSCHNG_MAP_ModsToFMAPMods");
+  System.out.println("***  Be sure to check temperature conversion...");
+  System.out.println("*** - Uses test/unit/data/TSCHNG.txt as input test");
+  System.out.println("*** - Outputs files to the test/unit/data directory");
+  
   try
     {
       readDataUnitsFile ();
