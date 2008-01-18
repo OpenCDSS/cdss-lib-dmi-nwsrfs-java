@@ -22,7 +22,8 @@ Convert TSCHNG mods into FMAP mods.
 @return a List of FMAP mods resulting from the conversion.
 */
 public static List convertTSCHNG_MAP_ModsToFMAPMods ( List mods, DateTime lastobs_DateTime )
-{	String routine = "NWSRFS_Mod_Util.convertTSCHNG_MAP_ModsToFMAPMods";
+{	
+  String routine = "NWSRFS_Mod_Util.convertTSCHNG_MAP_ModsToFMAPMods";
 	List FMAP_mods = new Vector();
 	if ( mods == null ) {
 		return FMAP_mods;
@@ -38,8 +39,8 @@ public static List convertTSCHNG_MAP_ModsToFMAPMods ( List mods, DateTime lastob
 			mod_TSCHNG = (NWSRFS_Mod_TSCHNG)mod;
 			HourTS ts = mod_TSCHNG.getTS();
 			
-
 			DateTime end = mod_TSCHNG.getTS().getDate2();
+			
 			if ( mod_TSCHNG.getTsDataType().equalsIgnoreCase("MAP") &&
 					end.greaterThan(lastobs_DateTime)) {
 				// Have some future data.  Create a new FMAP mod and transfer values
@@ -48,6 +49,8 @@ public static List convertTSCHNG_MAP_ModsToFMAPMods ( List mods, DateTime lastob
 				mod_FMAP.setTsid( mod_TSCHNG.getTsid() );
 				int tsint = mod_TSCHNG.getTsInterval();
 				mod_FMAP.setTsInterval( tsint );
+				mod_FMAP.setStart(mod_TSCHNG.getStart());
+				
 				// Start by setting the date equal to the start
 				DateTime date = new DateTime (ts.getDate1());
 				// Iterate forward until the date is greater than the observed
@@ -76,6 +79,7 @@ public static List convertTSCHNG_MAP_ModsToFMAPMods ( List mods, DateTime lastob
 					ts.setDataValue( date, ts.getDataValue(date));
 				}
 				mod_FMAP.setTS(ts2);
+				FMAP_mods.add(mod_FMAP);
 			}
 		}
 	}

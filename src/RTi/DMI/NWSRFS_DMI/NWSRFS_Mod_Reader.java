@@ -3,13 +3,16 @@ package RTi.DMI.NWSRFS_DMI;
 import java.awt.font.LineMetrics;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import RTi.Util.IO.DataUnits;
 import RTi.Util.IO.FileCollector;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.Message.Message;
@@ -147,8 +150,9 @@ private void emitMod(Vector modStrings, int line)
   if ( mod != null) 
     {
       System.out.println ("==> " + mod);
-      // Only interested in "MAP" datatype
-      if (mod.getTsDataType().equals("MAP"))
+      // Only interested in "MAP" & MAT datatype
+      if (mod.getTsDataType().equals("MAP")
+          || mod.getTsDataType().equals("MAT"))
         {
           _modList.add ( mod );
         }
@@ -162,6 +166,17 @@ public static void main(String args[])
 {
   String OFS_MODS_DIR = "ofs_mods_dir";
   System.out.println("Test convertTSCHNG_MAP_ModsToFMAPMods");
+  System.out.println(" Be sure to check temperature conversion...");
+  try
+    {
+      readDataUnitsFile ();
+    }
+  catch (Exception e1)
+    {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+  
   
   // Get App defaults
   // TODO String modsDirString = NWSRFS_Util.getAppsDefaults(OFS_MODS_DIR);
@@ -178,7 +193,7 @@ public static void main(String args[])
   // Get files
   FileCollector fileCollector =new FileCollector(modsDirString, "", false);
   List fileNames =fileCollector.getFiles();
-
+List modList = new ArrayList();
   NWSRFS_Mod_Reader _modReader = null;
   //iterate over the files
   for (int i = 0; i < fileNames.size(); i++)
@@ -186,6 +201,7 @@ public static void main(String args[])
       try
         {
           _modReader = new NWSRFS_Mod_Reader((String)fileNames.get(i));
+          modList.addAll(_modReader.getMods());
         }
       catch (IOException e)
         {
@@ -196,11 +212,110 @@ public static void main(String args[])
   
   // Convert the .TSCHNG mods to FMAP
   //TODO: dre: I don't know where to get this from
-  DateTime now = new DateTime(DateTime.DATE_CURRENT);
-  List fMAPMods = NWSRFS_Mod_Util.convertTSCHNG_MAP_ModsToFMAPMods(_modReader.getMods(), now);  
   
-  NWSRFS_Mod_Util.writeTSCHNG_MAT_ModsToTSEDIT(fMAPMods, now,
-  "test/unit/results/FMAPMODS.IFP");
+  DateTime now = null;
+  try
+    {
+      now = new DateTime(DateTime.parse("2005-02-10 00:00:00 08Z"));
+    }
+  catch (Exception e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+//  List fMAPMods = NWSRFS_Mod_Util.convertTSCHNG_MAP_ModsToFMAPMods(modList, now);  
+//  
+//  for(int i = 0; i < fMAPMods.size(); i++)
+//    {
+//      System.out.println(fMAPMods.get(i).toString());
+//    }
+//  
+//  // capture fMAPMods in "FMAPMODS.IFP"
+//  outputFMAP(modsDirString, fMAPMods);
+ 
+  // capture .TSCHNG MAT to
+  outputXXX(modsDirString, modList);
+  //NWSRFS_Mod_Util.writeTSCHNG_MAT_ModsToTSEDIT(fMAPMods, now,
+  //"test/unit/results/FMAPMODS.IFP");
+}
+private static void outputXXX(String modsDirString,List modList)
+{
+  String outputFile = modsDirString + "/TSEDIT.MAT"; 
+  File f = new File(outputFile);
+  //if (!f.canWrite())throw new RuntimeException("NotWritable: " + outputFile);
+  PrintWriter printWriter = null;
+  try
+    {
+      printWriter = new PrintWriter(f);
+      
+      printWriter.write("@TSEDIT\n");
+      for(int i = 0; i < modList.size(); i++)
+        { 
+         System.out.println ("??" +(NWSRFS_Mod_TSCHNG)modList.get(i));
+          if (((NWSRFS_Mod)modList.get(i)).getTsDataType().equals("MAT"))
+            {
+              ((NWSRFS_Mod_TSCHNG)modList.get(i)).writeMAT2prdtil(printWriter);
+            }
+        }
+    }
+  catch (FileNotFoundException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+ finally
+ {   
+   try
+    {
+      printWriter.close();
+    }
+  catch (RuntimeException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+ }
+}
+/**
+ * @param modsDirString
+ * @param fMAPMods
+ */
+private static void outputFMAP(String modsDirString, List fMAPMods)
+{
+  String outputFile = modsDirString + "/FMAPMODS.IFP";
+  File f = new File(outputFile);
+  //if (!f.canWrite())throw new RuntimeException("NotWritable: " + outputFile);
+  PrintWriter printWriter = null;
+  try
+    {
+      printWriter = new PrintWriter(f);
+      for(int i = 0; i < fMAPMods.size(); i++)
+        { 
+         
+      // TODO?    if (((NWSRFS_Mod_FMAP)fMAPMods.get(i)).getTsDataType().equals("MAP"))
+            {
+             ((NWSRFS_Mod_FMAP)fMAPMods.get(i)).write(printWriter);
+            }
+        }
+    }
+  catch (FileNotFoundException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+ finally
+ {   
+   try
+    {
+      printWriter.close();
+    }
+  catch (RuntimeException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+   
+ }
 }
 
 /**
@@ -209,5 +324,41 @@ public static void main(String args[])
 private List getMods()
 {
   return _modList;
+}
+/**
+Read the DATAUNIT NWSRFS system file, located with the apps defaults token: rfs_sys_dir.
+The data units are then stored in memory and are used for displays.
+@exception if an error occurs reading the data units.
+*/
+public static void readDataUnitsFile ()
+throws Exception
+{
+  String __CLASS  = "NWSRFS_Mod_Reader";
+  String routine = __CLASS + ".readDataUnitsFile";
+  String rfs_sys_dir = IOUtil.getPathUsingWorkingDir ( NWSRFS_Util.getAppsDefaults("rfs_sys_dir"));
+
+  if ( rfs_sys_dir == null ) {
+    String message = "Unable to use to determine the value for the apps defaults token: \"" +
+      "rfs_sys_dir\".  Can't read data units.  Verify that the apps defaults are set. ";
+    Message.printWarning( 2, routine, message );
+    throw new Exception ( message );
+  }
+  
+  String data_units_path = null;
+  data_units_path = rfs_sys_dir + File.separator + "DATAUNIT";
+
+  //now read it in
+  try {
+    Message.printStatus( 2, routine, "Reading the data units from \"" + data_units_path + "\".");
+    DataUnits.readNWSUnitsFile( data_units_path );
+  }
+  catch ( Exception e) {
+    if ( Message.isDebugOn ) {
+      Message.printWarning( 2, routine, e );
+    }
+    String message = "Unable to read in system's DATAUNIT file: \"" + data_units_path + "\".";
+    Message.printWarning( 2, routine, message );
+    throw new Exception ( message );
+  }
 }
 }

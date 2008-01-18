@@ -1,5 +1,6 @@
 package RTi.DMI.NWSRFS_DMI;
 
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Vector;
 
@@ -7,7 +8,10 @@ import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 import RTi.Util.Time.DateTime;
 import RTi.TS.HourTS;
+import RTi.TS.TSData;
 import RTi.TS.TSIdent;
+import RTi.TS.TSIterator;
+import RTi.TS.TSUtil;
 
 /**
 NWSRFS TSCHNG Mod
@@ -16,7 +20,7 @@ MOD TSCHNG
 <p>
 Card #1: .TSCHNG date validdate
 Card #2:  segid tsid datetype timeint values (keyword/optype/opname)
- values may extend over multiple cards. An ampersand '&' (column 72)
+ values may extend over multiple cards. An ampersand '&' 
  indicates a continuation card.
  <p>
  An operation name may appear after the values
@@ -174,7 +178,7 @@ private static HourTS createHourTS(NWSRFS_Mod_TSCHNG mod,
 	ts.setDate1( start_DateTime );
 	
 	DateTime end = new DateTime ( start_DateTime );
-	end.addHour(tsint*nvals);
+	end.addHour(tsint*nvals -1);
 	ts.setDate2 ( end );
 	
 	ts.allocateDataSpace();
@@ -183,6 +187,9 @@ private static HourTS createHourTS(NWSRFS_Mod_TSCHNG mod,
 	for ( int i = 0; i < nvals; i++, date.addHour(tsint) ) {
 		ts.setDataValue( date, data[i]);
 	}
+	// convert MAT values from degrees Fahrenheit to Celsius
+	ts.setDataUnits("DEGF");
+	TSUtil.convertUnits(ts,"DEGC");
 	return ts;
 }
 
@@ -218,6 +225,48 @@ public void setTS ( HourTS ts )
 
 public String toString()
 {
-  return super.toString() +" " + __ts;
+  String s = "NWSRFS_ModType:" + __type + " start:" + __start + " end:" + __end
+  + " segid:"+ __segment +" tsid:"+ __tsid + 
+  " datatype:"+ __tsDataType +" " + __ts;
+  return s;
+}
+
+
+public void writeMAT2prdtil(PrintWriter writer)
+{
+  StringBuffer valueAccu = new StringBuffer();
+  // Get TS values
+  TSIterator tsi = null;
+  try
+    {
+      tsi = __ts.iterator ( __ts.getDate1(), __ts.getDate2() );
+    }
+  catch (Exception e1)
+    {
+      e1.printStackTrace();
+    }
+  DateTime date;
+  double value;
+  TSData data;
+  for ( ; (data = tsi.next()) != null; ) {
+        // The first call will set the pointer to the
+        // first data value in the period.  next() will return
+        // null when the last date in the processing period
+        // has been passed.
+    date = tsi.getDate();
+    value = tsi.getDataValue();
+    System.out.println(">>>--->" + value);
+    valueAccu.append(' ').append(value);
+  }
+  
+ try
+  {
+    writer.write(__tsid + " MAT "+ __tsInterval + "\n");
+    writer.write(__start+ valueAccu.toString()+ "\n");
+  }
+catch (Exception e)
+  {
+    e.printStackTrace();
+  }
 }
 }

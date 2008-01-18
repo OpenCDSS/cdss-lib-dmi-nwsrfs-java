@@ -16,32 +16,32 @@ protected NWSRFS_ModType __type = null;
 /**
 Segment to which the Mod applies.
 */
-private String __segment = null;
+protected String __segment = null;
 
 /**
 Start date/time for the mod.
 */
-private DateTime __start = null;
+protected DateTime __start = null;
 
 /**
 End date/time for the mod.
 */
-private DateTime __end = null;
+protected DateTime __end = null;
 
 /**
 Time series identifier to which the Mod applies.
 */
-private String __tsid = null;
+protected String __tsid = null;
 
 /**
 Time series data type which the Mod applies.
 */
-private String __tsDataType = null;
+protected String __tsDataType = null;
 
 /**
 Time series interval to which the Mod applies.
 */
-private int __tsInterval = 0;
+protected int __tsInterval = 0;
 
 /**
 Return the end date/time (for last data value).
@@ -139,10 +139,5 @@ public void setTsDataType ( String tstype )
 	__tsDataType = tstype;
 }
 
-public String toString()
-{
-  String s = "NWSRFS_ModType:" + __type + " start:" + __start + " end:" + __end
-  + " segid:"+ __segment +" tsid:"+ __tsid + " datatype:"+ __tsDataType;
-  return s;
-}
+
 }
