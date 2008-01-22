@@ -973,15 +973,28 @@ throws Exception
 	ldarun_date.setYear ( __ts[__ts.length - 1].getSequenceNumber() );
 	ldarun_date.setMonth( __im );
 	ldarun_date.addMonth ( __ncm - 1 );
-
+	
 	__lhrrun = __lhlst;
 	j = NWSRFS_Util.julda ( ldarun_date.getMonth(),	end_date24.getDay(), ldarun_date.getYear(), __lhrrun );
 	__ldarun = j[0];
+
     Message.printStatus ( 2, routine, "ldarun computed from " +
             StringUtil.formatString(ldarun_date.getYear(),"%04d") + "-" +
             StringUtil.formatString(ldarun_date.getMonth(),"%02d") + "-" +
             StringUtil.formatString(end_date24.getDay(),"%02d")+ " " +
             StringUtil.formatString(__lhlst,"%02d") + " = " + __ldarun + " (lhrrun = lhlst = " + __lhlst + ")");
+    // If the current year is a leap year, add a day to ldarun to allow non-leap year
+    // dates to be appropriate.  For example, in a leap year, the forecast end date might be
+    // Sep 29.  However, in a non-leap historical year, we need to go to Sep 30 to get the same
+    // number of days for a sequential trace.
+    // TODO SAM 2008-01-21 Is it only the end year, or does it depend on how the forecast period
+    // spans the leap day?
+    if ( TimeUtil.isLeapYear(end_date24.getYear())) {
+        ++__ldarun;
+        Message.printStatus ( 2, routine,
+        "ldarun added 1 day due to current 24-hour year (" + end_date24.getYear() +
+        ") being a leap year, ldarun now = " + __ldarun );
+    }
 
 	// Simply the number of time series traces...
 	__n_traces = size;
