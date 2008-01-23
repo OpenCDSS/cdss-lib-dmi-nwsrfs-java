@@ -986,14 +986,29 @@ throws Exception
     // If the current year is a leap year, add a day to ldarun to allow non-leap year
     // dates to be appropriate.  For example, in a leap year, the forecast end date might be
     // Sep 29.  However, in a non-leap historical year, we need to go to Sep 30 to get the same
-    // number of days for a sequential trace.
-    // TODO SAM 2008-01-21 Is it only the end year, or does it depend on how the forecast period
-    // spans the leap day?
-    if ( TimeUtil.isLeapYear(end_date24.getYear())) {
-        ++__ldarun;
-        Message.printStatus ( 2, routine,
-        "ldarun added 1 day due to current 24-hour year (" + end_date24.getYear() +
-        ") being a leap year, ldarun now = " + __ldarun );
+    // number of days for a sequential trace.  The number of days added is the number of leap year Feb 29 that
+    // occur in the forecast period.  Typically for a 1-2 trace this will be a maximum of 1 but allow
+    // multiple to be added.
+    // TODO SAM 2008-01-21 Currently only add one year - if the forecast traces are longer than 2 years and
+    // there is a potential for more than one leap year if really long traces are used ... what are the
+    // implications?
+    DateTime leap_day = null;
+    // Use the correct year so that DateTime does not complain about setting invalid date on 2/29
+    if ( TimeUtil.isLeapYear(start_date24.getYear()) ) {
+        leap_day = new DateTime (start_date24);
+    }
+    else if ( TimeUtil.isLeapYear(end_date24.getYear()) ) {
+        leap_day = new DateTime (end_date24);
+    }
+    if ( leap_day != null ) {
+        // Start or end is in a leap year so check to see if the forecast period spans Feb 29...
+        leap_day.setMonth ( 2 );
+        leap_day.setDay ( 29 );
+        if ( leap_day.greaterThanOrEqualTo(start_date24) && leap_day.lessThanOrEqualTo(end_date24) ) {
+            ++__ldarun;
+            Message.printStatus ( 2, routine,
+                    "ldarun added 1 day due to forecast period spanning a leap year Feb 29, ldarun now = " + __ldarun );
+        }
     }
 
 	// Simply the number of time series traces...
