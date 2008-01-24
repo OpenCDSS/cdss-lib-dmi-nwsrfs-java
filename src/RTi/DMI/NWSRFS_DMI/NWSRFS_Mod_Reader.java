@@ -1,13 +1,11 @@
 package RTi.DMI.NWSRFS_DMI;
 
-import java.awt.font.LineMetrics;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -246,22 +244,22 @@ private static void outputXXX(String modsDirString,List modList)
   String outputFile = modsDirString + "/TSEDIT.MAT"; 
   File f = new File(outputFile);
   //if (!f.canWrite())throw new RuntimeException("NotWritable: " + outputFile);
-  PrintWriter printWriter = null;
+  FileWriter fileWriter = null;
   try
     {
-      printWriter = new PrintWriter(f);
+      fileWriter = new FileWriter(f);
       
-      printWriter.write("@TSEDIT\n");
+      fileWriter.write("@TSEDIT\n");
       for(int i = 0; i < modList.size(); i++)
         { 
          System.out.println ("??" +(NWSRFS_Mod_TSCHNG)modList.get(i));
           if (((NWSRFS_Mod)modList.get(i)).getTsDataType().equals("MAT"))
             {
-              ((NWSRFS_Mod_TSCHNG)modList.get(i)).writeMAT2prdtil(printWriter);
+              ((NWSRFS_Mod_TSCHNG)modList.get(i)).writeMAT2prdtil(fileWriter);
             }
         }
     }
-  catch (FileNotFoundException e)
+  catch (Exception e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -270,9 +268,9 @@ private static void outputXXX(String modsDirString,List modList)
  {   
    try
     {
-      printWriter.close();
+      fileWriter.close();
     }
-  catch (RuntimeException e)
+  catch (Exception e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -288,20 +286,28 @@ private static void outputFMAP(String modsDirString, List fMAPMods)
   String outputFile = modsDirString + "/FMAPMODS.IFP";
   File f = new File(outputFile);
   //if (!f.canWrite())throw new RuntimeException("NotWritable: " + outputFile);
-  PrintWriter printWriter = null;
+  FileWriter fileWriter = null;
   try
     {
-      printWriter = new PrintWriter(f);
+      try
+        {
+          fileWriter = new FileWriter(f);
+        }
+      catch (IOException e)
+        {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       for(int i = 0; i < fMAPMods.size(); i++)
         { 
          
       // TODO?    if (((NWSRFS_Mod_FMAP)fMAPMods.get(i)).getTsDataType().equals("MAP"))
             {
-             ((NWSRFS_Mod_FMAP)fMAPMods.get(i)).write(printWriter);
+             ((NWSRFS_Mod_FMAP)fMAPMods.get(i)).write(fileWriter);
             }
         }
     }
-  catch (FileNotFoundException e)
+  catch (Exception e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -310,9 +316,9 @@ private static void outputFMAP(String modsDirString, List fMAPMods)
  {   
    try
     {
-      printWriter.close();
+      fileWriter.close();
     }
-  catch (RuntimeException e)
+  catch (Exception e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();

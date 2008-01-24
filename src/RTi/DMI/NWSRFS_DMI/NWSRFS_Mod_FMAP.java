@@ -59,7 +59,7 @@ public String toString()
  * @param writer
  * @return 
  */
-public void write(PrintWriter writer)
+public void write(FileWriter writer)
 {
   StringBuffer valueAccu = new StringBuffer();
   // Get TS values
