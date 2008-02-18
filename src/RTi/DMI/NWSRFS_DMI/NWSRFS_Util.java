@@ -1825,6 +1825,7 @@ private static String get_token(String request, String appsDefaultsFile)
 // TODO SAM 2004-09-01 This should be in IOUtil, etc., if it is useful
 /**
 This method is a replacement method for the System.getenv, which was deprecated in Java 1.4.2 (back in 1.5).
+On UNIX, "env" is used to get the environment.  On Windows, "set" is used.
 @param request is the request string to search the users environment.
 @return is the value of the return String token if found or null.
 */
@@ -1832,102 +1833,83 @@ public static String getenv(String request)
 {
 	int i, tokenIndex = -1, exitstat = -999;
 	String routine = "NWSRFS_Util.getenv";
-	String returnValue = null;
+	String env_val = null;
 	String cmd = null;
 	Vector value_list = new Vector();
 	ProcessManager pm;
+	
+	Message.printStatus(2, routine, "Trying to find value for environment variable \"" + request + "\"");
 
 	// Try to catch NullPointerExceptions
 	try {
 		// Check to see if the request String is in the System
 		// properties if so return it.
-		if((returnValue = System.getProperty(request)) != null)
+		if((env_val = System.getProperty(request)) != null)
 		{
 			Message.printStatus(2, routine, "Found value of \"" + request +
-					"\"  = \"" + returnValue + "\" in system properties." );
-			return returnValue;
+					"\"  = \"" + env_val + "\" in system properties." );
+			return env_val;
 		}
-		else	// Have to make a OS call to get the environment
-			// variable value
-		{
-			// Check to see if a UNIX system otherwise we just
-			// return null
-			if (	System.getProperty("os.name").
-				equalsIgnoreCase("Linux"))
+		else
+		{   // Have to make a OS call to get the environment variable value.
+			if (IOUtil.isUNIXMachine())
 			{
-				try 
-				{
-					cmd = "env";
-					pm = new ProcessManager(cmd);
-					pm.saveOutput( true );
-					pm.run();
-					value_list = pm.getOutputVector();
-					exitstat = pm.getExitStatus();
-					if (	( exitstat != 0 ) ||
-						(value_list.size()== 0))
-					{
-						return null;
-					}
-					else  
-					{
-						// Parse the env and look for
-						// request String.
-						for(i=0;i<value_list.size();i++)
-						{
-							if(StringUtil.
-							indexOfIgnoreCase(
-							(String)value_list.
-							elementAt(i),request,0)
-							>= 0)
-							{
-								tokenIndex = i;
-								break;
-							}
-						}
-
-						if(tokenIndex < 0)
-						{
-							return null;
-						}
-
-						returnValue = (String)
-						value_list.elementAt(
-						tokenIndex);
-						if(returnValue.length() == 0)
-						{
-							return null;
-						}
-						else
-						{
-							value_list = StringUtil.
-							breakStringList(
-							returnValue,"=",3);
-							returnValue =
-							(String)value_list.
-							elementAt(1);
-							return returnValue;
-						}
-					}
-				}
-				catch (Exception e ) 
-				{
-					Message.printWarning(2,routine,
-					"An Exception occured: "+
-					e.getMessage());
-					return null;
-				}
+			    cmd = "env";
 			}
-			else
+			else {
+			    cmd = "set";
+			}
+			try	{
+				pm = new ProcessManager(cmd);
+				pm.saveOutput( true );
+				pm.run();
+				value_list = pm.getOutputVector();
+				exitstat = pm.getExitStatus();
+	        }
+            catch (Exception e ) 
+            {
+                Message.printWarning(3,routine, "An exception occurred running \"" + cmd +
+                        "\" getting env var \"" + request + "\"" );
+                Message.printWarning(3, routine, e);
+                return null;
+            }
+			if ( exitstat != 0 )
 			{
-				Message.printStatus(2, routine, "Cannot get environment variable \"" + request +
-						"\" on Windows.  Not supported.  Returning null." );
+			    Message.printWarning(3,routine, "Exit status for \"" + cmd + "\" is " + exitstat
+			        + ".  Returning null for env var \"" + request + "\"" );
 				return null;
 			}
+			int size = value_list.size();
+	        if ( size == 0 )
+            {
+                Message.printWarning(3,routine, "Size of environment list is " + value_list.size() +
+                    ".  Returning null for env var \"" + request + "\"" );
+                return null;
+            }
+			// Try to parse the strings returned for the environment
+	        Vector env_var_tokens;
+	        String env_var;
+	        for ( i=0; i<size; i++ ) {
+	            Message.printStatus ( 2, routine, "Env var " + (String)value_list.get(i) );
+	            env_var_tokens = StringUtil.breakStringList(
+	                    (String)value_list.get(i),"=",StringUtil.DELIM_ALLOW_STRINGS);
+	            env_var = ((String)env_var_tokens.elementAt(0)).trim();
+	            if ( env_var.equalsIgnoreCase(request) ) {
+    	            env_val = ((String)env_var_tokens.elementAt(1)).trim();
+    				Message.printStatus(2, routine, "Environment variable \"" + request +
+    				        "\"=\"" + env_val + "\"");
+    				return env_val;
+	            }
+			}
+	        // No match was found...
+	        Message.printStatus(2, routine, "No match was found for environment variable \"" + request + "\"");
+	        return null;
 		}
 	}
 	catch(NullPointerException NPe)
 	{
-		Message.printWarning(2,routine, "An Exception occured: "+NPe.getMessage());
+		Message.printWarning(3,routine, "An exception occurred getting environment variable \"" + request + "\"" );
+		Message.printWarning(3, routine, NPe );
 		return null;
 	}
 }

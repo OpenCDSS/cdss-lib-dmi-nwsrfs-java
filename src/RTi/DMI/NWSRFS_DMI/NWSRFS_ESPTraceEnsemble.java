@@ -664,8 +664,7 @@ header.
 header.
 @exception Exception if there is an error reading the file.
 */
-public NWSRFS_ESPTraceEnsemble (	String filename, boolean read_data,
-					boolean remain_open ) 
+public NWSRFS_ESPTraceEnsemble ( String filename, boolean read_data, boolean remain_open ) 
 throws Exception
 {	
 	__filename = IOUtil.getPathUsingWorkingDir(filename);
@@ -693,14 +692,11 @@ throws Exception
 
 /**
 Construct an NWSRFS_ESPTraceEnsemble by reading an existing NWSRFS_DMI.  The DMI can be
-left open or be closed after the read.
-after the data are read.
+left open or be closed after the data are read.
 @param filename the file to open and read from.
 @param dmi an existing NWSRFS_DMI to do the read and writes.
-@param read_data If true, read all the data.  If false, only read the file
-header.
-@param remain_open If true, the DMI will remain open after reading the
-header.
+@param read_data If true, read all the data.  If false, only read the file header.
+@param remain_open If true, the DMI will remain open after reading the header.
 @exception Exception if there is an error reading the file.
 */
 public NWSRFS_ESPTraceEnsemble ( String filename, NWSRFS_DMI dmi,
@@ -1605,8 +1601,7 @@ private void initialize ()
 	// TODO SAM 2004-04-07 - what really is the meaning of the version?
 	// Can we document the differences in the file contents and make the
 	// code handle appropriately?
-	__format_ver = (float)1.01;	// Value used in examples as of
-					// 2003-12-14
+	__format_ver = (float)1.01;	// Value used in examples as of 2003-12-14
 	__simflag = SIMFLAG_CONDITIONAL;
 	__ts_unit = "";
 	__now = new int[5];
