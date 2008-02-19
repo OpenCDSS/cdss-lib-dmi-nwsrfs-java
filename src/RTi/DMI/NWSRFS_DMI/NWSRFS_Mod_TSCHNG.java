@@ -1,7 +1,7 @@
 package RTi.DMI.NWSRFS_DMI;
 
 import java.io.FileWriter;
-
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Vector;
 
@@ -233,7 +233,7 @@ public String toString()
 }
 
 
-public void writeMAT2prdtil(FileWriter writer)
+public void writeMAT2prdtil(FileWriter fileWriter)
 {
   StringBuffer valueAccu = new StringBuffer();
   // Get TS values
@@ -262,8 +262,8 @@ public void writeMAT2prdtil(FileWriter writer)
   
  try
   {
-    writer.write(__tsid + " MAT "+ __tsInterval + "\n");
-    writer.write(__start+ valueAccu.toString()+ "\n");
+    fileWriter.write(__tsid + " MAT "+ __tsInterval + "\n");
+    fileWriter.write(__start+ valueAccu.toString()+ "\n");
   }
 catch (Exception e)
   {

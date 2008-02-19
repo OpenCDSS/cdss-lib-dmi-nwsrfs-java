@@ -1,11 +1,14 @@
 package RTi.DMI.NWSRFS_DMI;
 
+import java.awt.font.LineMetrics;
+import java.io.BufferedReader;
 import java.io.File;
-
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -168,6 +171,7 @@ public static void main(String args[])
   System.out.println("*** - Uses test/unit/data/TSCHNG.txt as input test");
   System.out.println("*** - Outputs files to the test/unit/data directory");
   
+  Message.printWarning(1, "teest", "printWarning 1");
   try
     {
       readDataUnitsFile ();
@@ -289,15 +293,7 @@ private static void outputFMAP(String modsDirString, List fMAPMods)
   FileWriter fileWriter = null;
   try
     {
-      try
-        {
-          fileWriter = new FileWriter(f);
-        }
-      catch (IOException e)
-        {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+      fileWriter = new FileWriter(f);
       for(int i = 0; i < fMAPMods.size(); i++)
         { 
          
@@ -346,7 +342,7 @@ throws Exception
   String routine = __CLASS + ".readDataUnitsFile";
   String rfs_sys_dir = IOUtil.getPathUsingWorkingDir ( NWSRFS_Util.getAppsDefaults("rfs_sys_dir"));
 
-  if ( rfs_sys_dir == null ) {
+  if ( rfs_sys_dir == null || rfs_sys_dir.length() < 1) {
     String message = "Unable to use to determine the value for the apps defaults token: \"" +
       "rfs_sys_dir\".  Can't read data units.  Verify that the apps defaults are set. ";
     Message.printWarning( 2, routine, message );

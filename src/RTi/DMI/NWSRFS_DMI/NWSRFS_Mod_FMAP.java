@@ -56,10 +56,10 @@ public String toString()
 }
 /**
  * Writes FMAP section to specified writer
- * @param writer
+ * @param fileWriter
  * @return 
  */
-public void write(FileWriter writer)
+public void write(FileWriter fileWriter)
 {
   StringBuffer valueAccu = new StringBuffer();
   // Get TS values
@@ -88,8 +88,8 @@ public void write(FileWriter writer)
   
  try
   {
-    writer.write(".FMAP6" + __start + "\n");
-    writer.write(__tsid + valueAccu.toString()+ "\n");
+    fileWriter.write(".FMAP6" + __start + "\n");
+    fileWriter.write(__tsid + valueAccu.toString()+ "\n");
   }
 catch (Exception e)
   {
