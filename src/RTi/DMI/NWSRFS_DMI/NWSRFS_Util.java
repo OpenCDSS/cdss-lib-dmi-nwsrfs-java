@@ -64,46 +64,30 @@
 package RTi.DMI.NWSRFS_DMI;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StreamCorruptedException;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import RTi.GIS.GeoView.GeoProjection;
-import RTi.GIS.GeoView.HRAPProjection;
-import RTi.GIS.GeoView.XmrgGridLayer;
-import RTi.GR.GRLimits;
 import RTi.GRTS.TSViewJFrame;
 import RTi.TS.TS;
-import RTi.TS.DateValueTS;
-import RTi.TS.TSIdent;
-import RTi.Util.GUI.SimpleFileEditorJDialog;
 import RTi.Util.IO.DataType;
 import RTi.Util.IO.ProcessManager;
 import RTi.Util.IO.PropList;
-import RTi.Util.IO.PropListManager;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.IO.LanguageTranslator;
-import RTi.Util.Math.MathUtil;
 import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 import RTi.Util.Time.DateTime;
@@ -114,7 +98,10 @@ The NWSRFS_Util class stores NWSRFS-related utility functions.
 */
 public class NWSRFS_Util {
 
-private static String _class = "NWSRFS_Util";	// Used in routine names.
+/**
+Used in logging.
+*/
+private static String _class = "NWSRFS_Util";
 
 /**
 The number of days from January 1, 01 to December 31, 1899
@@ -573,23 +560,12 @@ the return value is -999.
 */
 public static int getJulianDay1900FromDate (int month, int day, int year) 
 throws Exception
-{	// make sure the given date is valid
-	String dateString = "" 
-		+ StringUtil.formatString(month, "%02d")
-		+ "/" 
-		+ StringUtil.formatString(day, "%02d")
-		+ "/" + 
-		year;
-
-	DateTime dt = DateTime.parse(dateString);
-
-	int leapYear = 0;
+{	int leapYear = 0;
 	if (TimeUtil.isLeapYear(year)) {
 		leapYear = 1;
 	}
 
-	// the following is rather odd-looking math, but it does the 
-	// proper calculation.
+	// The following is rather odd-looking math, but it does the proper calculation.
 	int julianDay = day + 
 			TimeUtil.numDaysInMonths (1, year, (month - 1)) + 
 			(year * 365) + 
@@ -610,8 +586,7 @@ start at 1 on January 1, 1900 @ 0100, and go up from there (ie,
 
 @return the julian hour representing the given date and time.
 */
-public static int getJulianHour1900FromDate (int month, int day, int year,
-	int hour) 
+public static int getJulianHour1900FromDate (int month, int day, int year,int hour) 
 throws Exception {
 	// check to make sure the hour is valid
 	if (hour > 24 || hour < 0) {
@@ -637,10 +612,9 @@ database files.
 */
 public static Vector getDataTypeIntervals ( NWSRFS_DMI dmi, String datatype )
 {	// TODO SAM 2004-09-01 - need to determine if performance will
-	// allow determining the intervals that are actually defined for the
-	// data type.
+	// allow determining the intervals that are actually defined for the data type.
 	Vector intervals = new Vector ( 8 );
-//	intervals.addElement ( "*" );
+	//intervals.addElement ( "*" );
 	intervals.addElement ( "1Hour" );
 	intervals.addElement ( "3Hour" );
 	intervals.addElement ( "4Hour" );
@@ -699,70 +673,47 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 		// NWSRFS_DMI.readTimeSeries() and can be uncommented later (see
 		// the TSTool NWSRFS FS5Files Input Type appendix).
 		//datatypes.addElement ( "APIG-PPDB - Grid Point API (PPDB)" );
-		datatypes.addElement (
-		"*-PPDB - All Preprocessor Database Types (PPDB)" );
-		datatypes.addElement (
-		"DQIN-PPDB - Diversion Instantaneous Flow (PPDB)" );
-		datatypes.addElement( "DQME-PPDB - Diversion Mean Flow (PPDB)");
-		//datatypes.addElement (
-		//"EA24-PPDB - Potential Evaporation (PPDB)" );
-		//datatypes.addElement (
-		//"MDR6-PPDB - Manually Digitized Radar (PPDB)" );
-		datatypes.addElement( "PELV-PPDB - Reservoir Pool (PPDB)" );
-		//datatypes.addElement (
-		//"PG24-PPDB - Grid Point 24-hour Precipitation (PPDB)" );
-		//datatypes.addElement (
-		//"PP01-PPDB - 1-hour Precipitation Accumulation (PPDB)" );
-		//datatypes.addElement (
-		//"PP03-PPDB - 3-hour Precipitation Accumulation (PPDB)" );
-		//datatypes.addElement (
-		//"PP06-PPDB - 6-hour Precipitation Accumulation (PPDB)" );
-		//datatypes.addElement (
-		//"PP24-PPDB - 24-hour Precipitation Accumulation (PPDB)" );
-		//datatypes.addElement (
-		//"PPSR-PPDB - Stranger Precipitation Reports (PPDB)" );
-		//datatypes.addElement (
-		//"PPST-PPDB - Satellite Precipitation Estimates (PPDB)" );
-		//datatypes.addElement (
-		//"PPVR-PPDB - Less Than 24-hour Precipitation (PPDB)" );
+		datatypes.addElement ( "*-PPDB - All Preprocessor Database Types (PPDB)" );
+		datatypes.addElement ( "DQIN-PPDB - Diversion Instantaneous Flow (PPDB)" );
+		datatypes.addElement ( "DQME-PPDB - Diversion Mean Flow (PPDB)");
+		//datatypes.addElement ( "EA24-PPDB - Potential Evaporation (PPDB)" );
+		//datatypes.addElement ( "MDR6-PPDB - Manually Digitized Radar (PPDB)" );
+		datatypes.addElement ( "PELV-PPDB - Reservoir Pool (PPDB)" );
+		//datatypes.addElement ( "PG24-PPDB - Grid Point 24-hour Precipitation (PPDB)" );
+		//datatypes.addElement ( "PP01-PPDB - 1-hour Precipitation Accumulation (PPDB)" );
+		//datatypes.addElement ( "PP03-PPDB - 3-hour Precipitation Accumulation (PPDB)" );
+		//datatypes.addElement ( "PP06-PPDB - 6-hour Precipitation Accumulation (PPDB)" );
+		//datatypes.addElement ( "PP24-PPDB - 24-hour Precipitation Accumulation (PPDB)" );
+		//datatypes.addElement ( "PPSR-PPDB - Stranger Precipitation Reports (PPDB)" );
+		//datatypes.addElement ( "PPST-PPDB - Satellite Precipitation Estimates (PPDB)" );
+		//datatypes.addElement ( "PPVR-PPDB - Less Than 24-hour Precipitation (PPDB)" );
 		datatypes.addElement( "QIN-PPDB - River Discharge (PPDB)" );
-		datatypes.addElement(
-		"QME-PPDB - River Discharge, Mean (PPDB)" );
-		//datatypes.addElement("RC24-PPDB - Reservoir capacity (PPDB)");
-		//datatypes.addElement("RP24-PPDB - Reservoir Pool (PPDB)");
-		//datatypes.addElement("RI24-PPDB - Reservoir Inflow (PPDB)");
-		datatypes.addElement(
-			"RQIM-PPDB - Reservoir Inflow, Mean (PPDB)" );
-		datatypes.addElement("RQIN-PPDB - Reservoir Inflow (PPDB)" );
-		datatypes.addElement(
-			"RQME-PPDB - Reservoir Outflow, Mean (PPDB)" );
-		datatypes.addElement("RQOT-PPDB - Reservoir Outflow (PPDB)" );
-		datatypes.addElement("RSTO-PPDB - Reservoir Storage (PPDB)" );
-		datatypes.addElement("SNOG-PPDB - Observed Cover Depth (PPDB)");
-		datatypes.addElement(
-			"SNWE-PPDB - Observed Snow Water Equivalent (PPDB)" );
+		datatypes.addElement( "QME-PPDB - River Discharge, Mean (PPDB)" );
+		//datatypes.addElement( "RC24-PPDB - Reservoir capacity (PPDB)");
+		//datatypes.addElement( "RP24-PPDB - Reservoir Pool (PPDB)");
+		//datatypes.addElement( "RI24-PPDB - Reservoir Inflow (PPDB)");
+		datatypes.addElement( "RQIM-PPDB - Reservoir Inflow, Mean (PPDB)" );
+		datatypes.addElement( "RQIN-PPDB - Reservoir Inflow (PPDB)" );
+		datatypes.addElement( "RQME-PPDB - Reservoir Outflow, Mean (PPDB)" );
+		datatypes.addElement( "RQOT-PPDB - Reservoir Outflow (PPDB)" );
+		datatypes.addElement( "RSTO-PPDB - Reservoir Storage (PPDB)" );
+		datatypes.addElement( "SNOG-PPDB - Observed Cover Depth (PPDB)");
+		datatypes.addElement( "SNWE-PPDB - Observed Snow Water Equivalent (PPDB)" );
 		datatypes.addElement( "STG-PPDB - River Stage (PPDB)" );
-		//datatypes.addElement ("TA01-PPDB - Air Temperature (PPDB)");
-		//datatypes.addElement ("TA03-PPDB - Air Temperature (PPDB)");
-		//datatypes.addElement ("TA06-PPDB - Air Temperature (PPDB)");
-		//datatypes.addElement ("TA24-PPDB - Air Temperature (PPDB)");
-		//datatypes.addElement ("TAVR-PPDB - Air Temperature (PPDB)");
-		//datatypes.addElement ("TD24-PPDB - ?? (PPDB)");
-		//datatypes.addElement (
-		//"TF24-PPDB - Forecast Temperature (PPDB)");
-		//datatypes.addElement (
-		//"TFMN-PPDB - Forecast Minimum Temperature (PPDB)");
-		//datatypes.addElement (
-		//"TFMX-PPDB - Forecast Maximum Temperature (PPDB)");
-		//datatypes.addElement (
-		//"TM24-PPDB - 24-hour Max/Min Temperature (PPDB)");
-		//datatypes.addElement (
-		//"TN24-PPDB - Previous 24-hour Minimum Temperature (PPDB)");
-		//datatypes.addElement (
-		//"TX24-PPDB - Previous 24-hour Maximum Temperature (PPDB)");
+		//datatypes.addElement ( "TA01-PPDB - Air Temperature (PPDB)");
+		//datatypes.addElement ( "TA03-PPDB - Air Temperature (PPDB)");
+		//datatypes.addElement ( "TA06-PPDB - Air Temperature (PPDB)");
+		//datatypes.addElement ( "TA24-PPDB - Air Temperature (PPDB)");
+		//datatypes.addElement ( "TAVR-PPDB - Air Temperature (PPDB)");
+		//datatypes.addElement ( "TD24-PPDB - ?? (PPDB)");
+		//datatypes.addElement ( "TF24-PPDB - Forecast Temperature (PPDB)");
+		//datatypes.addElement ( "TFMN-PPDB - Forecast Minimum Temperature (PPDB)");
+		//datatypes.addElement ( "TFMX-PPDB - Forecast Maximum Temperature (PPDB)");
+		//datatypes.addElement ( "TM24-PPDB - 24-hour Max/Min Temperature (PPDB)");
+		//datatypes.addElement ( "TN24-PPDB - Previous 24-hour Minimum Temperature (PPDB)");
+		//datatypes.addElement ( "TX24-PPDB - Previous 24-hour Maximum Temperature (PPDB)");
 		datatypes.addElement( "TWEL-PPDB - Tailwater Stage (PPDB)" );
-		//datatypes.addElement (
-		//"US24-PPDB - ?? (PPDB)");
+		//datatypes.addElement ( "US24-PPDB - ?? (PPDB)");
 		datatypes.addElement( "ZELV-PPDB - Freezing Level (PPDB)" );
 	}
 	if ( include_processed_db ) {
@@ -779,24 +730,18 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 			if ( v != null ) {
 				size = v.size();
 			}
-			Message.printStatus ( 2, routine, "Have " + size +
-				" data types to list." );
+			Message.printStatus ( 2, routine, "Have " + size + " data types to list." );
 			DataType dt = null;
-			datatypes.addElement(
-				"* - All Processed Database Types" );
+			datatypes.addElement( "* - All Processed Database Types" );
 			for ( int i = 0; i < size; i++ ) {
 				dt = (DataType)v.elementAt(i);
 				if ( include_desc ) {
 					Message.printStatus ( 2, routine,
-						"Data type is " +
-						dt.getAbbreviation() + " - " +
-						dt.getDescription() );
-					datatypes.addElement (
-						dt.getAbbreviation() +
-						" - " + dt.getDescription() );
+						"Data type is " + dt.getAbbreviation() + " - " + dt.getDescription() );
+					datatypes.addElement ( dt.getAbbreviation() + " - " + dt.getDescription() );
 				}
-				else {	datatypes.addElement (
-						dt.getAbbreviation() );
+				else {
+				    datatypes.addElement ( dt.getAbbreviation() );
 				}
 			}
 		}
@@ -808,60 +753,45 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 		if ( size == 0 ) {
 			// Unable to get data types from the DATATYPE FILE...
 			// Add some common types...
-			datatypes.addElement(
-				"* - All Processed Database Types" );
-			datatypes.addElement(
-				"AESC - Areal Extent of Snow Cover" );
-			datatypes.addElement(
-				"AQME - River Discharge, Adjusted, Mean");
-			datatypes.addElement(
-				"DQIN - Diversion Instantaneous Flow" );
+			datatypes.addElement( "* - All Processed Database Types" );
+			datatypes.addElement( "AESC - Areal Extent of Snow Cover" );
+			datatypes.addElement( "AQME - River Discharge, Adjusted, Mean");
+			datatypes.addElement( "DQIN - Diversion Instantaneous Flow" );
 			datatypes.addElement( "DQME - Diversion Mean Flow" );
 			datatypes.addElement( "MAP - Mean Areal Precipitation");
-			datatypes.addElement(
-				"MAPX - Mean Areal Precipitation (Gridded)" );
+			datatypes.addElement( "MAPX - Mean Areal Precipitation (Gridded)" );
 			datatypes.addElement( "MAT - Mean Areal Temperature" );
-			datatypes.addElement("PELE - Reservoir Pool, Adjusted");
+			datatypes.addElement( "PELE - Reservoir Pool, Adjusted");
 			datatypes.addElement( "PELV - Reservoir Pool" );
 			datatypes.addElement( "PTPX - Point Precipitation" );
 			datatypes.addElement( "QIN - River Discharge" );
-			datatypes.addElement(
-				"QINE - River Discharge, Adjusted" );
-			datatypes.addElement("QME - River Discharge, Mean" );
-			datatypes.addElement("RAIM - Rain + Melt" );
-			datatypes.addElement("RQIM - Reservoir Inflow, Mean" );
-			datatypes.addElement("RQIN - Reservoir Inflow" );
-			datatypes.addElement("RQME - Reservoir Outflow, Mean" );
-			datatypes.addElement("RQOT - Reservoir Outflow" );
-			datatypes.addElement("RSEL - Rain/Snow Elevation" );
-			datatypes.addElement(
-				"RSTE - Reservoir Storage, Adjusted" );
-			datatypes.addElement("RSTO - Reservoir Storage" );
-			datatypes.addElement(
-				"SASC - Simulated Snow Cover Areal Extent" );
-			datatypes.addElement(
-				"SDQI - Simulated Diversion Flow" );
-			datatypes.addElement(
-				"SDQM - Simulated Diversion Flow, Mean" );
+			datatypes.addElement( "QINE - River Discharge, Adjusted" );
+			datatypes.addElement( "QME - River Discharge, Mean" );
+			datatypes.addElement( "RAIM - Rain + Melt" );
+			datatypes.addElement( "RQIM - Reservoir Inflow, Mean" );
+			datatypes.addElement( "RQIN - Reservoir Inflow" );
+			datatypes.addElement( "RQME - Reservoir Outflow, Mean" );
+			datatypes.addElement( "RQOT - Reservoir Outflow" );
+			datatypes.addElement( "RSEL - Rain/Snow Elevation" );
+			datatypes.addElement( "RSTE - Reservoir Storage, Adjusted" );
+			datatypes.addElement( "RSTO - Reservoir Storage" );
+			datatypes.addElement( "SASC - Simulated Snow Cover Areal Extent" );
+			datatypes.addElement( "SDQI - Simulated Diversion Flow" );
+			datatypes.addElement( "SDQM - Simulated Diversion Flow, Mean" );
 			datatypes.addElement( "SNOG - Observed Cover Depth" );
-			datatypes.addElement(
-				"SNWE - Observed Snow Water Equivalent" );
-			datatypes.addElement(
-				"SPEL - Simulated Reservoir Pool" );
-			datatypes.addElement(
-				"SQIN - Simulated River Discharge" );
-			datatypes.addElement(
-				"SQME - Simulated River Discharge, Mean");
+			datatypes.addElement( "SNWE - Observed Snow Water Equivalent" );
+			datatypes.addElement( "SPEL - Simulated Reservoir Pool" );
+			datatypes.addElement( "SQIN - Simulated River Discharge" );
+			datatypes.addElement( "SQME - Simulated River Discharge, Mean");
 			datatypes.addElement( "SSTG - Simulated River Stage" );
 			datatypes.addElement( "STG - River Stage" );
-			datatypes.addElement(
-				"SWE - Simulated Snow Water Equivalent" );
-			datatypes.addElement("TAIN - Air Temperature" );
-			datatypes.addElement("TAMN - Air Temperature, Minimum");
-			datatypes.addElement("TAMX - Air Temperature, Maximum");
-			datatypes.addElement("TAVG - Air Temperature, Mean" );
+			datatypes.addElement( "SWE - Simulated Snow Water Equivalent" );
+			datatypes.addElement( "TAIN - Air Temperature" );
+			datatypes.addElement( "TAMN - Air Temperature, Minimum");
+			datatypes.addElement( "TAMX - Air Temperature, Maximum");
+			datatypes.addElement( "TAVG - Air Temperature, Mean" );
 			datatypes.addElement( "TWEL - Tailwater Stage" );
-			datatypes.addElement("ZELV - Freezing Level" );
+			datatypes.addElement( "ZELV - Freezing Level" );
 		}
 	}
 	
@@ -870,8 +800,7 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 	if ( !include_desc ) {
 		size = datatypes.size();
 		for ( int i = 0; i < size; i++ ) {
-			datatypes.setElementAt( StringUtil.getToken(
-			(String)datatypes.elementAt(i), " ", 0, 0 ), i );
+			datatypes.setElementAt( StringUtil.getToken( (String)datatypes.elementAt(i), " ", 0, 0 ), i );
 		}
 	}
 
@@ -901,8 +830,8 @@ public static int [] julda ( int M, int D, int Y, int H )
 	int	JDAY = 0,	// will be output
 		INTHR = 0,	// will be output
 		ITZ = 0,	// input - default to no time zone change
-		IDSAV = 0,	// input - default to no time zone change
-		CODE = 0;	// input - default to no time zone change
+		IDSAV = 0;	// input - default to no time zone change
+		//CODE = 0;	// input - default to no time zone change
 	int	LOCAL = 0,	// local - default to same as ITZ for no time
 		NLSTZ = 0;	// zone change.
 	String routine = "NWSRFS_Util.julda";
@@ -1593,7 +1522,6 @@ ofs_yyy    : #yyy		# invalid t-r, no resource
 public static String get_apps_defaults(String request)
 {
 	int appDFileIndex;
-	String routine = "NWSRFS_Util.get_apps_defaults";
 	String[] appDFile;
 	String appDFileValue = null;
 	String requestValue  = null;
@@ -1658,9 +1586,8 @@ passed in.  If nothing is returned from the get_apps_defaults command,
 the method will return null.
 @deprecated Use getAppsDefaults().
 */
-public static String keyFromAppsDefaults( String token ) {
-	String routine = _class + ".pathFromAppsDefaults";
-
+public static String keyFromAppsDefaults( String token )
+{
 	return __AppsDefaults.getToken( token );
 	/* FIXME SAM 2008-01-07 Rely on the AppsDefaults class and evaluate whether 
 	 * old RTi code can be phased out
@@ -1724,9 +1651,6 @@ private static String get_token(String request, String appsDefaultsFile)
 	String routine = "NWSRFS_Util.get_token";
 	String delim = ":";	/* delimiter character */
 	char comment = '#';	/* comment character */
-	char quote1 = '\"';	/* 1st valid quote character */
-	char quote2 = '\'';	/* 2nd valid quote character */
-	char bslash= '\\';	/* back slash */
 	String line = null;
 	String checkString = null;
 	Vector parseString;
@@ -1795,20 +1719,17 @@ private static String get_token(String request, String appsDefaultsFile)
 	// value added with the message.
 	catch(EOFException EOFe)
 	{
-		Message.printWarning(2,routine,
-		"An Exception occured: "+EOFe.getMessage());
+		Message.printWarning(2,routine, "An Exception occured: "+EOFe.getMessage());
 		return null;
 	}
 	catch(FileNotFoundException FNFe)
 	{
-		Message.printWarning(2,routine,
-		"An Exception occured: "+FNFe.getMessage());
+		Message.printWarning(2,routine, "An Exception occured: "+FNFe.getMessage());
 		return null;
 	}
 	catch(SecurityException SEe)
 	{
-		Message.printWarning(2,routine,
-		"An Exception occured: "+SEe.getMessage());
+		Message.printWarning(2,routine, "An Exception occured: "+SEe.getMessage());
 		return null;
 	}
 	catch(IOException IOe)
@@ -1831,14 +1752,17 @@ On UNIX, "env" is used to get the environment.  On Windows, "set" is used.
 */
 public static String getenv(String request)
 {
-	int i, tokenIndex = -1, exitstat = -999;
+	int i, exitstat = -999;
 	String routine = "NWSRFS_Util.getenv";
+	int dl = 1;    // Debug level - probably want to see this because it may be config-related.
 	String env_val = null;
 	String cmd = null;
 	Vector value_list = new Vector();
 	ProcessManager pm;
 	
-	Message.printStatus(2, routine, "Trying to find value for environment variable \"" + request + "\"");
+	if ( Message.isDebugOn ) {
+	    Message.printDebug(dl, routine, "Trying to find value for environment variable \"" + request + "\"");
+	}
 
 	// Try to catch NullPointerExceptions
 	try {
@@ -1846,8 +1770,10 @@ public static String getenv(String request)
 		// properties if so return it.
 		if((env_val = System.getProperty(request)) != null)
 		{
-			Message.printStatus(2, routine, "Found value of \"" + request +
+		    if ( Message.isDebugOn ) {
+		        Message.printDebug(dl, routine, "Found value of \"" + request +
 					"\"  = \"" + env_val + "\" in system properties." );
+		    }
 			return env_val;
 		}
 		else
@@ -1890,19 +1816,25 @@ public static String getenv(String request)
 	        Vector env_var_tokens;
 	        String env_var;
 	        for ( i=0; i<size; i++ ) {
-	            Message.printStatus ( 2, routine, "Env var " + (String)value_list.get(i) );
+	            if ( Message.isDebugOn ) {
+	                Message.printDebug(dl, routine, "Env var " + (String)value_list.get(i) );
+	            }
 	            env_var_tokens = StringUtil.breakStringList(
 	                    (String)value_list.get(i),"=",StringUtil.DELIM_ALLOW_STRINGS);
 	            env_var = ((String)env_var_tokens.elementAt(0)).trim();
 	            if ( env_var.equalsIgnoreCase(request) ) {
     	            env_val = ((String)env_var_tokens.elementAt(1)).trim();
-    				Message.printStatus(2, routine, "Environment variable \"" + request +
+    	            if ( Message.isDebugOn ) {
+    	                Message.printDebug(dl, routine, "Environment variable \"" + request +
     				        "\"=\"" + env_val + "\"");
+    	            }
     				return env_val;
 	            }
 			}
 	        // No match was found...
-	        Message.printStatus(2, routine, "No match was found for environment variable \"" + request + "\"");
+	        if ( Message.isDebugOn ) {
+	            Message.printDebug(dl, routine, "No match was found for environment variable \"" + request + "\"");
+	        }
 	        return null;
 		}
 	}
@@ -1920,19 +1852,15 @@ static String _output_dir = null;
 
 //format dates
 //for OFS files
-static SimpleDateFormat _nwsrfs_date_formatter = new SimpleDateFormat(
-		"MMdd/yyyy/" );
+static SimpleDateFormat _nwsrfs_date_formatter = new SimpleDateFormat("MMdd/yyyy/" );
 
 //for user viewing
-static SimpleDateFormat _reg_date_formatter = new SimpleDateFormat(
-		"dd/MM/yyyy");
+static SimpleDateFormat _reg_date_formatter = new SimpleDateFormat(	"dd/MM/yyyy");
 
 //Date format to match the date format used to
 //compose the name of xmrg files:  yyyyMMddHH
 //Sample xrmg file name: xmrg2002121817z
-static SimpleDateFormat _xmrg_date_formatter = new SimpleDateFormat(
-		"yyyyMMddHH");
-
+static SimpleDateFormat _xmrg_date_formatter = new SimpleDateFormat("yyyyMMddHH");
 
 //This hold a single line out output from running the
 //nwsrfssh codates $CARRYOVERGROUP command.  The line is
@@ -2462,7 +2390,6 @@ public static boolean editStartandRunDates( String fileToEdit ) {
 		//then edit the files...
 
 		//model file input
-		String fileName = null; 
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -2685,21 +2612,16 @@ run date.
 */
 public static String getDatesForStatusBar( 
 			String untranslated_sd_string, 
-			String untranslated_rd_string ) {
-	String routine = _class + ".getDatesForStatusBar";
-
+			String untranslated_rd_string )
+{
 	String sd_name_string = untranslated_sd_string;
 	String rd_name_string = untranslated_rd_string;
 	//see if there is a translation:::
 	LanguageTranslator translator = null;
 	translator = LanguageTranslator.getTranslator();
 	if ( translator != null ) {
-		sd_name_string = 
-			translator.translate(
-			"startdate_name_string", "Start Date" );
-		rd_name_string = 
-			translator.translate(
-			"rundate_name_string", "Run Date" );	
+		sd_name_string = translator.translate("startdate_name_string", "Start Date" );
+		rd_name_string = translator.translate("rundate_name_string", "Run Date" );	
 	}
 
 	String sd = null;
@@ -2716,8 +2638,7 @@ public static String getDatesForStatusBar(
 		rd = "Unknown";
 	}
 	
-	date_string = sd_name_string + ": " + sd + "  " +
-		rd_name_string + ": " + rd;
+	date_string = sd_name_string + ": " + sd + "  " + rd_name_string + ": " + rd;
 	
 	return date_string;
 } 
@@ -2731,9 +2652,8 @@ example: "*12z" or "*" or "*6z".
 @return an integer in format HH (eg, 06 or 12 )
 to use in contructing xmrg dates.
 */
-public static int getHourForXMRGDates() {
-	String routine = _class + ".getHourForXMRGDates()";
-
+public static int getHourForXMRGDates()
+{
 	//The hour string is saved in format: "*12z" or "*6z" for 
 	//instance.  We need just the "12" or "06"
 	//Also, the hour can be set to just "*"
@@ -2749,8 +2669,7 @@ public static int getHourForXMRGDates() {
 		//trim off first and last characters and should
 		//be left with an int
 		String hr_part = null;
-		hr_part = hour_str.substring(
-		1, hour_str.length()-1 );
+		hr_part = hour_str.substring( 1, hour_str.length()-1 );
 
 		//make sure it is 2 digits long - add
 		//a zero in front if need be.
@@ -2760,8 +2679,7 @@ public static int getHourForXMRGDates() {
 
 		//make sure it is an int
 		if ( StringUtil.isInteger( hr_part ) ) {
-			base_hour_int = 
-			StringUtil.atoi( hr_part );
+			base_hour_int = StringUtil.atoi( hr_part );
 		}
 		else {
 			base_hour_int = 12;
@@ -2779,12 +2697,10 @@ saved as the  _time_info String after the setDefaultDates() method.
 @return a string containing the hour and timezone information in format:
 "05:00 MST".
 */
-public static String getTimeZoneAndHour() {
-	String routine = _class + ".getTimeZoneAndHour";
-	
+public static String getTimeZoneAndHour()
+{
 	return _time_info;
-}// end getTimeZoneAndHour 
-
+}
 
 /**
 Changes the line output from running a punch command that indicates
@@ -2887,9 +2803,8 @@ in nwsrfs format ("MMdd/yyyy/").
 @return String representation of the incremented date in the
 nwsrfs format: "MMdd/yyyy/".
 */
-public static String increment_nwsrfsDays( String nwsdate, int increment ) {
-	String routine = _class + ".increment_nwsrfDays";
-
+public static String increment_nwsrfsDays( String nwsdate, int increment )
+{
 	nwsdate = nwsdate.trim();
 
 	DateTime date_to_increment = new DateTime();
@@ -2921,9 +2836,7 @@ public static String increment_nwsrfsDays( String nwsdate, int increment ) {
 	newDate.addDay( increment );
 
 	return StringUtil.formatString(newDate.getMonth(),"%02d") +  
-	StringUtil.formatString(newDate.getDay(),"%02d") +  
-	"/" + newDate.getYear() + "/";
-
+	StringUtil.formatString(newDate.getDay(),"%02d") + "/" + newDate.getYear() + "/";
 } //end increment_nwsrfsDays
 
 /**
@@ -2971,146 +2884,6 @@ public static String increment_nwsrfsDays2( String nwsdate, int increment ) {
 	return newDate;
 
 } //end increment_nwsrfsDays2
-
-
-// TODO SAM 2004-11-02 Remove this method after confirming that
-// plotTimeSeries() works from the NWSRFS_System_JTree
-/**
-Method used to create a plot of the selected Time Series from 
-the NwsrfsGUI_JTree.
-The timeseries are plotted using the StartDate and EndDate selected in 
-the GUI.  The enddate has calculated as RunDate plus 7 days.
-when the user create Times Series displays via the GUI button "create Time
-Series" is the period of record shortened to the selected Start and End
-dates.
-@param ts_names_vect  Vector of TimeSeries to plot in one plot.
-@param nwsrfs  NWSRFS_DMI.NWSRFS instance.
-@deprecated Use plotTimeSeries() instead.
-*/
-public static void plotSelectedTimeSeries( Vector ts_names_vect, NWSRFS nwsrfs ) {
-	String routine = _class + ".plotSelectedTimeSeries";
-
-	//get startdate and enddate
-	String start_string = null;
-	String end_string = null;
-	//regular format for RETRIEVED dates: dd/MM/YYYY
-	//Since there is no format dd/MM/YYYY in DateTime class,
-	//change the format of the date Strings.
-	start_string = IOUtil.getPropValue( "STARTDATE" );
-	end_string = IOUtil.getPropValue( "ENDDATE" );		
-
-	String formatted_start_string = null;
-	String formatted_end_string = null;
-	if (( start_string != null ) && ( end_string != null )) {
-		int index = -999;
-		index = start_string.indexOf( "/" );
-		if ( index > 0 ) {
-			//format date string as: MM/DD/YYYY
-			formatted_start_string = ( 
-			start_string.substring( index+1, index+3 ) + "/" +
-			start_string.substring( 0, index ) + "/" +
-			start_string.substring( index+4 ) );
-		}
-		index = -999;
-		index = end_string.indexOf( "/" );
-		if ( index > 0 ) {
-			//format date string as: MM/DD/YYYY
-			formatted_end_string = ( 
-			end_string.substring( index+1, index+3 ) + "/" +
-			end_string.substring( 0, index ) + "/" +
-			end_string.substring( index+4 ) );
-		}
-	} //end if dates !=null
-	else { 
-		Message.printWarning( 2, routine,
-		"Unable to retrieve values for Start dates and End dates." );
-	}
-	//make them DateTime
-	DateTime start_date = null;
-	DateTime end_date = null;
-	try {
-		start_date = DateTime.parse( 
-		formatted_start_string, DateTime.FORMAT_MM_SLASH_DD_SLASH_YYYY );
-		//set precision
-		start_date.setPrecision( DateTime.PRECISION_HOUR );
-
-		end_date = DateTime.parse(	
-		formatted_end_string, DateTime.FORMAT_MM_SLASH_DD_SLASH_YYYY );
-		end_date.setPrecision( DateTime.PRECISION_HOUR );
-		if ( Message.isDebugOn ) {
-			Message.printDebug( 1, routine,
-			"start_date = \"" + start_date + "\"" +
-			" and end_date = \"" + end_date + "\"." );
-		}
-	}
-	catch ( Exception e ) {
-		Message.printWarning( 2, routine, 
-		"Unable to determine START and END dates for the time series.");
-		if ( Message.isDebugOn ) {
-			Message.printWarning( 2, routine, e );
-		}
-	}
-	
-	//size of vector
-	int size = 0;
-	if ( ts_names_vect != null ) {
-		size = ts_names_vect.size();
-	}
-
-	//vector to hold instances of TS objects.
-	Vector ts_vect = new Vector();
-	//create a TS for each selected item 
-	TS ts= null;
-	for ( int i=0; i< size; i++ ) {
-		try {
-
-			ts= nwsrfs.readTimeSeries( 
-			(String)ts_names_vect.elementAt(i), 
-			start_date, end_date, "", true );
-
-			if ( ts != null ) {
-				ts_vect.addElement( ts );
-				if ( Message.isDebugOn ) {
-					Message.printDebug( 2, routine,
-					"time series = " + ts );
-				}
-			}
-		}
-		catch ( Exception e ) {
-			Message.printWarning( 2, routine, e );
-			if ( Message.isDebugOn ) {
-				Message.printDebug( 2, routine, 
-				"Unable to run " +
-				"NWSRFS.readTimeSeries "  +
-				"with start date= " + start_date + 
-				" and end date =  " + end_date +  
-				" and ts = " + ts_names_vect.elementAt(i ) );
-			}
-		}
-	}
-	ts = null;	
-//Message.printStatus(1,routine,"DEBUG:::: size of ts_vect="+ts_vect.size() );
-	if ( Message.isDebugOn ) {
-		Message.printDebug( 3, routine,
-		"Number of time series in vector(ts_vect)= "+ ts_vect.size() );
-	}
-
-	//now have TS objects... to plot them, make PropList 
-	//and TSViewJFrame
-	PropList p = new PropList( "Selected TimeSeries" );	
-	p.set( "InitialView=Graph" );	
-	p.set( "TitleString=Selected Time Series" );
-	try {
-		TSViewJFrame t = new TSViewJFrame( ts_vect, p );
-	}
-	catch( Exception e ) {
-
-		Message.printWarning( 2, routine, e);
-		Message.printWarning( 2, routine,
-		"Unable to create plot of selected Time Series" );
-	}	
-	
-}//end plotSelectedTimeSeries
 
 // TODO SAM 2004-11-02 Over time enhance this method to configure the plot
 // based on data type, etc.  For example, display precipitation plots as
@@ -3189,7 +2962,7 @@ throws Exception
 	PropList p = new PropList( routine );	
 	p.set( "InitialView=Graph" );
 	p.set( "TitleString=NWSRFS Time Series" );
-	TSViewJFrame t = new TSViewJFrame( ts_Vector, p );
+	new TSViewJFrame( ts_Vector, p );
 }
 
 /**
@@ -3222,7 +2995,6 @@ public static Vector retrieve_ESPfile_values() {
 	else {
 	
 		//model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -3312,8 +3084,7 @@ public static Vector retrieve_ESPfile_values() {
 						//the second.
 
 						String start_str = null;	
-						String end_str = null;	
-						String tmp_str = null;
+						String end_str = null;
 
 						int ind_1 = -99;
 
@@ -3436,7 +3207,6 @@ public static void rewrite_esp_file( String startdate,
 	else {
 	
 		//model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -3829,7 +3599,6 @@ public static String run_dump_station_or_area(
 	//same ppinit directory.
 	path_to_ppinit_stn = IOUtil.getPropValue( "ADDSTATION.GUI" );
 	StringBuffer b = new StringBuffer();
-	String ppinit_path = null;	
 	if (( path_to_ppinit_stn != null ) && ( 
 		IOUtil.fileExists( path_to_ppinit_stn ) )) {
 		//cut off file name (last item)
@@ -4925,7 +4694,6 @@ public static String run_print_cgs_or_fgs( String id,
 	String path_to_fcinit_seg = null;
 	path_to_fcinit_seg = IOUtil.getPropValue( "RESEGDEF.GUI" );
 	StringBuffer b = new StringBuffer();
-	String fcinit_path = null;	
 	if (( path_to_fcinit_seg != null ) && ( 
 		IOUtil.fileExists( path_to_fcinit_seg ) )) {
 		//cut off file name (last item)
@@ -5180,7 +4948,6 @@ public static String run_print_ratingCurves( String ratingCurve_id ) {
 	if ( print_rc_path != null ) {
 		//now we just need to read and write the file 
 		//with the new stn id model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -5453,7 +5220,6 @@ public static String run_print_segs( String segment_id ) {
 		//really try and edit file now.
 
 		//model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -5688,7 +5454,6 @@ public static Vector run_punch_ratingCurves( String ratingCurve_id ) {
 	if ( punch_rc_path != null ) {
 		//now we just need to read and write the file 
 		//with the new stn id model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -5886,7 +5651,6 @@ public static Vector run_punch_segments( String segment_id ) {
 	if ( punch_segs_path != null ) {
 		//now we just need to read and write the file 
 		//with the new stn id model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -6090,7 +5854,6 @@ public static Vector run_punch_stations( String station_id ) {
 	if ( punch_stns_path != null ) {
 		//now we just need to read and write the file 
 		//with the new stn id model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -6557,7 +6320,6 @@ public static Vector run_shefpars( String shef_file, String fs ) {
 			//now make file 
 			//setup input and output streams and files
 			//model file input
-			String fileName = null; 
 			File inputFile = null; 
 			FileInputStream fis;
 			InputStreamReader isr;
@@ -6801,10 +6563,10 @@ public static Vector run_updateResults() {
 	//First need to edit the DUMPSHEF.GUI file to adjust the STARTDATE
 	//and the ENDDATE.
 	//Get rundate and startdate in nwsrfs format
-	String rd_string = null;
+	//String rd_string = null;
 	String sd_string = null;
 	String ed_string = null;
-	rd_string = IOUtil.getPropValue( "nwsrfs_RUNDATE" );
+	//rd_string = IOUtil.getPropValue( "nwsrfs_RUNDATE" );
 	sd_string = IOUtil.getPropValue( "nwsrfs_STARTDATE" );
 /////
 	ed_string = IOUtil.getPropValue( "nwsrfs_ENDDATE" );
@@ -6849,7 +6611,6 @@ public static Vector run_updateResults() {
 		}
 		else { //dumpshef_path !=null
 			//model file input
-			String fileName = null;
 			File inputFile = null;
 			FileInputStream fis;
 			InputStreamReader isr;
@@ -7126,9 +6887,6 @@ public static void saveSelectedRunDate( String rd_selected ) {
 			"list: " + rd_selected ); 
 		}
 		//Rundate we have is in format: dd/MM/yyyy
-		int yr=2003;
-		int mn=12;
-		int day=1;
 		String yr_str = null;
 		String mn_str = null;
 		String day_str = null;
@@ -7240,9 +6998,6 @@ public static void saveSelectedStartDate( String sd_selected ) {
 		}
 
 		//startdate we have is in format: dd/MM/yyyy
-		int yr=2003;
-		int mn=12;
-		int day=1;
 		String yr_str = null;
 		String mn_str = null;
 		String day_str = null;
@@ -7601,9 +7356,6 @@ public static void setDefaultDates( NWSRFS_CarryoverGroup cg ) {
 	//Vector will hold dates for rundate dropdown list
 	Vector rd_list= new Vector();
 
-	//string to hold rundates as they are made
-	String rd_str = null;
-
 	//Again, the rundate list consists of the startdate to startdate + 20
 	DateTime tmp_startdate = new DateTime( startdate, DateTime.FORMAT_YYYY_MM_DD_HH_mm );
 
@@ -7861,9 +7613,6 @@ public static void write_fmap_file( Vector fmap_names_vect,
 		PrintWriter pw;
 		String s = null;		
 		outputFile = new File( fmap_file_path );
-		//boolean used to indicate a problem happened while
-		//writing file.
-		boolean was_error = false;
 		try {
 			fos = new FileOutputStream( outputFile );
 			pw = new PrintWriter( fos );
@@ -7897,7 +7646,6 @@ public static void write_fmap_file( Vector fmap_names_vect,
 							array[j]).doubleValue();
 					}
 					catch ( Exception e ) {
-						was_error = true;
 						day_val = 0.0;
 					}
 						
@@ -7915,7 +7663,6 @@ public static void write_fmap_file( Vector fmap_names_vect,
 								day_val/4;
 						}
 						catch (Exception e ) {
-							was_error = true;
 							interval_val = 0;
 						}
 					}
@@ -8013,7 +7760,6 @@ public static boolean  update_deleteRC_file( String rcid ) {
 	else {
 		//now we just need to read and write the file 
 		//with the new stn id model file input
-		String fileName = null;
 		File inputFile = null;
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -8132,7 +7878,6 @@ public static boolean  update_resegdef_file( String reseg_file ) {
 
 	//now we just need to read and write the file 
 	//with the new stn id model file input
-	String fileName = null;
 	File inputFile = null;
 	FileInputStream fis;
 	InputStreamReader isr;
