@@ -338,17 +338,18 @@ throws Throwable {
 }
 
 /**
-Return a Vector of Carryover Dates in DateTime format.  Debug information
-is printed during this method at Debug levels of 2, 3, and 6.
-@return Vector of carryover dates as DateTime objects.
+Return a Vector of carryover dates as DateTime instances.
+The dates will be at hour 12 Z time.
+Debug information is printed during this method at Debug levels of 2, 3, and 6.
+@return Vector of carryover dates as DateTime objects, guaranteed to be non-null.
 */
-public Vector getCarryoverDates() {
+public Vector getCarryoverDates()
+{
 	String routine = "NWSRFS_CarryoverGroup.getCarryoverDates";
 	int num = _ICODAY.length;
 
 	if (Message.isDebugOn) {
-		Message.printDebug(2, routine, "Number of carryover " 
-			+ "dates = " + num);
+		Message.printDebug(2, routine, "Number of carryover dates = " + num);
 	}
 
 	int julianDay = -999;
@@ -360,29 +361,25 @@ public Vector getCarryoverDates() {
 		julianHour = _ICOTIM[i];
 		if (Message.isDebugOn) {
 			Message.printDebug(6, routine, "Jullian Carryover " 
-				+ "day at position + " + i + " is: \"" 
-				+ julianDay + "\"");
+				+ "day at position + " + i + " is: \"" + julianDay + "\"");
 			Message.printDebug(6, routine, "Jullian Carryover " 
-				+ "hour at position + " + i + " is: \"" 
-				+ julianHour + "\"");
+				+ "hour at position + " + i + " is: \"" + julianHour + "\"");
 		}
 
-		//set carryover date to have hour 12.
-		date = NWSRFS_Util.getDateFromJulianHour1900(
-			(julianDay * 24 + 12) );
+		// Set carryover date to have hour 12 and timezone "Z".
+		date = NWSRFS_Util.getDateFromJulianHour1900( (julianDay * 24 + 12) );
+		date.setTimeZone("Z");
 
-			//do not add julian hour since now julianhour 
-			//coming out as 24 which 1) carryover should be
-			//at hour 12 and 2) when at hour 24 and converted
-			//to a DateTime, the date is rolled over to the next
-			//day at hour 0.
-			//(julianDay * 24) + julianHour);
+		// Do not add julian hour since now julianhour coming out as 24 which:
+		// 1) carryover should be at hour 12 and
+		// 2) when at hour 24 and converted to a DateTime, the date is rolled over to the next
+		//    day at hour 0.
+		//(julianDay * 24) + julianHour);
 
 		if ( (date != null) && ( date.getYear() != 1900 )) {
 			if (Message.isDebugOn) {
-				Message.printDebug(3, routine, 
-					"Carryover date at position + " + i 
-					+ " is: \"" + date.toString() + "\"");
+				Message.printDebug(3, routine,
+						"Carryover date at position + " + i + " is: \"" + date + "\"");
 			}
 			v.addElement(date);
 		}
@@ -391,18 +388,17 @@ public Vector getCarryoverDates() {
 }
 
 /**
-Returns carryover identifiers for all carryover groups in the binary file
-FCCOGDEF.
+Returns carryover identifiers for all carryover groups in the binary file FCCOGDEF.
 @param pos the position of the array to return
 @return all carryover identifier.
 */
-public String getCGIDS(int pos) {
+public String getCGIDS(int pos)
+{
 	return _CGIDS[pos];
 }
 
 /**
-Returns carryover identifiers for all carryover groups in the binary file
-FCCOGDEF.
+Returns carryover identifiers for all carryover groups in the binary file FCCOGDEF.
 @return all carryover identifier array.
 */
 public int getCGIDSLength() {
@@ -412,8 +408,7 @@ public int getCGIDSLength() {
 /**
 Returns the carryover group identifier.
 @return the carryover group identifier.
-REVISIT (JTS - 2004-08-18)
-what about _CGID??
+TODO (JTS - 2004-08-18) what about _CGID??
 */
 public String getCGID() {
 	return __cgid;
@@ -471,7 +466,7 @@ public String getForecastGroupID(int index) {
 
 /**
 Returns the Vector of forecast group IDs in this carryover group.  Guaranteed to
-be nonnull.
+be non-null.
 @return the Vector of forecast group IDs in this carryover group.
 */
 public Vector getForecastGroupIDs() {
@@ -488,8 +483,8 @@ public Vector getForecastGroups() {
 }
 
 /**
-Returns the array of julian days of carryover values for each _NSLOTS.
-@return the array of julian days of carryover values for each _NSLOTS.
+Returns the array of Julian days of carryover values for each _NSLOTS.
+@return the array of Julian days of carryover values for each _NSLOTS.
 */
 public int[] getICODAY() {
 	return _ICODAY;
