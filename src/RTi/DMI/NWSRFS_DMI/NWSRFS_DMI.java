@@ -12309,10 +12309,8 @@ public Vector readUSERParamList() throws Exception {
 	for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
 		if(((String)(pppindex.getPARMTP()).elementAt(i)).
 		equalsIgnoreCase("USER")) {
-			logicalUnitNum = ((Integer)pppindex.
-				getLUFILE().elementAt(i)).intValue();
-			numberOFParamRecs = ((Integer)pppindex.
-				getNUMPRM().elementAt(i)).intValue();
+			logicalUnitNum = ((Integer)pppindex.getLUFILE().elementAt(i)).intValue();
+			numberOFParamRecs = ((Integer)pppindex.getNUMPRM().elementAt(i)).intValue();
 			break;
 		}
 	}
@@ -12327,12 +12325,10 @@ public Vector readUSERParamList() throws Exception {
 		for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
 			if(((String)(pppindex.getPARMTP()).elementAt(i)).
 			equalsIgnoreCase("USER")) {
-				logicalUnitNum = ((Integer)pppindex.
-					getLUFILE().elementAt(i)).intValue();
+				logicalUnitNum = ((Integer)pppindex.getLUFILE().elementAt(i)).intValue();
 				user = new NWSRFS_USER();
 				user.setLogicalUnitNum(logicalUnitNum);
-				user.setRecordNum(((Integer)(pppindex.getFIRST()).
-					elementAt(i)).intValue());
+				user.setRecordNum(((Integer)(pppindex.getFIRST()).elementAt(i)).intValue());
 				userParamList.addElement((NWSRFS_USER)user);
 				break;
 			}
@@ -12344,12 +12340,9 @@ public Vector readUSERParamList() throws Exception {
 			// If the type is BASN add to the Vector
 			if(((String)(pppindex.getITYPE()).elementAt(i)).
 			equalsIgnoreCase("USER")) {
-				user = new NWSRFS_USER((String)(pppindex.getID()).
-					elementAt(i));
+				user = new NWSRFS_USER((String)(pppindex.getID()).elementAt(i));
 				user.setLogicalUnitNum(logicalUnitNum);
-				user.setRecordNum(((Integer)(pppindex.
-					getIREC()).elementAt(i)).
-					intValue());
+				user.setRecordNum(((Integer)(pppindex.getIREC()).elementAt(i)).intValue());
 				userParamList.addElement((NWSRFS_USER)user);
 			}
 		}
@@ -12360,13 +12353,12 @@ public Vector readUSERParamList() throws Exception {
 }
 
 /**
-Read the USERPARM file record.
-@return A Vector of NWSRFS_USERPARM instances from the NWSRFS USERPARM FS5Files
-file, which contain general user parameters for the operational system.  A
-non-null Vector is guaranteed; however, the list may be zero-length.
+Read the USERPARM file records.  This are essentially system parameters.
+@return A NWSRFS_USERPARM instance from the NWSRFS USERPARM FS5Files
+file, which contain general user parameters for the operational system.
 @exception Exception if the USERPARM record cannot be read.
 */
-public Vector readUSERPARMList ()
+public NWSRFS_USERPARM readUSERPARM ()
 throws Exception
 {	// TODO SAM 2006-10-03
 	// Not sure why Scott was doing things the way he did.  It seems like
@@ -12379,49 +12371,16 @@ throws Exception
 	EndianRandomAccessFile eraf = __NWSRFS_DBFiles[__USERPARM];
 	Vector list = new Vector();
 	// Position at the start of the file...
-	try {	eraf.seek ( 0 );
-	}
-	catch ( Exception e ) {
-		// No data...
-		return list;
-	}
+	eraf.seek ( 0 );
 	// Read the records in the file...
 	// TODO SAM 2006-10-03
 	// Add intelligent messages for end of file detection...
-	byte[] b = new byte[__byteLength[__USERPARM] -12];// Ignored bytes at
-							// end of rec
-	for ( int irec = 0; ; irec++ ) {
-		NWSRFS_USERPARM rec = new NWSRFS_USERPARM();
-		try {	eraf.readLittleEndianString1(4);// TIME1(1), Ignored
-		}
-		catch ( Exception e ) {
-			// End of file...
-			break;
-		}
-		try {	eraf.readLittleEndianString1(4);	// TIME(2)
-		}
-		catch ( Exception e ) {
-			// End of file...
-			break;
-		}
-		try {	rec.setTime3 ( 
-			eraf.readLittleEndianString1(4).trim());// TIME(3)
-		}
-		catch ( Exception e ) {
-			// End of file...
-			break;
-		}
-		// Read bytes to the end of the record (all ignored for now)...
-		try {	eraf.read(b);		// Ignore bytes at end of rec
-		}
-		catch ( Exception e ) {
-			// End of file...
-			break;
-		}
-		// Add the instance to the list...
-		list.addElement ( rec );
-	}
-	return list;
+	byte[] b = new byte[__byteLength[__USERPARM] -12];// Ignored bytes at end of rec
+	NWSRFS_USERPARM rec = new NWSRFS_USERPARM();
+	eraf.readLittleEndianString1(4);// TIME1(1), Ignored
+	eraf.readLittleEndianString1(4);	// TIME(2)
+	rec.setTime3 ( eraf.readLittleEndianString1(4).trim());// TIME(3)
+	return rec;
 }
 
 /**
