@@ -53,64 +53,37 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.io.IOException;
 import java.lang.OutOfMemoryError;
 import java.util.Vector;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_CarryoverGroup;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_DMI;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_ForecastGroup;
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Segment;
 import RTi.TS.HourTS;
 import RTi.TS.TS;
-import RTi.TS.DateValueTS;
-import RTi.TS.TSIdent;
-import RTi.Util.IO.ProcessManager;
 import RTi.Util.Message.Message;
-import RTi.Util.String.StringUtil;
 import RTi.Util.Time.DateTime;
 
-
 /**
-The NWSRFS class stores the organizational information about an NWSRFS
-implementation.
+The NWSRFS class stores the organizational information about an NWSRFS implementation.
 */
 public class NWSRFS {
 
 /**
-Carryover groups in the NWSRFS.
+Carryover groups in the NWSRFS (list of NWSRFS_CarryoverGroup).
 */
 private Vector __carryover_groups = new Vector();
 
 /**
-Number of carryover groups in the object 
+The DMI object used in this NWSRFS instance.
 */
-private static int __cg_size;
-
-/**
-The DMI object used in this NWSRFS instance
-*/
-private static NWSRFS_DMI __dmi;
-
-/**
-Number of forecast groups in the object 
-*/
-private static int __fg_size;
-
-/**
-Number of segments in the object 
-*/
-private static int __seg_size;
+private NWSRFS_DMI __dmi;
 
 /**
 Construct a blank NWSRFS instance (no carryover groups).
 */
 public NWSRFS ()
 {
-	// Initialize private vaiables
-	__cg_size = 0;
 	__dmi = null;
-	__fg_size = 0;
-	__seg_size = 0;
 }
 
 /**
@@ -154,7 +127,8 @@ from the Segment, Operations, and TimeSeries objects. If true read all data.
 @exception Exception if there is an error reading the time series.
 */
 public static NWSRFS createNWSRFSFromPRD(String ofs_fs5files, boolean deepRead) 
-throws Exception {
+throws Exception
+{
 	// Local variables
 	String routine = "NWSRFS.createNWSRFSFromPRD";
 	int cgIndex, fgIndex, fgSize=0;
@@ -167,102 +141,68 @@ throws Exception {
 	try
 	{
 		// Print OFS_FS5FILES value for this NWSRFS.
-		Message.printStatus(10,routine,"ofs_fs5files: "+
-		ofs_fs5files);
-
-		// Check to see if the DMI object is null or empty
-		if(__dmi == null)
-		{
-			// Check to see if the argument ofs_fs5files is null or 
-			// empty
-			if(ofs_fs5files == null || 
-				ofs_fs5files.equalsIgnoreCase(""))
-			{
-				__dmi = new NWSRFS_DMI();
-				__dmi.open();
-			}
-			else
-			{
-				__dmi = new NWSRFS_DMI(ofs_fs5files);
-				__dmi.open();
-			}
-		}
+		Message.printStatus(10,routine,"ofs_fs5files: " + ofs_fs5files);
+		
+		NWSRFS_DMI dmi = nwsrfs.getDmiInternal ( ofs_fs5files );
 
 		// Get the list of carryover group identifiers
-		cgIDs = __dmi.readCarryoverGroupList();
-		__cg_size = cgIDs.size();
+		cgIDs = dmi.readCarryoverGroupList();
+		int cg_size = cgIDs.size();
 
-		// Print status on number of Carryover groups avaialble 
-		// for this NWSRFS.
-		Message.printStatus(10,routine,"Number of Carryover groups: "+
-		__cg_size);
+		// Print status on number of Carryover groups available for this NWSRFS.
+		Message.printStatus(10,routine,"Number of Carryover groups: " + cg_size );
 
 		// Now loop through the cgID's and build the tree!
-		for(cgIndex=0;cgIndex<__cg_size;cgIndex++)
+		for(cgIndex=0;cgIndex<cg_size;cgIndex++)
 		{
 			try
 			{
 				// Get the full carryover group
-				cg = __dmi.readCarryoverGroup((String)cgIDs.
-					elementAt(cgIndex), deepRead);
+				cg = dmi.readCarryoverGroup((String)cgIDs.elementAt(cgIndex), deepRead);
 
 				// Get forecast groups
 				fgIDs = new Vector();
 				fgIDs = cg.getForecastGroupIDs();
 				fgSize = cg.getNFG();
-				if(fgSize <= 0)
+				if(fgSize <= 0) {
 					fgSize = fgIDs.size();
+				}
 
-				// If we really do not have any FGs eventhough 
-				// the CG says there are FGs just continue to
-				// next CG.
-				if(fgIDs.size() == 0)
+				// If we really do not have any FGs even though 
+				// the CG says there are FGs just continue to next CG.
+				if(fgIDs.size() == 0) {
 					continue;
+				}
 				
-				// Get total number of forecast groups
-				__fg_size += fgSize;
-
 				for(fgIndex=0;fgIndex<fgSize;fgIndex++)
 				{
 					try
 					{
-					// Check to see if the FG ID is 
-					// "OBSOLETE". If so skip.
+					// Check to see if the FG ID is "OBSOLETE". If so skip.
 					if(fgIDs.elementAt(fgIndex) == null || 
-					((String)fgIDs.elementAt(fgIndex)).
-					equalsIgnoreCase("OBSOLETE"))
+					((String)fgIDs.elementAt(fgIndex)).equalsIgnoreCase("OBSOLETE")) {
 						continue;
+					}
 	
 					// Get the complete forecast group
-					fg = __dmi.readForecastGroup((String)
-					fgIDs.elementAt(fgIndex),deepRead);
+					fg = dmi.readForecastGroup((String)fgIDs.elementAt(fgIndex),deepRead);
 
 					// Set the CG to be the FG parent
 					fg.setCarryoverGroup(cg);
 
-					// Get total number of segments
-					__seg_size += fg.getNSEG();
-	
-					// Add the Forecast group to the Carryover 
-					// Group object
+					// Add the Forecast group to the Carryover Group object
 					cg.addForecastGroup(fg);
 
 					}
 					catch(OutOfMemoryError OOMe)
 					{
-						// Creat a RunTime object to call 
-						// GC
+						// Create a RunTime object to call GC
 						Message.printWarning(2,routine,
-						"NWSRFS adding Forecast "+
-						"Groups ran out of memory "+
-						"(calling Garbage Collector):"+
-						(Runtime.getRuntime()).
-						freeMemory());
+						"NWSRFS adding Forecast Groups ran out of memory (calling Garbage Collector):"+
+						(Runtime.getRuntime()).freeMemory());
 						Runtime.getRuntime().gc();
 
-						// Add the incomplete Forecast 
-						// group to the 
-						// Carryover Group object
+						// Add the incomplete Forecast group to the Carryover Group object
 						cg.addForecastGroup(fg);
 					}
 				}
@@ -274,8 +214,7 @@ throws Exception {
 			{
 				// Create a RunTime object to call GC
 				Message.printWarning(2,routine,"NWSRFS adding "+
-				"Carrover Groups "+
-				"ran out of memory (calling Garbage Collector):"+
+				"Carrover Groups ran out of memory (calling Garbage Collector):"+
 				(Runtime.getRuntime()).freeMemory());
 				Runtime.getRuntime().gc();
 			}
@@ -290,37 +229,6 @@ throws Exception {
 	// Return the NWSRFS instance
 	return nwsrfs;
 }
-
-/**
-Construct an NWSRFS instance using the output from running the nwsrfssh 
-"sysmap" command.
-The Identifiers will not be appended with the "type id".  And rating
-curves will not be included.
-@param sysmap - Vector containing the output from the nwsrfssh "sysmap"command.
-@deprecated this method is deprecated in favor of createNWSRFSFromPRD.
-@return a NWSRFS instance.
-*/
-public static NWSRFS createNWSRFSFromSysmap ( Vector sysmap ) 
-{
-	return createNWSRFSFromSysmap ( sysmap,  false ); 
-}
-
-/**
-Construct an NWSRFS instance using the output from running the nwsrfssh 
-"sysmap" command.
-@param sysmap  Vector containing the output from the nwsrfssh "sysmap"command.
-@param addRatingCurves Set addRatingCurves to true if the rating curves
-should be included in the NWSRFS instance (under the operations) at the same
-level as the Time Series.  Set addRatingCurves to false if the 
-rating curves should not be included.
-@deprecated this method is deprecated in favor of createNWSRFSFromPRD.
-@return a NWSRFS instance.
-*/
-public static NWSRFS createNWSRFSFromSysmap ( Vector sysmap, 
-	boolean addRatingCurves ) 
-{	
-	return null;
-} //end createNwsrfsFromSysmap
 
 /**
 Return the carryover group at an index.
@@ -354,7 +262,7 @@ public NWSRFS_CarryoverGroup getCarryoverGroup ( String cgid )
 
 /**
 Return the carryover groups.  This is guaranteed to be non-null.
-@return the list of carryover groups.
+@return the list of carryover groups as NWSRFS_CarryoverGroup.
 */
 public Vector getCarryoverGroups()
 {
@@ -371,33 +279,54 @@ public NWSRFS_DMI getDMI()
 }
 
 /**
+Get the internal NWSRFS_DMI that can be used for database queries.  If null and
+the path to the ofs_fs5files is specified, create a new DMI, save it, and pass back
+for future calls.
+@param ofs_fs5files a String holding the directory location of the processed
+database files. If null or empty then the user must have an NWSRFS token
+called <code>ofs_fs5files</code> set either in an APPS_DEFAULTS file or
+the OS environment.
+*/
+private NWSRFS_DMI getDmiInternal ( String ofs_fs5files )
+throws Exception
+{
+	if(__dmi == null)
+	{
+		// Check to see if the argument ofs_fs5files is null or empty
+		if(ofs_fs5files == null || ofs_fs5files.equals(""))
+		{
+			__dmi = new NWSRFS_DMI();
+		}
+		else
+		{
+			__dmi = new NWSRFS_DMI(ofs_fs5files);
+		}
+	}
+	// Else use the previous __dmi instance
+	return __dmi;
+}
+
+/**
+Get the local time zone used by the system.  This corresponds to the USERPARM.time(3) value.
+For example, carryover dates are always stored at 12 Z but may be 5 MST, where MST is the
+local time zone used by the system.
+@return The local time zone used by the system.
+*/
+public String getLocalTimeZone ()
+throws Exception
+{
+	NWSRFS_DMI dmi = getDmiInternal(null);
+	NWSRFS_USERPARM u = dmi.readUSERPARM();
+	return u.getTime3();
+}
+
+/**
 Return the number of Carryover Groups in this NWSRFS object.
-@return an int value for the number of Carryover Groups defined on this 
-NWSRFS object.
+@return the number of Carryover Groups defined on this NWSRFS object.
 */
 public int getNumberOfCarryoverGroups()
 {
-	return __cg_size;
-}
-
-/**
-Return the number of Forecast Groups in this NWSRFS object.
-@return an int value for the number of Forecast Groups defined on this 
-NWSRFS object.
-*/
-public int getNumberOfForecastGroups()
-{
-	return __fg_size;
-}
-
-/**
-Return the number of Segments in this NWSRFS object.
-@return an int value for the number of Segments defined on this 
-NWSRFS object.
-*/
-public int getNumberOfSegments()
-{
-	return __seg_size;
+	return __carryover_groups.size();
 }
 
 /**
@@ -411,20 +340,15 @@ information (false).
 @return a time series matching the identifier.
 @exception Exception if there is an error reading the time series.
 */
-public static TS readTimeSeries (	String tsident_string,
+public TS readTimeSeries ( String tsident_string,
 				DateTime req_date1,
 				DateTime req_date2,
 				String req_units,
 				boolean deepRead) throws Exception
 {
-// Return a call to the overloaded method with ofs_fs5files String as null.
-// This means that the location to the fs5files must be set in the environment.
-return readTimeSeries(	tsident_string,
-			req_date1,
-			req_date2,
-			req_units,
-			deepRead,
-			null);
+	// Return a call to the overloaded method with ofs_fs5files String as null.
+	// This means that the location to the fs5files must be set in the environment.
+	return readTimeSeries( tsident_string, req_date1, req_date2, req_units, deepRead, null);
 }
 
 /**
@@ -442,38 +366,18 @@ the OS environment.
 @return a time series matching the identifier.
 @exception Exception if there is an error reading the time series.
 */
-public static TS readTimeSeries (	String tsident_string,
+public TS readTimeSeries ( String tsident_string,
 					DateTime req_date1,
 					DateTime req_date2,
 					String req_units,
 					boolean deepRead,
 					String ofs_fs5files) throws Exception
 {	
-// Local variables
-String routine = "NWSRFS.readTimeSeries";
-TS ts = null;
-
-if(__dmi == null)
-{
-	// Check to see if the argument ofs_fs5files is null or empty
-	if(ofs_fs5files == null || ofs_fs5files.equalsIgnoreCase(""))
-	{
-		__dmi = new NWSRFS_DMI();
-	}
-	else
-	{
-		__dmi = new NWSRFS_DMI(ofs_fs5files);
-	}
-}
-
-// Call the readTimeSeries method in the DMI.
-ts = (HourTS)__dmi.readTimeSeries(tsident_string,
-				req_date1,
-				req_date2,
-				req_units,
-				deepRead);
-
-return ts;
+	NWSRFS_DMI dmi = getDmiInternal ( ofs_fs5files );
+	
+	// Call the readTimeSeries method in the DMI.
+	TS ts = (HourTS)dmi.readTimeSeries(tsident_string, req_date1, req_date2, req_units, deepRead);
+	return ts;
 }
 
 } // End NWSRFS
