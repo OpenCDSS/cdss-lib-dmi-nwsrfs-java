@@ -139,6 +139,7 @@ import RTi.Util.Math.MathUtil;
 import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 import RTi.Util.Time.DateTime;
+import RTi.Util.Time.DateTimeRange;
 import RTi.Util.Time.TimeInterval;
 import RTi.Util.Time.TimeUtil;
 
@@ -850,39 +851,42 @@ This parameter can be null, and if so, defaults to false.
 private static Vector readTimeSeriesList(boolean is_nwsCardTrace,
 TS req_ts, BufferedReader in, DateTime req_date1, DateTime req_date2, 
 String req_units, boolean read_data, PropList props)
-throws IOException {
+throws IOException
+{
 	String routine = "NWSCardTS.readTimeSeriesList";
 	String msg = null;
 	String str = null;
 
-	// Variable used only when processing NWS Card Traces.
-	DateTime runPeriodStartDateHistorical = null;	// Used to store the start and 
-	DateTime runPeriodEndDateHistorical   = null;	// end dates at hour 00.
-						// These dates are read from 
-						// the HISTORICAL RUN PERIOD
-						// line while processing the 
-						// general header of NWS Card
-						// Traces files.
-	DateTime runPeriodStartTrace = null;		// The start and the end of the
-	DateTime runPeriodEndTrace = null;		// run period (date and time)
-						// These dates are computed
-						// after the Hour multiplier is
-						// read from the traces first
-						// header, by adding the Hour 
-						// Multiplier to 
-						// runPeriodStartDate and 
-						// runPeriodEndDate.
-	boolean  numberOfTraces_found = false;	// Flag indicating if the NUMBER
-						// OF TRACES entry was found in
-						// the NWS Card Trace file.
-	boolean  runPeriod_found = false;	// Flag indicating if the RUN
-						// PERIOD entry was found in the
-						// NWS Card Trace file.
+	// Start of variables used only when processing NWS Card Traces...
+	
+	// Used to store the start and end dates from the HISTORICAL RUN PERIOD in the main header of the trace file.
+	// The hour from the file is ignored and the hour is set to zero.
+	DateTime runPeriodStartDate24 = null;
+	DateTime runPeriodEndDate24 = null;
 
-	Vector TSList = null;
+	// The start and the end of the ESP run period (date and time).  These date/times are computed
+    // after the hour multiplier is read from the header of the first trace (not the main header),
+	// by adding the hour multiplier to runPeriodStartDateHistorical and runPeriodEndDateHistorical.
+	// These dates are used for all traces.  The iterator on data will use full months and therefore some
+	// data in each trace may be ignored (often missing values) when the ESP run does not start at the
+	// beginning of the month.
+    DateTime runPeriodStartDate = null;
+    DateTime runPeriodEndDate = null;	
 
-	String	string = null;
-	int	dl = 10, HourMultiplier = 0, ndpl=0;
+	// Flag indicating whether the "NUMBER OF TRACES" entry was found in the NWS Card Trace file main header.
+	boolean numberOfTraces_found = false;
+	
+	// Flag indicating if the HISTORICAL RUN PERIOD entry was found in the NWS Card Trace file main header.
+	boolean historicalRunPeriod_found = false;
+	
+	// ...end of trace file only variables
+
+	Vector TSList = null; // Time series list to return
+
+	String string = null; // Line read from the file
+	int	dl = 10; // Debug level
+	int hourMultiplier = 0; // Hour multiplier (e.g., 24 for 24-hour data)
+	int ndpl = 0; // Number of data values per line, in data section of file
 	
 	boolean Read24HoursAsDay_boolean = false;
 
@@ -892,44 +896,19 @@ throws IOException {
 			Read24HoursAsDay_boolean = true;
 		}
 	}
-		
-/*
-	DateTime date1_file = new DateTime ( DateTime.PRECISION_HOUR );
-					// The start date/time of the data listed in the file.
-	DateTime date2_file = new DateTime ( DateTime.PRECISION_HOUR );
-					// The start date/time of the data listed in the file.
-*/
-
-	DateTime date1_file = null;
-	DateTime date2_file = null;
-
-	// The precision was set to day if reading 24 hours as day here because
-	// otherwise, the first piece of data was being lost when read from the file.
-	if (Read24HoursAsDay_boolean) {
-		date1_file = new DateTime(DateTime.PRECISION_DAY);
-			// The start date/time of the data listed in the file.
-		date2_file = new DateTime(DateTime.PRECISION_DAY);
-			// The start date/time of the data listed in the file.
-	}
-	else {
-		date1_file = new DateTime(DateTime.PRECISION_HOUR);
-			// The start date/time of the data listed in the file.
-		date2_file = new DateTime(DateTime.PRECISION_HOUR);
-			// The start date/time of the data listed in the file.
-	}
-
+	
 	// Always read the header.  Optional is whether the data are read...
 	int line_count = 0;
 	if ( Message.isDebugOn ) {
 		Message.printDebug ( dl, routine, "Processing header..." );
 	}
 
-	String datatype     = "";
-	String description  = "";
-	String location     = "";
-	String units        = "";
+	String datatype = "";
+	String description = "";
+	String location = "";
+	String units = "";
 	String fixed_format = "";	// Format to read data, using strings.
-	Vector tokens       = null;
+	Vector tokens = null;
 	boolean	header1_found = false;
 	boolean header2_found = false;
 
@@ -943,10 +922,8 @@ throws IOException {
 
 	    try {
 
-	    	// Make sure to break out of this while loop as soon as the
-	        // required information is retrieved.
+	    	// Make sure to break out of this while loop as soon as the required information is retrieved.
 	        while ( true ) {
-
 	            string = in.readLine();
 	            if ( string == null ) {
 	                throw new IOException(
@@ -975,21 +952,31 @@ throws IOException {
        					//(13)42-54: "mm/dd/yyyy hh"
 	                    int index = StringUtil.indexOfIgnoreCase( string,"HISTORICAL RUN PERIOD=", 0 );
 
-                       	if ( index != -1 && !runPeriod_found ) {
-                       	    // Start of the historical period
-                       		// Skip over HISTORICAL RUN PERIOD=
+                       	if ( index != -1 && !historicalRunPeriod_found ) {
+                       	    // Start of the historical period.  Skip over HISTORICAL RUN PERIOD=
                         	index = index+22;
                         	// Get the date MM/DD/YYYY
                         	str = string.substring(index,index+10);
                         	try {
                         	    // Want to keep the original date without being impacted by an hour of 24
                         	    // so force zero as the hour.
-                        		runPeriodStartDateHistorical = DateTime.parse ( str + " 00");
+                        		runPeriodStartDate24 = DateTime.parse ( str + " 00");
                         	}
                         	catch ( Exception e ) {
                         		msg= "Error parsing \""	+ str + "\" as the HISTORICAL RUN PERIOD start.";
                         		Message.printWarning(2, routine,msg);
                         		throw new IOException(msg );
+                        	}
+                        	if ( (runPeriodStartDate24.getMonth() == 2) &&
+                        	        (runPeriodStartDate24.getDay() == 29) &&
+                        	        TimeUtil.isLeapYear(runPeriodStartDate24.getYear()) ) {
+                        	    // FIXME SAM 2008-04-03 is there a cleaner way to deal with it?
+                        	    // Cannot handle because the historical traces would have to jump back and forth
+                        	    // between Feb 29 and Mar 1 ??? and they typically always have consistent months.
+                        	    msg = "Cannot handle NWS Card trace files that have ESP run date" +
+                        	    		" starting on Feb 29 of a leap year.";
+                        	    Message.printWarning(2, routine, msg);
+                        	    throw new Exception ( msg );
                         	}
                         	// End date (skip over the start date, start hour, and 3 spaces)
                         	index = index + 13 + 3;
@@ -998,20 +985,14 @@ throws IOException {
                         	try {
                         	    // Want to keep the original date without being impacted by an hour of 24
                                 // so force zero as the hour.
-                        		runPeriodEndDateHistorical = DateTime.parse ( str + " 00");
+                        		runPeriodEndDate24 = DateTime.parse ( str + " 00");
                         	}
                         	catch ( Exception e ) {
                         		msg= "Error parsing \""	+ str + "\" as the HISTORICAL RUN PERIOD end.";
                         		Message.printWarning (2, routine,msg);
                         		throw new IOException ( msg );
                         	}
-                        	runPeriod_found = true;
-                        			
-                        	msg= "Historical Run Period start at "	+ runPeriodStartDateHistorical;
-                        	Message.printStatus ( 2, routine, msg );
-                        	msg = "Historical Run Period end at " + runPeriodEndDateHistorical;
-                        	Message.printStatus ( 2, routine, msg );
-						
+                        	historicalRunPeriod_found = true;
                         	if ( numberOfTraces_found ) {
                         		// All needed information was found, break out.
                         		break;
@@ -1042,7 +1023,7 @@ throws IOException {
                        	    msg = "Number of traces " + numberOfTimeSeries;
                        	    Message.printStatus ( 2, routine, msg );
 
-                        	if ( runPeriod_found ) {
+                        	if ( historicalRunPeriod_found ) {
                         		// All needed information was found, break out.
                         		break;
                        		}
@@ -1052,22 +1033,44 @@ throws IOException {
 	        }
 	    }
 	    catch ( Exception e ) {
-		msg = "Error while processing line " + line_count + ": \"" + string + "\"";	
-		Message.printWarning ( 2, routine, msg );
-		Message.printWarning ( 3, routine, e );
-		throw new IOException ( msg );
+    		msg = "Unexpected error while processing line " + line_count + ": \"" + string + "\"";	
+    		Message.printWarning ( 2, routine, msg );
+    		Message.printWarning ( 3, routine, e );
+    		throw new IOException ( msg );
 	    }
 	}
+	
+	// The start and end date/time of the data listed in the file, from the header before
+    // the time series, using hour 1-24.  In particular this is useful for getting the original
+    // month and year, in cases where traces are read and the run period may be on the last day
+    // of the month (causing a shift to the next month when converting to hour 0-23 notation).
+    // The following are reset for each time series (trace) in the card file.
+    
+    DateTime date1_fileHeader = new DateTime ( DateTime.PRECISION_MONTH );
+    DateTime date2_fileHeader = new DateTime ( DateTime.PRECISION_MONTH );
 
-	DateTime idate = null;
-	DateTime date1 = null;
-	DateTime date2 = null;
-	TSIdent ident  = null;
+    // The start and end date/time of the data listed in the file, from the header before
+    // the time series, using hour 0-23.  The date/times are read as hour 24 and then adjusted
+    // to hour 23.  For trace files, the following are the dates from the individual headers,
+    // which are for full months.
+    
+    DateTime date1_file = null; 
+    DateTime date2_file = null;
 
-	// These variables are used only with the NWS Card Traces
-	DateTime idate_ts = null; // Date used to iterate the run period from date1_ts to date2_ts ( see below )
-	DateTime date1_ts = null; // Run period date1 used for iteration 
-	DateTime date2_ts = null; // Run period date2 used for iteration 
+    // The precision is set to day if reading 24 hours.
+    if (Read24HoursAsDay_boolean) {
+        date1_file = new DateTime(DateTime.PRECISION_DAY);
+        date2_file = new DateTime(DateTime.PRECISION_DAY);
+    }
+    else {
+        date1_file = new DateTime(DateTime.PRECISION_HOUR);
+        date2_file = new DateTime(DateTime.PRECISION_HOUR);
+    }
+
+	DateTime idate_file = null; // Date/time used to iterate through values in the file (always historical)
+	DateTime idate_ts = null; // Date used to iterate through the time series data (historical or real-time for traces)
+	DateTime date1_ts = null; // Run period date1 used for iteration with idate_ts
+	DateTime date2_ts = null; // Run period date2 used for iteration with idate_ts
 	boolean doneWithThisTrace = false; // Flag used to control to processing flow after each trace in the file.
 
 	int warning_count = 0;
@@ -1089,20 +1092,20 @@ throws IOException {
 	// One or more time series will be processed if dealing with NWS Trace Card format.
 
 	int trace_start_year;  // Trace start year, used for messages
-	for ( int nTS=0; nTS < numberOfTimeSeries; nTS++ ) {
+	for ( int its=0; its < numberOfTimeSeries; its++ ) {
 
 		try {
 
 		    // Read the header1 and header2 of the time series:
 		    // DATACARD Header Format: Line 1
-	       	    //       1-12: "DATACARD    "
-	       	    //      15-18: data type
-	       	    //      20-23: data dimension
-	       	    //      25-28: data unit
-	       	    //      30-31: ts time interval
-	       	    //      35-46: ts id
-	       	    //      50-69: TS description
-	       	    // DATACARD Header Format: Line 2
+	        //       1-12: "DATACARD    "
+	        //      15-18: data type
+	        //      20-23: data dimension
+	        //      25-28: data unit
+	        //      30-31: ts time interval
+	        //      35-46: ts id
+	        //      50-69: TS description
+	        // DATACARD Header Format: Line 2
 		    //       1- 2: start month
 		    //       5- 8: start year
 		    //      10-11: end month
@@ -1110,208 +1113,264 @@ throws IOException {
 		    //      20-21: number of data per line
 		    //      25-32: format for each data value
 		    while ( true ) {
+    
+    			string = in.readLine();
+    			if ( string == null ) {
+    				throw new IOException(
+    					"EOF while processing general header in line " + line_count + ": \"" + string + "\"");
+    			}
+    			++line_count;
+    
+    			// Don't trim the actual line because the data is fixed format!
+    			if ( Message.isDebugOn ) {
+    				Message.printDebug(dl, routine, "Processing: \"" + string + "\"");
+    			}
+    
+    			// Skipping blank and commented lines. No time series
+    			// information is currently retrieved from the commented lines. 
+    			if ( ( string.trim().equals("")) || ((string.length() > 0) &&
+    			      ((string.charAt(0) == '#') || (string.charAt(0) == '$')) ) ) {
+    				continue;
+    			}
+    
+    			tokens = StringUtil.breakStringList( string, " ", StringUtil.DELIM_SKIP_BLANKS );
+    
+    			if ( !header1_found ) {
+    	       			
+    	   			// DATACARD Header Format: Line 1
+    	   			//       1-12: "DATACARD    "
+    	   			//      15-18: data type
+    	   			//      20-23: data dimension
+    	   			//      25-28: data unit
+    	   			//      30-31: ts time interval
+    	   			//      35-46: ts id
+    	   			//      50-69: TS description
+    	   			//
+    				// Identifier and description are sometimes
+    				// omitted so use fixed format read...
+    				
+    				// TODO [LT 2005-05-22] Make sure this is a DATACARD header line.
+    				
+    				header1_found = true;
+    				
+    				int len = string.length();
+    				// Check substrings depending on length (remember substring returns start to end-1).
+    				if ( len >= 15 ) {
+    					datatype=string.substring(14,18).trim();
+    				}
+    				// Skip dimension...
+    				if ( len >= 25 ) {
+    					units = string.substring(24,28).trim();
+    				}
+    				if ( len >= 30 ) {
+    					hourMultiplier = StringUtil.atoi( string.substring(29,31).trim());
+    				}
+    				// The location and description are sometimes optional...
+    				if ( len >= 35 ) {
+    					if ( len < 46 ) {
+    						location = string.substring(34,len).trim();
+    					}
+    					else {
+    						location = string.substring(34,46).trim();
+    					}
+    				}
+    				if ( len >= 50 ) {
+    					if ( len < 69 ) {
+    						description = string.substring(49,len).trim();
+    					}
+    					else {
+    						description = string.substring(49,69).trim();
+    					}
+    				}
+    				
+    				if ( Message.isDebugOn ) {
+    					Message.printDebug(2, routine, "\n" );
+    					Message.printDebug(2, routine, "DATACARD header 1 content is: '");
+    					Message.printDebug(2, routine, "datatype       = '" + datatype + "'");
+    					Message.printDebug(2, routine, "units          = '" + units + "'");
+    					Message.printDebug(2, routine, "interval       = '" + hourMultiplier + "'");
+    					Message.printDebug(2, routine, "location       = '" + location + "'");
+    					Message.printDebug(2, routine, "description    = '" + description + "'"); 
+    				}
+    
+    			}
+    			else if ( header1_found && !header2_found ) {
+    				
+    				// DATACARD Header Format: Line 2
+    				//       1- 2: start month (1-12)
+    		    	//       5- 8: start year (YYYY)
+    		    	//      10-11: end month (1-12)
+    		    	//      15-18: end year (YYYY)
+    		    	//      20-21: number of data per line
+    		   		//      25-32: FORTRAN format for each data value (e.g., F9.3)
+    				
+    				// Make sure this is the second header line.
+                    int month1_file = 0;
+                    int year1_file = 0;
+                    int month2_file = 0;
+                    int year2_file = 0;
+                    String fformat = null;  // Format for the data line
+    				if ( tokens.size() == 6 ) {
+    				    month1_file = StringUtil.atoi((String)tokens.elementAt(0));
+                        year1_file = StringUtil.atoi((String)tokens.elementAt(1));
+                        month2_file = StringUtil.atoi((String)tokens.elementAt(2));
+                        year2_file = StringUtil.atoi((String)tokens.elementAt(3));
+                        // Number of data values per line...
+                        ndpl = StringUtil.atoi( (String)tokens.elementAt(4) );
+                        // Format for the data line...
+                        fformat = (String)tokens.elementAt(5);
+    				}
+    				else {
+    				    if ( !is_nwsCardTrace ) {
+    				        // Definitely a problem...
+    				        throw new IOException(
+    						"Expecting second header line but number of tokens (" + tokens.size() + ") != 6");
+    				    }
+    				    else {
+    				        // For traces ESPADP does not generate standard trace files so try to read the
+    				        // nonstandard ones.  Prior to 2008-04-04 this correction was required outside of
+    				        // this code assuming that ESPADP would at some point be corrected but it never
+    				        // has been and appears likely not to be fixed.  Therefore, try to handle the
+    				        // problem here.  The format is likely of the form (^ indicates start of line):
+    				        // ^ 2  197912  1979   6F9.3
+    				        // Try to parse read fixed format...
+    				        Message.printStatus(2, routine,
+    				                "Non-standard NWS Card header 2 record found.  Trying to handle..." );
+    				        Vector v = StringUtil.fixedRead ( string, "i2x2i4i2x2i4i4s10" );
+    				        month1_file = ((Integer)v.get(0)).intValue();
+    				        year1_file = ((Integer)v.get(1)).intValue();
+    				        month2_file = ((Integer)v.get(2)).intValue();
+                            year2_file = ((Integer)v.get(3)).intValue();
+                            ndpl = ((Integer)v.get(4)).intValue();
+                            fformat = ((String)v.get(5)).trim();
+                            Message.printStatus(2, routine, "Non-standard header values after parsing: month1=" +
+                                    month1_file + " year1=" + year1_file + " month2=" + month2_file +
+                                    " year2=" + year2_file + " ndpl=" + ndpl + " format=\"" + fformat + "\"" );
+    				    }
+    				}
+    				
+    				header2_found = true;
+    				
+    				// Card files always have full months of data
+    				if ( (hourMultiplier == 24) && Read24HoursAsDay_boolean ) {
+    				    // Daily data - hour is not used but set to zero for iteration purposes
+    				    date1_file.setHour(0);
+    					date1_file.setDay(1);
+    				}
+    				else {
+    				    // Hourly data - set hour to data interval
+    					if (hourMultiplier == 24) {
+    						date1_file.setHour(0);
+    						date1_file.setDay(2);
+    					}
+    					else {	
+    						date1_file.setHour(	hourMultiplier );
+    						date1_file.setDay(1);
+    					}
+    				}
+    				date1_file.setMonth( month1_file );
+    				trace_start_year = year1_file;
+    				date1_file.setYear( year1_file );
+    				
+    				if (Read24HoursAsDay_boolean) {
+    					// The end date is always the last day of the last month, regardless of hour specified.
+    					date2_file.setHour(0);
+    					date2_file.setDay( TimeUtil.numDaysInMonth( month2_file, year2_file ) );
+    					date2_file.setMonth(month2_file);
+    					date2_file.setYear(year2_file);
+    				}
+    				else {
+    					// The end date is always hour 24 of the last month, which ends up being hour 
+    					// 0 of the first day in the next month. Accomplish by setting to hour 0 of 
+    					// the last day in the file's ending month and then add a day.
+    					date2_file.setHour(0);
+    					date2_file.setDay( TimeUtil.numDaysInMonth(month2_file,year2_file));
+    					date2_file.setMonth(month2_file);
+    					date2_file.setYear(year2_file);
+    					date2_file.addDay(1);
+    				}
+    				
+                    // Also set in the objects used for some checks below.  The following is the information
+                    // in the file header.  The start will be the same as date1_file.
+                    date1_fileHeader.setMonth ( month1_file );
+                    date1_fileHeader.setYear ( year1_file );
+                    date2_fileHeader.setMonth ( month2_file );
+                    date2_fileHeader.setYear ( year2_file );
 
-			string = in.readLine();
-			if ( string == null ) {
-				throw new IOException(
-					"EOF while processing general header in line " + line_count + ": \"" + string + "\"");
-			}
-			++line_count;
-
-			// Don't trim the actual line because the data is fixed format!
-			if ( Message.isDebugOn ) {
-				Message.printDebug(dl, routine, "Processing: \"" + string + "\"");
-			}
-
-			// Skipping blank and commented lines. No time series
-			// information is currently retrieved from the commented lines. 
-			if ( ( string.trim().equals("")) || ((string.length() > 0) &&
-			      ((string.charAt(0) == '#') || (string.charAt(0) == '$')) ) ) {
-				continue;
-			}
-
-			tokens = StringUtil.breakStringList( string, " ", StringUtil.DELIM_SKIP_BLANKS );
-
-			if ( !header1_found ) {
-	       			
-	       			// DATACARD Header Format: Line 1
-	       			//       1-12: "DATACARD    "
-	       			//      15-18: data type
-	       			//      20-23: data dimension
-	       			//      25-28: data unit
-	       			//      30-31: ts time interval
-	       			//      35-46: ts id
-	       			//      50-69: TS description
-	       			//
-				// Identifier and description are sometimes
-				// omitted so use fixed format read...
-				
-				// TODO [LT 2005-05-22] Make sure this is a DATACARD header line.
-				
-				header1_found = true;
-				
-				int len = string.length();
-				// Check substrings depending on length (remember substring returns start to end-1).
-				if ( len >= 15 ) {
-					datatype=string.substring(14,18).trim();
-				}
-				// Skip dimension...
-				if ( len >= 25 ) {
-					units = string.substring(24,28).trim();
-				}
-				if ( len >= 30 ) {
-					HourMultiplier = StringUtil.atoi( string.substring(29,31).trim());
-				}
-				// The location and description are sometimes optional...
-				if ( len >= 35 ) {
-					if ( len < 46 ) {
-						location = string.substring(34,len).trim();
-					}
-					else {
-						location = string.substring(34,46).trim();
-					}
-				}
-				if ( len >= 50 ) {
-					if ( len < 69 ) {
-						description = string.substring(49,len).trim();
-					}
-					else {
-						description = string.substring(49,69).trim();
-					}
-				}
-				
-				if ( Message.isDebugOn ) {
-					Message.printDebug(2, routine, "\n" );
-					Message.printDebug(2, routine, "DATACARD header 2 content is: '");
-					Message.printDebug(2, routine, "datatype       = '" + datatype + "'");
-					Message.printDebug(2, routine, "units          = '" + units + "'");
-					Message.printDebug(2, routine, "HourMultiplier = '" + HourMultiplier + "'");
-					Message.printDebug(2, routine, "location       = '" + location + "'");
-					Message.printDebug(2, routine, "description    = '" + description + "'"); 
-				}
-
-			}
-			else if ( header1_found && !header2_found ) {
-				
-				// DATACARD Header Format: Line 2
-				//       1- 2: start month
-		    	//       5- 8: start year
-		    	//      10-11: end month
-		    	//      15-18: end year
-		    	//      20-21: number of data per line
-		   		//      25-32: format for each data value
-				//
-				
-				// Make sure this is the second header line. 
-				if ( tokens.size() != 6 ) {
-					throw new IOException(
-						"Expecting second header line but number of tokens (" + tokens.size() + ") != 6");
-				}
-				
-				header2_found = true;
-				
-				// The first value is always at the interval past the start of the day.  If 24-hour data,
-				// use the next day, hour zero to correct for NWS using hour 24.
-				/*
-				if ( HourMultiplier == 24 ) {
-					date1_file.setHour ( 0 );
-					date1_file.setDay( 2 );
-				}
-				else {	date1_file.setHour ( HourMultiplier );
-					date1_file.setDay( 1 );
-				}
-				*/
-				
-				if (Read24HoursAsDay_boolean) {
-					date1_file.setHour(0);
-					date1_file.setDay(1);
-				}
-				else {
-					if (HourMultiplier == 24) {
-						date1_file.setHour(0);
-						date1_file.setDay(2);
-					}
-					else {	
-						date1_file.setHour(	HourMultiplier );
-						date1_file.setDay(1);
-					}
-				}
-				
-				date1_file.setMonth( StringUtil.atoi((String)tokens.elementAt(0) ) );
-				trace_start_year = StringUtil.atoi( (String)tokens.elementAt(1) );
-				date1_file.setYear( trace_start_year );
-				
-/* TODO SAM 2008-04-03 Remove this code if software functions properly (appears pretty old).
-				date2_file.setHour ( 0 );
-				date2_file.setDay ( TimeUtil.numDaysInMonth(
-					StringUtil.atoi( (String)tokens.elementAt(2) ),
-					StringUtil.atoi( (String)tokens.elementAt(3) ) ) );
-				date2_file.setMonth( StringUtil.atoi((String)tokens.elementAt(2) ) );
-				date2_file.setYear( StringUtil.atoi((String)tokens.elementAt(3) ) );
-				date2_file.addDay ( 1 );
-*/				
-
-				if (Read24HoursAsDay_boolean) {
-					// The end date is always the last day of the last month, regardless of hour specified.
-					date2_file.setHour(0);
-					date2_file.setDay( TimeUtil.numDaysInMonth(
-						StringUtil.atoi((String)tokens.elementAt(2)),StringUtil.atoi((String)tokens.elementAt(3))));
-					date2_file.setMonth(StringUtil.atoi( (String)tokens.elementAt(2)));
-					date2_file.setYear(StringUtil.atoi( (String)tokens.elementAt(3)));
-				}
-				else {
-					// The end date is always hour 24 of the last month, which ends up being hour 
-					// 0 of the first day in the next month. Accomplish by setting to hour 0 of 
-					// the last day in the file's ending month and then add a day.
-					date2_file.setHour(0);
-					date2_file.setDay( TimeUtil.numDaysInMonth(
-						StringUtil.atoi((String)tokens.elementAt(2)),StringUtil.atoi((String)tokens.elementAt(3))));
-					date2_file.setMonth(StringUtil.atoi((String)tokens.elementAt(2)));
-					date2_file.setYear(StringUtil.atoi((String)tokens.elementAt(3)));
-					date2_file.addDay(1);
-				}
-
-				Message.printStatus ( 2, routine, "[" + trace_start_year + "] Period from file is " +
-				        date1_file.toString() + " to " + date2_file.toString() );
-				
-				// Number of data values per line...
-				ndpl = StringUtil.atoi(	(String)tokens.elementAt(4) );
-				
-				// Format for the data line...
-				String fformat = (String)tokens.elementAt(5);
-				// Now put together a format string for StringUtil.fixedRead()...  The value from the
-				// file will be something like F9.3 so need to throw away what is after the period...
-				if ( fformat.indexOf(".") >= 0 ) {
-					// Remove the trailing ".N"...
-					fformat = fformat.substring( 0,fformat.indexOf("."));
-					// Remove the leading "F"...
-					fformat = fformat.substring(1);
-				}
-				for ( int iformat=0; iformat<ndpl; iformat++ ) {
-					fixed_format += "s" + fformat;
-				}
-
-				// At this point fixed_format should not be empty. 
-				if ( fixed_format.length() == 0 ) {
-					// Did not figure out how to put together the format...
-					msg = "Unable to determine data format for file.  Line number: " + line_count;
-					Message.printWarning ( 2, routine, msg);
-					throw new IOException ( msg );
-				}
-		
-				if ( Message.isDebugOn ) {
-					Message.printDebug(dl, routine, "\n");
-					Message.printDebug(dl, routine, "DATACARD header 2 content is: '");
-					Message.printDebug(dl, routine, "date1_file   = '" + date1_file.toString() + "'");
-					Message.printDebug(dl, routine,	"date2_file   = '" + date2_file.toString() + "'");
-					Message.printDebug(dl, routine, "fixed_format = '" + fixed_format + "'"); 
-				}	
-
-				break;	// last line of header
-			}
-
+    				Message.printStatus ( 2, routine, "[" + trace_start_year + "] Period from file (months) is " +
+                            date1_fileHeader + " to " + date2_fileHeader );
+    				Message.printStatus ( 2, routine, "[" + trace_start_year + "] Period from file (hour 0-23) is " +
+    				        date1_file + " to " + date2_file );
+    				
+    				if ( is_nwsCardTrace && (its == 0) ) {
+    				    // Set the 0-23 hour notation date/time for the start and end of the trace.  Do this here
+    				    // because the hour multiplier is only available when the trace headers are read.
+    				    // Only need to do this once since the date is reused when setting up the time series.
+    				    // Trace start...
+                        runPeriodStartDate = new DateTime ( runPeriodStartDate24 );
+                        if ( (hourMultiplier == 24) && Read24HoursAsDay_boolean ) {
+                            // Daily data - the file date is OK so just set the precision
+                            runPeriodStartDate.setPrecision ( DateTime.PRECISION_DAY );
+                        }
+                        else {
+                            // Hourly data - set hour to one interval after the start of the day
+                            // For 24-hour data, this results in hour 0 of the next day, which is correct
+                            // for 0-23 hour notation.
+                            runPeriodStartDate.addHour ( hourMultiplier );
+                        }
+                        // Trace end...
+                        runPeriodEndDate = new DateTime ( runPeriodEndDate24 );
+                        if ( (hourMultiplier == 24) && Read24HoursAsDay_boolean ) {
+                            // Daily data - the file date is OK so just set the precision
+                            runPeriodEndDate.setPrecision ( DateTime.PRECISION_DAY );
+                        }
+                        else {
+                            // Hourly data - set hour to one interval after the start of the day
+                            // For 24-hour data, this results in hour 0 of the next day, which is correct
+                            // for 0-23 hour notation.
+                            runPeriodEndDate.addHour ( hourMultiplier );
+                        }                           
+                        msg= "ESP run period (0-23 hour) start at " + runPeriodStartDate;
+                        Message.printStatus ( 2, routine, msg );
+                        msg = "ESP run period (0-23 hour) end at " + runPeriodEndDate;
+                        Message.printStatus ( 2, routine, msg );
+        			}
+    				
+    				// Now put together a format string for StringUtil.fixedRead()...  The value from the
+    				// file will be something like F9.3 so need to throw away what is after the period...
+    				String fformat2 = fformat;  // Make a copy so original can be used for logging below
+    				if ( fformat2.indexOf(".") >= 0 ) {
+    					// Remove the trailing ".N"...
+    					fformat2 = fformat2.substring( 0,fformat2.indexOf("."));
+    					// Remove the leading "F"...
+    					fformat2 = fformat2.substring(1);
+    				}
+    				for ( int iformat=0; iformat<ndpl; iformat++ ) {
+    					fixed_format += "s" + fformat2;
+    				}
+    
+    				// At this point fixed_format should not be empty. 
+    				if ( fixed_format.length() == 0 ) {
+    					// Did not figure out how to put together the format...
+    					msg = "Unable to determine data format for file (format string=\"" + fformat +
+    					"\"), line number: " + line_count;
+    					Message.printWarning ( 2, routine, msg);
+    					throw new IOException ( msg );
+    				}
+    		
+    				if ( Message.isDebugOn ) {
+    					Message.printDebug(dl, routine, "\n");
+    					Message.printDebug(dl, routine, "DATACARD header 2 content is: '");
+    					Message.printDebug(dl, routine, "date1 file (month) = '" + date1_fileHeader + "'");
+    					Message.printDebug(dl, routine, "date1 file (0-23 hour) = '" + date1_file + "'");
+    					Message.printDebug(dl, routine, "date2 file (month) = '" + date2_fileHeader + "'");
+    					Message.printDebug(dl, routine,	"date2 file (0-23 hour) = '" + date2_file + "'");
+    					Message.printDebug(dl, routine, "fixed_format = '" + fixed_format + "'"); 
+    				}	
+    
+    				break;	// last line of header
+    			}
 		    }  // End of the Internal while  (header1 and header2)
-
 		}
 		catch ( Exception e ) {
 			msg = "Error processing line " + line_count + ": \"" + string + "\"";
@@ -1320,56 +1379,31 @@ throws IOException {
 			throw new IOException ( msg );
 		}
 
-		// Declare the time series of the proper type based on the
-		// interval.  Use a TSIdent to parse out the interval information...
-		// TODO 2008-04-03 Remove when code tests out (old comment that needs to be removed).
-/*		
-		try {	ident = new TSIdent ( location, "", datatype,
-			"" + HourMultiplier + "Hour", "");
-		}
-		catch ( Exception e ) {
-			// Should not happen...
-			msg = "Unable to create new TSIdent.";
-			Message.printWarning ( 2, routine, msg );
-			throw new IOException ( msg );
-		}
-*/
-/*
-		int data_interval_base = TimeInterval.HOUR;	//always hour
-		int data_interval_mult = HourMultiplier;
-*/
+		// Declare the time series of the proper type based on the interval.
 
-		ident = null;
+		TSIdent ident = null;
 		int data_interval_base = -1;
 		int data_interval_mult = -1;
+		String tsident_string = "";
 		if (Read24HoursAsDay_boolean) {
-			try {	
-				ident = new TSIdent(location, "", datatype, "" + "Day", "");
-			}
-			catch (Exception e) {
-				// Should not happen...
-				msg = "Unable to create new TSIdent.";
-				Message.printWarning(2, routine, msg);
-				throw new IOException(msg);
-			}
-
 			data_interval_base = TimeInterval.DAY;
 			data_interval_mult = 1;
+			tsident_string = location + ".." + datatype + "." + "Day";
 		}
 		else {
-			try {	
-				ident = new TSIdent(location, "", datatype, "" + HourMultiplier + "Hour", "");
-			}
-			catch (Exception e) {
-				// Should not happen...
-				msg = "Unable to create new TSIdent.";
-				Message.printWarning(2, routine, msg);
-				throw new IOException(msg);
-			}
-			
 			data_interval_base = TimeInterval.HOUR;	//always hour
-			data_interval_mult = HourMultiplier;
+			data_interval_mult = hourMultiplier;
+			tsident_string = location + ".." + datatype + "." + hourMultiplier + "Hour";
 		}
+        try {   
+            ident = new TSIdent(tsident_string);
+        }
+        catch (Exception e) {
+            // Should not happen...
+            msg = "Unable to create new TSIdent using using \"" + tsident_string + "\".";
+            Message.printWarning(2, routine, msg);
+            throw new IOException(msg);
+        }
 
 		TS ts = null;
 		// Set the time series pointer to either the requested time series or a newly-created time series.
@@ -1396,7 +1430,7 @@ throws IOException {
 		// assume the existing identifier is to be used (e.g., from a file name).
 		if ( req_ts == null ) {
 			try {
-			    ts.setIdentifier ( ident.toString() );
+			    ts.setIdentifier ( ident );
 			}
 			catch ( Exception e ) {
 				msg = "Unable to set identifier to: \""	+ ident + "\"";
@@ -1410,114 +1444,50 @@ throws IOException {
 		ts.setDataUnits ( units );
 		ts.setDescription ( description );
 		ts.setDataUnitsOriginal ( units );
-
-		// Set dates
-
-		if (Read24HoursAsDay_boolean) {
-			date1 = new DateTime(DateTime.PRECISION_DAY);
-			date2 = new DateTime(DateTime.PRECISION_DAY);
-		}
-		else {
-			date1 = new DateTime(DateTime.PRECISION_HOUR);
-			date2 = new DateTime(DateTime.PRECISION_HOUR);
-		}
-
-		// TODO [LT 2005-05-17] SAM's comments: "Seems circular.....
+		
 		if ( is_nwsCardTrace ) {
-	
-			// At this point the RunPeriodStartDate and RunPeriodEndDate contains only the dates (no time yet).
-		    // The time should should not be determined from the general header, because it may not always be accurate.
-		    // The time is simply defined by adding the hourMultiplier, since the first date
-			// time should always be one interval after the beginning of the day.
-			// Set the runPeriodStart and the RunPeriodEnd to the correct start time, which should be 1 time step
-			// (addHour(HourMultiplier)) ahead of the start of the day.
-			runPeriodStartTrace = new DateTime ( runPeriodStartDateHistorical );
-			runPeriodEndTrace   = new DateTime ( runPeriodEndDateHistorical   );
-
-			if (Read24HoursAsDay_boolean) {
-				runPeriodStartTrace.setPrecision(DateTime.PRECISION_DAY);
-				runPeriodEndTrace.setPrecision(DateTime.PRECISION_DAY);
-			}
-			else {
-				runPeriodStartTrace.addHour ( HourMultiplier ); 
-				runPeriodEndTrace.addHour ( HourMultiplier ); 
-			}
-			 
-			// Set Original dates using the Run Period Start and End dates ...
-			ts.setDate1Original ( new DateTime( runPeriodStartTrace ) );
-			ts.setDate1Original ( new DateTime( runPeriodEndTrace ) );
-
-			// Now set dates to read data to.  These are the dates we will assigning data to from the traces.
-			// The default is to use the Run Period dates; however, these can be overruled by the requested dates...
-			// date1_ts, date2_ts and idate_ts (see below) are used to iterate.
-			// date1_ts and date2_ts are also used to allocate data space for the returning time series.
-			if ( req_date1 != null ) {
-				date1_ts = req_date1;
-			}
-			else {
-				date1_ts = runPeriodStartTrace;
-			}
-			if ( req_date2 != null ) {
-				date2_ts = req_date2;
-			}
-			else {
-			    date2_ts = runPeriodEndTrace;
-			}
-
-			// Set the time series date1 and date2.
-			ts.setDate1 ( new DateTime( date1_ts ) );
-			ts.setDate2 ( new DateTime( date2_ts ) );
-			
-			Message.printStatus ( 2, routine, "[" + trace_start_year + "] Time series trace period is " +
-			        date1_ts + " to " + date2_ts );
-
-			// Now set dates used to read from the file traces.
-			// date1, date2 and idate (see below) are only used to iterate over the time series traces.  
-			date1 = date1_file;
-			date2 = date2_file;
-
-			// Set the sequence number.
-			ts.setSequenceNumber ( date1_file.getYear() );
+		    // Set additional information for the trace
+	        // Set the sequence number.
+	        ts.setSequenceNumber ( date1_fileHeader.getYear() );
+		}
+		
+        // Get the original dates as that of the full-month period in the file, accounting for ESP shift to
+		// real-time date/times.  This is what will be iterated on to read the file.
+		DateTimeRange range_file = readTimeSeries_CalculateFilePeriod ( ts, is_nwsCardTrace,
+		        Read24HoursAsDay_boolean, runPeriodStartDate, runPeriodEndDate, date1_file, date2_file );
+		DateTime date1_read = range_file.getStart();
+        ts.setDate1Original ( date1_read );
+        DateTime date2_read = range_file.getEnd();
+        ts.setDate2Original ( date2_read );
+		
+		// Get the data period for the time series trace.  This is the period for which data will be available
+		// in the time series.  All the values in the file will be read and those outside of the period
+		// will be ignored.
+		DateTimeRange range = readTimeSeries_CalculateTimeSeriesDataPeriod (
+		        is_nwsCardTrace, Read24HoursAsDay_boolean,
+		        hourMultiplier, runPeriodStartDate, runPeriodEndDate,
+		        date1_file, date2_file, req_date1, req_date2 );
+		
+    	// Set the time series date1 and date2.
+		date1_ts = range.getStart();
+		ts.setDate1 ( date1_ts );
+		date2_ts = range.getEnd();
+		ts.setDate2 ( date2_ts );
+		if ( is_nwsCardTrace ) {
+		    Message.printStatus ( 2, routine, "[" + trace_start_year + "] Time series trace data period is " +
+                date1_ts + " to " + date2_ts );
 		}
 		else {
-			// Original dates are what is in the file...
-			ts.setDate1Original ( date1_file );
-			ts.setDate2Original ( date2_file );
-
-			// Now set dates to read, based on the method parameters.  The default is to use the dates in the
-			// file; however, these can be overruled by the requested dates...
-			if ( req_date1 != null ) {
-			    date1 = req_date1;
-			}
-			else {
-			    date1 = date1_file;
-			}
-			if ( req_date2 != null ) {
-			    date2 = req_date2;
-			}
-			else {
-			    date2 = date2_file;
-			}
-
-			// Set the time series date1 and date2.
-			ts.setDate1 ( new DateTime( date1 ) );
-			ts.setDate2 ( new DateTime( date2 ) );
+		    Message.printStatus ( 2, routine, "Time series data period is " + date1_ts + " to " + date2_ts ); 
 		}
-
-		Message.printDebug ( dl, routine, "[" + trace_start_year + "] Period to read is " +
-		        date1.toString() + " to " + date2.toString() );
+		
+		Message.printDebug ( dl, routine, "[" + trace_start_year + "] File period to read is " +
+		        date1_read + " to " + date2_read );
 		if ( Message.isDebugOn ) {
 			Message.printDebug ( dl, routine, "Read TS header" );
 		}
 
-		// TODO [LT 2005-05-11]
-		// SAM's comments: "How about handle offset - start of day?"
-		// REVISIT [LT 2005-05-17]
-		// SAM's comments: "Did you resolve?".
-		// TODO [LT 2005-05-17]
-		// LT's comments: "No. I do not know what this is."
-
-		// Data may not be needed if reading header information only.
+    	// Data may not be needed if reading header information only.
 		
 		if (!read_data) {
 			if (ts != null && req_units != null && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
@@ -1532,10 +1502,11 @@ throws IOException {
 				}
 			}			
 
-		    	TSList.addElement(ts);
+		   	TSList.addElement(ts);
 
-		    	if ( is_nwsCardTrace ) {
-		    		// Make sure to skip all the data lines when processing NWS Card Trace files
+		   	if ( is_nwsCardTrace ) {
+		  		// Make sure to skip all the data lines when processing NWS Card Trace files so that the
+		   	    // next header can be read.
 		    		
 				// Reset the header flags back to false to force the code to read the headers for the
 				// next time series trace.
@@ -1555,7 +1526,7 @@ throws IOException {
 					}
 					
 					if ( (string == null) || (string.charAt(0)=='$') ) {
-					     	// Done with the last trace or ready for the next trace.
+				     	// Done with the last trace or ready for the next trace.
 						break;
 					}		
 				}
@@ -1570,12 +1541,12 @@ throws IOException {
 			}
 		}
 
-		// Allocate the memory for the data array...
+		// If here the data are being read.  Allocate the memory for the data array using the date/times that
+		// were set in the time series above...
 
 		if ( ts.allocateDataSpace() == 1 ) {
 			msg = "Error allocating data space...";
 			Message.printWarning( 2, routine, msg );
-			ts = null;
 			throw new IOException ( msg );
 		}
 
@@ -1584,41 +1555,28 @@ throws IOException {
 			Message.printDebug ( dl, routine, "Reading data..." );
 		}
 
-		// Set iterator 'pointer'
-		if ( is_nwsCardTrace ) {
-			// The runPeriodStart may start at any time in the month, but the traces should always start at the 
-			// first interval past the start of the day. -999 are used as values between the first interval in the 
-			// trace data and the runPeriodStart dateTime.
-			idate_ts = new DateTime ( runPeriodStartTrace );
-			// TODO SAM 2008-04-03 Remove the following code if code tests out (old comments)
-		/*
-			if ( runPeriodStart.getHour() == 0 ) {
-				idate_ts.setDay(2);
-			} else {
-				idate_ts.setDay(1);
-			}
-*/
-			if (Read24HoursAsDay_boolean) {
-				idate_ts.setDay(1);
-			}
-			else {
-				// Initialize "idate_ts" to the first interval past the start of the first day.  If the 
-				// start hour of the run period is 0, it is necessary to set the day to 2, because the 
-				// day 2 at 00:00 will be the first interval past the first day in this case.
-				if (runPeriodStartTrace.getHour() == 0) {
-					idate_ts.setDay(2);
-				} 
-				else {
-					idate_ts.setDay(1);
-				}
-			}
+		// There are two dates/iterators of interest when processing the data.  The first is that related
+		// to the data in the file, which is always in full month blocks and uses the historical dates.  The
+		// second is the location in the time series, which for normal card files may be limited by a requested
+		// period, and for ESP traces needs to be in the year of the ESP run period (and may be limited by a
+		// requested period).  Additionally, when an ESP run has leap-year oddities, the data in the file must
+		// be sequentially transferred to the in-memory time series, even if a shift occurs due to a leap
+		// year.  The transfer occurs correctly by initializing two date/times at the start of each trace:
+		//    idate_file = the iterator date/time corresponding to data in the file (historical date/times)
+		//    idate_ts = the iterator date/time corresponding to the time series (esp date/times)
+		// The date/times are then incremented as each value is processed, resulting in values correctly being
+		// transferred to the traces.  If there is a leap year involved, it is possible that a value at the end
+		// of a trace may be discarded or set to missing, depending on the direction of the shift.
 
-			// Initialize the idate to the file date1 (trace).
-			idate = new DateTime ( date1_file );
+		// The file date/time is always initialized based on what is in the file.
+        idate_file = new DateTime ( date1_file );
+		if ( is_nwsCardTrace ) {
+		    // Set the time series iterator date to that corresponding to the start of the month in the file
+		    idate_ts = new DateTime ( date1_read );
 		}
 		else {
-			// Initialize the idate to the file date1.
-			idate = new DateTime ( date1_file );
+		    // Reading a normal card file so initialize the iterator to the file start.
+			idate_ts = new DateTime ( date1_file );
 		}
 
 		int size, i;
@@ -1628,16 +1586,18 @@ throws IOException {
 		boolean premature_trace_end = false;
 
 		try {
-			// If dealing with traces, the next line after the end
-			// of one time series trace should be some comment lines
-			// followed by the the new header for the next trace.
+			// If dealing with traces, the next line after the end of one time series trace should be some
+		    // comment lines followed by the the new header for the next trace.  If comments are found
+		    // prematurely it is likely because of leap year issues so allow missing data in the trace.
+		    // If extra data are found, it is also likely due to leap year issues and just ignore the value.
 			doneWithThisTrace = false;
 			while ( !doneWithThisTrace ) {
 
 				// Don't trim the line because the data are fixed-format.
 				string = in.readLine();
+                ++line_count;
                 if ( Message.isDebugOn ) {
-                    Message.printDebug ( dl, routine, "Processing data string: \"" + string + "\"" );
+                    Message.printDebug ( dl, routine, "Processing data line " + line_count + ": \"" + string + "\"" );
                 }
 				// If a comment is read, then assume the end of the trace.  This
 				// sometimes happens, for example in a leap year when Feb 29 absorbs a
@@ -1651,13 +1611,12 @@ throws IOException {
                     }
 				}
 				if ( string == null )  {
-					if (idate.lessThan(date2)) {
+					if (idate_file.lessThan(date2_read)) {
 						// End of data.  Do not throw an exception.  Instead, short-
 						// circuit to the code that is called when the file is done being read.  
-
                         if (is_nwsCardTrace) {
                         	if (Message.isDebugOn) {
-                        		Message.printDebug(dl, routine, "Finished reading data at: " + idate.toString());
+                        		Message.printDebug(dl, routine, "Finished reading trace data at: " + idate_file );
                         	}
                         
                         	if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
@@ -1675,14 +1634,15 @@ throws IOException {
                         
                         	TSList.addElement(ts);
                         	if (warning_count > 0) {
+                        	    // Some serious errors have occurred.
                         		throw new IOException(warning_message);
-                        	}	
-                        	return TSList;
+                        	}
                         }
                         else {
+                            // Single time series in the file.
                         	// Done with data.
                         	if (Message.isDebugOn) {
-                        		Message.printDebug(dl, routine, "Finished reading data at: " + idate.toString());
+                        		Message.printDebug(dl, routine, "Finished reading data at: " + idate_file );
                         	}
                         
                         	if (ts != null && req_units != null && !req_units .equalsIgnoreCase(ts.getDataUnits())) {
@@ -1706,14 +1666,13 @@ throws IOException {
 					else {
 					    if ( !premature_trace_end ) {
 					        // Only quit reading the file with an exception if a serious file truncation.
-    						msg = "EOF processing time series data at line " 
-    						+ line_count + ".  Possible corrupt data file.";
+    						msg = "EOF processing time series data at line "
+    						    + line_count + ".  Possible corrupt data file.";
     						Message.printWarning(2, routine, msg);
     						throw new IOException(msg);
 					    }
 					}
 				}
-				++line_count;
 
 				if ( (string.trim().equals("")) ||
 					((string.length() > 0) && ((string.charAt(0) == '#') || (string.charAt(0) == '$') ) ) ) {
@@ -1721,9 +1680,10 @@ throws IOException {
 					continue;
 				}
 
-				// Only deal with the data values.  It is possible that data values can be smashed
-				// together so parse using the fixed format width.  The format uses strings so that
-				// different numbers of values in a month do not cause conversion errors.
+				// Only deal with the data values (not leading station ID or record count at the beginning of a
+				// line.  It is possible that data values can be smashed together so parse using the fixed
+				// format width.  The format uses strings so that different numbers of values in a month do
+				// not cause conversion errors.
 
 				tokens = StringUtil.fixedRead (	string.substring(20), fixed_format );
 
@@ -1750,100 +1710,64 @@ throws IOException {
 
 				if ( Message.isDebugOn ) {
 					Message.printDebug ( dl, routine, "#data on line =" + size );
-					Message.printDebug ( dl, routine, "Idate = " + idate );
-					Message.printDebug ( dl, routine, "Idate_ts = " + idate_ts );
-					Message.printDebug ( dl, routine, "Date1 = " + date1 );
-					Message.printDebug ( dl, routine, "Date2 = " + date2 );
+					Message.printDebug ( dl, routine, "date (file) = " + idate_file );
+					Message.printDebug ( dl, routine, "date (ts data) = " + idate_ts );
+					Message.printDebug ( dl, routine, "Date1 = " + date1_read );
+					Message.printDebug ( dl, routine, "Date2 = " + date2_read );
 				}
 
 				// Processing data.
 				 
-				if ( is_nwsCardTrace ) {
-					
-				    // When dealing with NWS Card Trace file it is necessary to iterate over the trace
-				    // data (as it is done when processing NWS Card single time series file) and also
-				    // over the run period.  The determination of what data to process is defined by the
-				    // iterations within the run period.	
+			    for ( i = 0; i < size; i++ ) {
+			        // Only set values in the data period (skip over others).  This is a bit of a performance
+			        // hit but can prevent a bunch of logging low-level messages about trying to set values outside
+			        // the time series period.
+					if( idate_ts.greaterThanOrEqualTo( date1_ts ) && idate_ts.lessThanOrEqualTo(date2_ts) ) {
+						// In the requested period so set the data...
+						token = ( (String)tokens.elementAt(i)).trim();
+						ts.setDataValue(idate_ts, StringUtil.atod(token));
+						if ( Message.isDebugOn ) {
+							Message.printDebug ( dl, routine, "Setting value at " + idate_ts.toString() + ": " + token );
+						}
+					}
+					if ( idate_file.lessThan(date2_file) ) {
+						// Advance the iterator pointers of the time series and the file data period. 
+						idate_file.addInterval ( data_interval_base, data_interval_mult );
+						idate_ts.addInterval ( data_interval_base, data_interval_mult );
+					}
+					else {
+						if ( Message.isDebugOn ) {
+							Message.printDebug ( dl, routine,
+							        "Finished reading data at file date: " + idate_file.toString() );
+						}
 
-				    // Processing data from the NWS Card Trace.
-				    for ( i = 0; i < size; i++ ) {
-    					if( idate_ts.greaterThanOrEqualTo( date1_ts ) ) {
-    						// In the requested period so set the data...
-    						token = ( (String)tokens.elementAt(i)).trim();
-    						ts.setDataValue(idate_ts, StringUtil.atod(token));
-    						if ( Message.isDebugOn ) {
-    							Message.printDebug ( dl, routine,
-    							"Value found at " + idate_ts.toString()	+ ": " + token );
-    						}
-    					}
-    					if ( idate.lessThan(date2) ) {
-    						// Advance the iterator pointers of the trace and the run period. 
-    						idate.addInterval ( data_interval_base,	data_interval_mult);
-    						idate_ts.addInterval ( data_interval_base, data_interval_mult);
-    					}
-    					else {
-    						if ( Message.isDebugOn ) {
-    							Message.printDebug ( dl, routine, "Finished reading data at: " + idate.toString() );
-    						}
-    
-    						if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
-    							try {
-    							    // Convert units
-    								TSUtil.convertUnits( ts, req_units);
-    							}
-    							catch (Exception e) {
-    								msg = "Could not convert time series units to \"" + req_units + "\".";
-    								warning_message += "\n" + msg;
-    								warning_count++;
-    								Message.printWarning(2, routine, msg);
-    							}
-    						}			
-    
-    						TSList.addElement(ts);
+						if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
+							try {
+							    // Convert units
+								TSUtil.convertUnits( ts, req_units);
+							}
+							catch (Exception e) {
+								msg = "Could not convert time series units to \"" + req_units + "\".";
+								warning_message += "\n" + msg;
+								warning_count++;
+								Message.printWarning(2, routine, msg);
+							}
+						}			
+
+						TSList.addElement(ts);
+						if ( is_nwsCardTrace ) {
     						// Done with this time series. The next lines should be comments or EOF since dealing
     						// with with NWS Card Trace files. Reset the header flags back to false to force the
     						// code to try reading the headers for the new traces in the file, if any.
     						header1_found = false;
     						header2_found = false;
     						doneWithThisTrace = true;
+    						// No need to continue processing values on the line but will need to read more data
+    						// in case the requested period for traces is shorter than what is available in the file.
     						break;
     					}
-				    }
-				} 
-				else {
-				    // Processing data from a normal NWS Card file (not a trace file)
-				    for ( i = 0; i < size; i++ ) {
-    					if( idate.greaterThanOrEqualTo(date1)) {
-    						// In the requested period so set the data...
-    						token = ( (String)tokens.elementAt(i)).trim();
-    						ts.setDataValue(idate, StringUtil.atod(token));
-    						if ( Message.isDebugOn ) {
-    							Message.printDebug ( dl, routine, "Value found at " + idate.toString() + ": " + token );
-    						}
-    					}
-    					if ( idate.lessThan(date2) ) {
-    						// Add interval
-    						idate.addInterval (	data_interval_base, data_interval_mult);
-    					}
-    					else {
-    						// Done with data.
-    						if ( Message.isDebugOn ) {
-    							Message.printDebug ( dl, routine, "Finished reading data at: " + idate.toString() );
-    						}
-    
-    						if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
-    							try {
-    							    // Convert units
-    								TSUtil.convertUnits( ts, req_units);
-    							}
-    							catch (Exception e) {
-    								msg = "Could not convert time series units to \"" + req_units + "\".";
-    								Message.printWarning( 2, routine, msg);
-    								throw new Exception(msg);
-    							}
-    						}			
-    						
-    						TSList.addElement(ts);
+						else {
+						    // Processing data from a normal NWS Card file (not a trace file)
     						// Since processing NWS Card single time series file there is nothing else to do,
     						// so just return the TSList with the single time series. 
     						return TSList;
@@ -1866,6 +1790,135 @@ throws IOException {
 
 	// The time series should be added to the TSList during the processing inside the while loops.
 	return TSList;
+}
+
+/**
+Calculate the data period for a time series trace.  This is the period for which data will be available
+in the time series after reading.  All the values in the file will be read and those outside of the period
+will be ignored.
+@param is_nwsCardTrace If true then a tracefile is being read, in which case the length of the trace
+will be controlled by the runPeriod*DateHistorical24 parameters.
+@param Read24HoursAsDay_boolean Indicates whether 24-hour data should be read as Day interval.
+@param hourMultiplier data interval as hour multiplier from original file.
+@param runPeriodStartDate The ESP run period start, in 0-23 hour notation.
+@param runPeriodStartEnd The ESP run period end, in 0-23 hour notation.
+@param date1_file The date/time for the first data file value, using the historical date, 23-hour notation.
+@param date2_file The date/time for the last data file value, using the historical date, 23-hour notation.
+@param req_date1 The date/time for the first requested value, using the historical date, 23-hour notation.
+@param req_date2 The date/time for the last requested value, using the historical date, 23-hour notation.
+*/
+private static DateTimeRange readTimeSeries_CalculateTimeSeriesDataPeriod (
+        boolean is_nwsCardTrace, boolean Read24HoursAsDay_boolean, int hourMultiplier,
+        DateTime runPeriodStartDate, DateTime runPeriodEndDate,
+        DateTime date1_file, DateTime date2_file, DateTime req_date1, DateTime req_date2 )
+{
+    String routine = "NWSCardTS.readTimeSeries_CalculateTimeSeriesDataPeriod";
+    DateTime date1 = null;  // The start date/time for the time series data
+    DateTime date2 = null;  // The end date/time for the time series data
+    
+    if ( is_nwsCardTrace ) {
+        // The runPeriodStartDateHistorical and runPeriodEndDateHistorical contains only the dates (hour set to
+        // zero), based on the ESP "HISTORICAL RUN PERIOD" information in the main header, and has not been
+        // adjusted for hour 0-23.
+        // Card files are written with complete months; however, the historical run start may be anywhere
+        // in the first month.  For example, the start of the ESP run may be on 3/31, with missing values for
+        // all but the last day of the month.
+        // The first time in the file is simply defined by adding the hourMultiplier to the header value,
+        // since the first date time should always be one interval after the beginning of the day (end of period
+        // values).  For 24-hour data, this adjusts to the next day.  For example a value on 3/31 hour 24 would
+        // convert to 4/1 hour 0.
+        date1 = new DateTime ( runPeriodStartDate );
+        date2 = new DateTime ( runPeriodEndDate );
+    }
+    else {
+        // A normal card file so the time series dates are just those from the file
+        date1 = new DateTime ( date1_file );
+        date2 = new DateTime ( date2_file );
+    }
+    
+    // The dates can be overruled by the requested dates.  If a normal card file, the requested period should
+    // be the historical period.  If a trace file, the requested period should be consistent with the ESP run period,
+    // not the historical period.
+    // Throw an exception if the dates are invalid because the hour is not divisible by the interval
+    
+    if ( req_date1 != null ) {
+        date1 = new DateTime(req_date1);
+        if ( Read24HoursAsDay_boolean ) {
+            date1.setPrecision(DateTime.PRECISION_DAY);
+        }
+        else if ( (req_date1.getHour()%hourMultiplier) != 0 ) {
+            Message.printWarning( 2, routine, "Requested start date/time " + req_date1 +
+                " does not align with file hour " + date1_file + " and data interval " + hourMultiplier + "Hour" );
+        }
+    }
+    if ( req_date2 != null ) {
+        date2 = new DateTime(req_date2);
+        if ( Read24HoursAsDay_boolean ) {
+            date1.setPrecision(DateTime.PRECISION_DAY);
+        }
+        else if ( (req_date2.getHour()%hourMultiplier) != 0 ) {
+            Message.printWarning( 2, routine, "Requested end date/time " + req_date1 +
+                " does not align with file hour " + date2_file + " and data interval " + hourMultiplier + "Hour" );
+        }
+    }
+    // Return the request as a range of two date/times.
+    DateTimeRange range = new DateTimeRange ( date1, date2 );
+    return range;
+}
+
+/**
+Calculate the file period for a time series trace.  This is the period for which data will be available
+in the file but in time series timeframe, and can be used for reading.  For a normal card file the period will
+be the historical period.  For a trace file, the period will be the real-time period, for the full months
+corresponding to the run period (which map to the full historical months).  The start date/time is suitable to
+start iterating through data.  The start and end are suitable for setting the original data period on the
+time series.
+@return the date/time range for the data in the time series for full months.
+@param ts Time series being processed.
+@param is_nwsCardTrace If true then a tracefile is being read, in which case the length of the trace
+will be controlled by the runPeriod*DateHistorical24 parameters.
+@param Read24HoursAsDay_boolean Indicates whether 24-hour data should be read as Day interval.
+@param runPeriodStartDate The ESP run period start, in 0-23 hour notation.
+@param runPeriodStartEnd The ESP run period end, in 0-23 hour notation.
+@param date1_file The date/time for the first data file value, using the historical date, 23-hour notation.
+@param date2_file The date/time for the last data file value, using the historical date, 23-hour notation.
+*/
+private static DateTimeRange readTimeSeries_CalculateFilePeriod (
+        TS ts, boolean is_nwsCardTrace, boolean Read24HoursAsDay_boolean,
+        DateTime runPeriodStartDate, DateTime runPeriodEndDate,
+        DateTime date1_file, DateTime date2_file )
+{   // Start with the file date/time for full months...
+    DateTime date1 = new DateTime ( date1_file );  // The start date/time for the time series data
+    DateTime date2 = new DateTime ( date2_file );  // The end date/time for the time series data
+    // FIXME SAM 2008-04-03 What happens when the run start is Feb 29 of a leap year?
+    // What start months are in the card file for each trace and how is that handled here?
+    if ( is_nwsCardTrace ) {
+        // The runPeriodStartDateHistorical and runPeriodEndDateHistorical contains only the dates (hour set to
+        // zero), based on the ESP "HISTORICAL RUN PERIOD" information in the main header, and has not been
+        // adjusted for hour 0-23.
+        // Card files are written with complete months; however, the historical run start may be anywhere
+        // in the first month.  For example, the start of the ESP run may be on 3/31, with missing values for
+        // all but the last day of the month.
+        // The first time in the file is simply defined by adding the hourMultiplier to the header value,
+        // since the first date time should always be one interval after the beginning of the day (end of period
+        // values).  For 24-hour data, this adjusts to the next day.  For example a value on 3/31 hour 24 would
+        // convert to 4/1 hour 0.  The year and month are those from the ESP run, not the header for each time
+        // series trace.
+        date1.setYear( runPeriodStartDate.getYear() );
+        // Get the number of intervals in the run period and increment from the start.  Do this in case there
+        // are leap years involved.  We can do a simple shift of the start date/time (because an ESP run start of
+        // Feb 29 is not supported by the read method) but setting the end is a little more trouble.
+        int nvals = TimeUtil.getNumIntervals(runPeriodStartDate, runPeriodEndDate,
+                ts.getDataIntervalBase(), ts.getDataIntervalMult() ) - 1;
+        date2 = new DateTime ( date1 );
+        for ( int i = 0; i < nvals; i++ ) {
+            date2.addInterval( ts.getDataIntervalBase(), ts.getDataIntervalMult() );
+        }
+    }
+    
+    // Return the request as a range of two date/times.
+    DateTimeRange range = new DateTimeRange ( date1, date2 );
+    return range;
 }
 
 /**
