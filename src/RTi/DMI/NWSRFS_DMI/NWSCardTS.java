@@ -803,6 +803,8 @@ throws IOException {
 		req_date2, req_units, read_data, null);
 }
 
+// TODO SAM 2008-04-06 This method still has some redundant code that needs
+// refactored, e.g., adding of time series to the list
 /**
 Read one or more time series from a file.
 It will read all the traces from a NWS Card Trace file or a single time series
@@ -1204,7 +1206,6 @@ throws IOException
     					Message.printDebug(2, routine, "location       = '" + location + "'");
     					Message.printDebug(2, routine, "description    = '" + description + "'"); 
     				}
-    
     			}
     			else if ( header1_found && !header2_found ) {
     				
@@ -1615,27 +1616,21 @@ throws IOException
 				// value and an expected value at the end is not read.
                 // Allow $ in normal files as comments on any line.
                 if ( is_nwsCardTrace && (string == null) ) {
-                    if (Message.isDebugOn) {
-                        Message.printDebug(dl, routine, "Detected end of file.  Assume end of trace." );
-                        premature_trace_end = true;
-                    }
+                    Message.printStatus(2, routine, "Detected end of file.  Assume end of trace." );
+                    premature_trace_end = true;
                 }
                 else if ( is_nwsCardTrace && string.startsWith("$") ) {
-                    if (Message.isDebugOn) {
-                        Message.printDebug(dl, routine, "Detected comment before end of data.  Assume end of trace." );
-                        premature_trace_end = true;
-                        // Now handle below as if end of data.  Do not set "string" to null.
-                    }
+                    Message.printStatus(2, routine, "Detected comment before end of data.  Assume end of trace." );
+                    premature_trace_end = true;
+                    // Now handle below as if end of data.  Do not set "string" to null.
 				}
 				if ( premature_trace_end || (string == null) ) {
 				    // If in here then not enough data lines are available.  If it is a trace file, allow this
 				    // due to known possible issues with leap years.  If a normal card file, throw an exception.
 				    // In any case, process the time series contents and add to the list.
 					if (is_nwsCardTrace) {
-                    	if (Message.isDebugOn) {
-                    		Message.printDebug(dl, routine, "[" + trace_start_year +
-                    		        "] finished reading trace data at: " + idate_file );
-                    	}
+                    	Message.printStatus(2, routine, "[" + trace_start_year +
+                    	    "] finished reading trace data at: " + idate_file );
                     	// Process the time series and add to the list.  If units cannot be converted, keep trying to
                     	// process and generate one exception at the end.
                     	try {
@@ -1670,10 +1665,8 @@ throws IOException
                     else if ( !is_nwsCardTrace && (string == null) ){
                         // A normal single time series file that is at an end.  Process and then check whether the
                         // file has prematurely ended.
-                    	if (Message.isDebugOn) {
-                    		Message.printDebug(dl, routine,
-                    		        "Finished reading single time series card file data at: " + idate_file );
-                    	}
+                    	Message.printStatus(2, routine,
+                    		"Finished reading single time series card file data at: " + idate_file );
                     	// Convert the data units if requested...
                     	readTimeSeriesList_ConvertDataUnits ( ts, req_units );
                     	TSList.addElement(ts);
@@ -1743,32 +1736,26 @@ throws IOException
 						token = ( (String)tokens.elementAt(i)).trim();
 						ts.setDataValue(idate_ts, StringUtil.atod(token));
 						if ( Message.isDebugOn ) {
-							Message.printDebug ( dl, routine, "Setting value at " + idate_ts.toString() + ": " + token );
+							Message.printDebug ( dl, routine, "Setting value at " + idate_ts + ": " + token );
 						}
 					}
 					if ( idate_file.lessThan(date2_file) ) {
-						// Advance the iterator pointers of the time series and the file data period. 
+					    // Data being processed may have corresponding data in file so 
+						// advance the iterator pointers of the time series and the file data period. 
 						idate_file.addInterval ( data_interval_base, data_interval_mult );
 						idate_ts.addInterval ( data_interval_base, data_interval_mult );
 					}
 					else {
-						if ( Message.isDebugOn ) {
-							Message.printDebug ( dl, routine,
-							        "Finished reading data at file date: " + idate_file.toString() );
-						}
+						Message.printStatus ( 2, routine, "Finished reading data at file date: " + idate_file );
 
-						if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
-							try {
-							    // Convert units
-								TSUtil.convertUnits( ts, req_units);
-							}
-							catch (Exception e) {
-								msg = "Could not convert time series units to \"" + req_units + "\".";
-								warning_message += "\n" + msg;
-								warning_count++;
-								Message.printWarning(2, routine, msg);
-							}
-						}			
+						try {
+						    // Convert units
+							readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+						}
+						catch (Exception e) {
+						    // Warning is printed in above method.  Add to list
+							warning_count++;
+						}		
 
 						TSList.addElement(ts);
 						if ( is_nwsCardTrace ) {
@@ -1908,6 +1895,7 @@ private static DateTimeRange readTimeSeries_CalculateFilePeriod (
     DateTime date2 = new DateTime ( date2_file );  // The end date/time for the time series data
     // FIXME SAM 2008-04-03 What happens when the run start is Feb 29 of a leap year?
     // What start months are in the card file for each trace and how is that handled here?
+    // Currently should not get here because a check is done in the main read method.
     if ( is_nwsCardTrace ) {
         // The runPeriodStartDateHistorical and runPeriodEndDateHistorical contains only the dates (hour set to
         // zero), based on the ESP "HISTORICAL RUN PERIOD" information in the main header, and has not been
