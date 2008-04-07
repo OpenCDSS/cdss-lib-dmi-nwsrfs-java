@@ -927,7 +927,8 @@ throws IOException
 	            string = in.readLine();
 	            if ( string == null ) {
 	                throw new IOException(
-	                    "EOF while parsing the general header at line \"" + string + "\" of a NWS Trace Card file.");
+	                    "End of file while parsing the general header at line \"" + string +
+	                    "\" of a NWS Trace Card file.");
 	            }
 	            ++line_count;
 
@@ -1072,6 +1073,7 @@ throws IOException
 	DateTime date1_ts = null; // Run period date1 used for iteration with idate_ts
 	DateTime date2_ts = null; // Run period date2 used for iteration with idate_ts
 	boolean doneWithThisTrace = false; // Flag used to control to processing flow after each trace in the file.
+	boolean premature_trace_end = false; // Used when a trace does not have enough data
 
 	int warning_count = 0;
 	String warning_message = "";
@@ -1093,7 +1095,9 @@ throws IOException
 
 	int trace_start_year;  // Trace start year, used for messages
 	for ( int its=0; its < numberOfTimeSeries; its++ ) {
-
+	    if ( is_nwsCardTrace ) {
+	        Message.printStatus(2, routine, "Reading trace [" + its + "]" );
+	    }
 		try {
 
 		    // Read the header1 and header2 of the time series:
@@ -1113,21 +1117,29 @@ throws IOException
 		    //      20-21: number of data per line
 		    //      25-32: format for each data value
 		    while ( true ) {
-    
-    			string = in.readLine();
+		        if ( is_nwsCardTrace && premature_trace_end ) {
+		            // The comment line that was read to indicate a premature trace end should be processed
+		            // (do not read a new line).
+		            premature_trace_end = false; // Reset for next trace (also avoid infinite loop)
+		        }
+		        else {
+		            // Read a new line to process.
+		            string = in.readLine();
+		            ++line_count;
+		        }
     			if ( string == null ) {
     				throw new IOException(
     					"EOF while processing general header in line " + line_count + ": \"" + string + "\"");
     			}
-    			++line_count;
     
     			// Don't trim the actual line because the data is fixed format!
     			if ( Message.isDebugOn ) {
     				Message.printDebug(dl, routine, "Processing: \"" + string + "\"");
     			}
     
-    			// Skipping blank and commented lines. No time series
-    			// information is currently retrieved from the commented lines. 
+    			// Skipping blank and commented lines.  No time series
+    			// information is currently retrieved from the commented lines (other than the ESP trace file header
+    			// read above).
     			if ( ( string.trim().equals("")) || ((string.length() > 0) &&
     			      ((string.charAt(0) == '#') || (string.charAt(0) == '$')) ) ) {
     				continue;
@@ -1490,18 +1502,15 @@ throws IOException
     	// Data may not be needed if reading header information only.
 		
 		if (!read_data) {
-			if (ts != null && req_units != null && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
-			    // Convert units
-				try {
-					TSUtil.convertUnits(ts, req_units);
-				}
-				catch (Exception e) {
-					msg = "Could not convert time series units to \"" + req_units + "\".";
-					warning_message += "\n" + msg;
-					Message.printWarning(2, routine, msg);
-				}
-			}			
-
+		    // FIXME SAM 2008-04-04 Why convert the units if data are not being read?  To test conversion
+		    // factors?
+		    try {
+		        readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+		    }
+		    catch ( Exception e ) {
+		        // Warning is printed in the helper method but continue on, but update the warning count
+		        ++warning_count;
+		    }
 		   	TSList.addElement(ts);
 
 		   	if ( is_nwsCardTrace ) {
@@ -1532,7 +1541,7 @@ throws IOException
 				}
 				continue;
 			}
-			else  {
+			else {
 				// For NWS Card single time series file, simply return the vector.
 				if (warning_count > 0) {
 					throw new IOException(warning_message);
@@ -1583,7 +1592,9 @@ throws IOException
 		Object otoken;	// Individual data token as Object
 		String token;	// Individual data token as String
 		int blanks = 0;	// Number of blank data values on a line
-		boolean premature_trace_end = false;
+		premature_trace_end = false; // Reset to false - set to true if not enough data in a trace
+		
+		// Now loop on data records within the time series (trace)
 
 		try {
 			// If dealing with traces, the next line after the end of one time series trace should be some
@@ -1599,79 +1610,84 @@ throws IOException
                 if ( Message.isDebugOn ) {
                     Message.printDebug ( dl, routine, "Processing data line " + line_count + ": \"" + string + "\"" );
                 }
-				// If a comment is read, then assume the end of the trace.  This
+				// If a comment is read (or end of file for last trace), then assume the end of the trace.  This
 				// sometimes happens, for example in a leap year when Feb 29 absorbs a
 				// value and an expected value at the end is not read.
-				if ( is_nwsCardTrace && string.startsWith("$") ) {
+                // Allow $ in normal files as comments on any line.
+                if ( is_nwsCardTrace && (string == null) ) {
+                    if (Message.isDebugOn) {
+                        Message.printDebug(dl, routine, "Detected end of file.  Assume end of trace." );
+                        premature_trace_end = true;
+                    }
+                }
+                else if ( is_nwsCardTrace && string.startsWith("$") ) {
                     if (Message.isDebugOn) {
                         Message.printDebug(dl, routine, "Detected comment before end of data.  Assume end of trace." );
                         premature_trace_end = true;
-                        string = null;
-                        // Now handle below as if end of data.
+                        // Now handle below as if end of data.  Do not set "string" to null.
                     }
 				}
-				if ( string == null )  {
-					if (idate_file.lessThan(date2_read)) {
-						// End of data.  Do not throw an exception.  Instead, short-
-						// circuit to the code that is called when the file is done being read.  
-                        if (is_nwsCardTrace) {
-                        	if (Message.isDebugOn) {
-                        		Message.printDebug(dl, routine, "Finished reading trace data at: " + idate_file );
-                        	}
-                        
-                        	if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
-                        	    try {
-                        		    // Convert units
-                        			TSUtil.convertUnits(ts, req_units);
-                        		}
-                        		catch (Exception e) {
-                        			msg = "Could not convert time series units to \"" + req_units + "\".";
-                        			warning_message += "\n" + msg;
-                        			warning_count++;
-                        			Message.printWarning(2, routine, msg);
-                        		}
-                        	}			
-                        
-                        	TSList.addElement(ts);
+				if ( premature_trace_end || (string == null) ) {
+				    // If in here then not enough data lines are available.  If it is a trace file, allow this
+				    // due to known possible issues with leap years.  If a normal card file, throw an exception.
+				    // In any case, process the time series contents and add to the list.
+					if (is_nwsCardTrace) {
+                    	if (Message.isDebugOn) {
+                    		Message.printDebug(dl, routine, "[" + trace_start_year +
+                    		        "] finished reading trace data at: " + idate_file );
+                    	}
+                    	// Process the time series and add to the list.  If units cannot be converted, keep trying to
+                    	// process and generate one exception at the end.
+                    	try {
+                    		// Convert units (error will be printed in this method).
+                    	    readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+                    	}
+                    	catch (Exception e) {
+                   			warning_count++;
+                    	}    
+                    	TSList.addElement(ts);
+                    	if ( string == null ) {
+                    	    // At the end of the file.
                         	if (warning_count > 0) {
                         	    // Some serious errors have occurred.
                         		throw new IOException(warning_message);
                         	}
-                        }
-                        else {
-                            // Single time series in the file.
-                        	// Done with data.
-                        	if (Message.isDebugOn) {
-                        		Message.printDebug(dl, routine, "Finished reading data at: " + idate_file );
+                        	else {
+                        	    // OK to return the list
+                        	    return TSList;
                         	}
-                        
-                        	if (ts != null && req_units != null && !req_units .equalsIgnoreCase(ts.getDataUnits())) {
-                        	    // Convert units
-                        		try {
-                        			TSUtil.convertUnits(ts, req_units);
-                        		}
-                        		catch (Exception e) {
-                        			msg = "Could not convert time series units to \"" + req_units + "\".";
-                        			Message.printWarning(2, routine, msg);
-                        			throw new Exception(msg);
-                        		}
-                        	}			
-                        
-                        	TSList.addElement(ts);
-                        	// Since we are processing NWS Card single time series file there is nothing else to do,
-                        	// so just return the TSList with the single time series. 
-                        	return TSList;
-                        }
-					}
-					else {
-					    if ( !premature_trace_end ) {
-					        // Only quit reading the file with an exception if a serious file truncation.
-    						msg = "EOF processing time series data at line "
-    						    + line_count + ".  Possible corrupt data file.";
-    						Message.printWarning(2, routine, msg);
-    						throw new IOException(msg);
-					    }
-					}
+                    	}
+                    	else {
+                    	    // Not at the end of the file.  Need to break out of the while loop that is reading data and
+                    	    // read another header.  The comment read above to trigger the premature trace end is still
+                    	    // in "string" and will be processed above rather than reading the next line.
+                    	    header1_found = false;
+                            header2_found = false;
+                    	    doneWithThisTrace = true;
+                    	    break;
+                    	}
+                    }
+                    else if ( !is_nwsCardTrace && (string == null) ){
+                        // A normal single time series file that is at an end.  Process and then check whether the
+                        // file has prematurely ended.
+                    	if (Message.isDebugOn) {
+                    		Message.printDebug(dl, routine,
+                    		        "Finished reading single time series card file data at: " + idate_file );
+                    	}
+                    	// Convert the data units if requested...
+                    	readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+                    	TSList.addElement(ts);
+                    	// Since we are processing NWS Card single time series file there is nothing else to do,
+                    	// so just return the TSList with the single time series. 
+                    	return TSList;
+                    }
+				    if (idate_file.lessThan(date2_read)) {
+				        // Only quit reading the file with an exception if a serious file truncation.
+						msg = "EOF processing time series data at line "
+						    + line_count + ".  Possible corrupt data file.";
+						Message.printWarning(2, routine, msg);
+						throw new IOException(msg);
+				    }
 				}
 
 				if ( (string.trim().equals("")) ||
@@ -1778,7 +1794,7 @@ throws IOException
 		}
 		catch ( Exception e ) {
 			Message.printWarning ( 3, routine, e );
-			msg = "Error processing line " + line_count	+ ": \"" + string + "\"";
+			msg = "Unexpected error processing line " + line_count	+ ": \"" + string + "\"";
 			Message.printWarning ( 2, routine, msg );
 			throw new IOException ( msg );
 		}
@@ -1919,6 +1935,28 @@ private static DateTimeRange readTimeSeries_CalculateFilePeriod (
     // Return the request as a range of two date/times.
     DateTimeRange range = new DateTimeRange ( date1, date2 );
     return range;
+}
+
+/**
+Helper method for read method to convert the data units for a time series, as requested.
+@param ts Time series to process.
+@param req_units Requested units.
+*/
+private static void readTimeSeriesList_ConvertDataUnits ( TS ts, String req_units )
+throws Exception
+{   String routine = "NWSCardTS.readTimeSeriesList_ConvertDataUnits";
+    if ( (ts != null) && (req_units != null) && !req_units.equalsIgnoreCase(ts.getDataUnits())) {
+        // Convert units
+        try {
+            TSUtil.convertUnits(ts, req_units);
+        }
+        catch (Exception e) {
+            String msg = "Could not convert time series units from \"" + ts.getDataUnits() +
+            "\" to requested \"" + req_units + "\".";
+            Message.printWarning(2, routine, msg);
+            throw new Exception(msg);
+        }
+    }
 }
 
 /**
