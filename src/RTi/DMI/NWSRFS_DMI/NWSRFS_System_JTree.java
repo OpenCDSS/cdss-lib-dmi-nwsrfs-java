@@ -91,16 +91,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.Component;
 
 import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.tree.TreePath;
 import RTi.DMI.NWSRFS_DMI.NWSRFS;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_CarryoverGroup;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_ForecastGroup;
@@ -110,19 +106,14 @@ import RTi.DMI.NWSRFS_DMI.NWSRFS_RatingCurve;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_SystemMaintenance;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_TimeSeries;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Util;
-import RTi.GRTS.TSViewJFrame;
-import RTi.TS.TS;
-import RTi.Util.GUI.ReportJFrame;
 import RTi.Util.GUI.SimpleJMenuItem;
 import RTi.Util.GUI.SimpleJTree;
 import RTi.Util.GUI.SimpleJTree_Node;
 import RTi.Util.GUI.SimpleJTree_Listener;
-import RTi.Util.IO.DataSetComponent;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.IO.LanguageTranslator;
 import RTi.Util.IO.PropList;
 import RTi.Util.Message.Message;
-import RTi.Util.String.StringUtil;
 import RTi.Util.Time.StopWatch;
 //import RTi.App.NWSRFSGUI.NwsrfsGUI_SystemMaintenance;
 //import RTi.App.NWSRFSGUI.NwsrfsGUI_Util;
@@ -192,7 +183,7 @@ private boolean __verbose = true;
 private Icon __folderIcon;
 
 //if the Tree nodes can be edited --currently not used.
-private boolean __canEdit = false;
+//private boolean __canEdit = false;
 
 // A single popup menu that is used to provide access to  other features 
 //from the tree.  The single menu has its items added/removed as necessary 
@@ -473,8 +464,7 @@ public void displayTreeData() {
 	StopWatch stopwatch = new StopWatch();
 	stopwatch.start();
 
-	Message.printStatus( 3, routine, routine + 
-	" called to create system tree." );
+	Message.printStatus( 3, routine, routine + " called to create system tree." );
 
 	//optimize tree creation
 	setLargeModel( true );
@@ -507,16 +497,14 @@ public void displayTreeData() {
 		Message.printWarning( 2, routine, e );
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 5, routine,
-		"Top Node = " + __top_node_str );
+		Message.printDebug( 5, routine,	"Top Node = " + __top_node_str );
 	}
 
 	//make individual objects
 	int numb_cgs = __nwsrfs.getNumberOfCarryoverGroups();
 	SimpleJTree_Node cg_node;
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 5, routine,
-		"Number of Carryover Groups = " + numb_cgs );
+		Message.printDebug( 5, routine,	"Number of Carryover Groups = " + numb_cgs );
 	}
 
 	int numb_fgs = -99;
@@ -528,7 +516,6 @@ public void displayTreeData() {
 	int numb_ops = -99;
 	SimpleJTree_Node op_node;
 
-	String tsid = null;
 	int numb_tsids = -99;
 	SimpleJTree_Node tsid_node;
 
@@ -542,20 +529,8 @@ public void displayTreeData() {
 	try {
 	for (int icg=0; icg<numb_cgs; icg++ ) {
 		cg = __nwsrfs.getCarryoverGroup(icg);
-		// Check the carryover group chosen at the beginning
-		// if null then get all carryover groups (dangerous!)
-		//NWSRFSGUI can ONLY have 1 carryovergroup.  SnowUpdating
-		//GUI does not have that restriction.
-		// SAM TODO Need to evaluate why to limit carryover group display.
-		// Allow "*" specified as default to show all carryover groups.
-		if(!cg.getCGID().equalsIgnoreCase(main_cg) && 
-				!cg.getCGID().equals("*") &&
-				(cg != null && __forNWSRFSGUI) ) {
-			continue;
-		}
 		if ( cg == null ) {
-			Message.printWarning( 2, routine,
-			"Carryover Group null. Unable to create System Tree.");
+			Message.printWarning( 2, routine, "Carryover Group null. Unable to create System Tree.");
 			break;
 		}
 
@@ -694,11 +669,6 @@ public void displayTreeData() {
 					}
 
 					for( int tsg=0;tsg<numb_tsids;tsg++ ) {
-						tsid=op.getTSID(tsg)+
-						".NWSRFS."+op.getTSDT(tsg)+
-						"."+ (op.getTimeSeries(
-						tsg)).getTSDTInterval()+
-						"Hour";
 						if ( ! __verbose ) {
 							tsid_node = 
 					       		new SimpleJTree_Node(
@@ -975,8 +945,8 @@ components only if a translation table is used for the application, ie, if
 there is a translation file.  If the String cannot be located in the
 translation file, the original string will be utilized in non-translated form.
 */
-public void initialize_gui_strings()  {
-        String routine = "NWSRFS_System_JTree.initialize_gui_strings"; 
+public void initialize_gui_strings()
+{
 	LanguageTranslator translator = null; 
 	translator = LanguageTranslator.getTranslator();
         if ( translator != null ) {
@@ -1681,7 +1651,6 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 		}
 	}
 	else if ( ( __forSnowUpdate) && ( data instanceof NWSRFS_Segment ) ) {
-		NWSRFS_Segment seg = (NWSRFS_Segment) data;
 		SimpleJTree_Node tempNode = null;
 
 		//get Segment children nodes which will be NWSRFS_TimeSeries
