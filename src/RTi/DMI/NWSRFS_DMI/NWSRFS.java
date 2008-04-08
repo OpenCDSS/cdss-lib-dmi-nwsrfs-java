@@ -241,8 +241,7 @@ public NWSRFS_CarryoverGroup getCarryoverGroup ( int index )
 }
 
 /**
-Return the carryover group matching the carryover group identifier or null if
-not found.
+Return the carryover group matching the carryover group identifier or null if not found.
 @param cgid Carryover group identifier.
 @return the carryover group matching the identifier.
 */

@@ -557,8 +557,7 @@ public void displayTreeData() {
 		// Forecast Group
 		numb_fgs = cg.getNumberOfForecastGroups();
 		if ( Message.isDebugOn ) {	
-			Message.printDebug( 5, routine,
-			"Number of forecast groups = " + numb_fgs );
+			Message.printDebug( 5, routine,	"Number of forecast groups = " + numb_fgs );
 		}
 		for (int ifg=0; ifg< numb_fgs; ifg++ ) {
 			fg = cg.getForecastGroup(ifg);		
@@ -584,13 +583,11 @@ public void displayTreeData() {
 			//Segments
 			numb_segs = fg.getNumberOfSegmentIDs();
 			if ( Message.isDebugOn ) {	
-				Message.printDebug( 5, routine,
-				"Number of segments for forecast " +
+				Message.printDebug( 5, routine, "Number of segments for forecast " +
 				"group: \"" + fg_node.toString() + "\" = " + numb_segs );
 			}
 			for (int sfg=0; sfg<numb_segs; sfg++ ) {
-				seg=dmi.readSegment(fg.getSegmentID(sfg),
-				fg,false);
+				seg=dmi.readSegment(fg.getSegmentID(sfg),fg,false);
 
 			StopWatch tsw = new StopWatch();
 			tsw.start();
@@ -611,14 +608,11 @@ public void displayTreeData() {
 					Message.printWarning( 2, routine, e );
 				}
 
-				//if we are checking TS for data only
-				//when operation node is expanded, 
-				//do not expand tree nodes passed
-				//operation level at creation time.
+				// If checking TS for data only when operation node is expanded, 
+				// do not expand tree nodes passed operation level at creation time.
 				if ( ! __checkTS ) {
 					setExpandAllowed( false );
 				}
-
 
 				//Operations
 				numb_ops = seg.getNumberOfOperations();
@@ -634,13 +628,11 @@ public void displayTreeData() {
 					//add node 
 					String op_type = op.getSystemID();
 					if ( ! __verbose ) {
-						op_node = new SimpleJTree_Node(
-						op_type );
+						op_node = new SimpleJTree_Node(	op_type );
 				 		//op.getSystemID());
 					}
 					else {
-						op_node = new SimpleJTree_Node(
-				 		"OP: " + op.getSystemID());
+						op_node = new SimpleJTree_Node(	"OP: " + op.getSystemID());
 					}
 					op_node.setData( op );
 					op_node.setIcon( __folderIcon );
@@ -664,36 +656,22 @@ public void displayTreeData() {
 					numb_tsids=op.getNumberOfTSIDs();
 					if ( Message.isDebugOn ) {
 						Message.printDebug( 5, routine,
-						"Number of time series = " + 
-						numb_tsids  + " for operation " + numb_tsids );
+						"Number of time series = " + numb_tsids  + " for operation " + numb_tsids );
 					}
 
 					for( int tsg=0;tsg<numb_tsids;tsg++ ) {
 						if ( ! __verbose ) {
-							tsid_node = 
-					       		new SimpleJTree_Node(
-							op.getTSID(tsg)+
-							".NWSRFS."+op.getTSDT(tsg)+
-							"."+ (op.getTimeSeries(tsg)).getTSDTInterval()+
-							"Hour") ;
+							tsid_node = new SimpleJTree_Node(op.getTSID(tsg)+".NWSRFS."+
+									op.getTSDT(tsg)+"."+ (op.getTimeSeries(tsg)).getTSDTInterval()+	"Hour") ;
 						}
 						else {
-							tsid_node = 
-					       		new SimpleJTree_Node(
-							"TS: " + op.getTSID(tsg)+
-							".NWSRFS."+op.getTSDT(tsg)+
-							"."+ (op.getTimeSeries(tsg)).getTSDTInterval()+
-							"Hour") ;
+							tsid_node = new SimpleJTree_Node( "TS: " + op.getTSID(tsg)+	".NWSRFS."+
+									op.getTSDT(tsg)+"."+ (op.getTimeSeries(tsg)).getTSDTInterval()+	"Hour") ;
 						}
-						tsid_node.setData(op.
-						getTimeSeries(tsg));
+						tsid_node.setData(op.getTimeSeries(tsg));
 
-						//if __checkTS flag is
-						//true, then read in
-						//all time series
-						// If _checkTS is False,
-						//do not read in the Time
-						//series upfront
+						// If __checkTS flag is true, then read in all time series
+						// If _checkTS is False, do not read in the Time series up front
 						if ( __checkTS ) {
 							if ( __useAllTS ) {
 								//see if operations are included.

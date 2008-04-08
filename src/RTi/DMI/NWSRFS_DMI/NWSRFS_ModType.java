@@ -1,7 +1,5 @@
 package RTi.DMI.NWSRFS_DMI;
 
-import RTi.Util.IO.CommandStatusType;
-
 /**
 NWSRFS runtime modification (MOD) types.
 TODO SAM 2008-01-13 Need to put into an enumeration when updating to Java 1.5+

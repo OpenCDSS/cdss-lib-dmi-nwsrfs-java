@@ -5456,8 +5456,9 @@ throws Exception {
 	return readCarryoverGroup(CG_ID,false);
 }
 
+// FIXME SAM 2008-04-08 Why doesn't this return NWSRFS_CarryoverGroup instances?
 /** 
-This method is used to read in the values from the FCCOGDEF NWSRFS Fortran 
+Read in the values from the FCCOGDEF NWSRFS Fortran 
 database file into the data members of the NWSRFS_CarryoverGroup class. The data
 members of this class will constitute the storage of information about a 
 Carryover Group in the NWSRFS system.
@@ -5473,280 +5474,266 @@ public NWSRFS_CarryoverGroup readCarryoverGroup(String CG_ID, boolean deepRead)
 throws Exception {
 	NWSRFS_CarryoverGroup cgFile = new NWSRFS_CarryoverGroup(CG_ID);
 
-	// Check if the the database binary file is open as a
-	// Random Access object
-	if (!checkRandomAccessFileOpen(__FCCOGDEF, true)) {
-		throw new Exception("Can not open the " 
-			+ __dbFileNames[__FCCOGDEF] + " binary database file");
+	if ( CG_ID.equalsIgnoreCase("Special") ) {
+		// There is no "Special" carryover group in the database files.  Define an object
+		// here with that identifier and leave the other fields with default values.
+		// The list of special forecast groups will be read below and will have a
+		// carryover group of null.
+		cgFile.setCGID ( "Special" );
 	}
-
-	rewind(__NWSRFS_DBFiles[__FCCOGDEF]);
-	// Read the first record which holds the record number for the
-	// specific carryover group to get records for.
-	EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCCOGDEF],0,
-		__byteLength[__FCCOGDEF]);
-
-	// If read only header for CGs then do not store
-	// any of the first record but do need to read
-	// a couple of fields to get the record number of the
-	// CG_ID have passed in.
-	char[] charValue = null;
-	int bytesToSkip = 0;
-	int i = 0;
-	int j = 0;
-	int recordNum = -1;
-	String parseChar = null;
-	if (!deepRead) {
-		// Skip the bytes not needed
-// TODO (JTS - 2004-08-21)
-// explain the magic number 44 and 25
-		bytesToSkip = 44;
-		EDIS.skipBytes(bytesToSkip);
-
-		int[] ICOREC = new int[25];
-		String[] CGIDS = new String[25];
-
-		// Get the field values and store in local variables
-		// Field 7 - [type field name here]
-		for (i = 0; i < 25; i++) {
-			charValue = new char[8];
-			for (j = 0; j < 8; j++)	{
+	else {
+		// Check if the the database binary file is open as a Random Access object
+		if (!checkRandomAccessFileOpen(__FCCOGDEF, true)) {
+			throw new Exception("Cannot open the " + __dbFileNames[__FCCOGDEF] + " binary database file");
+		}
+	
+		rewind(__NWSRFS_DBFiles[__FCCOGDEF]);
+		// Read the first record which holds the record number for the
+		// specific carryover group to get records for.
+		EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCCOGDEF],0,__byteLength[__FCCOGDEF]);
+	
+		// If read only header for CGs then do not store any of the first record but do need to read
+		// a couple of fields to get the record number of the CG_ID have passed in.
+		
+		char[] charValue = null;
+		int bytesToSkip = 0;
+		int i = 0;
+		int j = 0;
+		int recordNum = -1;
+		String parseChar = null;
+		if (!deepRead) {
+			// Skip the bytes not needed
+	// TODO (JTS - 2004-08-21)
+	// explain the magic number 44 and 25
+			bytesToSkip = 44;
+			EDIS.skipBytes(bytesToSkip);
+	
+			int[] ICOREC = new int[25];
+			String[] CGIDS = new String[25];
+	
+			// Get the field values and store in local variables
+			// Field 7 - [type field name here]
+			for (i = 0; i < 25; i++) {
+				charValue = new char[8];
+				for (j = 0; j < 8; j++)	{
+					charValue[j] = EDIS.readEndianChar1();
+				}
+				parseChar = new String(charValue).trim();
+				if (parseChar.length() != 0) {
+					CGIDS[i] = parseChar;
+				}
+			}
+	
+			// Field 8 - [type field name here]
+			for (i = 0; i < 25;i++) {
+				ICOREC[i] = checkInt(EDIS.readEndianInt(), 0, 26, -1);
+			}
+	
+			// Find the record number of the carryover group that corresponds to the passed in id
+			for (i = 0; i < 25; i++) {
+				try {
+					if (CGIDS[i].equalsIgnoreCase(CG_ID)) {
+						recordNum = ICOREC[i];
+						break;
+					}
+				}
+				catch (NullPointerException NPe) {
+					// Should never get here
+					exceptionCount++;
+					break;
+				}
+			}
+		}
+		else {
+			// Read the values of record one
+			// Field 1 - [type field name here]
+			cgFile.setNSLOTS(checkInt(EDIS.readEndianInt(), 0, 20, -1));
+			
+			// Field 2 - [type field name here]
+			cgFile.setNWR(checkInt(EDIS.readEndianInt(), 0, 400, -1));
+			
+			// Field 3 - [type field name here]
+			cgFile.setNRSLOT(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
+			
+			// Bytes 13-16 are skipped
+			// TODO (JTS - 2004-08-21) Why are bytes skipped?
+			EDIS.readEndianInt();
+			
+			// Field 4 - [type field name here]
+			cgFile.setNWPS(checkInt(EDIS.readEndianInt(), 0, 4000000, -1));
+	
+			// Field 5 - [type field name here]
+			for (i = 0; i < 5; i++) {
+				cgFile.setICRDAT(i, checkInt(EDIS.readEndianInt(),0, 10000, -1));
+			}
+	
+			// Field 6 - [type field name here]
+			cgFile.setNCG(checkInt(EDIS.readEndianInt(), 0, 25, -1));
+			
+			// Field 7 - [type field name here]
+			for (i = 0; i < 25; i++) {
+				charValue = new char[8];
+				for (j = 0; j < 8; j++) {
+					charValue[j] = EDIS.readEndianChar1();
+				}
+				parseChar = new String(charValue).trim();
+				if (parseChar.length() != 0) {
+					cgFile.setCGIDS(i, parseChar);
+				}
+			}
+	
+			// Field 8 - [type field name here]
+			for (i = 0; i < 25; i++) {
+				cgFile.setICOREC(i, checkInt(EDIS.readEndianInt(),0, 26, -1));
+			}
+	
+			// Find the record number of the carryover group that corresponds to the passed-in id
+			for (i = 0; i < 25; i++) {
+				try {
+					if (cgFile.getCGIDS(i).equalsIgnoreCase(CG_ID)){
+						recordNum = cgFile.getICOREC(i);
+					}
+				}
+				catch (NullPointerException NPe) {
+					exceptionCount++;
+					// TODO (JTS - 2004-08-18) // handle exception?
+					break;
+				}
+			}
+		}
+	
+		// Now rewind to get the record
+		rewind(__NWSRFS_DBFiles[__FCCOGDEF]);
+	
+		//Get the record which holds the members of the CG definition status
+		EDIS = read(__NWSRFS_DBFiles[__FCCOGDEF], recordNum - 1, __byteLength[__FCCOGDEF]);
+		
+		// Now if read only the header only store the CGID, CGNAME, and Number of FGs in this CG
+		if (!deepRead) {
+			// Set the CGID
+			cgFile.setCGID(CG_ID);
+	
+			// Skip the bytes not needed
+			bytesToSkip = 28;
+			EDIS.skipBytes(bytesToSkip);
+	
+			// Field 3 - [type field name here]
+			cgFile.setNFG(checkInt(EDIS.readEndianInt(), 0, 10000, -1));
+	
+			// Field 4 - skip - [type field name here]
+			// TODO (JTS - 2004-08-21) Why are bytes skipped?
+			EDIS.readEndianInt();
+	
+			// Field 5 - [type field name here]
+			charValue = new char[20];
+			for (j = 0; j < 20; j++) {
 				charValue[j] = EDIS.readEndianChar1();
 			}
 			parseChar = new String(charValue).trim();
 			if (parseChar.length() != 0) {
-				CGIDS[i] = parseChar;
+				cgFile.setCGNAME(parseChar);
+			}
+	
+			// Field 6 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setICODAY(i, checkInt(EDIS.readEndianInt(), 0, 1000000, -1));
+			}
+		
+			// Field 7 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setICOTIM(i, checkInt(EDIS.readEndianInt(), 0, 100000, -1));
+			}
+	
+			// Field 8 - [type field name here]
+			for (i = 0; i < 20;i++) {
+				cgFile.setLUPDAY(i, checkInt(EDIS.readEndianInt(), 0, 1000000, -1));
+			}
+	
+			// Field 9 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setLUPTIM(i, checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 			}
 		}
-
-		// Field 8 - [type field name here]
-		for (i = 0; i < 25;i++) {
-			ICOREC[i] = checkInt(EDIS.readEndianInt(), 0, 26, -1);
-		}
-
-		// Find the record number of the carryover group that 
-		// corresponds to the passed in id
-		for (i = 0; i < 25; i++) {
-			try {
-				if (CGIDS[i].equalsIgnoreCase(CG_ID)) {
-					recordNum = ICOREC[i];
-					break;
-				}
-			}
-			catch (NullPointerException NPe) {
-				// Should never get here
-				exceptionCount++;
-				break;
-			}
-		}
-	}
-	else {
-		// Read the values of record one
-		// Field 1 - [type field name here]
-		cgFile.setNSLOTS(checkInt(EDIS.readEndianInt(), 0, 20, -1));
-		
-		// Field 2 - [type field name here]
-		cgFile.setNWR(checkInt(EDIS.readEndianInt(), 0, 400, -1));
-		
-		// Field 3 - [type field name here]
-		cgFile.setNRSLOT(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
-		
-		// Bytes 13-16 are skipped
-		// TODO (JTS - 2004-08-21)
-		// why?
-		EDIS.readEndianInt();
-		
-		// Field 4 - [type field name here]
-		cgFile.setNWPS(checkInt(EDIS.readEndianInt(), 0, 4000000, -1));
-
-		// Field 5 - [type field name here]
-		for (i = 0; i < 5; i++) {
-			cgFile.setICRDAT(i, checkInt(EDIS.readEndianInt(),
-				0, 10000, -1));
-		}
-
-		// Field 6 - [type field name here]
-		cgFile.setNCG(checkInt(EDIS.readEndianInt(), 0, 25, -1));
-		
-		// Field 7 - [type field name here]
-		for (i = 0; i < 25; i++) {
+		else {
+			// Field 1 - [type field name here]
 			charValue = new char[8];
 			for (j = 0; j < 8; j++) {
 				charValue[j] = EDIS.readEndianChar1();
 			}
 			parseChar = new String(charValue).trim();
 			if (parseChar.length() != 0) {
-				cgFile.setCGIDS(i, parseChar);
+				cgFile.setCGID(parseChar);
+			}
+	
+			// Field 2 - [type field name here]
+			for (i = 0; i < 5; i++) {
+				cgFile.setITDEF(i, checkInt(EDIS.readEndianInt(), 0, 10000, -1));
+			}
+		
+			// Field 3 - [type field name here]
+			cgFile.setNFG(checkInt(EDIS.readEndianInt(), 0, 10000, -1));
+	
+			// Field 4 - [type field name here]
+			cgFile.setMINDT(checkInt(EDIS.readEndianInt(), 0, 24, -1));
+	
+			// Field 5 - [type field name here]
+			charValue = new char[20];
+			for (j = 0; j < 20; j++) {
+				charValue[j] = EDIS.readEndianChar1();
+			}
+			parseChar = new String(charValue).trim();
+			if (parseChar.length() != 0) {
+				cgFile.setCGNAME(parseChar);
+			}
+	
+			// Field 6 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setICODAY(i, checkInt(EDIS.readEndianInt(), 0, 1000000, -1));
+			}
+		
+			// Field 7 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setICOTIM(i, checkInt(EDIS.readEndianInt(), 0, 100000, -1));
+			}
+	
+			// Field 8 - [type field name here]
+			for (i = 0; i < 20;i++) {
+				cgFile.setLUPDAY(i, checkInt(EDIS.readEndianInt(), 0, 1000000, -1));
+			}
+	
+			// Field 9 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setLUPTIM(i, checkInt(EDIS.readEndianInt(), 0, 100000, -1));
+			}
+	
+			// Field 10 - [type field name here]
+			for (i = 0; i < 20; i++) {
+				cgFile.setIPC(i, checkInt(EDIS.readEndianInt(), 0, 10, -1));
 			}
 		}
-
-		// Field 8 - [type field name here]
-		for (i = 0; i < 25; i++) {
-			cgFile.setICOREC(i, checkInt(EDIS.readEndianInt(),
-				0, 26, -1));
-		}
-
-		// Find the record number of the carryover group that 
-		// corresponds to the passed-in id
-		for (i = 0; i < 25; i++) {
-			try {
-				if (cgFile.getCGIDS(i).equalsIgnoreCase(CG_ID)){
-					recordNum = cgFile.getICOREC(i);
-				}
-			}
-			catch (NullPointerException NPe) {
-				exceptionCount++;
-				// TODO (JTS - 2004-08-18)
-				// handle this?
-				break;
-			}
-		}
-	}
-
-	// Now rewind to get the record
-	rewind(__NWSRFS_DBFiles[__FCCOGDEF]);
-
-	//Get the record which holds the members of the CG definition status
-	EDIS = read(__NWSRFS_DBFiles[__FCCOGDEF], recordNum - 1,
-		__byteLength[__FCCOGDEF]);
-	
-	// Now if read only the header only store the CGID, CGNAME, and
-	// Number of FGs in this CG
-	if (!deepRead) {
-		// Set the CGID
-		cgFile.setCGID(CG_ID);
-
-		// Skip the bytes not needed
-		bytesToSkip = 28;
-		EDIS.skipBytes(bytesToSkip);
-
-		// Field 3 - [type field name here]
-		cgFile.setNFG(checkInt(EDIS.readEndianInt(), 0, 10000, -1));
-
-		// Field 4 - skip - [type field name here]
-		// TODO (JTS - 2004-08-21)
-		// why?
-		EDIS.readEndianInt();
-
-		// Field 5 - [type field name here]
-		charValue = new char[20];
-		for (j = 0; j < 20; j++) {
-			charValue[j] = EDIS.readEndianChar1();
-		}
-		parseChar = new String(charValue).trim();
-		if (parseChar.length() != 0) {
-			cgFile.setCGNAME(parseChar);
-		}
-
-		// Field 6 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setICODAY(i, checkInt(EDIS.readEndianInt(),
-				0, 1000000, -1));
-		}
-	
-		// Field 7 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setICOTIM(i, checkInt(EDIS.readEndianInt(),
-				0, 100000, -1));
-		}
-
-		// Field 8 - [type field name here]
-		for (i = 0; i < 20;i++) {
-			cgFile.setLUPDAY(i, checkInt(EDIS.readEndianInt(),
-				0, 1000000, -1));
-		}
-
-		// Field 9 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setLUPTIM(i, checkInt(EDIS.readEndianInt(),
-				0, 100000, -1));
-		}
-	}
-	else {
-		// Field 1 - [type field name here]
-		charValue = new char[8];
-		for (j = 0; j < 8; j++) {
-			charValue[j] = EDIS.readEndianChar1();
-		}
-		parseChar = new String(charValue).trim();
-		if (parseChar.length() != 0) {
-			cgFile.setCGID(parseChar);
-		}
-
-		// Field 2 - [type field name here]
-		for (i = 0; i < 5; i++) {
-			cgFile.setITDEF(i, checkInt(EDIS.readEndianInt(),
-				0, 10000, -1));
-		}
-	
-		// Field 3 - [type field name here]
-		cgFile.setNFG(checkInt(EDIS.readEndianInt(), 0, 10000, -1));
-
-		// Field 4 - [type field name here]
-		cgFile.setMINDT(checkInt(EDIS.readEndianInt(), 0, 24, -1));
-
-		// Field 5 - [type field name here]
-		charValue = new char[20];
-		for (j = 0; j < 20; j++) {
-			charValue[j] = EDIS.readEndianChar1();
-		}
-		parseChar = new String(charValue).trim();
-		if (parseChar.length() != 0) {
-			cgFile.setCGNAME(parseChar);
-		}
-
-		// Field 6 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setICODAY(i, checkInt(EDIS.readEndianInt(),
-				0, 1000000, -1));
-		}
-	
-		// Field 7 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setICOTIM(i, checkInt(EDIS.readEndianInt(),
-				0, 100000, -1));
-		}
-
-		// Field 8 - [type field name here]
-		for (i = 0; i < 20;i++) {
-			cgFile.setLUPDAY(i, checkInt(EDIS.readEndianInt(),
-				0, 1000000, -1));
-		}
-
-		// Field 9 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setLUPTIM(i, checkInt(EDIS.readEndianInt(),
-				0, 100000, -1));
-		}
-
-		// Field 10 - [type field name here]
-		for (i = 0; i < 20; i++) {
-			cgFile.setIPC(i, checkInt(EDIS.readEndianInt(),
-				0, 10, -1));
-		}
+		EDIS.close();
 	}
 
 	// Get forecast group list for this carryover group
 	Vector forecastGroupIDs;
-	if(cgFile.getNFG() > 0)
+	if(cgFile.getNFG() > 0) {
 		forecastGroupIDs = new Vector((int)cgFile.getNFG());
-	else
+	}
+	else {
 		forecastGroupIDs = new Vector();
+	}
 
+	// The following handles carryover group "Special"
 	forecastGroupIDs = readForecastGroupList(cgFile);
 	try {
-		for (i = 0; i < forecastGroupIDs.size(); i++) {
-			cgFile.addForecastGroupID(
-				(String)forecastGroupIDs.elementAt(i));
+		for (int i = 0; i < forecastGroupIDs.size(); i++) {
+			cgFile.addForecastGroupID( (String)forecastGroupIDs.elementAt(i));
 		}
 	}
 	catch (NullPointerException NPe) {
 		exceptionCount++;
-		// TODO (JTS - 2004-08-18)
-		// do something?
+		// TODO (JTS - 2004-08-18) do something?
 	}
-
-	EDIS.close();
 	
 	return cgFile;
 }	
@@ -5755,8 +5742,7 @@ throws Exception {
 /** 
 This method returns the IDS of all the carryover groups defined in the database.
 The method pulls the CGIDS String array from the database. 
-@return a Vector of String Carryover Group IDs from the FCCOGDEF binary 
-database file.
+@return a Vector of String Carryover Group IDs from the FCCOGDEF binary database file.
 @throws Exception if the database could not be opened.
 */
 public Vector readCarryoverGroupList() 
@@ -5780,7 +5766,7 @@ throws Exception
 	// specific carryover group to get records for.
 	EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCCOGDEF], 0, __byteLength[__FCCOGDEF]);
 		
-	// Create an instance of NWSRFS_Segment
+	// Create an instance of NWSRFS_CarryoverGroup
 	NWSRFS_CarryoverGroup cgFile = new NWSRFS_CarryoverGroup();
 
 	char[] charValue;
@@ -5856,6 +5842,10 @@ throws Exception
 	for (i = 0; i < vectSize; i++) {
 		cgObjs.add(cgFile.getCGIDS(i));
 	}
+	
+	// Add "Special"
+	
+	cgObjs.add ( "Special");
 
 	EDIS.close();
 	return cgObjs;
@@ -6410,10 +6400,12 @@ throws Exception {
 }
 
 /** 
-Reads all the IDs of the forecast groups in the specified carryover group and 
-returns them in a Vector of Strings.  The method pulls the FGID and CGID 
+Reads all the IDs of the forecast groups in the specified carryover group.
+The method pulls the FGID and CGID 
 Strings from the database to get all of the FGIDs in the passed in CG object. 
 @param cg the carryover group object for which to get all of the forecast group objects.
+A carryover group identifier of "Special" will match all forecast groups that have
+null carryover group.
 @return  a vector of NWSRFS_ForecastGroup objects which stores the data from
 the FCFGSTAT binary database file. This class should be instantiated by the user.
 @throws Exceptiton if there is an error reading from the database.
@@ -6482,15 +6474,21 @@ throws Exception
 				fgFile.setCGID(parseChar);
 			}
 
-			// If the forecast group belongs to the carryover group
-			// add the forecast group to the Vector
-			if ( (fgFile.getCGID() != null) && fgFile.getCGID().equalsIgnoreCase(cg.getCGID())) {
-				fgObjs.add(fgFile.getFGID());
-				Message.printStatus(sl, routine,
-						"Adding FG \"" + fgFile.getFGID() + "\" for CG \"" + cg.getCGID() + "\"" );
-			}
-			else {
-				continue;
+			// If the forecast group belongs to the carryover group add the forecast group to the Vector
+			if ( fgFile.getFGID() != null ) {
+				if ( ((fgFile.getCGID() == null) && cg.getCGID().equalsIgnoreCase("Special")) ||
+					(fgFile.getCGID() != null) && fgFile.getCGID().equalsIgnoreCase(cg.getCGID()) ) {
+					// Found a matching carryover group
+					fgObjs.add(fgFile.getFGID());
+					Message.printStatus(sl, routine,
+							"Adding FG \"" + fgFile.getFGID() + "\" for CG \"" + cg.getCGID() + "\"" );
+				}
+				else {
+					// Carryover group was not matched (can comment code out when not troubleshooting).
+					Message.printStatus(sl, routine,
+							"NOT adding FG \"" + fgFile.getFGID() + "\" (CG \"" +
+							fgFile.getCGID() + "\") for CG \"" + cg.getCGID() + "\"" );
+				}
 			}
 		}
 		catch (EOFException EOFe) {
@@ -6842,15 +6840,12 @@ Reads the preprocessed parameteric database to fill the data members of the
 NWSRFS_NTWK object argument. It will read the information from the 
 preprocessed parameteric database (PPDB) files PPPPARM<i>n</i> where <i>n</i> 
 is the logical unit found from the PPPINDEX file associated with a specific 
-parameter type. The known "network" parameter types in the PPDB are NTWK 
-(Network parameters).
+parameter type. The known "network" parameter types in the PPDB are NTWK (Network parameters).
 @param basin a NWSRFS_NTWK which holds the minimum set of data for a 
-Network object dervied from the PPPINDEX file. This method will fill out the 
-Network object.
+Network object dervied from the PPPINDEX file. This method will fill out the Network object.
 @param deepRead a boolean specifying whether to read all Network parameters
 from the PPDB or just general parameters.
-@return  an NWSRFS_NTWK object which stores the data from
-the PPDB files PPPARMn.
+@return  an NWSRFS_NTWK object which stores the data from the PPDB files PPPARMn.
 @throws Exception if an error is detected.
 */
 public NWSRFS_NTWK readNTWKParam(NWSRFS_NTWK network, boolean deepRead) 
@@ -6879,8 +6874,7 @@ will basically regurgetate the PPPINDEX file which creates a list of NTWK ids
 and a record number.Please note that the NTWK parameter record is different
 in that it only has one record in the PPPPARAM<i>n</i> file and is not listed
 in the PPPINDEX records except in the "FIRST" and "LAST" record of the index!
-@return Vector of Strings containing the list of all NTWK param ids in the 
-database.
+@return Vector of Strings containing the list of all NTWK param ids in the database.
 @throws Exception if something goes wrong.
 */
 public Vector readNTWKParamList() throws Exception
@@ -6945,10 +6939,8 @@ public Vector readNTWKParamList() throws Exception
 /** 
 Read in Segment Operations from the FCPARAM binary database file. 
 @param segObject the NWSRFS_Segment object that this Operation class will use 
-to be instantiated and compare ID's for reading in the FCPARAM binary database 
-data.
-REVISIT (JTS - 2004-08-21)
-What???  That's confusing.
+to be instantiated and compare ID's for reading in the FCPARAM binary database data.
+TODO (JTS - 2004-08-21) What???  That's confusing.
 @param deepRead a boolean used to determine if all of the data from the 
 Operation object and Timeseries object are read. If true read all of the data.
 @return Vector of NWSRFS_Operation objects which stores the data from 
@@ -6984,18 +6976,14 @@ throws Exception {
 	// the arrays into the NWSRFS_Operation's public Vectors.
 
 	if (segObject == null) {
-		Message.printWarning(10,routine,"The Segment object used "
-			+ "as an argument is null.");
-		throw new NullPointerException("The Segment object used as an "
-			+ "argument is null.");
+		Message.printWarning(10,routine,"The Segment object used as an argument is null.");
+		throw new NullPointerException("The Segment object used as an argument is null.");
 	}
 
 	//NWSRFS_Operation opFile = new NWSRFS_Operation(segObject);
-	// Check if the the database binary file is open as a
-	// Random Access object
+	// Check if the the database binary file is open as a Random Access object
 	if (!checkRandomAccessFileOpen(__FCPARAM, true)) {
-		throw new Exception("Can not open the " 
-			+ __dbFileNames[__FCPARAM] + " binary database file");
+		throw new Exception("Cannot open the " + __dbFileNames[__FCPARAM] + " binary database file");
 	}
 
 	// Determine the number of records and bytes to read for this segment
@@ -7015,8 +7003,7 @@ throws Exception {
 // TODO (JTS - 2004-08-21)
 // explain the magic number 1
 	EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCPARAM],
-		segObject.getIPREC() - 1, __byteLength[__FCPARAM], bytesToRead,
-		true);
+		segObject.getIPREC() - 1, __byteLength[__FCPARAM], bytesToRead, true);
 //sw3.stop();
 	// Field 1 - [type field name here]
 	char[] charValue = new char[8];
@@ -7065,12 +7052,10 @@ is the logical unit found from the PPPINDEX file associated with a specific
 parameter type. The known "ORRS" parameter types in the PPDB are ORRS 
 (alphabetical order RRS parameters).
 @param basin a NWSRFS_ORRS which holds the minimum set of data for a 
-ORRS object dervied from the PPPINDEX file. This method will fill out the 
-ORRS object.
+ORRS object dervied from the PPPINDEX file. This method will fill out the ORRS object.
 @param deepRead a boolean specifying whether to read all ORRS parameters
 from the PPDB or just general parameters.
-@return  an NWSRFS_ORRS object which stores the data from
-the PPDB files PPPARMn.
+@return  an NWSRFS_ORRS object which stores the data from the PPDB files PPPARMn.
 @throws Exception if an error is detected.
 */
 public NWSRFS_ORRS readORRSParam(NWSRFS_ORRS orrsObj, boolean deepRead) 
@@ -7165,11 +7150,9 @@ public Vector readORRSParamList() throws Exception
 /**
 Reads into a NWSRFS_PDBDLY object a time series from the NWSRFS 
 preprocessor database for daily data types.
-@param tsID this is a String object that holds the TimeSeries Identifier
-for the TimeSeries object. 
+@param tsID this is a String object that holds the TimeSeries Identifier for the TimeSeries object. 
 @param tsDT this is the String value of the TimeSeries data type. It is
-necessary that the data type be supplied to get a unique set of Time Series
-from the data files.
+necessary that the data type be supplied to get a unique set of Time Series from the data files.
 @param tsDTInterval this is the int value of the TimeSeries data time interval. 
 It is necessary that the data time interval be supplied to get a unique set of 
 Time Series from the data files.
@@ -7219,20 +7202,16 @@ throws Exception
 
 	try {
 		// Create the RandoAccessFile
-		// Check if the the database binary file is open as a
-		// Random Access object
+		// Check if the the database binary file is open as a Random Access object
 		if (!checkRandomAccessFileOpen(__PDBINDEX, true)) {
-			throw new Exception("Can not open the "
-				+ __dbFileNames[__PDBINDEX] + 
-				" binary database file");
+			throw new Exception("Cannot open the " + __dbFileNames[__PDBINDEX] + " binary database file");
 		}
 
 		// First create an instance of NWSRFS_PDBINDEX
 		pdbindex = new NWSRFS_PDBINDEX();
 
 		// Get the first record which holds the parameter control records.
-		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX], 0,
-			__byteLength[__PDBINDEX]);
+		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX], 0, __byteLength[__PDBINDEX]);
 
 		// Now get record one information. The four public int members
 		// will make up the 16 bytes - 4 bytes each. 
@@ -7276,8 +7255,7 @@ throws Exception
 	
 		// Read _byteLength bytes to position the stream to read in 
 		// Daily Data Type Directory records
-		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,
-			__byteLength[__PDBINDEX]);
+		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,	__byteLength[__PDBINDEX]);
 		EDIS.close();
 
 		for (i = 0; i < NUMTYP; i++) {
@@ -7321,8 +7299,7 @@ throws Exception
 			EDIS.close();
 		}
 
-// PLEASE NOTE WE DO NOT CARE about the station index hashes. So we skip over
-// them!
+// PLEASE NOTE WE DO NOT CARE about the station index hashes. So we skip over them!
 		// Now get the Station Hash Indexes
 //		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,2*NHASHR);
 //		for (i = 0; i < NHASHR; i++) {
@@ -7386,8 +7363,7 @@ throws Exception
 				recFactor = (int)(Math.floor(SNWRDS*2/64)+1);
 			}
 			else if(SNWRDS*2 >= 256 || SNWRDS*2 < 0) {
-				EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,
-					64*recFactor-2);
+				EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,64*recFactor-2);
 				continue;
 			}
 			else if(SNWRDS == 0) {
@@ -7399,11 +7375,9 @@ throws Exception
 			// length, recFactor is the number of records to read 
 			// for this data line (defaults to 1), We subtract 
 			// 2 bytes for the SNWRDS value we read above!
-			EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,
-				64*recFactor-2);
+			EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,64*recFactor-2);
 		
-			// Define the pppChar character array to hold 
-			// segment info
+			// Define the pppChar character array to hold segment info
 			pppChar = new char[8];
 
 			// Now parse the characters in stream
@@ -7436,8 +7410,7 @@ throws Exception
 			tempADTPTRVect = new Vector();
 			
 			for (i = 0; i < NADDTP; i++) {
-				// Define the pppChar character array to hold 
-				// segment info
+				// Define the pppChar character array to hold segment info
 				pppChar = new char[4];
 
 				// Now parse the characters in stream
@@ -7449,8 +7422,7 @@ throws Exception
 				parseChar = parseChar.trim();
 				tempADDDTPVect.addElement(parseChar);
 
-				tempADTPTRVect.addElement(new Integer((int)EDIS.
-					readEndianShort()));
+				tempADTPTRVect.addElement(new Integer((int)EDIS.readEndianShort()));
 			}
 			
 			// Add the temp Vectors to the pdbindex object
@@ -7534,8 +7506,7 @@ boolean readData) throws Exception
 	// Check if the the database binary file is open as a
 	// Random Access object
 	if (!checkRandomAccessFileOpen(__PDBRRS, true)) {
-		throw new Exception("Can not open the " 
-			+ __dbFileNames[__PDBRRS] + " binary database file");
+		throw new Exception("Cannot open the " + __dbFileNames[__PDBRRS] + " binary database file");
 	}
 
 	// Now read the Time Series parameter file to get the parameters
@@ -7609,10 +7580,8 @@ boolean readData) throws Exception
 				for(j = 0; j < pdbAddDT; j++) {
 //Message.printStatus(10,routine,"    DataType = "+tsDT+
 //"\n  ADDDTP("+i+","+j+") = "+pdbIndex.getADDDTP(i,j));
-					if((pdbIndex.getADDDTP(i,j)).
-						equalsIgnoreCase(tsDT)) {
-						recNum = pdbIndex.
-							getADTPTR(i,j);
+					if((pdbIndex.getADDDTP(i,j)).equalsIgnoreCase(tsDT)) {
+						recNum = pdbIndex.getADTPTR(i,j);
 						break; // Inner loop
 					}
 				}
@@ -7629,8 +7598,7 @@ boolean readData) throws Exception
 	// if we did not intend to read data!
 	if(readData && recNum == -1) {
 		throw new Exception("The TSID = " + tsID + "." + tsDT
-			+ " has not been found in the preprocessor "
-			+ "database.");
+			+ " has not been found in the preprocessor database.");
 	}
 	else if(recNum == -1) {
 		return null;
@@ -7639,8 +7607,7 @@ boolean readData) throws Exception
 	// Now get the PDBRRS record for station and data type.
 	// Read the record at recNum 112 bytes to get the needed values.
 	__NWSRFS_DBFiles[__PDBRRS].seek(0);
-	EDIS = read(__NWSRFS_DBFiles[__PDBRRS], recNum-1,__byteLength[__PDBRRS],
-		112);
+	EDIS = read(__NWSRFS_DBFiles[__PDBRRS], recNum-1,__byteLength[__PDBRRS],112);
 	
 	// Field 12 - Number of words in RRS primary record
 	pdbFile.setNWRDS(EDIS.readEndianInt());
@@ -7772,11 +7739,7 @@ boolean readData) throws Exception
 					pdbFile.addDATAVAL(checkDataValue);
 					pdbFile.addDATATIMEINT(checkInterval);
 
-					// We check to see if we want
-					// to really read data. If so
-					// we continue else we just
-					// return since we know we
-					// have a record!
+					// If reading data continue, else return since we know we have a record!
 					if(!readData) {
 						return pdbFile;
 					}
@@ -7817,21 +7780,15 @@ boolean readData) throws Exception
 				checkDataValue = EDIS.readEndianFloat();
 			}
 			else if(i == 1) {
-				checkInterval = (EDIS.readEndianInt() - 
-					checkObsTime)/100;
+				checkInterval = (EDIS.readEndianInt() - checkObsTime)/100;
 				if(tsDTInterval == checkInterval) {
 					// A dd to Vectors
 					pdbFile.addOBSTIME(checkObsTime);
 					pdbFile.addDATAVAL(checkDataValue);
-					pdbFile.addOBSTIME(checkObsTime+
-						checkInterval*100);
+					pdbFile.addOBSTIME(checkObsTime+checkInterval*100);
 					pdbFile.addDATAVAL(EDIS.readEndianFloat());
 
-					// We check to see if we want
-					// to really read data. If so
-					// we continue else we just
-					// return since we know we
-					// have a record!
+					// If reading data continue else return since we know we have a record!
 					if(!readData) {
 						return pdbFile;
 					}
@@ -7861,8 +7818,7 @@ boolean readData) throws Exception
 	// how many observations we need to get!
 	recNum = pdbFile.getIFREC1();
 	__NWSRFS_DBFiles[__PDBRRS].seek(0);
-	EDIS = read(__NWSRFS_DBFiles[__PDBRRS], recNum-1,__byteLength[__PDBRRS],
-		8);
+	EDIS = read(__NWSRFS_DBFiles[__PDBRRS], recNum-1,__byteLength[__PDBRRS], 8);
 	
 	// Field ... Pointer to next available free pool record
 	pdbFile.setNXTREC(EDIS.readEndianInt());
@@ -7929,13 +7885,11 @@ boolean readData) throws Exception
 				checkDataValue = EDIS.readEndianFloat();
 			}
 			else if(i == 1) {
-				checkInterval = (EDIS.readEndianInt() - 
-					checkObsTime)/100;
+				checkInterval = (EDIS.readEndianInt() - checkObsTime)/100;
 				if(tsDTInterval == checkInterval) {
 					pdbFile.addOBSTIME(checkObsTime);
 					pdbFile.addDATAVAL(checkDataValue);
-					pdbFile.addOBSTIME(checkObsTime+
-						checkInterval*100);
+					pdbFile.addOBSTIME(checkObsTime+checkInterval*100);
 					pdbFile.addDATAVAL(EDIS.readEndianFloat());
 				}
 				else {
@@ -7977,13 +7931,11 @@ throws Exception
 
 	// Check if the the database binary file is open as a Random Access object
 	if (!checkRandomAccessFileOpen(__PPPINDEX, true)) {
-		throw new Exception("Can not open the "
-			+ __dbFileNames[__PPPINDEX] + " binary database file");
+		throw new Exception("Cannot open the " + __dbFileNames[__PPPINDEX] + " binary database file");
 	}
 
 	// Get the first record which holds the parameter control records.
-	EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0,
-		__byteLength[__PPPINDEX]);
+	EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0, __byteLength[__PPPINDEX]);
 
 	// Now get record one information. The four public int members
 	// will make up the 16 bytes - 4 bytes each. 
@@ -7995,14 +7947,11 @@ throws Exception
 	EDIS.close();
 
 	// Get the second record which holds the parameter control records.
-	EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0,
-		__byteLength[__PPPINDEX]);
+	EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0, __byteLength[__PPPINDEX]);
 
 	// Now get record two information. The two public int members
-	// will make up the 16 bytes - one 4 bytes each, one 8 bytes and 
-	// one unsed. 
+	// will make up the 16 bytes - one 4 bytes each, one 8 bytes and one unsed. 
 	ptrFile.setFSTIDX(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
-
 
 	int j = 0;
 	// Now parse the characters in stream
@@ -8019,10 +7968,8 @@ throws Exception
 
 	int numtyp = ptrFile.getNUMTYP();
 	for (int i = 0; i < numtyp; i++) {
-		// Get the first record set which holds PARMTP, LUFILE, 
-		// FIRST, and LAST
-		EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0,
-			__byteLength[__PPPINDEX]);
+		// Get the first record set which holds PARMTP, LUFILE, FIRST, and LAST
+		EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0, __byteLength[__PPPINDEX]);
 
 		// Define the pppChar character array to hold segment info
 		pppChar = new char[4];
@@ -8042,8 +7989,7 @@ throws Exception
 		}
 //Message.printStatus(10,routine,"Parameter Types defined: "+parseChar);
 
-		ptrFile.addLUFILE(checkInt(EDIS.readEndianInt(), 
-			0, 100000, -1));
+		ptrFile.addLUFILE(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 
 		ptrFile.addFIRST(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 
@@ -8052,11 +7998,9 @@ throws Exception
 		EDIS.close();
 
 		// Get the second record set which holds NUMPRM and ISNGL
-		EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0,
-			__byteLength[__PPPINDEX]);
+		EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0, __byteLength[__PPPINDEX]);
 
-		ptrFile.addNUMPRM(checkInt(EDIS.readEndianInt(), 
-			0, 100000, -1));
+		ptrFile.addNUMPRM(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 
 		ptrFile.addISNGL(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 
@@ -8069,13 +8013,10 @@ throws Exception
 	while(__NWSRFS_DBFiles[__PPPINDEX].getFilePointer()+16 <= randomAccessFileLength) {
 		// keep reading until an exception is caught
 		try {
-			// Get the record which holds the members of 
-			// the rating curves index.
-			EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0,
-				__byteLength[__PPPINDEX]);
+			// Get the record which holds the members of the rating curves index.
+			EDIS = read(__NWSRFS_DBFiles[__PPPINDEX], 0, __byteLength[__PPPINDEX]);
 
-			// Define the pppChar character array 
-			// to hold parameter id
+			// Define the pppChar character array to hold parameter id
 			pppChar = new char[8];
 
 			// Now parse the characters in stream
@@ -8093,8 +8034,7 @@ throws Exception
 			}
 //Message.printStatus(10,routine,"Parameter ID: "+parseChar);
 
-			// Define the pppChar character array to 
-			// hold parameter type
+			// Define the pppChar character array to hold parameter type
 			pppChar = new char[4];
 
 			// Now parse the characters in stream
@@ -8113,8 +8053,7 @@ throws Exception
 //Message.printStatus(10,routine,"Parameter Type: "+parseChar+"\n");
 
 			// Add record number to parameter index definition
-			ptrFile.addIREC(checkInt(EDIS.readEndianInt(),
-				0, 100000, -1));
+			ptrFile.addIREC(checkInt(EDIS.readEndianInt(), 0, 100000, -1));
 
 			EDIS.close();
 		}
@@ -8154,19 +8093,15 @@ throws Exception {
 	String parseChar;
 	long randomAccessFileLength = 0;
 	
-	// Check if the the database binary file is open as a
-	// Random Access object
+	// Check if the the database binary file is open as a Random Access object
 	if (!checkRandomAccessFileOpen(__PRDINDEX, true)) {
-		throw new Exception("Can not open the "
-			+ __dbFileNames[__PRDINDEX] + " binary database file");
+		throw new Exception("Cannot open the " + __dbFileNames[__PRDINDEX] + " binary database file");
 	}
 
 	randomAccessFileLength = __NWSRFS_DBFiles[__PRDINDEX].length();
 	while(__NWSRFS_DBFiles[__PRDINDEX].getFilePointer()+16 <= randomAccessFileLength) {
-		// Get the first record set which holds PARMTP, LUFILE, 
-		// FIRST, and LAST
-		EDIS = read(__NWSRFS_DBFiles[__PRDINDEX], 0,
-			__byteLength[__PRDINDEX]);
+		// Get the first record set which holds PARMTP, LUFILE, FIRST, and LAST
+		EDIS = read(__NWSRFS_DBFiles[__PRDINDEX], 0, __byteLength[__PRDINDEX]);
 
 		// Define the pppChar character array to hold segment info
 		prdChar = new char[8];
@@ -8203,8 +8138,7 @@ throws Exception {
 		}
 
 		// Add Record Number
-		ptrFile.addIREC(checkInt(EDIS.readEndianInt(), 
-			0, 1000000, -1));
+		ptrFile.addIREC(checkInt(EDIS.readEndianInt(), 0, 1000000, -1));
 
 		EDIS.close();
 	}
@@ -8217,8 +8151,7 @@ This method reads Time Series directly from the PRDTS<i>n</i> binary database fi
 where <i>n</i> is determined from the PRDINDEX file and the UNIT NUMBER parameter 
 in this file. The Time Series is placed into the input NWSRFS_TimeSeries object passed
 into this method.
-@param RA is the EndianRandomAccess file object openned to read the binary DB
-PRDTS<i>n</i>
+@param RA is the EndianRandomAccess file object openned to read the binary DB PRDTS<i>n</i>
 @param recordNum is an integer holding the starting record number to start reading Times Series data
 @param tsFile is the NWSRFS_TimeSeries object to store the Time Series Data
 @param readData is a boolean used to determine whether header information is read only or if
@@ -8268,8 +8201,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	// TODO (JTS - 2004-08-18)
 	// should probably explain these magic numbers
 	EDIS.close();
-	int bytesToRead = ((int)tsFile.getLTSHDR()
-		+ (int)tsFile.getNXHDR()) * __WORDSIZE - 6;	
+	int bytesToRead = ((int)tsFile.getLTSHDR() + (int)tsFile.getNXHDR()) * __WORDSIZE - 6;	
 	EDIS = read(RA, 0, 64, bytesToRead);
 
 	// Field 5 - [type field name here]
@@ -8338,8 +8270,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	if (tsFile.getIPTFUT() == 0) {
 		// No future data so read observed data...
 		Message.printStatus( 2, routine, "No future data are available.");
-		endObsJul = startObsJul + (int)tsFile.getNTSNUM()
-			* (int)tsFile.getIDTINT();
+		endObsJul = startObsJul + (int)tsFile.getNTSNUM()* (int)tsFile.getIDTINT();
 
 		// Get number of observed and future data points
 		obsDataNum = (int)tsFile.getNTSNUM();
@@ -8358,10 +8289,8 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		Message.printStatus (2,routine,"Observed start=" + dtTempStart);
 		Message.printStatus (2,routine,"Observed end=" + dtTempEnd);
 		
-
 		// Set identifier string
-		tsident_string = tsFile.getTSID()+".NWSRFS."+
-			tsFile.getTSDataType()+".";
+		tsident_string = tsFile.getTSID()+".NWSRFS."+ tsFile.getTSDataType()+".";
 		
 		// Set the TS object Identifier
 		if(tsFile.getTSDTInterval() == 0) {
@@ -8369,40 +8298,31 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		else {
-			tsident_string += tsFile.getTSDTInterval()+
-				"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
+			tsident_string += tsFile.getTSDTInterval()+	"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		
 		tsFile.getObservedTS().allocateDataSpace();
-		tsFile.getObservedTS().setDataInterval(TimeInterval.HOUR, 
-			(int)tsFile.getIDTINT());
-		tsFile.getObservedTS().setDataUnits((String)tsFile.getTSUNIT());
-		tsFile.getObservedTS().setDataUnitsOriginal((String)tsFile.getTSUNIT());
-		tsFile.getObservedTS().setDescription(
-			(String)tsFile.getTSDESC());
-		tsFile.getObservedTS().addToComments((String)tsFile.getTSID());
-		tsFile.getObservedTS().addToComments(
-			(String)tsFile.getTSDataType());
-		tsFile.getObservedTS().addToGenesis("Read time series for "+
-			(String)tsFile.getTSID()+
+		tsFile.getObservedTS().setDataInterval(TimeInterval.HOUR, (int)tsFile.getIDTINT());
+		tsFile.getObservedTS().setDataUnits(tsFile.getTSUNIT());
+		tsFile.getObservedTS().setDataUnitsOriginal(tsFile.getTSUNIT());
+		tsFile.getObservedTS().setDescription(tsFile.getTSDESC());
+		tsFile.getObservedTS().addToComments(tsFile.getTSID());
+		tsFile.getObservedTS().addToComments(tsFile.getTSDataType());
+		tsFile.getObservedTS().addToGenesis("Read time series for "+ tsFile.getTSID()+
 			" from "+dtTempStart.toString()+" to "+
 			dtTempEnd.toString()+" using NWSRFS FS5Files \""
-			+__fs5FilesLocation.substring(0,
-			__fs5FilesLocation.length()-1)+"\"");
+			+__fs5FilesLocation.substring(0,__fs5FilesLocation.length()-1)+"\"");
 	}
 	else {
 		Message.printStatus( 2, routine, "Future data are available.");
 		endObsJul = startObsJul + ((int)tsFile.getIPTFUT()
-			- (int)tsFile.getIPTREG() - 1) 
-			* (int)tsFile.getIDTINT();
+			- (int)tsFile.getIPTREG() - 1) * (int)tsFile.getIDTINT();
 		startFutJul = endObsJul+(int)tsFile.getIDTINT();
-		endFutJul = startObsJul+(int)tsFile.getNTSNUM()
-			* (int)tsFile.getIDTINT();
+		endFutJul = startObsJul+(int)tsFile.getNTSNUM()	* (int)tsFile.getIDTINT();
 
 		// Get number of observed and future data points
-		obsDataNum = (int)tsFile.getIPTFUT() 
-			- (int)tsFile.getIPTREG();
+		obsDataNum = (int)tsFile.getIPTFUT() - (int)tsFile.getIPTREG();
 		futDataNum = (int)tsFile.getNTSNUM() - obsDataNum;
 
 		// Set values into the Observed and Future TS objects
@@ -8411,8 +8331,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		tsFile.getObservedTS().setDate1(dtTempStart);
 
 		// Set identifier string
-		tsident_string = tsFile.getTSID()+".NWSRFS."+
-			tsFile.getTSDataType()+".";
+		tsident_string = tsFile.getTSID()+".NWSRFS."+tsFile.getTSDataType()+".";
 		
 		// Set the TS object Identifier
 		if(tsFile.getTSDTInterval() == 0) {
@@ -8420,8 +8339,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		else {
-			tsident_string += tsFile.getTSDTInterval()+
-				"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
+			tsident_string += tsFile.getTSDTInterval()+	"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			tsFile.getObservedTS().setIdentifier(tsident_string);
 		}
 		
@@ -8429,21 +8347,15 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		dtTempEnd.setTimeZone("Z");
 		tsFile.getObservedTS().setDate2(dtTempEnd);
 		tsFile.getObservedTS().allocateDataSpace();
-		tsFile.getObservedTS().setDataInterval(TimeInterval.HOUR, 
-			(int)tsFile.getIDTINT());
+		tsFile.getObservedTS().setDataInterval(TimeInterval.HOUR, (int)tsFile.getIDTINT());
 		tsFile.getObservedTS().setDataUnits((String)tsFile.getTSUNIT());
 		tsFile.getObservedTS().setDataUnitsOriginal((String)tsFile.getTSUNIT());
-		tsFile.getObservedTS().setDescription(
-			(String)tsFile.getTSDESC() );
+		tsFile.getObservedTS().setDescription( (String)tsFile.getTSDESC() );
 		tsFile.getObservedTS().addToComments((String)tsFile.getTSID());
-		tsFile.getObservedTS().addToComments(
-			(String)tsFile.getTSDataType());
-		tsFile.getObservedTS().addToGenesis("Read time series for "+
-			(String)tsFile.getTSID()+
-			" from "+dtTempStart.toString()+" to "+
-			dtTempEnd.toString()+" using NWSRFS FS5Files \""
-			+__fs5FilesLocation.substring(0,
-			__fs5FilesLocation.length()-1)+"\"");
+		tsFile.getObservedTS().addToComments( (String)tsFile.getTSDataType());
+		tsFile.getObservedTS().addToGenesis("Read time series for "+ (String)tsFile.getTSID()+
+			" from "+dtTempStart.toString()+" to "+	dtTempEnd.toString()+" using NWSRFS FS5Files \""
+			+__fs5FilesLocation.substring(0,__fs5FilesLocation.length()-1)+"\"");
 
 		dtTempStart = NWSRFS_Util.getDateFromJulianHour1900(startFutJul);
 		dtTempStart.setTimeZone("Z");
@@ -8455,21 +8367,16 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		Message.printStatus (2,routine,"Future start=" + dtTempStart);
 		Message.printStatus (2,routine,"Future end=" + dtTempEnd);
 		tsFile.getFutureTS().allocateDataSpace();
-		tsFile.getFutureTS().setDataInterval(TimeInterval.HOUR, 
-			(int)tsFile.getIDTINT());
+		tsFile.getFutureTS().setDataInterval(TimeInterval.HOUR, (int)tsFile.getIDTINT());
 		tsFile.getFutureTS().setIdentifier(tsident_string);
 		tsFile.getFutureTS().setDataUnits((String)tsFile.getTSUNIT());
 		tsFile.getFutureTS().setDataUnitsOriginal((String)tsFile.getTSUNIT());
 		tsFile.getFutureTS().setDescription((String)tsFile.getTSDESC());
 		tsFile.getFutureTS().addToComments((String)tsFile.getTSID());
-		tsFile.getFutureTS().addToComments(
-			(String)tsFile.getTSDataType());
-		tsFile.getFutureTS().addToGenesis("Read time series for "+
-			(String)tsFile.getTSID()+
-			" from "+dtTempStart.toString()+" to "+
-			dtTempEnd.toString()+" using NWSRFS FS5Files \""
-			+__fs5FilesLocation.substring(0,
-			__fs5FilesLocation.length()-1)+"\"");
+		tsFile.getFutureTS().addToComments( (String)tsFile.getTSDataType());
+		tsFile.getFutureTS().addToGenesis("Read time series for "+ (String)tsFile.getTSID()+
+			" from "+dtTempStart.toString()+" to "+	dtTempEnd.toString()+" using NWSRFS FS5Files \""
+			+__fs5FilesLocation.substring(0, __fs5FilesLocation.length()-1)+"\"");
 	}
 	
 	// Just checking to see if data exist do not read Data
@@ -8479,8 +8386,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		return true;
 	}
 
-	// Get the Observed/Regular data
-	// First rewind the file
+	// Get the Observed/Regular data.  First rewind the file
 	// Now read from the PRDTSn file to get the actual Time Series data
 	EDIS.close();
 	rewind(RA);
@@ -8491,9 +8397,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 // TODO (JTS - 2004-08-21)
 // explain the magic number 64 and 72	
 	if (recordNum > 0) {
-		seek(RA, (recordNum - 1) * 64
-			+ (72 + (int)tsFile.getNXHDR() * __WORDSIZE), 
-			true);
+		seek(RA, (recordNum - 1) * 64 + (72 + (int)tsFile.getNXHDR() * __WORDSIZE), true);
 	}
 
 	// Read the data and insert into the HourTS object
@@ -8503,25 +8407,21 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	float floatValue;
 	for (i = 0;i < obsDataNum; i++) {
 		floatValue = EDIS.readEndianFloat();
-		dtTemp = NWSRFS_Util.getDateFromJulianHour1900(startObsJul 
-			+ i * (int)tsFile.getIDTINT());
+		dtTemp = NWSRFS_Util.getDateFromJulianHour1900(startObsJul + i * (int)tsFile.getIDTINT());
 		dtTemp.setTimeZone("Z");
-		tsFile.getObservedTS().setDataValue(dtTemp,
-			(double)floatValue);
+		tsFile.getObservedTS().setDataValue(dtTemp,(double)floatValue);
 //Message.printWarning(10,routine,i+": Observation Data["+dtTemp.toString()+"] = "+floatValue);
 	}
 
 	// If there is future data read that into the FutureTS object
 	if (tsFile.getIPTFUT() != 0) {
 		// First rewind the file
-		// Now read from the PRDTSn file to get the actual 
-		// Time Series data
+		// Now read from the PRDTSn file to get the actual Time Series data
 		EDIS.close();
 		rewind(RA);
 
 		// Now seek to the beginning of the record + location 
-		// of first future data value in record. The minimum 
-		// length of a TS header is 72.
+		// of first future data value in record. The minimum length of a TS header is 72.
 // TODO (JTS - 2004-08-21)
 // explain the magic number 64 and 72		
 		if (recordNum > 0) {
@@ -8535,15 +8435,12 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 		// Read the data and insert into the HourTS object
 // TODO (JTS - 2004-08-21)
 // explain the magic number 64		
-		EDIS = read(RA, 0, 64, 
-			futDataNum * __WORDSIZE);
+		EDIS = read(RA, 0, 64, futDataNum * __WORDSIZE);
 		for (i = 0; i < futDataNum; i++) {
 			floatValue = EDIS.readEndianFloat();
-			dtTemp = NWSRFS_Util.getDateFromJulianHour1900(startFutJul 
-				+ i * (int)tsFile.getIDTINT());
+			dtTemp = NWSRFS_Util.getDateFromJulianHour1900(startFutJul + i * (int)tsFile.getIDTINT());
 			dtTemp.setTimeZone("Z");
-			tsFile.getFutureTS().setDataValue(dtTemp,
-				(double)floatValue);
+			tsFile.getFutureTS().setDataValue(dtTemp,(double)floatValue);
 //Message.printWarning(10,routine,i+": Future Data["+dtTemp.toString()+"] = "+floatValue);
 		}
 	}
@@ -8564,13 +8461,11 @@ from the processed database file.
 data from the FCRATING binary database file. This class should be 
 instantiated by the user.
 @throws Exception if the database could not be opened or if the rating curve
-ID could not be found in the database or if there was an error reading the
-data.
+ID could not be found in the database or if there was an error reading the data.
 */
 public NWSRFS_RatingCurve readRatingCurve(String ratingCurveID) 
 throws Exception {
-	// Check to see if the rating curve pointer object exists. If
-	// not create it.
+	// Check to see if the rating curve pointer object exists. If not create it.
 	if (_fcrcptr == null) {
 		_fcrcptr = readFCRCPTR();
 	}
@@ -8578,15 +8473,13 @@ throws Exception {
 	Enumeration enIREC = _fcrcptr.getIREC().elements();
 	NWSRFS_RatingCurve rcFile = new NWSRFS_RatingCurve(ratingCurveID);
 
-	// Check if the the database binary file is open as a
-	// Random Access object
+	// Check if the the database binary file is open as a Random Access object
 // TODO (JTS - 2004-08-19)
 // always defined to be true in this class and used like this.  Can these
 // be removed? 	
 	boolean readOFSFS5Files = true;
 	if (!checkRandomAccessFileOpen(__FCRATING, readOFSFS5Files)) {
-		throw new Exception("Can not open the " 
-			+ __dbFileNames[__FCRATING] + " binary database file");
+		throw new Exception("Cannot open the " + __dbFileNames[__FCRATING] + " binary database file");
 	}
 
 	//Get the records from FCSEGPTR file
@@ -8604,8 +8497,7 @@ throws Exception {
 	}
 	
 	if (recordNum == -1) {
-		throw new Exception("NWSRFS_RatingCurve: Rating Curve ID: "
-			+ rcFile.getRCID() + " not found");
+		throw new Exception("NWSRFS_RatingCurve: Rating Curve ID: " + rcFile.getRCID() + " not found");
 	}
 	else {	
 		// keep reading until an EOFException is caught
@@ -8615,11 +8507,9 @@ throws Exception {
 		String parseChar = null;
 		rewind(__NWSRFS_DBFiles[__FCRATING]);
 		
-		//Get the record which holds the members of the 
-		// RC definition status
+		// Get the record which holds the members of the RC definition status
 		EndianDataInputStream EDIS = read(
-			__NWSRFS_DBFiles[__FCRATING], recordNum - 1,
-			__byteLength[__FCRATING]);
+			__NWSRFS_DBFiles[__FCRATING], recordNum - 1, __byteLength[__FCRATING]);
 		
 		// Field 1 - [type field name here]
 		charValue = new char[8];
@@ -8651,12 +8541,10 @@ throws Exception {
 		}
 	
 		// Field 4 - [type field name here]
-		rcFile.setRLAT(checkFloat(EDIS.readEndianFloat(),
-			-100000, 100000, 0));
+		rcFile.setRLAT(checkFloat(EDIS.readEndianFloat(),-100000, 100000, 0));
 	
 		// Field 5 - [type field name here]
-		rcFile.setRLONG(checkFloat(EDIS.readEndianFloat(),
-			-100000, 100000, 0));
+		rcFile.setRLONG(checkFloat(EDIS.readEndianFloat(),-100000, 100000, 0));
 				
 		// Field 6 - [type field name here]
 		for (i = 0; i < 5; i++) {	
@@ -8671,20 +8559,16 @@ throws Exception {
 		}
 				
 		// Field 7 - [type field name here]
-		rcFile.setAREAT(checkFloat(EDIS.readEndianFloat(),
-			0, 10000000, 0));
+		rcFile.setAREAT(checkFloat(EDIS.readEndianFloat(),0, 10000000, 0));
 				
 		// Field 8 - [type field name here]
-		rcFile.setAREAL(checkFloat(EDIS.readEndianFloat(),
-			0, 10000000, 0));
+		rcFile.setAREAL(checkFloat(EDIS.readEndianFloat(),0, 10000000, 0));
 				
 		// Field 9 - [type field name here]
-		rcFile.setFLDSTG(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setFLDSTG(checkFloat(EDIS.readEndianFloat(),	-998, 100000, -999));
 				
 		// Field 10  - [type field name here]
-		rcFile.setFLOODQ(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setFLOODQ(checkFloat(EDIS.readEndianFloat(),	-998, 100000, -999));
 		
 		// Field 11  - [type field name here]
 		charValue = new char[4];
@@ -8697,67 +8581,52 @@ throws Exception {
 		}
 
 		// Field 12  - [type field name here]
-		rcFile.setSCFSTG(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setSCFSTG(checkFloat(EDIS.readEndianFloat(),-998, 100000, -999));
 				
 		// Field 13  - [type field name here]
-		rcFile.setWRNSTG(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setWRNSTG(checkFloat(EDIS.readEndianFloat(),-998, 100000, -999));
 		
 		// Field 14  - [type field name here]
-		rcFile.setGZERO(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setGZERO(checkFloat(EDIS.readEndianFloat(),-998, 100000, -999));
 	
 		// Field 15  - [type field name here]
-		rcFile.setNRCPTS(checkInt(EDIS.readEndianInt(),
-			0, 10000000, 0));
+		rcFile.setNRCPTS(checkInt(EDIS.readEndianInt(),	0, 10000000, 0));
 
 		// Field 16  - [type field name here]
-		rcFile.setLOCQ(checkInt(EDIS.readEndianInt(),
-			0, 225, 0));
+		rcFile.setLOCQ(checkInt(EDIS.readEndianInt(),0, 225, 0));
 			
 		// Field 17  - [type field name here]
-		rcFile.setLOCH(checkInt(EDIS.readEndianInt(),
-			0, 225, 0));
+		rcFile.setLOCH(checkInt(EDIS.readEndianInt(),0, 225, 0));
 
 		// Field 18  - [type field name here]
-		rcFile.setSTGMIN(checkFloat(EDIS.readEndianFloat(),
-			-998, 10000000, -999));
+		rcFile.setSTGMIN(checkFloat(EDIS.readEndianFloat(),	-998, 10000000, -999));
 
 		// Field 19  - [type field name here]
 		// intValue was compared <= 0, hence the '1'
-		rcFile.setNCROSS(checkInt(EDIS.readEndianInt(),
-			1, 100000, 0));
+		rcFile.setNCROSS(checkInt(EDIS.readEndianInt(),	1, 100000, 0));
 
 		// Field 20  - [type field name here]
 		// intValue was compared <= 0, hence the '1'
-		rcFile.setLXTOPW(checkInt(EDIS.readEndianInt(),
-			1, 225, 0));
+		rcFile.setLXTOPW(checkInt(EDIS.readEndianInt(),	1, 225, 0));
 
 		// Field 21  - [type field name here]
 		// intValue was compared <=0, hence the '1'
-		rcFile.setLXELEV(checkInt(EDIS.readEndianInt(),
-			1, 225, 0));
+		rcFile.setLXELEV(checkInt(EDIS.readEndianInt(),	1, 225, 0));
 
 		// Field 22  - [type field name here]
-		rcFile.setABELOW(checkFloat(EDIS.readEndianFloat(),
-			0, 100000, -999));
+		rcFile.setABELOW(checkFloat(EDIS.readEndianFloat(),	0, 100000, -999));
 
 		// Field 23  - [type field name here]
-		rcFile.setFLOODN(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setFLOODN(checkFloat(EDIS.readEndianFloat(),	-998, 100000, -999));
 
 		// Field 24  - [type field name here]
-		rcFile.setSLOPE(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setSLOPE(checkFloat(EDIS.readEndianFloat(),-998, 100000, -999));
 
 		// Field 25  - [type field name here]
-		rcFile.setFRLOOP(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setFRLOOP(checkFloat(EDIS.readEndianFloat(),	-998, 100000, -999));
 
 		// Field 26  - [type field name here]
-		rcFile.setSHIFT(checkFloat(EDIS.readEndianFloat(),
-			-998, 100000, -999));
+		rcFile.setSHIFT(checkFloat(EDIS.readEndianFloat(),-998, 100000, -999));
 
 		// Field 27  - [type field name here]
 		charValue = new char[4];
@@ -8770,24 +8639,19 @@ throws Exception {
 		}
 
 		// Field 28  - [type field name here]
-		rcFile.setLASDAY(checkFloat(EDIS.readEndianFloat(),
-			0, 10000000, 0));
+		rcFile.setLASDAY(checkFloat(EDIS.readEndianFloat(),	0, 10000000, 0));
 
 		// Field 29  - [type field name here]
-		rcFile.setIPOPT(checkInt(EDIS.readEndianInt(),
-			0, 225, 0));
+		rcFile.setIPOPT(checkInt(EDIS.readEndianInt(), 0, 225, 0));
 
 		// Field 30  - [type field name here]
-		rcFile.setRFSTG(checkFloat(EDIS.readEndianFloat(),
-			-998, 10000000, -999));
+		rcFile.setRFSTG(checkFloat(EDIS.readEndianFloat(), -998, 10000000, -999));
 
 		// Field 31  - [type field name here]
-		rcFile.setRFQ(checkFloat(EDIS.readEndianFloat(),
-			-998, 10000000, 0));
+		rcFile.setRFQ(checkFloat(EDIS.readEndianFloat(), -998, 10000000, 0));
 
 		// Field 32  - [type field name here]
-		rcFile.setIRFDAY(checkInt(EDIS.readEndianInt(),
-			-998, 100000, -999));
+		rcFile.setIRFDAY(checkInt(EDIS.readEndianInt(), -998, 100000, -999));
 
 		// Field 33  - [type field name here]
 		for (i = 0; i < 5;i++) {
@@ -8804,18 +8668,13 @@ throws Exception {
 		// Field 34  - [type field name here]
 		for (i = 0; i < 25;i++) {
 			// comparison was <=0, hence the '1'
-			rcFile.setEMPTY(i, checkFloat(
-				EDIS.readEndianFloat(), 
-				1, 10000000, 0));
+			rcFile.setEMPTY(i, checkFloat( EDIS.readEndianFloat(), 1, 10000000, 0));
 		}
 
 		// Field 35  - [type field name here]
 		for (i = 0; i < 225;i++) {
-			// comparison was <=-1000000, hence the 
-			// '-999999'
-			rcFile.setXRC(i, checkFloat(
-				EDIS.readEndianFloat(),
-				-999999, 10000000, -999));
+			// comparison was <=-1000000, hence the '-999999'
+			rcFile.setXRC(i, checkFloat(EDIS.readEndianFloat(),	-999999, 10000000, -999));
 		}
 
 		EDIS.close();
@@ -8826,8 +8685,7 @@ throws Exception {
 
 /**
 Reads in to a Vector of Strings the list of Rating Curve identifiers. It will
-basically regurgetate the fcrcptr file which creates a list of RC ids and a
-record number.
+basically regurgetate the fcrcptr file which creates a list of RC ids and a record number.
 @return Vector of Strings containing the list of all RC ids in the database.
 @throws Exception if something goes wrong.
 */
@@ -8881,8 +8739,7 @@ from the processed database file.
 it is known and instantiated. This would be necessary to get the Carryover 
 values out of the C array.
 @return NWSRFS_Segment the NWSRFS_Segment object which stores the data 
-from the FCSEGSTS binary database file. This class should be 
-instantiated by the user.
+from the FCSEGSTS binary database file. This class should be instantiated by the user.
 @throws Exception if there are problems reading from the database.
 */
 public NWSRFS_Segment readSegment(String segmentID,NWSRFS_ForecastGroup FG) 
@@ -8901,11 +8758,9 @@ from the processed database file.
 it is known and instantiated. This would be necessary to get the 
 Carryover values out of the C array.
 @param deepRead a boolean specifying whether or not just header or id's 
-are read from the Segment, Operations, and TimeSeries objects. If true 
-read all data.
+are read from the Segment, Operations, and TimeSeries objects. If true read all data.
 @return NWSRFS_Segment the NWSRFS_Segment object which stores the data 
-from the FCSEGSTS binary database file. This class should be 
-instantiated by the user.
+from the FCSEGSTS binary database file. This class should be instantiated by the user.
 @throws Exception if there are problems reading from the database.
 */
 public NWSRFS_Segment readSegment(String segmentID,NWSRFS_ForecastGroup FG, boolean deepRead) 
@@ -8939,8 +8794,7 @@ throws Exception
 	sw1.stop();
 	StopWatch sw2 = new StopWatch();
 	if (recordNum == -1) {
-		throw new Exception("NWSRFS_Segment: Segment ID: " + segmentID
-		 + " not found");
+		throw new Exception("NWSRFS_Segment: Segment ID: " + segmentID + " not found");
 	}
 	else {	
 		sw2.start();
@@ -8953,19 +8807,15 @@ throws Exception
 		// First create an instance of NWSRFS_Segment
 		segFile = new NWSRFS_Segment(segmentID);
 
-		// Check if the the database binary file is open as a
-		// Random Access object
+		// Check if the the database binary file is open as a Random Access object
 		boolean readOFSFS5Files = true;
 		if (!checkRandomAccessFileOpen(__FCSEGSTS, readOFSFS5Files)) {
-			throw new Exception("Can not open the " 
-				+ __dbFileNames[__FCSEGSTS] 
-				+ " binary database file");
+			throw new Exception("Cannot open the " + __dbFileNames[__FCSEGSTS] + " binary database file");
 		}
 
 		rewind(__NWSRFS_DBFiles[__FCSEGSTS]);
 		
-		// Get the record which holds the members of the 
-		// segment definition status
+		// Get the record which holds the members of the segment definition status
 		EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCSEGSTS],
 			recordNum-1, __byteLength[__FCSEGSTS]);
 		
@@ -9169,8 +9019,7 @@ It will create a Station Object then call the overloaded method readStation to
 fill out the station object.
 @param deepRead a boolean specifying whether to read all station parameters
 from the PPDB or just general parameters.
-@return  an NWSRFS_Station object which stores the data from
-the PPDB files PPPARMn.
+@return  an NWSRFS_Station object which stores the data from the PPDB files PPPARMn.
 @throws Exception if an error is detected.
 */
 public NWSRFS_Station readStation(String stationID, boolean deepRead) 
@@ -9190,12 +9039,10 @@ parameter type. The known "station" parameter types in the PPDB are GENL
 RRS (River, Reservoir, and Stream), and TEMP (temperature).
 (Currently this methods does nothing. It needs to be completed.)
 @param station a NWSRFS_Station which holds the minimum set of data for a 
-station dervied from the PPPINDEX file. This method will fill out the station
-object.
+station dervied from the PPPINDEX file. This method will fill out the station object.
 @param deepRead a boolean specifying whether to read all station parameters
 from the PPDB or just general parameters.
-@return  an NWSRFS_Station object which stores the data from
-the PPDB files PPPARMn.
+@return  an NWSRFS_Station object which stores the data from the PPDB files PPPARMn.
 @throws Exception if an error is detected.
 */
 public NWSRFS_Station readStation(NWSRFS_Station station, boolean deepRead) 
@@ -9222,38 +9069,28 @@ throws Exception
 	if(station.getLogicalUnitNum("GENL") == -1) {
 		// Get the logical unit for the parameter type.
 		for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-			if(((String)(pppindex.getPARMTP()).elementAt(i)).
-			equalsIgnoreCase("GENL") && !luDoneGENL) {
-				logicalUnitNumGENL = (Integer)pppindex.
-					getLUFILE().elementAt(i);
+			if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("GENL") && !luDoneGENL) {
+				logicalUnitNumGENL = (Integer)pppindex.getLUFILE().elementAt(i);
 					luDoneGENL = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-			equalsIgnoreCase("PCPN") && !luDonePCPN) {
-				logicalUnitNumPCPN = (Integer)pppindex.
-					getLUFILE().elementAt(i);
+			else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("PCPN") && !luDonePCPN) {
+				logicalUnitNumPCPN = (Integer)pppindex.getLUFILE().elementAt(i);
 					luDonePCPN = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-			equalsIgnoreCase("PE") && !luDonePE) {
-				logicalUnitNumPE = (Integer)pppindex.
-					getLUFILE().elementAt(i);
+			else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("PE") && !luDonePE) {
+				logicalUnitNumPE = (Integer)pppindex.getLUFILE().elementAt(i);
 					luDonePE = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-			equalsIgnoreCase("RRS") && !luDoneRRS) {
-				logicalUnitNumRRS = (Integer)pppindex.
-					getLUFILE().elementAt(i);
+			else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("RRS") && !luDoneRRS) {
+				logicalUnitNumRRS = (Integer)pppindex.getLUFILE().elementAt(i);
 					luDoneRRS = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-			equalsIgnoreCase("TEMP") && !luDoneTEMP) {
-				logicalUnitNumTEMP = (Integer)pppindex.
-					getLUFILE().elementAt(i);
+			else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
+				logicalUnitNumTEMP = (Integer)pppindex.getLUFILE().elementAt(i);
 					luDoneTEMP = true;
 					continue;
 			}
@@ -9262,47 +9099,33 @@ throws Exception
 		// Next loop through the ID.size number of records
 		for(int i=0;i<(pppindex.getID()).size();i++) {
 			// If the type is GENL add to the PropList
-			if(((String)(pppindex.getITYPE()).elementAt(i)).
-			equalsIgnoreCase("GENL") && 
+			if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("GENL") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
-				station.addLogicalUnitNum("GENL",
-					logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
+				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).elementAt(i));
 			}
-			else if(((String)(pppindex.getITYPE()).elementAt(i)).
-			equalsIgnoreCase("PCPN") && 
+			else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("PCPN") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
-				station.addLogicalUnitNum("PCPN",
-					logicalUnitNumPCPN);
-				station.addRecordNum("PCPN", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
+				station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsPCPN(true);
 			}
-			else if(((String)(pppindex.getITYPE()).elementAt(i)).
-			equalsIgnoreCase("PE") && 
+			else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("PE") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
 				station.addLogicalUnitNum("PE",logicalUnitNumPE);
-				station.addRecordNum("PE", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station.addRecordNum("PE", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsPE(true);
 			}
-			else if(((String)(pppindex.getITYPE()).elementAt(i)).
-			equalsIgnoreCase("RRS") && 
+			else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("RRS") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
-				station.addLogicalUnitNum("RRS",
-					logicalUnitNumRRS);
-				station.addRecordNum("RRS", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station.addLogicalUnitNum("RRS",logicalUnitNumRRS);
+				station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsRRS(true);
 			}
-			else if(((String)(pppindex.getITYPE()).elementAt(i)).
-			equalsIgnoreCase("TEMP") && 
+			else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("TEMP") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
-				station.addLogicalUnitNum("TEMP",
-					logicalUnitNumTEMP);
-				station.addRecordNum("TEMP", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
+				station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsTEMP(true);
 			}
 		}
@@ -9317,25 +9140,25 @@ throws Exception
 	// parse the GENL array elements regardless.
 	parseParametericArray((Object)station,"GENL",deepRead);
 	
-	// Now if a precip station and deepRead is requested
-	// parse the PCPN array elements.
-	if(station.getIsPCPN())
+	// Now if a precip station and deepRead is requested parse the PCPN array elements.
+	if(station.getIsPCPN()) {
 		parseParametericArray((Object)station,"PCPN",deepRead);
+	}
 	
-	// Now if a PE station and deepRead is requested
-	// parse the PE array elements.
-	if(station.getIsPE())
+	// Now if a PE station and deepRead is requested parse the PE array elements.
+	if(station.getIsPE()) {
 		parseParametericArray((Object)station,"PE",deepRead);
+	}
 	
-	// Now if a RRS station and deepRead is requested
-	// parse the RRS array elements.
-	if(station.getIsRRS())
+	// Now if a RRS station and deepRead is requested parse the RRS array elements.
+	if(station.getIsRRS()) {
 		parseParametericArray((Object)station,"RRS",deepRead);
+	}
 	
-	// Now if a temperature station and deepRead is requested
-	// parse the TEMP array elements.
-	if(station.getIsTEMP())
+	// Now if a temperature station and deepRead is requested parse the TEMP array elements.
+	if(station.getIsTEMP()) {
 		parseParametericArray((Object)station,"TEMP",deepRead);
+	}
 	
 	// Return the filled out station object
 	return station;
@@ -9350,12 +9173,10 @@ values for the logical unit (to read the actual station parameter values from th
 PPPPARM<i>n</i> where <i>n</i> is the logical unit), the parameter type, and the
 record number in the PPPPARM<i>n</i> file to get the parameters. This method
 assumes that all stations can be retrieved by using the GENL PPDB parameter type
-since all stations need general parameter information regardless of the actual
-station type.
+since all stations need general parameter information regardless of the actual station type.
 @return a Hashtable of NWSRFS_Station objects containing only the station 
 identifier, the logical unit number for the PPPPARM<i>n</i> file, and the
-parameter types available for the station. The Hashtable key is the station
-identifier
+parameter types available for the station. The Hashtable key is the station identifier
 @throws Exception if an error is detected.
 */
 public Hashtable readStationHashtable() throws Exception
@@ -9381,38 +9202,28 @@ public Hashtable readStationHashtable() throws Exception
 	
 	// Get the logical unit for the parameter type.
 	for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-		if(((String)(pppindex.getPARMTP()).elementAt(i)).
-		equalsIgnoreCase("GENL") && !luDoneGENL) {
-			logicalUnitNumGENL = (Integer)pppindex.
-				getLUFILE().elementAt(i);
+		if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("GENL") && !luDoneGENL) {
+			logicalUnitNumGENL = (Integer)pppindex.getLUFILE().elementAt(i);
 			luDoneGENL = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-		equalsIgnoreCase("PCPN") && !luDonePCPN) {
-			logicalUnitNumPCPN = (Integer)pppindex.
-				getLUFILE().elementAt(i);
+		else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("PCPN") && !luDonePCPN) {
+			logicalUnitNumPCPN = (Integer)pppindex.getLUFILE().elementAt(i);
 			luDonePCPN = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-		equalsIgnoreCase("PE") && !luDonePE) {
-			logicalUnitNumPE = (Integer)pppindex.
-				getLUFILE().elementAt(i);
+		else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("PE") && !luDonePE) {
+			logicalUnitNumPE = (Integer)pppindex.getLUFILE().elementAt(i);
 			luDonePE = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-		equalsIgnoreCase("RRS") && !luDoneRRS) {
-			logicalUnitNumRRS = (Integer)pppindex.
-				getLUFILE().elementAt(i);
+		else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("RRS") && !luDoneRRS) {
+			logicalUnitNumRRS = (Integer)pppindex.getLUFILE().elementAt(i);
 			luDoneRRS = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).elementAt(i)).
-		equalsIgnoreCase("TEMP") && !luDoneTEMP) {
-			logicalUnitNumTEMP = (Integer)pppindex.
-				getLUFILE().elementAt(i);
+		else if(((String)(pppindex.getPARMTP()).elementAt(i)).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
+			logicalUnitNumTEMP = (Integer)pppindex.getLUFILE().elementAt(i);
 			luDoneTEMP = true;
 			continue;
 		}
@@ -9421,133 +9232,85 @@ public Hashtable readStationHashtable() throws Exception
 	// Next loop through the ID.size number of records
 	for(int i=0;i<(pppindex.getID()).size();i++) {
 		// If the type is GENL add to the PropList
-		if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("GENL")) {
+		if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("GENL")) {
 			if(!stationList.containsKey(
 				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("GENL",
-					logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)
-					(pppindex.getIREC()).elementAt(i));
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
+				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).elementAt(i));
+				stationList.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get(
-					(String)(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("GENL",
-					logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
+				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).elementAt(i));
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("PCPN")) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("PCPN",
-					logicalUnitNumPCPN);
-				station.addRecordNum("PCPN", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+		else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("PCPN")) {
+			if(!stationList.containsKey((String)(pppindex.getID()).elementAt(i))) {
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
+				station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsPCPN(true);
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+				stationList.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get(
-					(String)(pppindex.getID()).elementAt(i));
+				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).elementAt(i));
 				if(!station.getIsPCPN()) {
-					station.addLogicalUnitNum("PCPN",
-						logicalUnitNumPCPN);
-					station.addRecordNum("PCPN", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+					station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
+					station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsPCPN(true);
 				}
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("PE")) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("PE",
-					logicalUnitNumPE);
-				station.addRecordNum("PE", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+		else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("PE")) {
+			if(!stationList.containsKey((String)(pppindex.getID()).elementAt(i))) {
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("PE",logicalUnitNumPE);
+				station.addRecordNum("PE", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsPE(true);
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+				stationList.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get(
-					(String)(pppindex.getID()).elementAt(i));
+				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).elementAt(i));
 				if(!station.getIsPE()) {
-					station.addLogicalUnitNum("PE",
-						logicalUnitNumPE);
-					station.addRecordNum("PE", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+					station.addLogicalUnitNum("PE",logicalUnitNumPE);
+					station.addRecordNum("PE", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsPE(true);
 				}
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("RRS")) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("RRS",
-					logicalUnitNumRRS);
-				station.addRecordNum("RRS", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+		else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("RRS")) {
+			if(!stationList.containsKey((String)(pppindex.getID()).elementAt(i))) {
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("RRS",logicalUnitNumRRS);
+				station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsRRS(true);
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+				stationList.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get(
-					(String)(pppindex.getID()).elementAt(i));
+				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).elementAt(i));
 				if(!station.getIsRRS()) {
-					station.addLogicalUnitNum("RRS",
-						logicalUnitNumRRS);
-					station.addRecordNum("RRS", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+					station.addLogicalUnitNum("RRS",logicalUnitNumRRS);
+					station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsRRS(true);
 				}
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("TEMP")) {
+		else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("TEMP")) {
 			if(!stationList.containsKey(
 				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("TEMP",
-					logicalUnitNumTEMP);
-				station.addRecordNum("TEMP", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
+				station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).elementAt(i));
 				station.setIsTEMP(true);
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+				stationList.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get(
-					(String)(pppindex.getID()).elementAt(i));
+				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).elementAt(i));
 				if(!station.getIsTEMP()) {
-					station.addLogicalUnitNum("TEMP",
-						logicalUnitNumTEMP);
-					station.addRecordNum("TEMP", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+					station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
+					station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsTEMP(true);
 				}
 			}
@@ -9572,8 +9335,7 @@ the GENL PPDB parameter type because the GENL parameter type would pull all
 stations and that is done in the overloaded method.
 @return a Hashtable of NWSRFS_Station objects containing only the station 
 identifier, the logical unit number for the PPPPARM<i>n</i> file, and the
-parameter types available for the station. The Hashtable key is the station
-identifier.
+parameter types available for the station. The Hashtable key is the station identifier.
 @throws Exception if an error is detected.
 */
 public Hashtable readStationHashtable(String paramType) throws Exception
@@ -9621,37 +9383,34 @@ public Hashtable readStationHashtable(String paramType) throws Exception
 		}
 	}
 
-	if(paramType.equalsIgnoreCase("PCPN"))
+	if(paramType.equalsIgnoreCase("PCPN")) {
 		logicalUnitNum = logicalUnitNumPCPN;
-	else if(paramType.equalsIgnoreCase("PE"))
+	}
+	else if(paramType.equalsIgnoreCase("PE")) {
 		logicalUnitNum = logicalUnitNumPE;
-	else if(paramType.equalsIgnoreCase("RRS"))
+	}
+	else if(paramType.equalsIgnoreCase("RRS")) {
 		logicalUnitNum = logicalUnitNumRRS;
-	else if(paramType.equalsIgnoreCase("TEMP"))
+	}
+	else if(paramType.equalsIgnoreCase("TEMP")) {
 		logicalUnitNum = logicalUnitNumTEMP;
-	else if(paramType.equalsIgnoreCase("GENL"))
+	}
+	else if(paramType.equalsIgnoreCase("GENL")) {
 		logicalUnitNum = logicalUnitNumGENL;
+	}
 	else {
-		throw new Exception("Wrong parameter type to read station "+
-			"data from!");
+		throw new Exception("Wrong parameter type to read station data from!");
 	}
 	
 	// Next loop through the ID.size number of records
 	for(int i=0;i<(pppindex.getID()).size();i++) {
 		// If the type is GENL add to the PropList
-		if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("GENL")) { 
-			if(!stationListTemp.containsKey(
-				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("GENL",
-					logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)
-					(pppindex.getIREC()).elementAt(i));
-				stationListTemp.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+		if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("GENL")) { 
+			if(!stationListTemp.containsKey((String)(pppindex.getID()).elementAt(i))) {
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
+				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).elementAt(i));
+				stationListTemp.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 		}
 	}
@@ -9659,88 +9418,60 @@ public Hashtable readStationHashtable(String paramType) throws Exception
 	// Next loop through the ID.size number of records
 	for(int i=0;i<(pppindex.getID()).size();i++) {
 		// If the type is GENL add to the PropList
-		if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase("GENL") && 
-		paramType.equalsIgnoreCase("GENL")) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("GENL",
-					logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)
-					(pppindex.getIREC()).elementAt(i));
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+		if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase("GENL") && paramType.equalsIgnoreCase("GENL")) {
+			if(!stationList.containsKey((String)(pppindex.getID()).elementAt(i))) {
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
+				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).elementAt(i));
+				stationList.put((String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).elementAt(i)).
-		equalsIgnoreCase(paramType) && stationListTemp.size() > 0) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).elementAt(i))) {
-				station = new NWSRFS_Station((String)
-					(pppindex.getID()).elementAt(i));
-				station.addLogicalUnitNum("GENL",
-					logicalUnitNumGENL);
-				stationTemp = ((NWSRFS_Station)stationListTemp.
-					get((String)(pppindex.getID()).
-					elementAt(i)));
+		else if(((String)(pppindex.getITYPE()).elementAt(i)).equalsIgnoreCase(paramType) && stationListTemp.size() > 0) {
+			if(!stationList.containsKey((String)(pppindex.getID()).elementAt(i))) {
+				station = new NWSRFS_Station((String)(pppindex.getID()).elementAt(i));
+				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
+				stationTemp = ((NWSRFS_Station)stationListTemp.get((String)(pppindex.getID()).elementAt(i)));
 				try {
-				station.addRecordNum("GENL",new Integer
-					(stationTemp.getRecordNum("GENL")));
+				station.addRecordNum("GENL",new Integer(stationTemp.getRecordNum("GENL")));
 				} catch (NullPointerException NPe) {
 				}
-				station.addLogicalUnitNum(paramType,
-					logicalUnitNum);
-				station.addRecordNum(paramType, (Integer)
-					(pppindex.getIREC()).elementAt(i));
-				if(paramType.equalsIgnoreCase("PCPN"))
+				station.addLogicalUnitNum(paramType,logicalUnitNum);
+				station.addRecordNum(paramType, (Integer)(pppindex.getIREC()).elementAt(i));
+				if(paramType.equalsIgnoreCase("PCPN")) {
 					station.setIsPCPN(true);
-				else if(paramType.equalsIgnoreCase("PE"))
+				}
+				else if(paramType.equalsIgnoreCase("PE")) {
 					station.setIsPE(true);
-				else if(paramType.equalsIgnoreCase("RRS"))
+				}
+				else if(paramType.equalsIgnoreCase("RRS")) {
 					station.setIsRRS(true);
-				else if(paramType.equalsIgnoreCase("TEMP"))
+				}
+				else if(paramType.equalsIgnoreCase("TEMP")) {
 					station.setIsTEMP(true);
+				}
 
-				stationList.put(
-					(String)(pppindex.getID()).elementAt(i),
-					(NWSRFS_Station) station);
+				stationList.put( (String)(pppindex.getID()).elementAt(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get(
-					(String)(pppindex.getID()).elementAt(i));
-				if(paramType.equalsIgnoreCase("PCPN") && 
-					!station.getIsPCPN()) {
-					station.addLogicalUnitNum("PCPN",
-						logicalUnitNumPCPN);
-					station.addRecordNum("PCPN", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				station = (NWSRFS_Station)stationList.get( (String)(pppindex.getID()).elementAt(i));
+				if(paramType.equalsIgnoreCase("PCPN") && !station.getIsPCPN()) {
+					station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
+					station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsPCPN(true);
 				}
-				else if(paramType.equalsIgnoreCase("PE") &&
-					!station.getIsPE()) {
-					station.addLogicalUnitNum("PE",
-						logicalUnitNumPE);
-					station.addRecordNum("PE", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				else if(paramType.equalsIgnoreCase("PE") && !station.getIsPE()) {
+					station.addLogicalUnitNum("PE",logicalUnitNumPE);
+					station.addRecordNum("PE", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsPE(true);
 				}
-				else if(paramType.equalsIgnoreCase("RRS") &&
-					!station.getIsRRS()) {
-					station.addLogicalUnitNum("RRS",
-						logicalUnitNumRRS);
-					station.addRecordNum("RRS", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				else if(paramType.equalsIgnoreCase("RRS") && !station.getIsRRS()) {
+					station.addLogicalUnitNum("RRS", logicalUnitNumRRS);
+					station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsRRS(true);
 				}
-				else if(paramType.equalsIgnoreCase("TEMP") &&
-					!station.getIsTEMP()) {
-					station.addLogicalUnitNum("TEMP",
-						logicalUnitNumTEMP);
-					station.addRecordNum("TEMP", (Integer)
-					(pppindex.getIREC()).elementAt(i));
+				else if(paramType.equalsIgnoreCase("TEMP") && !station.getIsTEMP()) {
+					station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
+					station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).elementAt(i));
 					station.setIsTEMP(true);
 				}
 			}
@@ -9814,11 +9545,9 @@ throws Exception {
 
 	// Check to make sure that if req_date1 or req_date2 are specified, they
 	// have a time zone of "Z", which is what the database files use.  Use
-	// a copy of what was passed in so that we do not change the calling
-	// code.
+	// a copy of what was passed in so that we do not change the calling code.
 
-	// Use a local copy of the DateTimes so that calling code is not
-	// impacted.
+	// Use a local copy of the DateTimes so that calling code is not impacted.
 
 	DateTime req_date1 = null;
 	DateTime req_date2 = null;
@@ -9845,8 +9574,7 @@ throws Exception {
 	String inputType = tsident.getInputType();
 	String inputDir = tsident.getInputName();
 	// TODO SAM 2006-11-22
-	// If this method only reads one time series, then why is the wildcard
-	// even of interest?
+	// If this method only reads one time series, then why is the wildcard even of interest?
 	if(!interval.equalsIgnoreCase("*")) {
 		timeInt = (TimeInterval.parseInterval(interval));
 		tsDTInterval = timeInt.getMultiplier();
@@ -9869,8 +9597,7 @@ throws Exception {
 	Message.printStatus(10, routine, "Units: " + req_units + "\n");
 
 	if (inputType.equalsIgnoreCase("NWSRFS_ESPTraceEnsemble")) {
-		NWSRFS_ESPTraceEnsemble espTE = readESPTraceEnsemble(
-			tsident.getInputName(), read_data);
+		NWSRFS_ESPTraceEnsemble espTE = readESPTraceEnsemble(tsident.getInputName(), read_data);
 		// TODO (JTS - 2004-08-21)
 		// ts never instantiated above -- gonna get null pointers
 		// if this if() {} is ever entered.
@@ -9887,16 +9614,13 @@ throws Exception {
 		// specified by the input directory...
 		NWSRFS_TimeSeries tsObject = null;
 		TSIterator tsi = null;
-		if (	(dataScenario == null) ||
-			dataScenario.equalsIgnoreCase("")) {
+		if ( (dataScenario == null) || dataScenario.equalsIgnoreCase("")) {
 			// The requested time series identifier did not specify
-			// a scenario so treat as both below (return observed
-			// and future data).
+			// a scenario so treat as both below (return observed and future data).
 			dataScenario = "both";
 		}
 
-		// Get the input directory to use for time series header
-		// information.
+		// Get the input directory to use for time series header information.
 
 		if(openedWithAppsDefaults()) {
 			inputDir = "";
@@ -9905,16 +9629,14 @@ throws Exception {
 		    !inputDir.equalsIgnoreCase("Use Apps Defaults")) {
 			if(!inputDir.equalsIgnoreCase(getFS5FilesLocation())) {
 				// A set of FS5 Files is currently opened but
-				// does not match the request.  This should not
-				// normally be the case.
+				// does not match the request.  This should not normally be the case.
 				throw new Exception("The time series \""+
 				tsident_string + "\" does not reside in the"+
-				" opened FS5Files binary database: "+
-				getFS5FilesLocation());
+				" opened FS5Files binary database: "+ getFS5FilesLocation());
 			}
 		}
-		else {	// A valid FS5Files input directory has been
-			// specified...
+		else {
+			// A valid FS5Files input directory has been specified...
 			inputDir = getFS5FilesLocation();
 		}
 		
@@ -9930,13 +9652,11 @@ throws Exception {
 		// future data.  Need to further clean up when there is time.
 
 		if(subDataType.equalsIgnoreCase("PPDB")) {
-			tsObject = readTimeSeriesPDB(dataLoc, dataType, 
-				tsDTInterval, read_data);
+			tsObject = readTimeSeriesPDB(dataLoc, dataType, tsDTInterval, read_data);
 			dataScenario = "obs";
 		}
 		else {
-			tsObject = readTimeSeriesPRD(dataLoc, dataType, 
-				tsDTInterval, read_data);
+			tsObject = readTimeSeriesPRD(dataLoc, dataType, tsDTInterval, read_data);
 		}
 		
 		// TODO SAM 2006-11-22
@@ -9949,12 +9669,11 @@ throws Exception {
 				// Have no data so return null...
 				return null;
 			}
-			else {	// Have a time series so return the observed
-				// time series with its header...
+			else {
+				// Have a time series so return the observed time series with its header...
 				return tsObject.getObservedTS();
 				// TODO SAM 2006-11-22
-				// The header should take into account the
-				// future data also.
+				// The header should take into account the future data also.
 			}
 		}
 		else if ( tsObject == null) {
@@ -9962,16 +9681,12 @@ throws Exception {
 			// are available.  Populate a default object so that the
 			// following logic can continue and return the header
 			// information and missing data.
-			tsObject = new NWSRFS_TimeSeries(dataLoc, dataType,
-				tsDTInterval);
+			tsObject = new NWSRFS_TimeSeries(dataLoc, dataType, tsDTInterval);
 		}
-		
 
-		// So if here the time series data are to be read (not just
-		// the header).
+		// So if here the time series data are to be read (not just the header).
 
-		// Observed and future TS from the FS5Files, to be processed
-		// more below...
+		// Observed and future TS from the FS5Files, to be processed more below...
 		TS observedTS = tsObject.getObservedTS();
 		Message.printStatus(2, routine, "From DB observed start Date: " + observedTS.getDate1());
 		Message.printStatus(2, routine, "From DB observed end Date: " + observedTS.getDate2());
@@ -9986,7 +9701,8 @@ throws Exception {
 			Message.printStatus(2, routine, "After first read, DB future start Date: " + futureTS.getDate1());
 			Message.printStatus(2, routine, "After first read, DB future end Date: " + futureTS.getDate2());
 		}
-		else {	Message.printStatus ( 2, routine, "No future data so no future dates.");
+		else {
+			Message.printStatus ( 2, routine, "No future data so no future dates.");
 		}
 
 		// KAT commented out 2006-10-3 
@@ -9995,23 +9711,18 @@ throws Exception {
 		//" date2 = " + tsObject.getDate2() );
 		
 		// If this time series has data type of MAP TS and both
-		// observed and future data are desired, then read the FMAP
-		// datatype.
+		// observed and future data are desired, then read the FMAP datatype.
 		// TODO SAM 2006-11-22
-		// Why does NWSRFS_TimeSeries have observed and future time
-		// series if we need to do two reads?
+		// Why does NWSRFS_TimeSeries have observed and future time series if we need to do two reads?
 
-		if ( dataType.equalsIgnoreCase("MAP") 
-		    && (dataScenario.equalsIgnoreCase("both") ||
+		if ( dataType.equalsIgnoreCase("MAP") && (dataScenario.equalsIgnoreCase("both") ||
 			dataScenario.equalsIgnoreCase("fut")) ) {
 			// Read the future MAP (FMAP).
 			// TODO SAM 2006-12-12
 			// FMAP time series are returned below as observed and
 			// then set in the future time series.  This is
 			// confusing and needs to be corrected.
-			Message.printStatus( 2, routine,
-			"Requested time series is MAP so read FMAP for " +
-			dataLoc );
+			Message.printStatus( 2, routine, "Requested time series is MAP so read FMAP for " + dataLoc );
 			try {
 				NWSRFS_TimeSeries tsObject2 = readTimeSeriesPRD(dataLoc,"FMAP",tsDTInterval,true);
 				if ( tsObject2 == null ) {
@@ -10057,8 +9768,7 @@ throws Exception {
 		// TODO SAM 2006-11-22
 		// Need to remove or use...
 		//tsident.setInputType("NWSRFS_FS5Files");
-		ts.setInputName("\""+getFS5FilesLocation()+":"+
-			__dbFileNames[tsObject.getPrdIndex()]+"\"");
+		ts.setInputName("\""+getFS5FilesLocation()+":"+ __dbFileNames[tsObject.getPrdIndex()]+"\"");
 		// TODO SAM 2006-11-22
 		// Need to remove or use...
 		//tsident.setInputName(inputDir);
@@ -10067,16 +9777,14 @@ throws Exception {
 		// Get information from one of these time series...
 		if ( observedTS != null ) {
 			ts.setDataUnits ( observedTS.getDataUnits() );
-			ts.setDataInterval( observedTS.getDataIntervalBase(),
-				observedTS.getDataIntervalMult());
+			ts.setDataInterval( observedTS.getDataIntervalBase(), observedTS.getDataIntervalMult());
 			ts.setDescription(observedTS.getDescription());
 			ts.addToComments ( observedTS.getComments() );
 		}
 		else if ( futureTS != null ) {
 			ts.setDataUnits ( futureTS.getDataUnits() );
 			ts.setDataUnits ( futureTS.getDataUnits() );
-			ts.setDataInterval( futureTS.getDataIntervalBase(),
-				futureTS.getDataIntervalMult());
+			ts.setDataInterval( futureTS.getDataIntervalBase(), futureTS.getDataIntervalMult());
 			ts.setDescription(futureTS.getDescription());
 		}
 		// Always append this if available...
@@ -10091,8 +9799,7 @@ throws Exception {
 		// Need to get the header information for above, considering
 		// observed and future, not just observed.
 		
-		if (	!dataScenario.equalsIgnoreCase("both") &&
-			!dataScenario.equalsIgnoreCase("obs") ) {
+		if ( !dataScenario.equalsIgnoreCase("both") && !dataScenario.equalsIgnoreCase("obs") ) {
 			observedTS = null;
 		}
 
@@ -10100,8 +9807,7 @@ throws Exception {
 		// data and requested DateTimes.  Set the original DateTimes in
 		// the time series to that available in the FS5Files and the
 		// normal DateTimes to what is requested (if specified).  The
-		// longest period of observed and future data are used, when
-		// both are read.
+		// longest period of observed and future data are used, when both are read.
 
 		DateTime d1 = null;	// For transfer
 		DateTime d2 = null;
@@ -10136,14 +9842,16 @@ throws Exception {
 					TSGraph.getNearestDateTimeLessThanOrEqualTo(req_date1, observedTS));
 			ts.setDate1 ( req_date1_nearest );
 		}
-		else {	ts.setDate1 ( ts.getDate1Original() );
+		else {
+			ts.setDate1 ( ts.getDate1Original() );
 		}
 		if ( req_date2 != null ) {
 			DateTime req_date2_nearest = new DateTime(
 					TSGraph.getNearestDateTimeLessThanOrEqualTo(req_date2, observedTS));
 			ts.setDate2 ( req_date2_nearest );
 		}
-		else {	ts.setDate2 ( ts.getDate2Original() );
+		else {
+			ts.setDate2 ( ts.getDate2Original() );
 		}
 
 		// Allocate data space using the DateTimes...
@@ -10157,13 +9865,10 @@ throws Exception {
 		// through all the data (there won't be much) and allow data
 		// outside the period to be ignored)...
 
-		if ( (observedTS != null) && (observedTS.getDate1() != null) && 
-				(observedTS.getDate2() != null) ) {
+		if ( (observedTS != null) && (observedTS.getDate1() != null) && (observedTS.getDate2() != null) ) {
 			tsi = observedTS.iterator();
-
 			while (tsi.next() != null) {
-				ts.setDataValue(tsi.getDate(),
-					tsi.getDataValue());
+				ts.setDataValue(tsi.getDate(),tsi.getDataValue());
 			}
 		}
 
@@ -10172,32 +9877,27 @@ throws Exception {
 		// the last date in the observed time series, if it is
 		// available, because the observed data are more relevant.
 
-		if ( (futureTS != null) && (futureTS.getDate1() != null) &&
-				(futureTS.getDate2() != null) ) {
+		if ( (futureTS != null) && (futureTS.getDate1() != null) && (futureTS.getDate2() != null) ) {
 			d1 = observedTS.getDate2();
 			if ( d1 == null ) {
 				// Just iterate through all future data...
 				tsi = tsObject.getFutureTS().iterator();
 			}
-			else {	// Iterate from the next date after observed
-				// data, to the end of future data...
-				d1.addInterval (
-					observedTS.getDataIntervalBase(),
-					observedTS.getDataIntervalMult() );
+			else {
+				// Iterate from the next date after observed data, to the end of future data...
+				d1.addInterval (observedTS.getDataIntervalBase(),observedTS.getDataIntervalMult() );
 				tsi = tsObject.getFutureTS().iterator(
 					d1, futureTS.getDate2());
 			}
 
 			while (tsi.next() != null) {
-				ts.setDataValue(tsi.getDate(),
-					tsi.getDataValue());
+				ts.setDataValue(tsi.getDate(), tsi.getDataValue());
 			}
 		}
 	}
 	else {
 		Message.printWarning(10, routine,
-			"Incorrect TSIdent value "
-			+ "for Source. It needs to be one of: "
+			"Incorrect TSIdent value for Source. It needs to be one of: "
 			+ "NWSRFS_FS5Files or NWSRFS_ESPTraceEnsemble.");
 	}
 	
@@ -10303,8 +10003,7 @@ throws Exception
 
 	TS ts = null;
 	if (inputType.equalsIgnoreCase("NWSRFS_ESPTraceEnsemble")) {
-		NWSRFS_ESPTraceEnsemble espTE = readESPTraceEnsemble(
-			tsident.getInputName(), read_data);
+		NWSRFS_ESPTraceEnsemble espTE = readESPTraceEnsemble( tsident.getInputName(), read_data);
 
 		ts = new HourTS();
 		ts.allocateDataSpace();
@@ -10339,10 +10038,8 @@ throws Exception
 					dt = (DataType)v.elementAt(i);
 					parseDataType = dt.getAbbreviation();
 
-					// If interval is * we need to loop
-					// through some default inetervals
-					// like 1Hour,3Hour, 6Hour,12Hour,
-					// 18Hour, and 24Hour
+					// If interval is * we need to loop through some default inetervals
+					// like 1Hour,3Hour, 6Hour,12Hour, 18Hour, and 24Hour
 					if(interval.equalsIgnoreCase("*")) {
 						int intervalArray[] = new int[6];
 						intervalArray[0] = 1;
@@ -10352,37 +10049,28 @@ throws Exception
 						intervalArray[4] = 18;
 						intervalArray[5] = 24;
 						for(j = 0; j < 6; j++) {
-							parseIdentList = 
-							readTSIdentListPRD(
-							parseDataType,
-							intervalArray[j],
-							dataScenario);
+							parseIdentList = readTSIdentListPRD( parseDataType,
+									intervalArray[j], dataScenario);
 					
 							for(k = 0; 
 							k < parseIdentList.size(); 
 							k++) {
-								tsIdentList.addElement(
-								parseIdentList.elementAt(k));
+								tsIdentList.addElement( parseIdentList.elementAt(k));
 							}
 						}
 					}
 					else {
-						parseIdentList = 
-						readTSIdentListPRD(
-						parseDataType, tsDTInterval,
-						dataScenario);
+						parseIdentList = readTSIdentListPRD( parseDataType, tsDTInterval, dataScenario);
 					
 						for(k = 0; 
 						k < parseIdentList.size(); k++) {
-							tsIdentList.addElement(
-							parseIdentList.elementAt(k));
+							tsIdentList.addElement( parseIdentList.elementAt(k));
 						}
 					}
 				}
 			}
 			else {
-				tsIdentList=readTSIdentListPRD(dataType,
-					tsDTInterval,dataScenario);
+				tsIdentList=readTSIdentListPRD(dataType, tsDTInterval,dataScenario);
 			}
 		}
 		
@@ -10394,11 +10082,9 @@ throws Exception
 		if ( tsIdentList != null ) {
 			size = tsIdentList.size();
 		}
-		Message.printStatus ( 10, routine,
-			"Read " + size + " time series identifiers." );
+		Message.printStatus ( 10, routine, "Read " + size + " time series identifiers." );
 		boolean transfer_all = false;	// Should all time series be
-						// transferred?  Allows wildcard
-						// check to be skipped.
+						// transferred?  Allows wildcard check to be skipped.
 		String parseString = null;	// Java-style wildcard string
 		if ( dataLoc.equals("*") ) {
 			transfer_all = true;
@@ -10409,37 +10095,24 @@ throws Exception
 		for ( i = 0; i < size; i++ ) {			
 			// The try/catch here so that an error on one time
 			// series does not error out the whole read process.
-			// For now assume it is not needed because the header
-			// was read successfully.
+			// For now assume it is not needed because the header was read successfully.
 			try {
-				if (	transfer_all ||
-					StringUtil.matchesIgnoreCase(
-					((TSIdent)tsIdentList.elementAt(i)).
-					getLocation(),parseString)) {
-					if(((TSIdent)tsIdentList.elementAt(i)).
-						getIdentifier() == null) {
-						Message.printWarning (2,
-						routine, "Unable to read time "+
-						"series - the TS Ident String "+
-						"is null." );
+				if ( transfer_all || StringUtil.matchesIgnoreCase(
+					((TSIdent)tsIdentList.elementAt(i)).getLocation(),parseString)) {
+					if(((TSIdent)tsIdentList.elementAt(i)).getIdentifier() == null) {
+						Message.printWarning (2, routine,
+								"Unable to read time series - the TS Ident String is null." );
 						continue;
 					}
 					
-					ts = readTimeSeries(
-						((TSIdent)
-						tsIdentList.elementAt(i)).
-						getIdentifier(),
-						req_date1, req_date2, req_units,
-						read_data);
+					ts = readTimeSeries( ((TSIdent)
+						tsIdentList.elementAt(i)).getIdentifier(),
+						req_date1, req_date2, req_units, read_data);
 					if ( ts == null ) {
 						Message.printWarning (20,
-						routine, "Unable to read time "+
-						"series for \"" +
-						((TSIdent)tsIdentList.
-						elementAt(i)).
-						getIdentifier() +
-						"\" - not adding to " +
-						"returned list." );
+						routine, "Unable to read time series for \"" +
+						((TSIdent)tsIdentList.elementAt(i)).getIdentifier() +
+						"\" - not adding to returned list." );
 					}
 					else {	
 						tsList.addElement(ts);
@@ -10456,8 +10129,7 @@ throws Exception
 
 /**
 Return a Vector of time series identifiers (TSIdent instances) given a data type
-and interval.  Data are read from the PDBINDEX preprocessed database binary 
-files.
+and interval.  Data are read from the PDBINDEX preprocessed database binary files.
 @param dataType the data type identifier in which to pull data I.E. "STG"
 @param interval Data interval in hours, or <= zero to retrieve all time series
 identifiers for the data type.
