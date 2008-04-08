@@ -240,9 +240,10 @@ private final int[] __byteLength = {	400,	// FCCARRY
 					64,	// PDBDLY5
 					240};	// USERPARM
 /**
-A boolean array specifiying whether or not the file is OPEN
+A boolean array specifying whether or not the file is OPEN.
 */
-private boolean[] __isOpen = {	false,		// FCCARRY
+private boolean[] __isOpen = {
+				false,		// FCCARRY
 				false,		// FCCOGDEF
 				false,		// FCFGLIST
 				false,		// FCFGSTAT
@@ -276,7 +277,8 @@ private boolean[] __isOpen = {	false,		// FCCARRY
 /**
 The filename Strings associated with the above indices.
 */
-private final String[] __dbFileNames = {"FCCARRY",
+private final String[] __dbFileNames = {
+					"FCCARRY",
 					"FCCOGDEF",
 					"FCFGLIST",
 					"FCFGSTAT",
@@ -311,66 +313,87 @@ private final String[] __dbFileNames = {"FCCARRY",
 The name Strings associated with the operation number in the NWSRFS system.
 */
 private final int 
-	//__OP_NONE = 		0,
-	//__OP_SAC_SMA = 		1,
-	//__OP_UNIT_HG = 		2,
-	//__OP_REDO_UHG = 	3,
-	//__OP_CLEAR_TS = 	4,
-	//__OP_SAC_PLOT = 	5,
-	__OP_MEAN_Q = 		6,
-	__OP_LAG_K = 		7,
-	//__OP_CHANLOSS = 	8,
-	//__OP_MUSKROUT = 	9,
-	__OP_ADD_SUB = 		10,
-	//__OP_LAY_COEF = 	11,
-	//__OP_INSQPLOT = 	12,
-	//__OP_TATUM = 		13,
-	//__OP_ADJUST_Q = 	14,
-	//__OP_WEIGH_TS = 	15,
-	//__OP_STAT_QME = 	16,
-	//__OP_WY_PLOT = 		17,
-	//__OP_PLOT_TS = 		18,
-	//__OP_SNOW_17 = 		19,
-	__OP_CHANGE_T = 	20,
-	//__OP_DWOPER = 		21,
-	//__OP_HFS = 		22,
-	__OP_STAGE_Q = 		23,
-	//__OP_API_CONT = 	24,
-	__OP_PLOT_TUL = 	25,
-	//__OP_RES_SNGL = 	26,
-	//__OP_LIST_FTW = 	27,
-	//__OP_CHANLEAK = 	28,
-	//__OP_API_MKC = 		29,
-	__OP_MERGE_TS = 	30,
-	//__OP_SNOW_17U = 	31,
-	__OP_FFG = 		32
-	//__OP_API_CIN = 		33,
-	//__OP_API_SLC = 		34,
-	//__OP_API_HAR = 		35,
-	//__OP_XIN_SMA = 		36,
-	//__OP_LIST_MSP = 	37,
-	//__OP_BASEFLOW = 	38,
-	//__OP_LOOKUP = 		39,
-	//__OP_WATERBAL = 	40,
-	//__OP_API_HAR2 = 	41,
-	//__OP_RSNWELEV = 	42,
-	//__OP_API_HFD = 		43,
-	//__OP_SARROUTE = 	44,
-	//__OP_DELTA_TS = 	45,
-	//__OP_NOMSNG = 		46,
-	//__OP_PEAKFLOW = 	47,
-	//__OP_DIVIDE = 		48,
-	//__OP_BEGASSIM = 	49,
-	//__OP_ASSIM = 		50,
-	//__OP_SSARRESV = 	51,
-	//__OP_SUMPOINT = 	52,
-	//__OP_LOOKUP3 = 		53
-	;
+	__OP_UNKNOWN = 0,
+	//__OP_SAC_SMA = 1,
+	//__OP_UNIT_HG = 2,
+	//__OP_REDO_UHG = 3,
+	//__OP_CLEAR_TS = 4,
+	//__OP_SAC_PLOT = 5,
+	__OP_MEAN_Q = 6,
+	__OP_LAG_K = 7,
+	//__OP_CHANLOSS = 8,
+	//__OP_MUSKROUT = 9,
+	__OP_ADD_SUB = 10,
+	//__OP_LAY_COEF = 11,
+	//__OP_INSQPLOT = 12,
+	//__OP_TATUM = 13,
+	//__OP_ADJUST_Q = 14,
+	//__OP_WEIGH_TS = 15,
+	//__OP_STAT_QME = 16,
+	//__OP_WY_PLOT = 17,
+	//__OP_PLOT_TS = 18,
+	//__OP_SNOW_17 = 19,
+	__OP_CHANGE_T = 20,
+	//__OP_DWOPER = 21,
+	//__OP_HFS = 22,
+	__OP_STAGE_Q = 23,
+	//__OP_API_CONT = 24,
+	__OP_PLOT_TUL = 25,
+	//__OP_RES_SNGL = 26,
+	//__OP_LIST_FTW = 27,
+	//__OP_CHANLEAK = 28,
+	//__OP_API_MKC = 29,
+	__OP_MERGE_TS = 30,
+	//__OP_SNOW_17U = 31,
+	__OP_FFG = 32,
+	//__OP_API_CIN = 33,
+	//__OP_API_SLC = 34,
+	//__OP_API_HAR = 35,
+	//__OP_XIN_SMA = 36,
+	//__OP_LIST_MSP = 37,
+	//__OP_BASEFLOW = 38,
+	//__OP_LOOKUP = 39,
+	//__OP_WATERBAL = 40,
+	//__OP_API_HAR2 = 41,
+	//__OP_RSNWELEV = 42,
+	//__OP_API_HFD = 43,
+	//__OP_SARROUTE = 44,
+	//__OP_DELTA_TS = 45,
+	//__OP_NOMSNG = 46,
+	//__OP_PEAKFLOW = 47,
+	//__OP_DIVIDE = 48,
+	//__OP_BEGASSIM = 49,
+	//__OP_ASSIM = 50,
+	//__OP_SSARRESV = 51,
+	//__OP_SUMPOINT = 52,
+	__OP_LOOKUP3 = 53,
+	//__OP_SWB_NILE = 54,
+	//__OP_FLDWAV = 55,
+	//__OP_GLACIER = 56,
+	//__OP_CONS_USE = 57,
+	//__OP_RES_J = 58,
+	//__OP_TIDEREV = 59,
+	//__OP_ADJUST_T = 60,
+	//__OP_STAGEREV = 61,
+	//__OP_ADJUST_H = 62,
+	__OP_SET_TS = 63;
+
+/**
+The maximum operation that is fully understood by the code (can be parsed).
+*/
+private final int __maxParsableOperation = __OP_LOOKUP3;
+
+/**
+The maximum operation that is known by the code (know the number, but may not be
+fully understood).
+*/
+private final int __maxKnownOperation = __OP_SET_TS;
 
 /**
 The name Strings associated with the operation number in the NWSRFS system.
 */
-private final String[] __operationNames = {  	"NONE",         //   0
+private final String[] __operationNames = {
+						"NONE",         //   0
 						"SAC-SMA",      //   1
 						"UNIT-HG",      //   2
 						"REDO-UHG",     //   3
@@ -423,11 +446,20 @@ private final String[] __operationNames = {  	"NONE",         //   0
 						"ASSIM",        //  50
 						"SSARRESV",     //  51
 						"SUMPOINT",     //  52
-						"LOOKUP3"};     //  53
+						"LOOKUP3",     //  53
+						"SWB-NILE",	// 54
+						"FLDWAV",	// 55
+						"GLACIER",	// 56
+						"CONS_USE", // 57
+						"RES-J", // 58
+						"TIDEREV", // 59
+						"ADJUST-T", // 60
+						"STAGEREV", // 61
+						"ADJUST-H",	// 62
+						"SET-TS" }; // 63
 
 /**
-This boolean value specifies whether the data files are big endian or little 
-endian.
+This boolean value specifies whether the data files are big endian or little endian.
 */
 private boolean __isBigEndian;
 
@@ -1500,19 +1532,17 @@ throws Exception
 Take a record from the FCPARAM binary database file and parses the record
 into the associated NWSRFS P, T, and TS arrays as class Vectors.
 @param EDIS an EndianDataInputStream which holds the ByteArray record that holds
-the data for the NWSRFS P, T, and TS arrays from the FCPARAM binary database 
-file.
+the data for the NWSRFS P, T, and TS arrays from the FCPARAM binary database file.
 @param segObj the parent NWSRFS_Segment object.
 @param deepRead a boolean to determine whether data is read (true) or only the 
 header (false), name and number and the time series name and datatype.
 @throws Exception when an error occurs trying to parse the operation record.
 */	
-protected void parseOperationRecord(EndianDataInputStream EDIS, 
-NWSRFS_Segment segObj, boolean deepRead) throws Exception 
+protected void parseOperationRecord(EndianDataInputStream EDIS, NWSRFS_Segment segObj, boolean deepRead)
+throws Exception 
 {
 	// Now mark the EndianDataInputStream for rewinding.
-	// TODO (JTS - 2004-08-21)
-	// explain the magic number 2
+	// TODO (JTS - 2004-08-21) Explain the magic number 2
 	EDIS.mark(segObj.getNP() + segObj.getNT() + segObj.getNTS() + 2);
 
 	// loop through and parse the P array to fill the arrays 
@@ -1555,20 +1585,12 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 	Vector[] opTSID = new Vector[np];
 	Vector poArray = null;
 
-	// Need to catch OutOfMemoryError since when trying to load
-	// all of the operations in all segments it's possible to run 
-	// out of memory and then this Exception will be thrown.
-	// If caught, System.gc() will be called.
-	try 
-	{
-
 	// Get a vector of Data Types and put into a Vector of Strings! 
 	// TODO -- sat 2004-11-24 Should do globally at startup!
 	Vector dtVect = DataType.getDataTypesData();
 	Vector dtVectString = new Vector();
 	for(i = 0; i < dtVect.size(); i++) {
-		dtVectString.addElement((String)((DataType)dtVect.elementAt(i))
-			.getAbbreviation());
+		dtVectString.addElement(((DataType)dtVect.elementAt(i)).getAbbreviation());
 	}
 	
 	// Now loop through the P array and get the operation parameters. If 
@@ -1592,8 +1614,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 		//Field 1 - [type field name here]
 		opNumberP[pIndex] = (int)EDIS.readEndianFloat();
 		// This was the last operation and need to break loop. It
-		// should be at j = segObj.NP-1 anyway but do this as a
-		// precaution.
+		// should be at j = segObj.NP-1 anyway but do this as a precaution.
 		if (opNumberP[pIndex] == -1) 
 		{
 			break;
@@ -1638,9 +1659,8 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 		opCarryoverPointer[pIndex] = (int)EDIS.readEndianFloat();
 
 		//Field 6- - [type field name here]
-		// The rating curve name  and tsIDs will be found here
-		// pull them out if they exist. Place all strings of the
-		// PO array into a vector for parsing later.
+		// The rating curve name  and tsIDs will be found here pull them out if they exist.
+		// Place all strings of the PO array into a vector for parsing later.
 		poArray = new Vector();
 		// TODO (JTS - 2004-08-21)
 		// explain the magic number 7
@@ -1652,8 +1672,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 				charValue[i] = EDIS.readEndianChar1();
 			}
 
-			// Hold the first 4 bytes in a
-			// temp String
+			// Hold the first 4 bytes in a temp String
 			parseChar = new String(charValue).trim();
 
 			// Now put the string into a Vector
@@ -1666,15 +1685,13 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 		{
 
 		// now do special formatting for Mean-Q, LAG/K, ADD/SUB, 
-		// Change-T op since it does not follow the way every other
-		// operation seems to be formatted.
+		// Change-T op since it does not follow the way every other operation seems to be formatted.
 			if (opNumberP[pIndex] == __OP_MEAN_Q || 
 				opNumberP[pIndex] == __OP_LAG_K ||
 				opNumberP[pIndex] == __OP_ADD_SUB || 
 				opNumberP[pIndex] == __OP_CHANGE_T ) 
 			{
-				// Always skip array elements 0
-				// Since for these operations the 0
+				// Always skip array elements 0 since for these operations the 0
 				// element always contains a NULL.
 				if (j == 0) 
 				{
@@ -1686,95 +1703,67 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					continue;
 				}
 
-				// This operation has no description or
-				// RC it just goes into TSIDs.
-				// Get the TS identifiers for the operation
-				// Check to see if the value in the PO
-				// array are a true string if so it is a
-				// most likely a TS name
-				if (StringUtil.isASCII(
-					(String)poArray.elementAt(j))) 
+				// This operation has no description or RC it just goes into TSIDs.
+				// Get the TS identifiers for the operation Check to see if the value in the PO
+				// array are a true string if so it is a most likely a TS name
+				if (StringUtil.isASCII(	(String)poArray.elementAt(j))) 
 				{
-					// Hold the 4 bytes in a
-					// temp String
-					parseTemp = 
-					new String(
-						(String)poArray.elementAt(j));
+					// Hold the 4 bytes in a temp String
+					parseTemp = (String)poArray.elementAt(j);
 					parseTemp = parseTemp.trim();
 					tsExists++;
 
 					// TODO (JTS - 2004-08-21)
-					// what do the different values of 
-					// tsExists mean??
+					// what do the different values of tsExists mean??
 
-					if (tsExists == 1 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						// TSID part 1
 						parseTS = parseTemp;
 						parseTS = parseTS.trim();
 						loopCheck = j;
 					}
-					else if (tsExists == 2 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						 // TSID part 2
 						parseTS += parseTemp;
-						parseTS = 
-							parseTS.trim();
+						parseTS = parseTS.trim();
 					}
-					else if (tsExists == 3 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					else if (tsExists == 3 && parseTemp != null	&& parseTemp.length() != 0) 
 					{
 					 	// TS DataType
 						parseDT = parseTemp;
-						parseDT = 
-							parseDT.trim();
+						parseDT = parseDT.trim();
 					}
 				}
 
-				// This is the tough part: If three 
-				// consecutive array elements are valid
-				// ASCII strings then it is a TSID and
-				// DataType code. The TSID forms two
-				// parts and the DataType forms one.
-				// The tsExists int above is used to
-				// determine which part is which and
-				// the loopCheck is used to make sure
+				// This is the tough part: If three consecutive array elements are valid
+				// ASCII strings then it is a TSID and DataType code. The TSID forms two
+				// parts and the DataType forms one.  The tsExists int above is used to
+				// determine which part is which and the loopCheck is used to make sure
 				// they are consecutive elements.
-				if (loopCheck == j-2 && tsExists == 3
-					&& parseTS != null
-					&& parseTS.length() != 0
-					&& parseDT != null
-					&& parseDT.length() != 0) 
+				if (loopCheck == j-2 && tsExists == 3 && parseTS != null
+					&& parseTS.length() != 0 && parseDT != null && parseDT.length() != 0) 
 				{
-					opTSID[pIndex].add(
-						parseTS);
-					opTSDT[pIndex].add(
-						parseDT);
+					opTSID[pIndex].add(	parseTS);
+					opTSDT[pIndex].add(	parseDT);
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j 
-					&& tsExists == 1) 
+				else if (loopCheck < j && tsExists == 1) 
 				{
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j-1 
-					&& tsExists == 2) 
+				else if (loopCheck < j-1 && tsExists == 2) 
 				{
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j-2 
-					&& tsExists == 3) 
+				else if (loopCheck < j-2 && tsExists == 3) 
 				{
 					parseTS = "";
 					parseDT = "";
@@ -1790,16 +1779,13 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 				continue;
 			}
 
-			// now do special formatting for PLOT-TUL op
-			// since it does not follow the way every other
+			// Now do special formatting for PLOT-TUL op since it does not follow the way every other
 			// operation seems to be formatted.		
 			if (opNumberP[pIndex] == __OP_PLOT_TUL) 
 			{
 //Message.printWarning(2,routine,"PO Array at "+j+" = "+(String)poArray.elementAt(j));
 
-				// Always skip array elements 0-19
-				// Since element 0 - 19 contain non useful
-				// data.
+				// Always skip array elements 0-19 Since element 0 - 19 contain non useful data.
 				if (j <= 19) 
 				{
 					parseChar = "";
@@ -1812,19 +1798,13 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 //				else if ((j == 20 || j == 21) && deepRead)
 				else if (j == 20 || j == 21)
 				{
-					// If this op has a rating curve it 
-					// will be here at array element 20
-					// Get the rating curve identifier 
-					// if it exists
+					// If this operation has a rating curve it will be here at array element 20
+					// Get the rating curve identifier if it exists
 					rcExists = false;
-					if (StringUtil.isASCII(
-						(String)poArray.elementAt(j))) 
+					if (StringUtil.isASCII((String)poArray.elementAt(j))) 
 					{
-						// Hold the 4 bytes in a
-						// temp String
-						parseTemp = 
-						new String((String)poArray.
-							elementAt(j));
+						// Hold the 4 bytes in a temp String
+						parseTemp = new String((String)poArray.elementAt(j));
 						parseTemp = parseTemp.trim();
 
 						parseChar += parseTemp;
@@ -1832,9 +1812,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 						rcExists = true;
 					}
 
-					if (j == 21 && rcExists && 
-						parseChar.indexOf(' ') < 0 &&
-						parseChar.length() > 2) 
+					if (j == 21 && rcExists && parseChar.indexOf(' ') < 0 && parseChar.length() > 2) 
 					{
 						rcID[pIndex] = parseChar;
 						parseChar = "";
@@ -1847,20 +1825,13 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 //				else if ((j >= 25 && j < 40) && deepRead)
 				else if (j >= 25 && j < 40)
 				{
-					// Array Elements 25 - 39 holds the 
-					// operation description!
-					// At element 39 stop. Get the operation 
-					// description
-					if (StringUtil.isASCII(
-					(String)poArray.elementAt(j))) 
+					// Array Elements 25 - 39 holds the operation description!
+					// At element 39 stop. Get the operation description
+					if (StringUtil.isASCII((String)poArray.elementAt(j))) 
 					{
-						// Hold the 4 bytes in a
-						// temp String
-						parseTemp = 
-						new String((String)poArray.
-						elementAt(j));
+						// Hold the 4 bytes in a temp String
+						parseTemp = new String((String)poArray.elementAt(j));
 						parseTemp = parseTemp.trim();
-
 						parseChar += parseTemp;
 						parseChar = parseChar.trim();
 					}
@@ -1873,27 +1844,17 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 				}
 				else 
 				{
-					// Get the TS identifiers for the 
-					// operation
-					// Check to see if the value in the PO
-					// array are a true string if so it is a
+					// Get the TS identifiers for the operation
+					// Check to see if the value in the PO array are a true string if so it is a
 					// most likely a TS name
-					if (StringUtil.isASCII(
-						(String)poArray.elementAt(j))) 
+					if (StringUtil.isASCII(	(String)poArray.elementAt(j))) 
 					{
-						// Hold the 4 bytes in a
-						// temp String
-						parseTemp = 
-							new String(
-							(String)poArray.
-							elementAt(j));
+						// Hold the 4 bytes in a temp String
+						parseTemp = new String(	(String)poArray.elementAt(j));
 						parseTemp = parseTemp.trim();
 
-						// It seems that if parseTemp
-						// equals "BEFORE" then need
-						// to skip.
-						if (parseTemp.equalsIgnoreCase(
-							"BEFO")) 
+						// It seems that if parseTemp equals "BEFORE" then need to skip.
+						if (parseTemp.equalsIgnoreCase(	"BEFO")) 
 						{
 							continue;
 						}
@@ -1901,57 +1862,38 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 						// Time Series exists
 						tsExists++;
 
-						if (tsExists == 1 
-						    && parseTemp != null
-						    && parseTemp.length() != 0)
+						if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0)
 						{
 						    	// TSID part 1
 							parseTS = parseTemp;
-							parseTS = 
-								parseTS.trim();
+							parseTS = parseTS.trim();
 							loopCheck = j;
 						}
-						else if (tsExists == 2 
-						    && parseTemp != null
-						    && parseTemp.length() != 0)
+						else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0)
 						{
 						 	// TSID part 2
 							parseTS += parseTemp;
-							parseTS = 
-								parseTS.trim();
+							parseTS = parseTS.trim();
 						}
-						else if (tsExists == 3 
-						    && parseTemp != null
-						    && parseTemp.length() !=0) 
+						else if (tsExists == 3 && parseTemp != null && parseTemp.length() !=0) 
 						{
 							// TS DataType
 							parseDT = parseTemp;
-							parseDT = 
-								parseDT.trim();
+							parseDT = parseDT.trim();
 						}
 					}
 
-					// This is the tough part: If three 
-					// consecutive array elements are valid
-					// ASCII strings then it is a TSID and
-					// DataType code. The TSID forms two
-					// parts and the DataType forms one.
-					// The tsExists int above is used to
-					// determine which part is which and
-					// the loopCheck is used to make sure
-					// they are consecutive elements.
-					// We need to do a check on the
-					// Data Type to see if it is a
-					// real data type. If so we add
-					// to the Vector otherwise just
-					// continue!
+					// This is the tough part: If three consecutive array elements are valid
+					// ASCII strings then it is a TSID and DataType code. The TSID forms two
+					// parts and the DataType forms one.  The tsExists int above is used to
+					// determine which part is which and the loopCheck is used to make sure
+					// they are consecutive elements.  We need to do a check on the
+					// Data Type to see if it is a real data type. If so we add
+					// to the Vector otherwise just continue!
 					if (loopCheck == j-2 && tsExists == 3 
-						&& parseTS != null
-						&& parseTS.length() != 0
-						&& parseDT != null
-						&& parseDT.length() != 0
-						&& StringUtil.indexOf(
-						   dtVectString,parseDT) >= 0) 
+						&& parseTS != null && parseTS.length() != 0
+						&& parseDT != null && parseDT.length() != 0
+						&& StringUtil.indexOf( dtVectString,parseDT) >= 0) 
 					{
 						opTSID[pIndex].add(parseTS);
 						opTSDT[pIndex].add(parseDT);
@@ -1960,26 +1902,22 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 						parseDT = "";
 						tsExists = 0;
 
-						// If get an OP need 
-						// to skip 10 array spots
+						// If get an OP need to skip 10 array spots
 						j += 10;
 					}
-					else if (loopCheck < j 
-						&& tsExists == 1) 
+					else if (loopCheck < j && tsExists == 1) 
 					{
 						parseTS = "";
 						parseDT = "";
 						tsExists = 0;
 					}
-					else if (loopCheck < j-1 
-						&& tsExists == 2) 
+					else if (loopCheck < j-1 && tsExists == 2) 
 					{
 						parseTS = "";
 						parseDT = "";
 						tsExists = 0;
 					}
-					else if (loopCheck < j-2 
-						&& tsExists == 3) 
+					else if (loopCheck < j-2 && tsExists == 3) 
 					{
 						parseTS = "";
 						parseDT = "";
@@ -1996,13 +1934,11 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 				continue;
 			}
 
-			// now do special formatting for MERGE-TS op
-			// since it does not follow the way every other
+			// now do special formatting for MERGE-TS op since it does not follow the way every other
 			// operation seems to be formatted.
 			if (opNumberP[pIndex] == __OP_MERGE_TS) 
 			{
-				// Always skip array elements 0
-				// since element 0 is NULL.
+				// Always skip array elements 0 since element 0 is NULL.
 				if (j == 0) 
 				{
 					parseChar = "";
@@ -2013,45 +1949,32 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					continue;
 				}
 
-				// This operation has no description or
-				// RC it just goes into TSIDs.
+				// This operation has no description or RC it just goes into TSIDs.
 				// Get the TS identifiers for the operation
-				// Check to see if the value in the PO
-				// array are a true string if so it is a
+				// Check to see if the value in the PO array are a true string if so it is a
 				// most likely a TS name
-				if (StringUtil.isASCII(
-					(String)poArray.elementAt(j))) 
+				if (StringUtil.isASCII((String)poArray.elementAt(j))) 
 				{
-					// Hold the 4 bytes in a
-					// temp String
-					parseTemp = new String(
-						(String)poArray.elementAt(j));
+					// Hold the 4 bytes in a temp String
+					parseTemp = (String)poArray.elementAt(j);
 					parseTemp = parseTemp.trim();
 					tsExists++;
-					// TODO (JTS - 2004-08-21)
-					// what do the different values of 
-					// tsExists mean??
+					// TODO (JTS - 2004-08-21) what do the different values of tsExists mean??
 
-					if (tsExists == 1 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) 
 					{
 					 	// TSID part 1
 						parseTS = parseTemp;
 						parseTS = parseTS.trim();
 						loopCheck = j;
 					}
-					else if (tsExists == 2 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						// TSID part 2
 						parseTS += parseTemp;
 						parseTS = parseTS.trim();
 					}
-					else if (tsExists == 3 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					else if (tsExists == 3 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						// TS DataType
 						parseDT = parseTemp;
@@ -2059,20 +1982,14 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					}
 				}
 
-				// This is the tough part. If three 
-				// consecutive array elements are valid
-				// ASCII strings then it is a TSID and
-				// DataType code. The TSID forms two
-				// parts and the DataType forms one.
-				// The tsExists int above is used to
-				// determine which part is which and
-				// the loopCheck is used to make sure
+				// This is the tough part. If three consecutive array elements are valid
+				// ASCII strings then it is a TSID and DataType code. The TSID forms two
+				// parts and the DataType forms one.  The tsExists int above is used to
+				// determine which part is which and the loopCheck is used to make sure
 				// they are consecutive elements.
 				if (loopCheck == j-2 && tsExists == 3 
-					&& parseTS != null
-					&& parseTS.length() != 0
-					&& parseDT != null
-					&& parseDT.length() != 0) 
+					&& parseTS != null && parseTS.length() != 0
+					&& parseDT != null && parseDT.length() != 0) 
 				{
 					opTSID[pIndex].add(parseTS);
 					opTSDT[pIndex].add(parseDT);
@@ -2081,8 +1998,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					tsExists = 0;
 
 					// Skip one array spot
-					// TODO (JTS - 2004-08-19)
-					// explain WHY
+					// TODO (JTS - 2004-08-19) explain WHY
 					j++;
 				}
 				else if (loopCheck < j && tsExists == 1) 
@@ -2113,8 +2029,7 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 				continue;
 			}
 
-			// now do special formatting for FFG op
-			// since it does not follow the way every other
+			// Do special formatting for FFG op since it does not follow the way every other
 			// operation seems to be formatted
 			if (opNumberP[pIndex] == __OP_FFG) 
 			{
@@ -2124,12 +2039,10 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 				continue;
 			}
 
-			// Most of the OPs have the same format so below
-			// is the general format for operations.
+			// Most of the OPs have the same format so below is the general format for operations.
 			if (j == 0) 
 			{
-				// First element always skip
-				// Since element 0 is NULL.
+				// First element always skip Since element 0 is NULL.
 				// explain WHY
 				parseChar = "";
 				parseTS = "";
@@ -2140,17 +2053,12 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 			}
 			else if ((j <= 5) && deepRead) 
 			{
-			 	// The 1-5 element is OP desc
-				// Get the operation description
-				if (StringUtil.isASCII(
-					(String)poArray.elementAt(j))) 
+			 	// The 1-5 element is OP desc Get the operation description
+				if (StringUtil.isASCII( (String)poArray.elementAt(j))) 
 				{
-					// Hold the 4 bytes in a
-					// temp String
-					parseTemp = new String(
-						(String)poArray.elementAt(j));
+					// Hold the 4 bytes in a temp String
+					parseTemp = (String)poArray.elementAt(j);
 					parseTemp = parseTemp.trim();
-
 					parseChar += parseTemp;
 					parseChar = parseChar.trim();
 				}
@@ -2161,23 +2069,17 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					parseChar = "";
 				}
 			}
-			else if ((j == 15 || j == 16) && 
-				opNumberP[pIndex] == __OP_STAGE_Q) 
+			else if ((j == 15 || j == 16) && opNumberP[pIndex] == __OP_STAGE_Q) 
 //				opNumberP[pIndex] == __OP_STAGE_Q && deepRead) 
 			{
-				// For StageQ array elements 15 and 16 hold the 
-				// RCID. If a RC exists it will be here
+				// For StageQ array elements 15 and 16 hold the RCID. If a RC exists it will be here
 				// Get the rating curve identifier if it exists
 				rcExists = false;
-				if (StringUtil.isASCII(
-					(String)poArray.elementAt(j))) 
+				if (StringUtil.isASCII((String)poArray.elementAt(j))) 
 				{
-					// Hold the 4 bytes in a
-					// temp String
-					parseTemp = new String(
-						(String)poArray.elementAt(j));
+					// Hold the 4 bytes in a temp String
+					parseTemp = (String)poArray.elementAt(j);
 					parseTemp = parseTemp.trim();
-
 					parseChar += parseTemp;
 					parseChar = parseChar.trim();
 					rcExists = true;
@@ -2197,40 +2099,30 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 			{
 				// check for TSIDs and TS DataTypes
 				// Get the TS identifiers for the operation
-				// Check to see if the value in the PO
-				// array are a true string if so it is a
+				// Check to see if the value in the PO array are a true string if so it is a
 				// most likely a TS name
-				if (StringUtil.isASCII(
-					(String)poArray.elementAt(j))) 
+				if (StringUtil.isASCII((String)poArray.elementAt(j))) 
 				{
-					// Hold the 4 bytes in a
-					// temp String
-					parseTemp = new String(
-						(String)poArray.elementAt(j));
+					// Hold the 4 bytes in a temp String
+					parseTemp = (String)poArray.elementAt(j);
 					parseTemp = parseTemp.trim();
 					tsExists++;
 //Message.printStatus(1, "", "ParseTemp \"" + parseTemp + "\" (" 
 //	+ tsExists + ")");
-					if (tsExists == 1 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						// TSID part 1
 						parseTS = parseTemp;
 						parseTS = parseTS.trim();
 						loopCheck = j;
 					}
-					else if (tsExists == 2 
-						&& parseTemp != null
-						&& parseTemp.length() != 0) 
+					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						// TSID part 2
 						parseTS += parseTemp;
 						parseTS = parseTS.trim();
 					}
-					else if (tsExists == 3 
-						&& parseTemp != null 
-						&& parseTemp.length() != 0) 
+					else if (tsExists == 3 && parseTemp != null && parseTemp.length() != 0) 
 					{
 						// TS DataType
 						parseDT = parseTemp;
@@ -2238,20 +2130,14 @@ NWSRFS_Segment segObj, boolean deepRead) throws Exception
 					}
 				}
 
-				// This is the tough part: If three 
-				// consecutive array elements are valid
-				// ASCII strings then it is a TSID and
-				// DataType code. The TSID forms two
-				// parts and the DataType forms one.
-				// The tsExists int above is used to
-				// determine which part is which and
-				// the loopCheck is used to make sure
+				// This is the tough part: If three consecutive array elements are valid
+				// ASCII strings then it is a TSID and DataType code. The TSID forms two
+				// parts and the DataType forms one.  The tsExists int above is used to
+				// determine which part is which and the loopCheck is used to make sure
 				// they are consecutive elements.
 				if (loopCheck == j-2 && tsExists == 3 
-					&& parseTS != null 
-					&& parseTS.length() != 0
-					&& parseDT != null
-					&& parseDT.length() != 0) 
+					&& parseTS != null && parseTS.length() != 0
+					&& parseDT != null && parseDT.length() != 0) 
 				{
 //Message.printStatus(1, "", "" + parseTS + "  " + parseDT + " " + pIndex);
 					opTSID[pIndex].add(parseTS);
@@ -2369,15 +2255,12 @@ if (pIndex == 3 || pIndex == 4 || pIndex == 5) {
 			// Check to see if Operation has additional 
 			// information like a "PO" array.
 			// Check to see where the "PO" array starts
-			opParameterArrayPointer[tIndex] 
-				= (int)EDIS.readEndianInt();
+			opParameterArrayPointer[tIndex] = (int)EDIS.readEndianInt();
 
 			// Get the next pointer value
-			opCarryoverPointerCO[tIndex] 
-				= (int)EDIS.readEndianInt();
+			opCarryoverPointerCO[tIndex] = (int)EDIS.readEndianInt();
 
-			// This array of floats will be skipped 
-			// to end of array position.
+			// This array of floats will be skipped to end of array position.
 			opIndex = 0;
 
 			for (i = thisOPRecord + 4; i < nextOPRecord; i ++) 
@@ -2411,15 +2294,27 @@ Message.printDebug(1,routine,IOe);
 			// Create a new Operations object
 			try 
 			{
-			// If the op number from database exceeds what we expect
-			// set opnum to 0 or "none" operation
-			if ( opNumberP[i] > 53 ) {
-                Message.printWarning(2, routine, "Parsing operations does not handle opnum>53. "
-                        + "Trying to parse " + opNumberP[i] + " " + opName[i] );
-				opNumberP[i] = 0;
+			// FIXME SAM 2008-04-08 Find out if parse really will be incomplete for newer operations
+			// or whether it actually works.
+			// If the op number from database exceeds what we expect set opnum to 0 or "none" operation
+			if ( opNumberP[i] > __maxParsableOperation ) {
+                Message.printWarning(2, routine, "Parsing operations does not handle opnum > " +
+                		__maxParsableOperation + "  Trying to parse " + opNumberP[i] + " " + opName[i] +
+                		"  Will include operation but data may be incomplete.");
+				// Continue setting some information below.
             }
 			
-			OP = new NWSRFS_Operation( __operationNames[opNumberP[i]], opName[i],segObj);
+			if ( opNumberP[i] <= __maxKnownOperation ) {
+				// Know the operation name.
+				OP = new NWSRFS_Operation( __operationNames[opNumberP[i]], opName[i], segObj);
+			}
+			else {
+				// Don't know the operation name.
+				OP = new NWSRFS_Operation( __operationNames[opNumberP[i]], opName[__OP_UNKNOWN], segObj);
+				// TODO SAM 2008-04-08  Reset the operation number?  For now try to keep it and
+				// deal with elsewhere if necessary
+				//opNumberP[i] = __OP_UNKNOWN;
+			}
 
 			// Fill public data values for the Operation.
 			OP.setOpNumber(opNumberP[i]);
@@ -2430,35 +2325,28 @@ Message.printDebug(1,routine,IOe);
 				OP.addRCID(rcID[i]);
 			}
 
-			// Check to see if just reading the header. If so
-			// do not fill the entire Operation object.
+			// Check to see if just reading the header. If so do not fill the entire Operation object.
 			if (deepRead) 
 			{
 				OP.setOpRedefName(opRedefName[i]);
 //				OP.setOpCarryoverPointer(opCarryoverPointer[i]);
 
-				// Create the Rating Curve object and add it
-				// to this object
+				// Create the Rating Curve object and add it to this object
 				if (rcID[i] != null) 
 				{
-					OP.addRatingCurve(
-					      readRatingCurve(rcID[i]));
+					OP.addRatingCurve( readRatingCurve(rcID[i]));
 				}
 
-				// Now loop through the t array values and put 
-				// into the proper Operation.
+				// Now loop through the t array values and put into the proper Operation.
 // TODO (SAT 2004-08-24) Getting rid of T array
 /*				for (j = 0;j < tIndex; j++) 
 				{
-					// Check to see Operation numbers 
-					// are the same.
+					// Check to see Operation numbers are the same.
 					// set Operation values and break if so.
 					if (opNumberT[j] == opNumberP[i]) 
 					{
-						OP.setOpParameterArrayPointer(
-						    opParameterArrayPointer[j]);
-						OP.setOpCarryoverPointerCO( 
-						       opCarryoverPointerCO[j]);
+						OP.setOpParameterArrayPointer( opParameterArrayPointer[j]);
+						OP.setOpCarryoverPointerCO( opCarryoverPointerCO[j]);
 						break;
 					}
 				}
@@ -2477,21 +2365,9 @@ Message.printDebug(1,routine,IOe);
 			}
 		}
 
-	} 
-	catch (OutOfMemoryError OOMe) 
-	{
-		// Create a RunTime object to call GC
-		// TODO (JTS - 2004-08-19)
-		// this does NOTHING -- garbage collection is not guaranteed
-		// to run at all.
-		Runtime.getRuntime().gc();
-	}
-
-	// Rewind the EndianDataInputStream so that a seek to proper
-	// location can be done.
+	// Rewind the EndianDataInputStream so that a seek to proper location can be done.
 	EDIS.reset();
-	EDIS.skipBytes(segObj.getNP() * __WORDSIZE 
-		+ segObj.getNT() * __WORDSIZE);
+	EDIS.skipBytes(segObj.getNP() * __WORDSIZE + segObj.getNT() * __WORDSIZE);
 
 	// Now loop through and parse the TS array to fill the Vectors
 	boolean[] tsDataIndicator = new boolean[nts];
@@ -2516,22 +2392,14 @@ Message.printDebug(1,routine,IOe);
 	// TODO SAM 2008-04-07 Evaluate need
 	//boolean duplicate = false;
 
-	// Need to catch OutOfMemoryError since if try to load
-	// all of the Operations in all segments.... It could use
-	// the memroy available and throw this exception. Will
-	// garbage collect if this is caught.
-	
 	// Now loop through the TS array and get the TS parameters. If there are
 	// more than 100 time series in the operation then generally something 
 	// is wrong with the FS5Files for that segment definition! On several 
 	// sets of FS5Files it has been observed that the only times the number 
 	// of ts exceeds 50 is very rarely and only on broken segment definitions 
 	// (I.E. where an time series is defined identically 200 times) does the 
-	// number of ts exceed 100. If the number ts exceeds 100 here we stop 
-	// the loop.
-	try 
-	{
-	while (tsSize < nts && tsIndex <= 100) 
+	// number of ts exceed 100. If the number ts exceeds 100 here we stop the loop.
+	while ( (tsSize < nts) && (tsIndex <= 100) )
 	{
 		//duplicate = false;
 		// Set thisOPRecord to the current P array value.
@@ -2629,8 +2497,7 @@ Message.printDebug(1,routine,IOe);
 			// type. Now if the TimeSeries indicator shows it is an 
 			// Internal TS Then have to fill Vectors differently.
 		
-// TODO (JTS - 2004-08-21)
-// explain the magic number 4
+// TODO (JTS - 2004-08-21) explain the magic number 4
 			
 			if (tsIndicator[tsIndex] == 4) 
 			{
@@ -2645,12 +2512,10 @@ Message.printDebug(1,routine,IOe);
 				// into a Vector.
 				tsAddInformation[tsIndex] = new Vector();
 				opIndex1 = 0;
-// TODO (JTS - 2004-08-21)
-// explain the magic number 10
+// TODO (JTS - 2004-08-21) explain the magic number 10
 				for (j = thisOPRecord + 10; j < nextOPRecord; j++) 
 				{
-					tsAddInformation[tsIndex].add(
-						new Float(EDIS.readEndianFloat()));
+					tsAddInformation[tsIndex].add( new Float(EDIS.readEndianFloat()));
 					opIndex1++;
 				}
 			}
@@ -2673,21 +2538,18 @@ Message.printDebug(1,routine,IOe);
 					tsDataFileCode[tsIndex] = null;
 				}
 
-				tsWhenWriteIndicator[tsIndex] = 
-					(int)EDIS.readEndianFloat();
+				tsWhenWriteIndicator[tsIndex] = (int)EDIS.readEndianFloat();
 
 				tsExtNVAL[tsIndex] = (int)EDIS.readEndianFloat();
 
-				// This array of floats will be placed directly 
-				// into a Vector.
+				// This array of floats will be placed directly into a Vector.
 
 				tsExtLocInformation[tsIndex] = new Vector();
 				opIndex1 = 0;
 
 				for (j = 0; j < tsExtNVAL[tsIndex]; j++) 
 				{
-					// TODO (JTS - 2004-08-19)
-					// the next line needs an explanation
+					// TODO (JTS - 2004-08-19) the next line needs an explanation
 					if ((j - 2) <= 0) 
 					{
 						int csize = 4;
@@ -2700,47 +2562,38 @@ Message.printDebug(1,routine,IOe);
 						charValue = new char[csize];
 						for (int k = 0; k < csize; k++) 
 						{
-							charValue[k] 
-							= EDIS.readEndianChar1();
+							charValue[k] = EDIS.readEndianChar1();
 						}
 
-						parseChar 
-						= new String(charValue).trim();
+						parseChar = new String(charValue).trim();
 
 						if (parseChar.length() != 0) 
 						{
-							tsExtLocInformation[tsIndex].
-							add(parseChar);
+							tsExtLocInformation[tsIndex].add(parseChar);
 						}
 						else 
 						{
-							tsExtLocInformation[tsIndex].
-							add(null);
+							tsExtLocInformation[tsIndex].add(null);
 						}
 					}
 					else 
 					{
-						tsExtLocInformation[tsIndex].add(
-							new Float(
-							EDIS.readEndianFloat()));
+						tsExtLocInformation[tsIndex].add( new Float(EDIS.readEndianFloat()));
 					}
 					opIndex1++;
 				}
 
 				tsNADD[tsIndex] = (int)EDIS.readEndianFloat();
 
-				// This array of floats will be placed directly 
-				// into a Vector.
+				// This array of floats will be placed directly into a Vector.
 
 				tsAddInformation[tsIndex] = new Vector();
 				opIndex2 = 0;
-// TODO (JTS - 2004-08-21)
-// explain the magic number 13			
+// TODO (JTS - 2004-08-21)explain the magic number 13			
 				for (j = (thisOPRecord + 13 + tsExtNVAL[tsIndex]);
 					j<nextOPRecord; j++) 
 				{
-					tsAddInformation[tsIndex].add(
-						new Float(EDIS.readEndianFloat()));
+					tsAddInformation[tsIndex].add( new Float(EDIS.readEndianFloat()));
 					opIndex1++;
 				}
 			}
@@ -2757,18 +2610,15 @@ Message.printDebug(1,routine,IOe);
 			break;
 		}
 
-// TODO (JTS - 2004-08-21)
-// explain the magic number 12
+// TODO (JTS - 2004-08-21) explain the magic number 12
 
 		// Determine index and size for next operation loop
 		tsSize += 12 + opIndex1 + opIndex2;
 		tsIndex++;
-
 	}
 
 	// Now loop through the arrays and create an TimeSeries objects 
-	// to load into the segment. Also a limit to the number of TS 
-	// objects per segment is enforced.
+	// to load into the segment. Also a limit to the number of TS objects per segment is enforced.
 
 	// Now loop through the TS array and get the TS parameters. If there are
 	// more than 100 time series in the operation then generally something 
@@ -2776,8 +2626,7 @@ Message.printDebug(1,routine,IOe);
 	// sets of FS5Files it has been observed that the only times the number 
 	// of ts exceeds 50 is very rarely and only on broken segment definitions 
 	// (I.E. where an time series is defined identically 200 times) does the 
-	// number of ts exceed 100. If the number ts exceeds 100 here we stop 
-	// the loop.
+	// number of ts exceed 100. If the number ts exceeds 100 here we stop the loop.
 	String tsIdentCheck;
 	int[] tsIntCheck = {1,3,6,12,18,24};
 	for (i = 0; i < tsIndex && tsIndex <= 100; i++) 
@@ -2801,8 +2650,7 @@ Message.printDebug(1,routine,IOe);
 		for(int k = 0; k < 6; k++) {
 			tsIdentCheck = tsID[i]+".NWSRFS."+tsDataType[i]+"."+
 				tsIntCheck[k]+"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
-			if(readTimeSeries(tsIdentCheck,null,null,null,false) !=
-				null) {
+			if(readTimeSeries(tsIdentCheck,null,null,null,false) != null) {
 					tsDTInterval[i] = tsIntCheck[k];
 					break;
 			}
@@ -2819,8 +2667,7 @@ Message.printDebug(1,routine,IOe);
 		// Create a new TimeSeries Object
 		TS = new NWSRFS_TimeSeries(tsID[i],tsDataType[i], tsDTInterval[i]);
 
-		// Check to see if the header is being read.  If so,
-		// skip to the next timeseries and continue.
+		// Check to see if the header is being read.  If so, skip to the next timeseries and continue.
 		if (deepRead) 
 		{
 			// NOTE ***********************************************
@@ -2836,8 +2683,7 @@ Message.printDebug(1,routine,IOe);
 			// "FPDB". Most of the time the TSIDs are the same but to 
 			// handle the small number of cases use the external 
 			// location information if the condition is true.
-			if (tsDataFileCode[i] != null 
-				&& tsDataFileCode[i].equalsIgnoreCase("FPDB")) 
+			if (tsDataFileCode[i] != null && tsDataFileCode[i].equalsIgnoreCase("FPDB")) 
 			{
 				TS.setTSDataFileCode(tsDataFileCode[i]);
 
@@ -2846,9 +2692,7 @@ Message.printDebug(1,routine,IOe);
 
 				if (tsExtNVAL[i] > 0) 
 				{
-					TS.setTSID(
-						(String)tsExtLocInformation[i]
-						.elementAt(0));
+					TS.setTSID(	(String)tsExtLocInformation[i].elementAt(0));
 				}
 			}
 
@@ -2866,8 +2710,7 @@ Message.printDebug(1,routine,IOe);
 
 		// Add TimeSeries Info into the Operation. Loop through 
 		// operations defined above and match with tsID[i] to 
-		// get operation to put this TS in. This will be slow 
-		// but there is no other way to do it
+		// get operation to put this TS in. This will be slow but there is no other way to do it
 
 		// Now check to make sure that pIndex does not exceed the actual 
 		// length of the vector arrays
@@ -2886,8 +2729,7 @@ Message.printDebug(1,routine,IOe);
 
 		// Do the pIndex loop
 		for (j = 0;j < pIndex; j++) {
-			// Compare tsID[i] to opTSID.elementAt(j) and
-			// tsDataType[i] to opTSDT.elementAt(j). If true
+			// Compare tsID[i] to opTSID.elementAt(j) and tsDataType[i] to opTSDT.elementAt(j). If true
 			// then add TS to segObj.getOperation(j).
 			try 
 			{			
@@ -2903,91 +2745,62 @@ if (j == 3) {
 		+ tsDataType[i] + "\"");
 }
 */
-				if (tsID[i].equalsIgnoreCase(
-					(String)opTSID[j].elementAt(m)) 
-					&& tsDataType[i].equalsIgnoreCase(
-					(String)opTSDT[j].elementAt(m))) 
+				if (tsID[i].equalsIgnoreCase((String)opTSID[j].elementAt(m)) 
+					&& tsDataType[i].equalsIgnoreCase((String)opTSDT[j].elementAt(m))) 
 				{
 
 //Message.printStatus(1,routine, "Operation Number: "+(segObj.getOperation(j)).getOpNumber()+" adding TS");
 //Message.printStatus(1,routine,"TSID = "+TS.getTSID());
 //Message.printStatus(1,routine,"i = "+i+" j = "+j+" m = "+m);
-					(segObj.getOperation(j)).addTSID(
-						TS.getTSID());
-					(segObj.getOperation(j)).addTSDT(
-						TS.getTSDataType());
-					(segObj.getOperation(j)).addTimeSeries(
-						TS);
+					(segObj.getOperation(j)).addTSID(TS.getTSID());
+					(segObj.getOperation(j)).addTSDT(TS.getTSDataType());
+					(segObj.getOperation(j)).addTimeSeries(TS);
 					if (i > 0) 
 					{
-						// This is done to break 
-						// out of outer loop
+						// This is done to break out of outer loop
 // TODO TS BUG (JTS - 2004-08-19)
 // did this in order to try fixing TS bug in system tree ...
 //						j = pIndex; 
 					}
 					break;
 				}
-				else if ((segObj.getOperation(j)).getOpNumber()
-					== __OP_PLOT_TUL && i == 0) 
+				else if ((segObj.getOperation(j)).getOpNumber() == __OP_PLOT_TUL && i == 0) 
 				{
-				 	// A Plot-Tul operation; only do once.
-					// If this is a Plot-Tul operation then
-					// the time series needs to be added since
-					// the TS in that operation is not included 
-					// in the TS array.  Could come back 
-					// to haunt me here.
-					// TODO (SAT)
-					// if gonna be haunted, revisit
+				 	// A Plot-Tul operation; only do once. If this is a Plot-Tul operation then
+					// the time series needs to be added since the TS in that operation is not included 
+					// in the TS array.  Could come back to haunt me here.
+					// TODO (SAT) if gonna be haunted, revisit
 					// Create a new TimeSeries Object
 //Message.printStatus(1,routine, "PLOT_TUL Operation adding TS");
 //Message.printStatus(1,routine,"TSID = "+(String)opTSID[j].elementAt(m));
 //Message.printStatus(1,routine,"i = "+i+" j = "+j+" m = "+m);
-					TS1 = new NWSRFS_TimeSeries(
-						(String)opTSID[j].elementAt(m),
-						(String)opTSDT[j].elementAt(m),
-						tsDTInterval[i]);
+					TS1 = new NWSRFS_TimeSeries((String)opTSID[j].elementAt(m),
+						(String)opTSDT[j].elementAt(m), tsDTInterval[i]);
 
 					// Need to have the data interval
 					if (tsDTInterval[i] < 1) 
 					{
-						TS1.setTSDTInterval(
-							segObj.getMINDT());
+						TS1.setTSDTInterval(segObj.getMINDT());
 					}
 
-					(segObj.getOperation(j)).
-						addTSID(TS1.getTSID());
-					(segObj.getOperation(j)).
-						addTSDT(TS1.getTSDataType());
-					(segObj.getOperation(j)).
-						addTimeSeries(TS1);
+					(segObj.getOperation(j)).addTSID(TS1.getTSID());
+					(segObj.getOperation(j)).addTSDT(TS1.getTSDataType());
+					(segObj.getOperation(j)).addTimeSeries(TS1);
 				}
 			} // end of opTSID Vector loop
 			}
 			catch (Exception e) 
 			{
 				parseOperationExceptionCount++;
-				// Should never get here. Somehow it is throwing an
-				// outOfBoundsException!
+				// Should never get here. Somehow it is throwing an outOfBoundsException!
 //Message.printStatus(1,routine,"At the exception for opTSID loop: "+parseOperationExceptionCount);
 //Message.printStatus(1,routine,"i = "+i+" j = "+j+" m = "+m);
 //Message.printStatus(1,routine,e.getMessage());
 //Message.printDebug(1,routine,e);
 				pIndex--;
 			}
-
 		} // End of pIndex loop
 	} // End of tsIndex loop
-
-	} 
-	catch (OutOfMemoryError OOMe) 
-	{
-		// Create a RunTime object to call GC
-		// TODO (JTS - 2004-08-19)
-		// this does NOTHING -- garbage collection is not guaranteed
-		// to run at all.		
-		Runtime.getRuntime().gc();
-	}
 }
 
 /**
@@ -3087,8 +2900,7 @@ boolean deepRead) throws Exception
 		
 		parseChar = new String(charValue).trim();
 		
-		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(((NWSRFS_Station)
-			NWSRFS_Object).getID())) {
+		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(((NWSRFS_Station)NWSRFS_Object).getID())) {
 			Message.printStatus(10,routine, "Reading from PPPPARM "+ logicalUnitNum+
 					" file did not produce correct results. The read in identifier is not "+
 				"the same as the expected identifier!  The read in ID: "+parseChar+
@@ -3237,9 +3049,7 @@ boolean deepRead) throws Exception
 		
 		parseChar = new String(charValue).trim();
 		
-		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(((NWSRFS_Station)
-			NWSRFS_Object).getID())) {
+		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(((NWSRFS_Station)NWSRFS_Object).getID())) {
 			Message.printStatus(10,routine, "Reading from PPPPARM "+	logicalUnitNum+
 					" file did not produce correct results. The read in identifier is not "+
 				"the same as the one expected identifier!  The read in ID: "+parseChar+
@@ -3255,8 +3065,7 @@ boolean deepRead) throws Exception
 		
 		parseChar = new String(charValue).trim();
 		
-		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(paramType)) {
+		if (parseChar.length() == 0 ||!parseChar.equalsIgnoreCase(paramType)) {
 			Message.printStatus(10,routine, "Reading from PPPPARM "+	logicalUnitNum+
 					" file did not produce correct results. The read in parameter type is not "+
 				"the same as the one expected parameter type!  The read in paramType: "+parseChar+
@@ -3595,16 +3404,11 @@ boolean deepRead) throws Exception
 		parseChar = new String(charValue).trim();
 //Message.printStatus(10,routine,"RRS Identifier: "+parseChar);
 		
-		if (parseChar.length() == 0 ||!parseChar.equalsIgnoreCase(((NWSRFS_Station)
-			NWSRFS_Object).getID())) {
-			Message.printStatus(10,routine, 
-				"Reading from PPPPARM"+
-				logicalUnitNum+" file did not produce correct "+
-				"results. The read in identifier is not "+
-				"the same as the one expected identifier! "+
-				"The read in ID: "+parseChar+
-				" and the expected ID:"+((NWSRFS_Station)
-				NWSRFS_Object).getID());
+		if (parseChar.length() == 0 ||!parseChar.equalsIgnoreCase(((NWSRFS_Station)NWSRFS_Object).getID())) {
+			Message.printStatus(10,routine, "Reading from PPPPARM "+ logicalUnitNum+
+					" file did not produce correct results. The read in identifier is not "+
+				"the same as the one expected identifier!  The read in ID: "+parseChar+
+				" and the expected ID:"+((NWSRFS_Station)NWSRFS_Object).getID());
 			return false;
 		}
 		
@@ -3619,12 +3423,9 @@ boolean deepRead) throws Exception
 		
 		if (parseChar.length() == 0 ||
 			!parseChar.equalsIgnoreCase(paramType)) {
-			Message.printStatus(10,routine, 
-				"Reading from PPPPARM"+
-				logicalUnitNum+" file did not produce correct "+
-				"results. The read in parameter type is not "+
-				"the same as the one expected parameter type! "+
-				"The read in paramType: "+parseChar+
+			Message.printStatus(10,routine, "Reading from PPPPARM "+ logicalUnitNum+
+					" file did not produce correct results. The read in parameter type is not "+
+				"the same as the one expected parameter type!  The read in paramType: "+parseChar+
 				" and the expected parmType:"+paramType);
 			return false;
 		}
@@ -3835,9 +3636,7 @@ boolean deepRead) throws Exception
 		
 		parseChar = new String(charValue).trim();
 		
-		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(((NWSRFS_Station)
-			NWSRFS_Object).getID())) {
+		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(((NWSRFS_Station)NWSRFS_Object).getID())) {
 			Message.printStatus(10,routine, "Reading from PPPPARM"+	logicalUnitNum+
 					" file did not produce correct results. The read in identifier is not "+
 				"the same as the one expected identifier!  The read in ID: "+parseChar+
@@ -4526,9 +4325,7 @@ boolean deepRead) throws Exception
 		
 		parseChar = new String(charValue).trim();
 		
-/*		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(((NWSRFS_NTWK)
-			NWSRFS_Object).getID())) {
+/*		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(((NWSRFS_NTWK)NWSRFS_Object).getID())) {
 			Message.printStatus(10,routine, 
 				"Reading from PPPPARM"+
 				logicalUnitNum+" file did not produce correct "+
@@ -4548,8 +4345,7 @@ boolean deepRead) throws Exception
 		
 		parseChar = new String(charValue).trim();
 		
-		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(paramType)) {
+		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(paramType)) {
 			Message.printStatus(10,routine, "Reading from PPPPARM "+ logicalUnitNum+
 					" file did not produce correct results. The read in parameter type is not "+
 				"the same as the one expected parameter type! The read in paramType: "+parseChar+
@@ -4729,9 +4525,7 @@ boolean deepRead) throws Exception
 		parseChar = new String(charValue).trim();
 //Message.printStatus(10,routine,"ID = "+parseChar);
 /*		
-		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(((NWSRFS_ORRS)
-			NWSRFS_Object).getID())) {
+		if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(((NWSRFS_ORRS)NWSRFS_Object).getID())) {
 			Message.printStatus(10,routine, 
 				"Reading from PPPPARM"+
 				logicalUnitNum+" file did not produce correct "+
@@ -4752,8 +4546,7 @@ boolean deepRead) throws Exception
 		parseChar = new String(charValue).trim();
 //Message.printStatus(10,routine,"Type = "+parseChar);
 		
-		if (parseChar.length() == 0 ||
-			!parseChar.equalsIgnoreCase(paramType)) {
+		if (parseChar.length() == 0 ||!parseChar.equalsIgnoreCase(paramType)) {
 			Message.printStatus(10,routine, "Reading from PPPPARM "+ logicalUnitNum+
 					" file did not produce correct results. The read in parameter type is not "+
 				"the same as the one expected parameter type! The read in paramType: "+parseChar+
@@ -6036,24 +5829,20 @@ throws Exception {
 				ptrFile.addIREC(Integer.valueOf("-1"));
 			}
 			else {
-				ptrFile.addIREC(
-					Integer.valueOf(
-					String.valueOf(intValue)));
+				ptrFile.addIREC(Integer.valueOf(String.valueOf(intValue)));
 			}
 
 			EDIS.close();
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
-			// TODO (JTS - 2004-08-21)
-			// maybe print a warning or something?
+			// TODO (JTS - 2004-08-21) maybe print a warning or something?
 			EDIS.close();
 			break;
 		}
 		catch (NullPointerException NPe) {
 			exceptionCount++;
-			// TODO (JTS - 2004-08-21)
-			// maybe print a warning or something?
+			// TODO (JTS - 2004-08-21) maybe print a warning or something?
 			EDIS.close();
 			break;
 		}

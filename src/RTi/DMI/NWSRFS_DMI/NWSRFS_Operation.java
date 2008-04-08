@@ -18,7 +18,6 @@
 //-----------------------------------------------------------------------------
 // Endheader
 
-
 package RTi.DMI.NWSRFS_DMI;
 
 import java.util.Vector;
@@ -370,8 +369,7 @@ The name used during Segment redefinition.
 private String __opRedefName;
 
 /**
-The Operation type name that is associated with the Operation number. 
-e.g. "Plot-Tul".
+The Operation type name that is associated with the Operation number (e.g., "Plot-Tul").
 */
 private String __opTypeName;
 
@@ -387,9 +385,7 @@ throws Exception {
 		__segment = segment;
 	}
 	else {
-		throw new NullPointerException(
-			"The parent Segment was null. Can not "
-			+ "initialize the class.");
+		throw new NullPointerException("The parent Segment was null. Cannot initialize the class.");
 	}
 
 	initialize();
@@ -403,17 +399,14 @@ Constructor.  Initializes with no time series.
 @throws NullPointerException if the segment is null.
 */
 public NWSRFS_Operation (String sysid, String userid, NWSRFS_Segment segment) 
-throws Exception {
-	String routine = "NWSRFS_Operation";
-	
+throws Exception
+{
 	// Set parent segment object
 	if ( segment != null) {
 		__segment = segment;
 	}
 	else {
-		throw new NullPointerException(
-			"The parent Segment was null. Can not "
-			+ "initialize the class.");
+		throw new NullPointerException( "The parent Segment was null. Cannot initialize the class.");
 	}
 
 	initialize();
