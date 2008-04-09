@@ -331,19 +331,6 @@ public NWSRFS_SystemMaintenance(NWSRFS_System_JTree systemJTree) {
         //SimpleJFileEditor... Other options for editor: "vi" or "nedit"
         _editor = IOUtil.getPropValue( "Editor" );
 
-        //set look and feel
-        String landf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        try {
-                UIManager.setLookAndFeel( landf );
-        }
-        catch ( Exception e ) {
-                if ( Message.isDebugOn  ) {
-                        Message.printDebug( 5, routine,
-                        "Unable to set Look and Feel to: \"" +
-                        landf + "\"." );
-                }
-        }
-
 	//set up Strings to use for the GUI components if using a translation
 	if ( LanguageTranslator.getTranslator() != null ) {	
 		initialize_gui_strings();

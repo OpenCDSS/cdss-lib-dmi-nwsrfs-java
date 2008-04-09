@@ -92,6 +92,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import java.io.File;
 import java.util.Vector;
 
 import javax.swing.Icon;
@@ -121,12 +122,10 @@ import RTi.Util.Time.StopWatch;
 
 /**
 The NWSRFS_System_JTree class displays the NWSRFS "sysmap" which
-includes: carryover group, forecast groups, segements, operations,
-and time series.
+includes: carryover group, forecast groups, segments, operations, and time series.
 */
 public class NWSRFS_System_JTree extends SimpleJTree
 implements ActionListener, MouseListener, SimpleJTree_Listener {
-
 
 //parent JFrame
 private JFrame __parent;
@@ -156,12 +155,11 @@ private String __fs5files;
 //the expansion of the operation node under which the TS falls.
 private boolean __checkTS =true;
 
-//if we just want to add ALL timeseries (with an 
+//if we just want to add ALL time series (with an 
 //indication of if they do not have any data or not).
 private boolean __useAllTS =true;
 
-//For SnowGUI, we only display operations of type:
-//SNOW-17 and time series of type: SWE
+//For SnowGUI, we only display operations of type:  SNOW-17 and time series of type: SWE
 private boolean __useOnlySnowTSandOperations = false;
 private boolean __use_all_operations = true;
 
@@ -176,7 +174,7 @@ private boolean __include_all_operations = true;
 private boolean __include_ratingCurves= false;
 
 //Indicates whether the nodes in the JTree should be 
-//preceeded by an abbreviation indicating data type or not.
+//preceded by an abbreviation indicating data type or not.
 private boolean __verbose = true;	
 
 //folder icon
@@ -185,7 +183,7 @@ private Icon __folderIcon;
 //if the Tree nodes can be edited --currently not used.
 //private boolean __canEdit = false;
 
-// A single popup menu that is used to provide access to  other features 
+// A single popup menu that is used to provide access to other features 
 //from the tree.  The single menu has its items added/removed as necessary 
 //based on the state of the tree.
 private JPopupMenu __popup_JPopupMenu;		
@@ -193,8 +191,7 @@ private JPopupMenu __popup_JPopupMenu;
 //pop menu items 
 // Define STRINGs here used for NWSRFSGUI menus in case we need
 // to translate the strings.  Do not need to add popup menu
-// items for the Snow Updating GUI since this GUI is not 
-// translated.
+// items for the Snow Updating GUI since this GUI is not translated.
 protected String _popup_graphTS_string = "Graph Selected Time Series";
 protected String _popup_printCG_string = "View Current Carryover Group Definition";
 protected String _popup_printFG_string = "View Current Forecast Group Definition";
@@ -208,28 +205,27 @@ private SimpleJMenuItem __popup_printFG_JMenuItem = null;
 private SimpleJMenuItem __popup_printSegs_JMenuItem = null;
 private SimpleJMenuItem __popup_redefSegs_JMenuItem = null;
 
-//SnowGUI onlly has 1 popup menu
-private SimpleJMenuItem __popup_snow_selectKids_JMenuItem = null;
-
+//SnowGUI only has 1 popup menu
+private SimpleJMenuItem __popup_snow_selectSubareas_JMenuItem = null;
 
 /**
-Constructor for NWSRFS_System_JTree to display NWSRFS system  information.
+Constructor for NWSRFS_System_JTree to display NWSRFS system information.
 By default, the tree is created as a NWSRFSGUI JTree, with verbose
 nodes (additional abbreviations before node name to indicate node 
 type), operations and rating curves are not included in the JTree. Also,
-by default, all Time Series are read in upfront and all time series
+by default, all Time Series are read in up front and all time series
 are included in the tree, whether they have data or not.
 @param parent JFrame parent Calling parent class.  
 @param nwsrfs NWSRFS instance containing all the data for the JTree.
 @param top_node_str String to use for top tree node.
 @param fs5files String for fs5files used.
-@param properties PropList containing any of the followng properties:
+@param properties PropList containing any of the following properties:
 <table>
 <tr>
 <th>Property Name</th> <th>Property Description</th> <th>Default Value (if not defined)</th>
 </tr>
 <tr>
-<td>checkTS</td>
+<td>SystemJTree.checkTS</td>
 <td>boolean indicates if all Time Series should be read in up front as
 tree is being created and checked to see if they actually contain data.
 If the time series does not have data, it is added to the JTree with
@@ -240,40 +236,43 @@ have data, it is not added to the tree.</td>
 <td>true</td>
 </tr>
 
-<td>useOnlySnowTSandOperations</td>
+<td>SystemJTree.useOnlySnowTSandOperations</td>
 <td>boolean indicating that only time series of type SWE and
 operation: SNOW-17 are displayed on the tree. 
-Used only if checkTS set to True. If this is 
-true, __include_all_operations is set to False </td>
+Used only if checkTS set to True. If this is true, __include_all_operations is set to False </td>
 <td>false</td>
 </tr>
 
 <tr>
-<td>forNWSRFSGUI</td>
-<td>boolean to indicate if System JTree is for NWSRFSGUI</td>
+<td>SystemJTree.forNWSRFSGUI</td>
+<td>boolean to indicate if System JTree is for NWSRFSGUI, which will include popups to print
+current definitions, redefine, and graph time series.  If this is set to false, then popups will
+provide display but not redefine choices).</td>
 <td>true</td>
 </tr>
 
 <tr>
-<td>forSnowUpdate</td>
-<td>boolean to indicate if System JTree is for SnowUpdatingGUI</td>
+<td>SystemJTree.forSnowUpdate</td>
+<td>boolean to indicate if System JTree is for SnowUpdatingGUI.  If true, only SNOW-17 operations
+are displayed and popups will not include redefine.</td>
 <td>false</td>
 </tr>
 
 <tr>
-<td>include_all_operations</td>
-<td>boolean indicating if Operations should be included in System Tree</td>
+<td>SystemJTree.include_all_operations</td>
+<td>boolean indicating if Operations should be included in System Tree (false means no
+operations will be shown).</td>
 <td>true</td>
 </tr>
 
 <tr>
-<td>include_ratingCurves</td>
+<td>SystemJTree.include_ratingCurves</td>
 <td>boolean indicating if Rating Curves should be included in System Tree</td>
 <td>false</td>
 </tr>
 
 <tr>
-<td>useAllTS</td>
+<td>SystemJTree.useAllTS</td>
 <td>boolean indicating if all Time Series should be included in JTree 
 whether they have data or not.
 If time series has no data, but this 
@@ -284,7 +283,7 @@ and a time series has no data, it is not added to the JTree.</td>
 </tr>
 
 <tr>
-<td>verbose</td>
+<td>SystemJTree.verbose</td>
 <td>boolean to indicate if extra abbreviations should be used before 
 each tree node's name to indicate data type of node ( for example: "seg:" 
 for segment, "fg:" for forecast group, etc.)
@@ -293,15 +292,12 @@ for segment, "fg:" for forecast group, etc.)
 </tr>
 </table>
 */
-public NWSRFS_System_JTree ( JFrame parent, NWSRFS nwsrfs,
-				String top_node_str,
-				String fs5files,
+public NWSRFS_System_JTree ( JFrame parent, NWSRFS nwsrfs, String top_node_str, String fs5files,
 				PropList properties ) {
 				
 	String routine = "NWSRFS_System_JTree.constructor";
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 2, routine, 
-		"Routine " + routine + " called." );
+		Message.printDebug( 2, routine, "Routine " + routine + " called." );
 	}
 	
 	__parent = parent;
@@ -311,8 +307,7 @@ public NWSRFS_System_JTree ( JFrame parent, NWSRFS nwsrfs,
 
 	//set Properties
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 2, routine, 
-		"Initializing properties for NWSRFS System Tree.");
+		Message.printDebug( 2, routine, "Initializing properties for NWSRFS System Tree.");
 	}
 	initialize_properties( properties );
 
@@ -332,8 +327,7 @@ public NWSRFS_System_JTree ( JFrame parent, NWSRFS nwsrfs,
 
 	//populate tree
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 2, routine, 
-		"Populating NWSRFS System Tree.");
+		Message.printDebug( 2, routine, "Populating NWSRFS System Tree.");
 	}
 	displayTreeData();
 
@@ -348,25 +342,21 @@ Constructor for NWSRFS_System_JTree to display NWSRFS system information.
 By default, the tree is created as a NWSRFSGUI JTree, without verbose
 nodes (no additional abbreviations before node name to indicate node 
 type), operations and rating curves are not included in the JTree. Also,
-by default, all Time Series are read in upfront and all time series
+by default, all Time Series are read in up front and all time series
 are included in the tree, whether they have data or not.
 @param parent JFrame parent Calling parent class.  
 @param nwsrfs NWSRFS instance containing all the data for the JTree.
 @param top_node_str String to use for top tree node.
 @param fs5files String for fs5files used.
 */
-public NWSRFS_System_JTree ( JFrame parent, NWSRFS nwsrfs, 
-			String top_node_str, String fs5files ) {
-		
+public NWSRFS_System_JTree ( JFrame parent, NWSRFS nwsrfs, String top_node_str, String fs5files )
+{
 	 this ( parent, nwsrfs, top_node_str, fs5files, new PropList("") );
-
 } //end constructor
-
 
 /**
 Removes the extra information added to the beginning of the node name
-if running in verbose mode (__verbose = true ).  Assumes the prefix
-ends in a colon ":".
+if running in verbose mode (__verbose = true ).  Assumes the prefix ends in a colon ":".
 @param name Name to parse out additional prefix information if exists.
 */
 protected String clean_node_name ( String name ) {
@@ -382,7 +372,6 @@ protected String clean_node_name ( String name ) {
 	}
 	return s;
 }
-
 
 /**
 Clear all data from the tree.
@@ -400,8 +389,7 @@ public void clear () {
 			(SimpleJTree_Node)v.elementAt(i), false );
 		}
 		catch ( Exception e ) {
-			Message.printWarning ( 2, routine,
-			"Cannot remove node " + node.toString() );
+			Message.printWarning ( 2, routine, "Cannot remove node " + node.toString() );
 			Message.printWarning ( 2, routine, e );
 		}
 	}
@@ -422,37 +410,29 @@ private void createPopupMenu() {
 	
 	if ( __forNWSRFSGUI ) {
 		//popup menu items
-		__popup_printCG_JMenuItem = new SimpleJMenuItem(
-		_popup_printCG_string, this );
-		__popup_printFG_JMenuItem = new SimpleJMenuItem(
-		_popup_printFG_string, this );
-		__popup_printSegs_JMenuItem = new SimpleJMenuItem(
-		_popup_printSegs_string, this );
-		__popup_redefSegs_JMenuItem = new SimpleJMenuItem(
-		_popup_redefSegs_string, this );
-		__popup_graphTS_JMenuItem = new SimpleJMenuItem(
-		_popup_graphTS_string, this );
+		__popup_printCG_JMenuItem = new SimpleJMenuItem(_popup_printCG_string, this );
+		__popup_printFG_JMenuItem = new SimpleJMenuItem(_popup_printFG_string, this );
+		__popup_printSegs_JMenuItem = new SimpleJMenuItem(_popup_printSegs_string, this );
+		__popup_redefSegs_JMenuItem = new SimpleJMenuItem(_popup_redefSegs_string, this );
+		__popup_graphTS_JMenuItem = new SimpleJMenuItem(_popup_graphTS_string, this );
 	}
-
 	else if ( __forSnowUpdate ) {
 		// menu item to select all children nodes
-		__popup_snow_selectKids_JMenuItem = new SimpleJMenuItem(
-		"Select SubAreas", this );
-
-		__popup_graphTS_JMenuItem = new SimpleJMenuItem(
-		_popup_graphTS_string, this );
-		
+		__popup_snow_selectSubareas_JMenuItem = new SimpleJMenuItem("Select SubAreas", this );
+		__popup_graphTS_JMenuItem = new SimpleJMenuItem(_popup_graphTS_string, this );
 	}
-
+	else {
+		// Default is basic read-only operations but not maintenance.
+		__popup_printCG_JMenuItem = new SimpleJMenuItem(_popup_printCG_string, this );
+		__popup_printFG_JMenuItem = new SimpleJMenuItem(_popup_printFG_string, this );
+		__popup_printSegs_JMenuItem = new SimpleJMenuItem(_popup_printSegs_string, this );
+		__popup_graphTS_JMenuItem = new SimpleJMenuItem(_popup_graphTS_string, this );
+	}
 
 	stopwatch.stop();
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 3, "", 
-		"method to create popup menu, stopwatch seconds =" +
-		stopwatch.getSeconds() );
+		Message.printDebug( 3, "", "Time to create popup menu, stopwatch seconds =" + stopwatch.getSeconds() );
 	}
-
-	stopwatch = null;
 }// end createPopupMenu() 
 	
 /**
@@ -477,7 +457,7 @@ public void displayTreeData() {
 
 	String main_cg = null;
 	if ( __forNWSRFSGUI ) {
-		//get carryover group user picked when GUI initiated
+		// Get carryover group user picked when GUI initiated
 		main_cg = IOUtil.getPropValue("CARRYOVERGROUP");
 		if ( Message.isDebugOn ) {
 			Message.printDebug( 2, routine,	"Carryover Group for NWSRFSGUI Session= " + main_cg );
@@ -485,7 +465,7 @@ public void displayTreeData() {
 	}
 
 	setFastAdd( true );
-	//make topnode
+	//make top node
 	__top_node = new SimpleJTree_Node( __top_node_str );
 	try {
 		addNode( __top_node );
@@ -617,8 +597,7 @@ public void displayTreeData() {
 				//Operations
 				numb_ops = seg.getNumberOfOperations();
 				if ( Message.isDebugOn ) {	
-					Message.printDebug( 5, routine,
-					"Number of operations for segment \"" +
+					Message.printDebug( 5, routine,	"Number of operations for segment \"" +
 					seg.toString() +  "\" = " + numb_ops );
 				}
 				StopWatch opsw = new StopWatch();
@@ -648,11 +627,12 @@ public void displayTreeData() {
 							Message.printWarning( 2, routine, e );
 						}
 					}
-					else { //not including operations, set node to null.
+					else {
+						//not including operations, set node to null.
 						op_node = null;
 					}
 
-					//Timeseries
+					//Time series
 					numb_tsids=op.getNumberOfTSIDs();
 					if ( Message.isDebugOn ) {
 						Message.printDebug( 5, routine,
@@ -684,8 +664,7 @@ public void displayTreeData() {
 									}
 								}
 								else { //add node to seg because operation node is null	
-									if( ( __useOnlySnowTSandOperations ) &&
-									( op_type.indexOf("SNOW-17") >=0 ) &&
+									if( ( __useOnlySnowTSandOperations ) &&	(op_type.indexOf("SNOW-17") >=0 ) &&
 									( op.getTSDT(tsg).indexOf( "SWE") > 0 )) {
 										try {
 											addNode( tsid_node, seg_node );
@@ -726,7 +705,8 @@ public void displayTreeData() {
 											Message.printWarning( 2, routine, e );
 										}
 									}
-									else { 	//add node to seg because op node null	
+									else {
+										//add node to seg because op node null	
 										if( ( __useOnlySnowTSandOperations ) &&
 										( op_type.indexOf( "SNOW-17") >=0 ) &&
 										( op.getTSDT(tsg).indexOf( "SWE") >= 0 )){
@@ -754,24 +734,17 @@ public void displayTreeData() {
 							}//end useAllTS=false
 						}//end if __checkTS
 						else { // __checkTS = false and 
-							//we check TS for data when  
-							//NodeExpanding listener called.
-							//ALL time series are added if this
-							//flag is set to false
+							// Check TS for data when NodeExpanding listener called.
+							// ALL time series are added if this flag is set to false
 
-							//(If useAllTS is false, at NOdeExpanding
-							//time, the node will be removed from 
-							//the JTree. IF useALLTS is true, the
-							//node name will be appended with "NO Data")
+							// (If useAllTS is false, at NOdeExpandingtime, the node will be
+							// removed from the JTree. IF useALLTS is true, the
+							// node name will be appended with "NO Data")
 
-							//add all TS and 
-							//on the NodeExpanding
-							//Event will determine 
-							//if there
-							//is data or not.
+							// Add all TS and on the NodeExpanding
+							// Event will determine if there is data or not.
 							if ( op_node != null ) {
-								//op_node will be null
-								//if useOnlySnow... is true
+								// op_node will be null if useOnlySnow... is true
 								try {
 									addNode( tsid_node, op_node );
 								}
@@ -779,7 +752,8 @@ public void displayTreeData() {
 									Message.printWarning( 2, routine, e );
 								}
 							}
-							else { //add node to seg	
+							else {
+								//add node to seg	
 								if( ( __useOnlySnowTSandOperations ) &&
 								( op_type.indexOf("SNOW-17") >=0 ) &&
 								( op.getTSDT(tsg).indexOf( "SWE") >= 0 )) {
@@ -799,32 +773,23 @@ public void displayTreeData() {
 									}
 								}
 							}
-							
 						} //end !__checkTS
-
 					} //end for tsg loop
 
 					//RATING CURVES 
 					if ( __include_ratingCurves ) {
 						numb_rcs = op.getNumberOfRatingCurves();
 						if ( Message.isDebugOn ) {	
-							Message.printDebug( 5, 
-							routine,
-							"Number of rating " +
-							"curves= " + numb_rcs );
+							Message.printDebug( 5, routine,	"Number of rating curves= " + numb_rcs );
 						}
 						for (int rfg=0; rfg<numb_rcs; rfg++ ) {
 							rc= op.getRatingCurve(rfg);
 							//create a new node 
 							if ( ! __verbose ) {
-								rc_node = 
-								new SimpleJTree_Node( 
-								rc.getRCID() );
+								rc_node = new SimpleJTree_Node( rc.getRCID() );
 							}
 							else {
-								rc_node = 
-								new SimpleJTree_Node( 
-								"RC: " + rc.getRCID() );
+								rc_node = new SimpleJTree_Node( "RC: " + rc.getRCID() );
 							}
 							rc_node.setData( rc );
 						
@@ -850,52 +815,29 @@ public void displayTreeData() {
 
 				} //end for ofg
 				opsw.stop();
-//				Message.printStatus(1, "", 
-//					"Time to create operation: "
-//					+ opsw.getSeconds());
+//				Message.printStatus(1, "", "Time to create operation: "	+ opsw.getSeconds());
 			} //end for sfg	
 //			ssw.stop();
-//			Message.printStatus(1, "", "Time to create segment: "
-//				+ ssw.getSeconds());
-
-		
+//			Message.printStatus(1, "", "Time to create segment: " + ssw.getSeconds());
 		} //end for fgs
 //		fgsw.stop();
-//		Message.printStatus(1, "", "Time to create forecast groups: "
-//			+ fgsw.getSeconds());
-
+//		Message.printStatus(1, "", "Time to create forecast groups: " + fgsw.getSeconds());
 	} //end for cg
 
 	}//end try
 	catch( Exception e) {
-		Message.printWarning( 2, routine,
-		"Unable to create Sysmap tree." );
-
+		Message.printWarning( 2, routine, "Unable to create Sysmap tree." );
 		Message.printWarning( 2, routine, e );
 	}
 
 	setFastAdd(false);
-	//expand  all nodes if have already checked all the TS for
-	//data.  If using the __checkTS = false flag so that time 
-	//series are only checked for data on expansion events, 
-	//do not expand tree. 
+	setExpandAllowed( true );
+	int s = nodes_to_expand_vect.size();
+	for ( int i=0; i<s; i++ ) {
+		//expand tree to this level
+		expandNode( (SimpleJTree_Node)nodes_to_expand_vect.elementAt(i) );
+	}
 
-	//no longer expand all nodes- too much info upfront.  Instead
-	//just show down to Forecast Group.
-
-	//if ( __checkTS ) {
-	//	expandAllNodes();
-	//}
-	//else {
-
-		setExpandAllowed( true );
-		int s = nodes_to_expand_vect.size();
-		for ( int i=0; i<s; i++ ) {
-			//expand tree to this level
-			expandNode( (SimpleJTree_Node) 
-			nodes_to_expand_vect.elementAt(i) );
-		}
-//	}	
 	//clean up
 	nodes_to_expand_vect = null;
 	cg = null;
@@ -907,14 +849,8 @@ public void displayTreeData() {
 	setFastAdd( false );
 	
 	stopwatch.stop();
-	if ( Message.isDebugOn ) {
-		Message.printDebug( 3, routine, 
-		"method to create Tree, stopwatch seconds =" +
-		stopwatch.getSeconds() );
-	}
-
+	Message.printStatus( 2, routine, "Created system tree in " + stopwatch.getSeconds() + " seconds." );
 	stopwatch = null;
-
 }//end displayTreeData()
 
 /**
@@ -929,17 +865,11 @@ public void initialize_gui_strings()
 	translator = LanguageTranslator.getTranslator();
         if ( translator != null ) {
 		//Popupmenu
-		_popup_printCG_string = translator.translate(
-			"popup_printCG_string", _popup_printCG_string );
-		_popup_printFG_string = translator.translate(
-			"popup_printFG_string", _popup_printFG_string );
-		_popup_graphTS_string = translator.translate(
-			"popup_graphTS_string", _popup_graphTS_string );
-		_popup_printSegs_string = translator.translate(
-			"popup_printSegs_string", _popup_printSegs_string );
-		_popup_redefSegs_string = translator.translate(
-			"popup_redefSegs_string", 
-			_popup_redefSegs_string );
+		_popup_printCG_string = translator.translate("popup_printCG_string", _popup_printCG_string );
+		_popup_printFG_string = translator.translate("popup_printFG_string", _popup_printFG_string );
+		_popup_graphTS_string = translator.translate("popup_graphTS_string", _popup_graphTS_string );
+		_popup_printSegs_string = translator.translate("popup_printSegs_string", _popup_printSegs_string );
+		_popup_redefSegs_string = translator.translate("popup_redefSegs_string", _popup_redefSegs_string );
 /*
 		_popup_printStn_string = translator.translate(
 			"popup_printStn_string", _popup_printStn_string );
@@ -965,7 +895,6 @@ public void initialize_gui_strings()
 		_popup_printFmap_string = translator.translate(
 			"popup_printFmap_string",
 			_popup_printFmap_string );
-
 */
 	}
 }//end initialize_gui_strings()  
@@ -977,7 +906,7 @@ Reads in the provide Proplist and set property flags.
 <th>Property Name</th> <th>Property Description</th> <th>Default Value (if not defined)</th><th>Variable stored in</th>
 </tr>
 <tr>
-<td>checkTS</td>
+<td>SystemJTree.checkTS</td>
 <td>boolean indicates if all Time Series should be read in up front as
 tree is being created and checked to see if they actually contain data.
 If true, the time series does not have data, it is added to the JTree,
@@ -991,50 +920,49 @@ expanded, all the time series under the operation are read in at that time.</td>
 </tr>
 
 <tr>
-<td>forNWSRFSGUI</td>
+<td>SystemJTree.forNWSRFSGUI</td>
 <td>boolean to indicate if System JTree is for NWSRFSGUI</td>
 <td>true</td>
 <td>__forNWSRFSGUI</td>
 </tr>
 
 <tr>
-<td>forSnowUpdate</td>
+<td>SystemJTree.forSnowUpdate</td>
 <td>boolean to indicate if System JTree is for SnowUpdatingGUI</td>
 <td>false</td>
 <td>__forSnowUpdate</td>
 </tr>
 
 <tr>
-<td>include_all_operations</td>
+<td>SystemJTree.include_all_operations</td>
 <td>boolean indicating if Operations should be included in System Tree</td>
 <td>true</td>
 <td>__include_all_operations</td>
 </tr>
 
 <tr>
-<td>include_ratingCurves</td>
+<td>SystemJTree.include_ratingCurves</td>
 <td>boolean indicating if Rating Curves should be included in System Tree</td>
 <td>false</td>
 <td>__include_ratingCurves</td>
 </tr>
 
 <tr>
-<td>useAllTS</td>
+<td>SystemJTree.useAllTS</td>
 <td>boolean indicating if all Time Series should be included in JTree 
 whether they have data or not. If true, all time series are added 
 to the JTree, whether they have data or not.  If false, only
 time series that have data are added. This flag is only used
-if checkTS = true.  (if checkTS = false, then all TS are added to the
-tree ). </td>
+if checkTS = true.  (if checkTS = false, then all TS are added to the tree).
+</td>
 <td>true</td>
 <td>__useAllTS</td>
 </tr>
 
 <tr>
-<td>useOnlySnowTSandOperations</td>
+<td>SystemJTree.useOnlySnowTSandOperations</td>
 <td>boolean indicating that only time series of type SWE and
-operation: SNOW-17 are displayed on the tree. 
-Used only if checkTS set to True. If this is 
+operation: SNOW-17 are displayed on the tree.  Used only if checkTS set to True. If this is 
 true, __include_all_operations is set to False </td>
 <td>false</td>
 <td>__useOnlySnowTSandOperations</td>
@@ -1052,7 +980,8 @@ for segment, "fg:" for forecast group, etc.)
 </table> 
 @param p PropList containing the properties.
 */
-public void initialize_properties ( PropList p )  {
+public void initialize_properties ( PropList p )
+{
 	String routine = "NWSRFS_System_JTree.initialize_properties";
 	
 	StopWatch stopwatch = new StopWatch();
@@ -1067,8 +996,7 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: checkTS = " + __checkTS );
+		Message.printDebug( 3, routine, "Property: checkTS = " + __checkTS );
 	}
 
 	//forNWSRFSGUI -default is True
@@ -1079,8 +1007,7 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: forNWSRFSGUI = " + __forNWSRFSGUI );
+		Message.printDebug( 3, routine, "Property: forNWSRFSGUI = " + __forNWSRFSGUI );
 	}
 
 	//forSnowUpdate -default is False
@@ -1091,8 +1018,7 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: forSnowUpdate = " + __forSnowUpdate );
+		Message.printDebug( 3, routine, "Property: forSnowUpdate = " + __forSnowUpdate );
 	}
 
 	//include_all_operations -default is True
@@ -1101,14 +1027,12 @@ public void initialize_properties ( PropList p )  {
 		if ( s.equalsIgnoreCase( "false" ) ) {
 			__include_all_operations = false;
 		}
-		//set __useOnlySnowTSandOperations  to false if 
-		//use_all_operations is true
+		//set __useOnlySnowTSandOperations  to false if use_all_operations is true
 		__useOnlySnowTSandOperations = false;
 		
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: useOnlySnowTSandOperations = " + __useOnlySnowTSandOperations );
+		Message.printDebug( 3, routine,	"Property: useOnlySnowTSandOperations = " + __useOnlySnowTSandOperations );
 	}
 
 	// include_ratingCurves - default is False
@@ -1119,8 +1043,7 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: include_ratingCurves = " + __include_ratingCurves );
+		Message.printDebug( 3, routine,	"Property: include_ratingCurves = " + __include_ratingCurves );
 	}
 
 	//useAllTS -default is True
@@ -1131,8 +1054,7 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: useAllTS = " + __useAllTS );
+		Message.printDebug( 3, routine,	"Property: useAllTS = " + __useAllTS );
 	}
 
 	// useOnlySnowTSandOperations - default is False
@@ -1144,8 +1066,7 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: use_all_operations = " + __use_all_operations );
+		Message.printDebug( 3, routine, "Property: use_all_operations = " + __use_all_operations );
 	}
 
 	//verbose - default is True
@@ -1156,71 +1077,34 @@ public void initialize_properties ( PropList p )  {
 		}
 	}
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 3, routine,
-		"Property: verbose = " + __verbose );
+		Message.printDebug( 3, routine,	"Property: verbose = " + __verbose );
 	}
 
-
-	//if we are running the NWSRFSGUI and are 
-	//not reading in all the Time Series upfront
-	//(aka, __checkTS = false, then
-	//we have to have Operations added.  The
-	//nodeExpanding event will then get 
-	//triggered when the Operation node is
-	//expanded and the time series are checked
-	//for data then.
+	// If running the NWSRFSGUI and are not reading in all the Time Series upfront
+	// (aka, __checkTS = false, then have to have Operations added.  The
+	// nodeExpanding event will then get triggered when the Operation node is
+	// expanded and the time series are checked for data then.
 	if( ( !__checkTS ) && ( __forNWSRFSGUI ) ) {
-		Message.printWarning( 2, routine,
-		"Adding operations to System Tree." );
+		Message.printWarning( 2, routine, "Adding operations to System Tree." );
 		__include_all_operations = true;
 	}
 
-	//likewise, for SNOW GUI, it is assumed that
-	//operations WILL NOT be added (since only
-	//SNOW-17 operations are used).  So with
-	//_checkTS = false, the time series are
-	//checked for data when a Segment node is
-	//expanded.
+	// Likewise, for SNOW GUI, it is assumed that operations WILL NOT be added (since only
+	// SNOW-17 operations are used).  So with _checkTS = false, the time series are
+	// checked for data when a Segment node is expanded.
 	if ( ( ! __checkTS ) && ( __forSnowUpdate ) ) {
-		Message.printWarning( 2, routine,
-		"No operations will be included in System Tree." );
+		Message.printWarning( 2, routine, "No operations will be included in System Tree." );
 		__include_all_operations = false;
 	}
 
-
 	stopwatch.stop();
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 3, routine, 
-		"method to initialize properties, stopwatch seconds =" +
+		Message.printDebug( 3, routine, "method to initialize properties, stopwatch seconds =" +
 		stopwatch.getSeconds() );
 	}
 
 	stopwatch = null;
 } //end initialize_properties
-
-
-/**
-Destroys and recreate JTree
-@deprecated use rebuild().
-*/
-public void remake_JTree( ) {
-		String routine = "NWSRFS_System_JTree.remake_JTree";
-                Message.printStatus( 3, routine, routine + " called." );
-
-		clear();
-		try {
-			
-			setTreeData( NWSRFS.createNWSRFSFromPRD( __fs5files, false ) );
-		}
-		catch ( Exception e ) {
-			Message.printWarning( 2, routine, e);
-		}
-		displayTreeData( );
-
-		__parent.validate();
-		__parent.repaint();
-	
-} //end remake_JTree
 
 /**
 Rebuilds the JTree.  With large NWSRFS data sets, this could be time-consuming.
@@ -1246,27 +1130,25 @@ public void rebuild() {
 Set the NWSRFS object 
 @param nwsrfs NWSRFS data object which is used to populate the JTree.
 */
-public void setTreeData ( NWSRFS nwsrfs ) {
-
+public void setTreeData ( NWSRFS nwsrfs )
+{
+	String routine = "NWSRFS_System_JTree.setTreeData";
 	StopWatch stopwatch = new StopWatch();
 	stopwatch.start();
 
 	if ( Message.isDebugOn ) {	
-		Message.printDebug( 5, "NWSRFS_System_JTree.setTreeData", 
-		"NWSRFS_System_JTree.setTreeData  called." );
+		Message.printDebug( 5, routine, "NWSRFS_System_JTree.setTreeData  called." );
 	}
 
 	if ( nwsrfs == null ) {
-		Message.printWarning( 2, "NWSRFS_System_JTree.setTreeData",
-		"NWSRFS object (nwsrfs) is null.  Cannot populate Tree!" );
+		Message.printWarning( 2, routine, "NWSRFS object (nwsrfs) is null.  Cannot populate Tree!" );
 	}
 
 	__nwsrfs = nwsrfs;
 
 	stopwatch.stop();
 	if ( Message.isDebugOn ) {
-		Message.printDebug( 2, "",
-		"method to set Tree data, stopwatch seconds =" +
+		Message.printDebug( 2, routine,	"method to set Tree data, stopwatch seconds =" +
 		stopwatch.getSeconds() );
 	}
 	stopwatch = null;
@@ -1279,9 +1161,8 @@ The popup menu does not display if it is null.
 @param e the MouseEvent that happened.
 */
 private void showPopupMenu (MouseEvent e) {
-	//isPopupTrigger() not working on Linux, so use
-        //event.getModifiers() instead.
-        if (  e.getModifiers() != 4 ) {
+	//isPopupTrigger() not working on Linux, so use event.getModifiers() instead.
+        if ( e.getModifiers() != 4 ) {
                 return;
         }
 	//popup to add depends on kind of element selected
@@ -1303,8 +1184,7 @@ private void showPopupMenu (MouseEvent e) {
 		// Now reset the popup menu based on the selected node...
 		data = node.getData();
 		if ( Message.isDebugOn ) {
-			Message.printDebug( 2, 
-			"NWSRFS_SystemJTree.showPopupMenu",
+			Message.printDebug( 2, "NWSRFS_SystemJTree.showPopupMenu",
 			"Selected node text = \"" + node.getName() + "\" " +
 			" and class = \"" + data.getClass().getName() + "\"");
 		}
@@ -1325,25 +1205,21 @@ private void showPopupMenu (MouseEvent e) {
 			}
 		}
 		else if ( __forSnowUpdate ) {
-			//if ( ( data instanceof NWSRFS_ForecastGroup ) ||
-			//( data instanceof NWSRFS_Segment )  ) {}
+			//if ( ( data instanceof NWSRFS_ForecastGroup ) || ( data instanceof NWSRFS_Segment )  ) {}
 			if ( ( data instanceof NWSRFS_ForecastGroup ) ||
-			( data instanceof NWSRFS_CarryoverGroup ) ||
-			( data instanceof NWSRFS_Segment )  ) {
-				__popup_JPopupMenu.add ( __popup_snow_selectKids_JMenuItem );
+			( data instanceof NWSRFS_CarryoverGroup ) || ( data instanceof NWSRFS_Segment )  ) {
+				__popup_JPopupMenu.add ( __popup_snow_selectSubareas_JMenuItem );
 			}
 			else if ( data instanceof NWSRFS_TimeSeries ) {
 				__popup_JPopupMenu.add ( __popup_graphTS_JMenuItem );
-				__popup_JPopupMenu.add ( __popup_snow_selectKids_JMenuItem );
+				__popup_JPopupMenu.add ( __popup_snow_selectSubareas_JMenuItem );
 			}
 		}
 	}
-	// Now display the popup so that the user can select the appropriate
-	// menu item...
+	// Now display the popup so that the user can select the appropriate menu item...
 	__popup_JPopupMenu.show(e.getComponent(), e.getX(), e.getY());
 
 }//end showPopupMenu
-
 
 /////////////     *** actions ***       ////////////
 /**
@@ -1356,7 +1232,7 @@ public void actionPerformed(ActionEvent event ) {
 
 	String fs = IOUtil.getPropValue("FILE_SEPARATOR" );
 	if( ( fs == null ) || ( fs.length() <= 0 ) ) {
-		fs = "/";
+		fs = File.separator;
 	}
 	String editor = IOUtil.getPropValue("EDITOR");
 	//should not be null, but just in case...
@@ -1368,22 +1244,18 @@ public void actionPerformed(ActionEvent event ) {
 	String output_str = null; 
 
 	if ( source == __popup_printCG_JMenuItem ) {
-		//get selected node - do not need the NWSRFS_CarryOverGroup
-		//object, just the node name!
+		//get selected node - do not need the NWSRFS_CarryOverGroup object, just the node name!
 		String name = node.getName();
 		name = clean_node_name( name );
 		
-		//string  to hold output from ofs command 
-		//(string will be null if command failed)
+		//string  to hold output from ofs command (string will be null if command failed)
 
 		//update the PUNCCG.GUI file to fill in correct carryover group.
-		output_str  = NWSRFS_Util.run_print_cgs_or_fgs( 
-		name, fs, "PUNCHCG" ); 
+		output_str  = NWSRFS_Util.run_print_cgs_or_fgs( name, fs, "PUNCHCG" ); 
 
 		if ( output_str != null ) { 
 			try { 
-				NWSRFS_Util.runEditor( editor, 
-				output_str, false ); 
+				NWSRFS_Util.runEditor( editor, output_str, false ); 
 			} 
 			catch ( Exception e ) { 
 				Message.printWarning( 2, routine, e ); 
@@ -1391,19 +1263,16 @@ public void actionPerformed(ActionEvent event ) {
 		 }
 	}
 	else if ( source == __popup_printFG_JMenuItem ) {
-		//get selected node - do not need the NWSRFS_ForecastGroup
-		//object, just the node name!
+		// Get selected node - do not need the NWSRFS_ForecastGroup object, just the node name!
 		String name = node.getName();
 		name = clean_node_name( name );
 
-		//update the PUNHFG.GUI file to fill in correct forecastgroup.
-		output_str  = NWSRFS_Util.run_print_cgs_or_fgs( 
-		name, fs, "PUNCHFG" ); 
+		// Update the PUNHFG.GUI file to fill in correct forecast group.
+		output_str  = NWSRFS_Util.run_print_cgs_or_fgs( name, fs, "PUNCHFG" ); 
 
 		if ( output_str != null ) { 
 			try { 
-				NWSRFS_Util.runEditor( editor, 
-				output_str, false ); 
+				NWSRFS_Util.runEditor( editor, output_str, false ); 
 			} 
 			catch ( Exception e ) { 
 				Message.printWarning( 2, routine, e ); 
@@ -1412,42 +1281,35 @@ public void actionPerformed(ActionEvent event ) {
 	}
 	else if ( source == __popup_printSegs_JMenuItem ) {
 
-		//get selected node - do not need the NWSRFS_Segment
-		//object, just the node name!
+		// Get selected node - do not need the NWSRFS_Segment object, just the node name!
 		String name = node.getName();
 		name = clean_node_name( name );
 
-		//update PRINTSEGS.GUI
+		// Update PRINTSEGS.GUI
 		output_str  = NWSRFS_Util.run_print_segs( name );
 
 		if ( output_str != null ) { 
 			try { 
-				NWSRFS_Util.runEditor( editor, 
-				output_str, false ); 
+				NWSRFS_Util.runEditor( editor, output_str, false ); 
 			} 
 			catch ( Exception e ) { 
 				Message.printWarning( 2, routine, e ); 
 			}
 		 }
-		
 	}
 	else if ( source == __popup_redefSegs_JMenuItem ) {
 
-		//get selected node - do not need the NWSRFS_ForecastGroup
-		//object, just the node name!
+		// Get selected node - do not need the NWSRFS_ForecastGroup object, just the node name!
 		String name = node.getName();
 		name = clean_node_name( name );
 
-		//dialog that does the Redefine Segments is part of
-		//System Maintenance class (this class will take
-		//care of any String translations if needed)
-		NWSRFS_SystemMaintenance system_maint = new 
-		NWSRFS_SystemMaintenance(this);
+		// Dialog that does the Redefine Segments is part of System Maintenance class
+		// (this class will take care of any String translations if needed)
+		NWSRFS_SystemMaintenance system_maint = new NWSRFS_SystemMaintenance(this);
 		system_maint.create_redefSegment_dialog(name);
 	}
 	else if (source == __popup_graphTS_JMenuItem) {
-		// get selected node - do not need the NWSRFS_Timeseries
-		// object, just the node name
+		// Get selected node - do not need the NWSRFS_Timeseries object, just the node name
 		Vector nodes = getSelectedNodes();
 		int size = nodes.size();
 
@@ -1485,15 +1347,14 @@ public void actionPerformed(ActionEvent event ) {
 			}
 			
 			Message.printWarning(1, routine, 
-				"The following time series had no data and "
-				+ verb + " not plotted:" + concat);
+				"The following time series had no data and " + verb + " not plotted:" + concat);
 		}
 
 		if (tsidVector.size() == 0) {
 			return;
 		}
 
-		// REVISIT SAM 2004-11-02 - This now plots the full
+		// TODO SAM 2004-11-02 - This now plots the full
 		// period available in the processed database (not just
 		// the run start + 7 days.  If necessary, put in the
 		// more limiting period (e.g., add popup menu
@@ -1502,17 +1363,15 @@ public void actionPerformed(ActionEvent event ) {
 		// but for now go with the simpler default.
 
 		try {	
-			NWSRFS_Util.plotTimeSeries(__nwsrfs.getDMI(), 
-				tsidVector, null, null);
+			NWSRFS_Util.plotTimeSeries(__nwsrfs.getDMI(), tsidVector, null, null);
 		}
 		catch (Exception e) {
-			Message.printWarning(1, routine,
-				"There is an error plotting the time series.");
+			Message.printWarning(1, routine, "There is an error plotting the time series.");
 			Message.printWarning(2, routine, e);
 		}
 	}
 
-	else if ( source == __popup_snow_selectKids_JMenuItem ) {
+	else if ( source == __popup_snow_selectSubareas_JMenuItem ) {
 		//select all nodes under this
 		
 		Vector sel_nodes_vect = getSelectedNodes(); 
@@ -1523,8 +1382,7 @@ public void actionPerformed(ActionEvent event ) {
 		SimpleJTree_Node sel_node = null;
 		//Object data = null;
 		for ( int i=0; i< numb_nodes; i++ ) {
-			sel_node = ( SimpleJTree_Node ) 
-			sel_nodes_vect.elementAt( i );
+			sel_node = (SimpleJTree_Node)sel_nodes_vect.elementAt( i );
 			if ( sel_node == null ) {
 				continue;
 			}
@@ -1537,8 +1395,7 @@ public void actionPerformed(ActionEvent event ) {
 			}
 			for( int j=0; j<numb_kids; j++) {
 				//select kids
-				selectNode( (SimpleJTree_Node)
-				kids_vect.elementAt( j ), false );
+				selectNode( (SimpleJTree_Node)kids_vect.elementAt( j ), false );
 			}
 			kids_vect = null;	
 			sel_node = null;
@@ -1618,8 +1475,7 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 			try {
 				if(!dmi.checkTimeSeriesExists(op.getTimeSeries(i), true )) {
 					//set Text for time series node
-					tempNode.setText( 
-					tempNode.getText() + " - No Data" );
+					tempNode.setText( tempNode.getText() + " - No Data" );
 		
 				}
 			}
@@ -1649,17 +1505,14 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 					}
 					else {
 						//set Text for time series node
-						tempNode.setText( 
-						tempNode.getText() + " - No Data" );
+						tempNode.setText( tempNode.getText() + " - No Data" );
 					}
-		
 				}
 			}
 			catch ( Exception e ) {
 				Message.printWarning( 2, routine, e);
 			}
 		}
-		
 	}	
 }
 
