@@ -45,7 +45,7 @@ implements ActionListener, KeyListener, WindowListener
 {
 private SimpleJButton	__cancel_JButton = null,// Cancel Button
 			__convert_JButton = null;// Convert Button
-private JFrame		__parent_JFrame = null;	// parent Frame GUI class
+//private JFrame		__parent_JFrame = null;	// parent Frame GUI class
 private JTextField	__input_JTextField = null,// Input to convert
 			__datetime_JTextField = null,// Results as Date/Time
 			__julday_JTextField = null,// Results as Julian day,hour
@@ -199,7 +199,6 @@ throws Throwable
 	__julday_JTextField = null;
 	__julhour_JTextField = null;
 	__convert_JButton = null;
-	__parent_JFrame = null;
 	super.finalize ();
 }
 
@@ -208,12 +207,13 @@ Instantiates the GUI components.
 @param parent JFrame class instantiating this class.
 */
 private void initialize ( JFrame parent )
-{	__parent_JFrame = parent;
+{	//__parent_JFrame = parent;
 	String app_name = JGUIUtil.getAppNameForWindows();
 	if ( (app_name != null) && !app_name.equals("") ) {
 		setTitle ( app_name + " - Convert Julian Hour" );
 	}
-	else {	setTitle ( "Convert Julian Hour" );
+	else {
+		setTitle ( "Convert Julian Hour" );
 	}
 
 	addWindowListener( this );
@@ -225,7 +225,6 @@ private void initialize ( JFrame parent )
 
 	JPanel main_JPanel = new JPanel();
 	main_JPanel.setLayout( new GridBagLayout() );
-	GridBagConstraints gbc = new GridBagConstraints();
 	getContentPane().add ( "North", main_JPanel );
 	int y = 0;
 
@@ -234,65 +233,65 @@ private void initialize ( JFrame parent )
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"Convert a date/time to/from an NWSRFS" +
 		" Julian day and hour."),
-		0, y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"Julian hour 0 = 1900-01-01 00 or " +
 		"(1899-12-31 24 in NWS clock)." ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"Julian hour 1 = 1900-01-01 01." ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"Julian day 1 = 1900-01-01." ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"Julian Hour = (Julian Day - 1)/24 + Hour of Julian Day" ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"Input can be:" ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"  * a Julian hour (HHHHHH)," ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"  * a Julian day and hour in day (DDDDD HH)," ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
         JGUIUtil.addComponent(main_JPanel, new JLabel (
 		"  * or a date/hour (YYYY-MM-DD HH)" ),
-		0, ++y, 6, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		0, ++y, 6, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
 
         JGUIUtil.addComponent(main_JPanel, new JLabel ( "Input:"),
-		0, ++y, 1, 1, 0, 0, insetsMin, gbc.NONE, gbc.EAST);
+		0, ++y, 1, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.EAST);
 	__input_JTextField = new JTextField ( 20 );
 	__input_JTextField.addKeyListener ( this );
         JGUIUtil.addComponent(main_JPanel, __input_JTextField,
-		1, y, 2, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		1, y, 2, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
 
         JGUIUtil.addComponent(main_JPanel, new JLabel ( "Date/Time:" ), 
-		0, ++y, 1, 1, 0, 0, insetsMin, gbc.NONE, gbc.EAST);
+		0, ++y, 1, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.EAST);
 	__datetime_JTextField = new JTextField ( 20 );
 	__datetime_JTextField.setEditable ( false );
         JGUIUtil.addComponent(main_JPanel, __datetime_JTextField,
-		1, y, 2, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		1, y, 2, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
 
         JGUIUtil.addComponent(main_JPanel, new JLabel ( "Julian day:" ), 
-		0, ++y, 1, 1, 0, 0, insetsMin, gbc.NONE, gbc.EAST);
+		0, ++y, 1, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.EAST);
 	__julday_JTextField = new JTextField ( 20 );
 	__julday_JTextField.setEditable ( false );
         JGUIUtil.addComponent(main_JPanel, __julday_JTextField,
-		1, y, 2, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		1, y, 2, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
 
         JGUIUtil.addComponent(main_JPanel, new JLabel ( "Julian hour:" ), 
-		0, ++y, 1, 1, 0, 0, insetsMin, gbc.NONE, gbc.EAST);
+		0, ++y, 1, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.EAST);
 	__julhour_JTextField = new JTextField ( 20 );
 	__julhour_JTextField.setEditable ( false );
         JGUIUtil.addComponent(main_JPanel, __julhour_JTextField,
-		1, y, 2, 1, 0, 0, insetsMin, gbc.NONE, gbc.WEST);
+		1, y, 2, 1, 0, 0, insetsMin, GridBagConstraints.NONE, GridBagConstraints.WEST);
 
 	JPanel button_JPanel = new JPanel();
 	button_JPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         JGUIUtil.addComponent(main_JPanel, button_JPanel, 
-		0, ++y, 8, 1, 1, 0, insetsTLBR, gbc.HORIZONTAL, gbc.CENTER);
+		0, ++y, 8, 1, 1, 0, insetsTLBR, GridBagConstraints.HORIZONTAL, GridBagConstraints.CENTER);
 
 	__convert_JButton = new SimpleJButton("Convert", this);
 	button_JPanel.add ( __convert_JButton );
@@ -312,7 +311,7 @@ Respond to KeyEvents.
 public void keyPressed ( KeyEvent event )
 {	int code = event.getKeyCode();
 
-	if ( (code == event.VK_ENTER) || (code == event.VK_TAB) ) {
+	if ( (code == KeyEvent.VK_ENTER) || (code == KeyEvent.VK_TAB) ) {
 		convert ();
 	}
 }

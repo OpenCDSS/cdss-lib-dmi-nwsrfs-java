@@ -134,13 +134,11 @@
 // ----------------------------------------------------------------------------
 // EndHeader
 
-package RTi.DMI.NWSRFS;
+package RTi.DMI.NWSRFS_DMI;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
