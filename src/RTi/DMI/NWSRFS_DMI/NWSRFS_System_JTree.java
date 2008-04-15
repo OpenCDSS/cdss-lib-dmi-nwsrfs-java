@@ -116,9 +116,6 @@ import RTi.Util.IO.LanguageTranslator;
 import RTi.Util.IO.PropList;
 import RTi.Util.Message.Message;
 import RTi.Util.Time.StopWatch;
-//import RTi.App.NWSRFSGUI.NwsrfsGUI_SystemMaintenance;
-//import RTi.App.NWSRFSGUI.NwsrfsGUI_Util;
-//import RTi.App.NWSRFSSnowUpdating.NWSRFSSnowUtil;
 
 /**
 The NWSRFS_System_JTree class displays the NWSRFS "sysmap" which
@@ -163,9 +160,16 @@ private boolean __useAllTS =true;
 private boolean __useOnlySnowTSandOperations = false;
 private boolean __use_all_operations = true;
 
-//if we are making NWSRFSGUI or SnowUpdating GUI
-private boolean __forNWSRFSGUI =true;
-private boolean __forSnowUpdate =false;
+// TODO SAM 2008-04-15 Need to change this to "read only" or perhaps "include maintenance"
+/**
+If the tree behavior should be for NWSRFSGUI.
+*/
+private boolean __forNWSRFSGUI = true;
+
+/**
+If the tree behavior should be for the SnowUpdating GUI.
+*/
+private boolean __forSnowUpdate = false;
 
 //indicate if operations should be included in JTree
 private boolean __include_all_operations = true;	
@@ -812,7 +816,6 @@ public void displayTreeData() {
 							}
 						} //end for rfg
 					}//end if include rating curves
-
 				} //end for ofg
 				opsw.stop();
 //				Message.printStatus(1, "", "Time to create operation: "	+ opsw.getSeconds());
@@ -855,7 +858,7 @@ public void displayTreeData() {
 
 /**
 This method is used to get the strings needed for labelling all the GUI
-components only if a translation table is used for the application, ie, if
+components only if a translation table is used for the application, i.e., if
 there is a translation file.  If the String cannot be located in the
 translation file, the original string will be utilized in non-translated form.
 */
@@ -942,7 +945,8 @@ expanded, all the time series under the operation are read in at that time.</td>
 
 <tr>
 <td>SystemJTree.include_ratingCurves</td>
-<td>boolean indicating if Rating Curves should be included in System Tree</td>
+<td>boolean indicating if Rating Curves should be included in System Tree (for operations
+where the number of rating curves is >0, like STAGE-Q)</td>
 <td>false</td>
 <td>__include_ratingCurves</td>
 </tr>
@@ -1001,10 +1005,8 @@ public void initialize_properties ( PropList p )
 
 	//forNWSRFSGUI -default is True
 	s = p.getValue( "SystemJTree.forNWSRFSGUI" );
-	if ( s != null ) {
-		if ( s.equalsIgnoreCase( "false" ) ) {
-			__forNWSRFSGUI = false;
-		}
+	if ( (s != null) && s.equalsIgnoreCase( "false") ) {
+		__forNWSRFSGUI = false;
 	}
 	if ( Message.isDebugOn ) {	
 		Message.printDebug( 3, routine, "Property: forNWSRFSGUI = " + __forNWSRFSGUI );
@@ -1080,7 +1082,7 @@ public void initialize_properties ( PropList p )
 		Message.printDebug( 3, routine,	"Property: verbose = " + __verbose );
 	}
 
-	// If running the NWSRFSGUI and are not reading in all the Time Series upfront
+	// If running the NWSRFSGUI and are not reading in all the Time Series up front
 	// (aka, __checkTS = false, then have to have Operations added.  The
 	// nodeExpanding event will then get triggered when the Operation node is
 	// expanded and the time series are checked for data then.
@@ -1189,6 +1191,9 @@ private void showPopupMenu (MouseEvent e) {
 			" and class = \"" + data.getClass().getName() + "\"");
 		}
 
+		// FIXME SAM 2008-04-15 Evaluate checking for null for all these, like the
+		// "else" clause below and define the menus non-null at initialization based on
+		// properties.
 		if ( __forNWSRFSGUI ) {
 			if( data instanceof NWSRFS_CarryoverGroup ) {
 				__popup_JPopupMenu.add ( __popup_printCG_JMenuItem );
@@ -1213,6 +1218,26 @@ private void showPopupMenu (MouseEvent e) {
 			else if ( data instanceof NWSRFS_TimeSeries ) {
 				__popup_JPopupMenu.add ( __popup_graphTS_JMenuItem );
 				__popup_JPopupMenu.add ( __popup_snow_selectSubareas_JMenuItem );
+			}
+		}
+		else {
+			// Add menus for read-only viewing of data.
+			if( data instanceof NWSRFS_CarryoverGroup && (__popup_printCG_JMenuItem != null) ) {
+				__popup_JPopupMenu.add ( __popup_printCG_JMenuItem );
+			}
+			else if ( data instanceof NWSRFS_ForecastGroup && (__popup_printFG_JMenuItem != null)) {
+				__popup_JPopupMenu.add ( __popup_printFG_JMenuItem );
+			}
+			else if ( data instanceof NWSRFS_Segment ) {
+				if ( __popup_printSegs_JMenuItem != null ) {
+					__popup_JPopupMenu.add ( __popup_printSegs_JMenuItem );
+				}
+				if ( __popup_redefSegs_JMenuItem != null ) {
+					__popup_JPopupMenu.add ( __popup_redefSegs_JMenuItem );
+				}
+			}
+			else if ( data instanceof NWSRFS_TimeSeries && (__popup_graphTS_JMenuItem != null)) {
+				__popup_JPopupMenu.add ( __popup_graphTS_JMenuItem );
 			}
 		}
 	}
@@ -1458,9 +1483,9 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 	Object data = null;	// Data object associated with the node
 	data = node.getData();
 	
-	//check Time series now to see if they have data.  All time
-	//series have been added to tree, but they have not been
-	//"read in" at this point, so may or may not contain data.
+	// Check time series to see if they have data.  All time
+	// series have been added to tree, but they have not been
+	// "read in" at this point, so may or may not contain data.
 	if( ( __forNWSRFSGUI ) && ( data instanceof NWSRFS_Operation ) ) {
 		
 		NWSRFS_Operation op = (NWSRFS_Operation) data;
@@ -1470,13 +1495,11 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 		Object[] arr = getChildrenArray(node);
 		NWSRFS_DMI dmi = __nwsrfs.getDMI();
 		for ( int i=0; i<arr.length; i++ ) {
-				
 			tempNode = ( SimpleJTree_Node) arr[i];
 			try {
 				if(!dmi.checkTimeSeriesExists(op.getTimeSeries(i), true )) {
 					//set Text for time series node
 					tempNode.setText( tempNode.getText() + " - No Data" );
-		
 				}
 			}
 			catch ( Exception e ) {
@@ -1486,12 +1509,10 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 	}
 	else if ( ( __forSnowUpdate) && ( data instanceof NWSRFS_Segment ) ) {
 		SimpleJTree_Node tempNode = null;
-
 		//get Segment children nodes which will be NWSRFS_TimeSeries
 		Object[] arr = getChildrenArray(node);
 		NWSRFS_DMI dmi = __nwsrfs.getDMI();
 		for ( int i=0; i<arr.length; i++ ) {
-					
 			tempNode = ( SimpleJTree_Node) arr[i];
 			if ( tempNode == null ) {		
 				continue;
@@ -1499,13 +1520,15 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 			NWSRFS_TimeSeries ts = (NWSRFS_TimeSeries)tempNode.getData();
 			try {
 				if(!dmi.checkTimeSeriesExists( ts, true ) ) {
-					//remove node
-					if (  !__useAllTS ) {
+					// Remove node
+					if ( !__useAllTS ) {
 						removeNode( tempNode );
 					}
 					else {
-						//set Text for time series node
-						tempNode.setText( tempNode.getText() + " - No Data" );
+						// Set Text for time series node, if not already labelled
+						if ( !tempNode.getText().endsWith ( "No Data") ) {
+							tempNode.setText( tempNode.getText() + " - No Data" );
+						}
 					}
 				}
 			}
