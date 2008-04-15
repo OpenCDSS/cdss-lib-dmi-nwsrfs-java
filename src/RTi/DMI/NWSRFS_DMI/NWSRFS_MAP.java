@@ -12,8 +12,6 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.util.Vector;
-
 /**
 The NWSRFS_MAP class stores the organizational information about an
 NWSRFS MAP Areal parameters. This class holds the information stored in the 

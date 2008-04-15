@@ -558,7 +558,6 @@ Constructor.
 @param id rating curve ID.  Can be null.
 */
 public NWSRFS_RatingCurve(String id) {
-	String routine = "NWSRFS_RatingCurve";
 
 	initialize();
 

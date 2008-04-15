@@ -6,7 +6,6 @@
 package RTi.DMI.NWSRFS_DMI;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -827,49 +826,6 @@ public class AppsDefaults
       tokenName = "testToken3";
       // tokenRawValue = 'dd#hank:me:"llhank" '
       tokenValue = ad.getToken(tokenName);
-      System.out.println("tokenName = " + tokenName + " tokenValue = " + tokenValue);
-
-      
-   
-      
+      System.out.println("tokenName = " + tokenName + " tokenValue = " + tokenValue);      
    }
-
-//   /* (non-Javadoc)
-//    * @see ohd.hseb.util.AppsDefaultsDufas#setAppsDefaultBean(ohd.hseb.icp.common.transfer.AppsDefaultsBean, java.lang.String)
-//    */
-//   public void setAppsDefaultBean(AppsDefaultsBean appsDefaultsBean, String tokenKey)
-//   {
-//      appsDefaultsBean.setMcpDecks(adjustFileSeparator(getToken(tokenKey)));
-//      appsDefaultsBean.setStatusBean(_statusBean);
-//   }
-
-   private String adjustFileSeparator(String path)
-   {
-      // dld this is a hack so that the code will run under windows even if
-      // the apps default data is hard coded for Unix
-      String fileSeparator = File.separator;
-      if (fileSeparator.equals("\\")) // if testing under windows use the Unix
-      // file separator
-      {
-         return path.replace('/', '\\');
-      }
-      return path;
-   }
-
-   /* (non-Javadoc)
-    * @see ohd.hseb.util.AppsDefaultsDufas#getStatusBean()
-    */
-//   public StatusBean getStatusBean()
-//   {
-//      return _statusBean;
-//   }
-
-   /* (non-Javadoc)
-    * @see ohd.hseb.util.AppsDefaultsDufas#setStatusBean(ohd.hseb.icp.common.transfer.StatusBean)
-    */
-//   public void setStatusBean(StatusBean bean)
-//   {
-//      _statusBean = bean;
-//   }
-
 } // end class AppsDefaults

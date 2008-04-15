@@ -10,22 +10,17 @@ History
 package RTi.DMI.NWSRFS_DMI;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
-import javax.swing.border.Border;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 
-import RTi.Util.IO.IOUtil;
-import RTi.Util.IO.LanguageTranslator;
 import RTi.Util.Message.Message;
-import RTi.Util.String.StringUtil;
 
 /**
 The NWSRFS_Tree_JPanel class creates a JPanel with Tabbed Panes to
@@ -44,9 +39,8 @@ Constructor for NWSRFS_Tree_JPanel.  Sets up basic panel with
 JTabbedPanes.  No trees are added by default.
 @param parent JFrame parent 
 */
-public NWSRFS_Tree_JPanel ( JFrame parent ) {
-				
-	String routine = "NWSRFS_Tree_JPanel.constructor";
+public NWSRFS_Tree_JPanel ( JFrame parent )
+{
 
 	//Make panel
 	__panel = new JPanel();

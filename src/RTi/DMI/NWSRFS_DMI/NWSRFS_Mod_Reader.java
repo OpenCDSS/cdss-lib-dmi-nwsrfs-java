@@ -1,14 +1,10 @@
 package RTi.DMI.NWSRFS_DMI;
 
-import java.awt.font.LineMetrics;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -17,7 +13,6 @@ import RTi.Util.IO.DataUnits;
 import RTi.Util.IO.FileCollector;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.Message.Message;
-import RTi.Util.Time.DateTime;
 
 /**
 Class to read Mod files and return Mod instances.
@@ -217,7 +212,7 @@ List modList = new ArrayList();
   
   // Convert the .TSCHNG mods to FMAP
   //TODO: dre: I don't know where to get this from
-  
+  /* TODO Uncomment when code is needed
   DateTime now = null;
   try
     {
@@ -228,6 +223,7 @@ List modList = new ArrayList();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    */
 //  List fMAPMods = NWSRFS_Mod_Util.convertTSCHNG_MAP_ModsToFMAPMods(modList, now);  
 //  
 //  for(int i = 0; i < fMAPMods.size(); i++)
@@ -285,6 +281,7 @@ private static void outputXXX(String modsDirString,List modList)
  * @param modsDirString
  * @param fMAPMods
  */
+/* TODO Enable code when needed
 private static void outputFMAP(String modsDirString, List fMAPMods)
 {
   String outputFile = modsDirString + "/FMAPMODS.IFP";
@@ -319,9 +316,9 @@ private static void outputFMAP(String modsDirString, List fMAPMods)
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-   
  }
 }
+*/
 
 /**
  * @return

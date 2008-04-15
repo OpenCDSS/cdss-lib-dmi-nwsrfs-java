@@ -79,104 +79,47 @@ package RTi.DMI.NWSRFS_DMI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.String;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Vector;
 import javax.swing.BorderFactory;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import javax.swing.DefaultListModel;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolTip;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Util;
-import RTi.GIS.GeoView.GeographicProjection;
-import RTi.GIS.GeoView.GeoViewJPanel;
-import RTi.GR.GRArc;
-import RTi.GR.GRColor;
-import RTi.GR.GRColorTable;
-import RTi.GR.GRLegend;
-import RTi.GR.GRPoint;
-import RTi.GR.GRSymbol;
-import RTi.TS.TS;
-import RTi.TS.TSAnalyst;
-import RTi.TS.TSIdent;
-import RTi.TS.TSLimits;
-import RTi.TS.TSUtil;
-import RTi.TS.YearTS;
 import RTi.Util.GUI.JGUIUtil;
 import RTi.Util.GUI.SimpleJButton;
 import RTi.Util.GUI.SimpleJMenuItem;
-import RTi.Util.GUI.ResponseJDialog;
-import RTi.Util.Time.DateTime;
-import RTi.Util.Time.TimeUtil;
-import RTi.Util.IO.DataUnits;
-import RTi.Util.IO.DataUnitsConversion;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.IO.LanguageTranslator;
 import RTi.Util.IO.ProcessManager;
-import RTi.Util.IO.Prop;
-import RTi.Util.IO.PropList;
-import RTi.Util.IO.PropListManager;
-import RTi.Util.Math.MathUtil;
-import RTi.Util.Message.DiagnosticsJFrame;
 import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
-import RTi.Util.Table.DataTable;
-import RTi.Util.Table.TableRecord;
-import RTi.Util.Time.TimeUtil;
 
 //public class NWSRFS_SystemMaintenance extends JFrame 
-public class NWSRFS_SystemMaintenance extends JDialog 
-	implements ActionListener {
+public class NWSRFS_SystemMaintenance extends JDialog implements ActionListener
+{
 
 String _class = "NWSRFS_SystemMaintenance";
 
@@ -315,17 +258,11 @@ Constructor.
 @param systemJTree a system JTree that can be specified that will be rebuilt
 after certain commands are run.
 */
-public NWSRFS_SystemMaintenance(NWSRFS_System_JTree systemJTree) {
-	String routine = _class + " constructor";
-
+public NWSRFS_SystemMaintenance(NWSRFS_System_JTree systemJTree)
+{
 	__systemJTree = systemJTree;
 
-	//make global
-	String fs = null;
-	fs = IOUtil.getPropValue("FILE_SEPERATOR");
-	if ( fs != null ) {
-		_fs = IOUtil.getPropValue("FILE_SEPERATOR");
-	}
+	_fs = File.separator;
 
  	//editor can be null - if it is null, use Java Text Editor,
         //SimpleJFileEditor... Other options for editor: "vi" or "nedit"
@@ -390,13 +327,10 @@ public void create_addRatingCurve_dialog() {
 	close_JPanel = make_close_panel( _addRatingCurve_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
-		Message.printWarning( 2, routine,
-		"Unable to create \"Add RatingCurve panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Add RatingCurve panel\"." );
 	}
 	else {
 		try {
@@ -442,8 +376,7 @@ public void create_addRatingCurve_dialog() {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create \"Add RatingCurve panel\"." );
+			Message.printWarning( 2, routine, "Unable to create \"Add RatingCurve panel\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
@@ -502,13 +435,10 @@ public void create_addStations_dialog() {
 	close_JPanel = make_close_panel( _addStations_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
-		Message.printWarning( 2, routine,
-		"Unable to create \"Add Stations panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Add Stations panel\"." );
 	}
 	else {
 		try {
@@ -554,8 +484,7 @@ public void create_addStations_dialog() {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create \"Add Stations panel\"." );
+			Message.printWarning( 2, routine, "Unable to create \"Add Stations panel\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
@@ -598,9 +527,7 @@ public void create_dumpObs_dialog() {
 	//_dumpObs_run_JButton.setEnabled( true );
 
 	//make panel
-	button_JPanel = make_button_panel(
-		_dumpObs_edit_JButton,
-		_dumpObs_run_JButton, null );
+	button_JPanel = make_button_panel( _dumpObs_edit_JButton, _dumpObs_run_JButton, null );
 		
 	//make output panel
 	JPanel output_JPanel = null;
@@ -611,13 +538,10 @@ public void create_dumpObs_dialog() {
 	close_JPanel = make_close_panel( _dumpObs_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
-		Message.printWarning( 2, routine,
-		"Unable to create \"Dump Observations panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Dump Observations panel\"." );
 	}
 	else {
 		try {
@@ -676,7 +600,6 @@ public void create_dumpObs_dialog() {
 	
 } //end create_dumpObs_dialog
 
-
 /**
 Creates the JDialog box for Dumping TimeSeries.
 */
@@ -709,9 +632,7 @@ public void create_dumpTS_dialog() {
 	//_dumpTS_run_JButton.setEnabled( true );
 
 	//make panel
-	button_JPanel = make_button_panel(
-		_dumpTS_edit_JButton,
-		_dumpTS_run_JButton, null );
+	button_JPanel = make_button_panel( _dumpTS_edit_JButton, _dumpTS_run_JButton, null );
 		
 	//make output panel
 	JPanel output_JPanel = null;
@@ -722,13 +643,10 @@ public void create_dumpTS_dialog() {
 	close_JPanel = make_close_panel( _dumpTS_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
-		Message.printWarning( 2, routine,
-		"Unable to create \"Dump Time Series panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Dump Time Series panel\"." );
 	}
 	else {
 		try {
@@ -774,9 +692,7 @@ public void create_dumpTS_dialog() {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create " +
-			"\"Dump Time Series panel\"." );
+			Message.printWarning( 2, routine, "Unable to create \"Dump Time Series panel\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
@@ -786,7 +702,6 @@ public void create_dumpTS_dialog() {
 	insets = null;
 	
 } //end create_dumpTS_dialog
-
 
 /**
 Creates the JDialog box for Running the Forecast Database Status.
@@ -815,8 +730,7 @@ public void create_forecastDB_dialog() {
 		_forecastDB_run_string,
 		_forecastDB_run_string, this );
 	//make panel
-	button_JPanel = make_button_panel(
-		_forecastDB_run_JButton, null, null );
+	button_JPanel = make_button_panel( _forecastDB_run_JButton, null, null );
 		
 	//make output panel
 	JPanel output_JPanel = null;
@@ -827,13 +741,10 @@ public void create_forecastDB_dialog() {
 	close_JPanel = make_close_panel( _forecastDB_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
-		Message.printWarning( 2, routine,
-		"Unable to create \"Forecast DataBase Status panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Forecast DataBase Status panel\"." );
 	}
 	else {
 		try {
@@ -879,9 +790,7 @@ public void create_forecastDB_dialog() {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create " +
-			"\"Forecast Database Status panel\"." );
+			Message.printWarning( 2, routine, "Unable to create \"Forecast Database Status panel\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
@@ -891,7 +800,6 @@ public void create_forecastDB_dialog() {
 	insets = null;
 	
 } //end create_forecastDB_dialog
-
 
 /**
 Creates the JDialog box for Running the Preprocessor Database Status.
@@ -920,8 +828,7 @@ public void create_preprocessDB_dialog() {
 		_preprocessDB_run_string,
 		_preprocessDB_run_string, this );
 	//make panel
-	button_JPanel = make_button_panel(
-		_preprocessDB_run_JButton, null, null );
+	button_JPanel = make_button_panel( _preprocessDB_run_JButton, null, null );
 		
 	//make output panel
 	JPanel output_JPanel = null;
@@ -932,13 +839,10 @@ public void create_preprocessDB_dialog() {
 	close_JPanel = make_close_panel( _preprocessDB_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
-		Message.printWarning( 2, routine,
-		"Unable to create \"Preprocessor DataBase Status panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Preprocessor DataBase Status panel\"." );
 	}
 	else {
 		try {
@@ -984,9 +888,7 @@ public void create_preprocessDB_dialog() {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create " +
-			"\"Preprocessor Database Status panel\"." );
+			Message.printWarning( 2, routine, "Unable to create \"Preprocessor Database Status panel\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
@@ -1051,10 +953,8 @@ public void create_redefRatingCurves_dialog( String ratingCurve_to_redefine ) {
 	close_JPanel = make_close_panel( _redefRatingCurves_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
 		Message.printWarning( 2, routine,
 		"Unable to create \"Redefine Rating Curve panel\""  +
@@ -1106,8 +1006,7 @@ public void create_redefRatingCurves_dialog( String ratingCurve_to_redefine ) {
 		catch ( Exception e ) {
 			e.printStackTrace();
 			Message.printWarning( 2, routine,
-			"Unable to create " +
-			"\"Redefine Rating Curve panel\" for Rating Curve: \"" +
+			"Unable to create \"Redefine Rating Curve panel\" for Rating Curve: \"" +
 			ratingCurve_to_redefine + "\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
@@ -1142,8 +1041,7 @@ public void create_redefSegment_dialog( String segment_to_redefine ) {
 	//segment was selected in the JTree by looking at the subtitle
 	_redefSegments_subtitle_string = segment_to_redefine;
 	//make title panel with subtitle
-	title_JPanel = make_title_panel( 
-		_redefSegments_title_string, _redefSegments_subtitle_string );
+	title_JPanel = make_title_panel( _redefSegments_title_string, _redefSegments_subtitle_string );
 
 	//make button panel
 	JPanel button_JPanel = null;
@@ -1170,14 +1068,11 @@ public void create_redefSegment_dialog( String segment_to_redefine ) {
 	close_JPanel = make_close_panel( _redefSegments_close_string );
 	
 	//if any panel is null, don't assemble 
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) )  {
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) )  {
 
 		Message.printWarning( 2, routine,
-		"Unable to create \"Redefine Segment panel\""  +
-		"for Segment: \"" + segment_to_redefine + "\"." );
+		"Unable to create \"Redefine Segment panel\" for Segment: \"" + segment_to_redefine + "\"." );
 	}
 	else {
 		try {
@@ -1223,9 +1118,7 @@ public void create_redefSegment_dialog( String segment_to_redefine ) {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create " +
-			"\"Redefine Segment panel\" for Segment: \"" +
+			Message.printWarning( 2, routine, "Unable to create \"Redefine Segment panel\" for Segment: \"" +
 			segment_to_redefine + "\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
@@ -1236,10 +1129,6 @@ public void create_redefSegment_dialog( String segment_to_redefine ) {
 	insets = null;
 	
 } //end create_redefSegment_dialog
-
-
-
-//////////////
 
 /**
 Creates the JDialog box for the Redefining Stations.  This dialog 
@@ -1267,8 +1156,7 @@ public void create_redefStations_dialog( String stn_id ) {
 	//segment was selected in the JTree by looking at the subtitle
 	_redefStations_subtitle_string = stn_id;
 
-	title_JPanel = make_title_panel( 
-		_redefStations_title_string, _redefStations_subtitle_string );
+	title_JPanel = make_title_panel( _redefStations_title_string, _redefStations_subtitle_string );
 
 	//make button panel
 	JPanel button_JPanel = null;
@@ -1285,8 +1173,7 @@ public void create_redefStations_dialog( String stn_id ) {
 	//enable button until first step completes successfully.
 	_redefStations_run_JButton.setEnabled( false );
 
-	button_JPanel = make_button_panel( _redefStations_edit_JButton,
-		_redefStations_run_JButton, null );
+	button_JPanel = make_button_panel( _redefStations_edit_JButton,	_redefStations_run_JButton, null );
 
 	//make output panel
 	JPanel output_JPanel = null;
@@ -1296,14 +1183,11 @@ public void create_redefStations_dialog( String stn_id ) {
 	JPanel close_JPanel = null;
 	close_JPanel = make_close_panel( _redefStations_close_string );
 
-	//if any panel is null, do not assemble gui
-	if ( ( title_JPanel == null ) ||
-		( button_JPanel == null ) ||
-		( output_JPanel == null ) ||
-		( close_JPanel == null ) ) {
+	//if any panel is null, do not assemble GUI
+	if ( ( title_JPanel == null ) || ( button_JPanel == null ) ||
+		( output_JPanel == null ) || ( close_JPanel == null ) ) {
 		
-		Message.printWarning( 2, routine,
-		"Unable to create \"Redefine Stations panel\"." );
+		Message.printWarning( 2, routine, "Unable to create \"Redefine Stations panel\"." );
 	}
 	else {
 		//layout GUI
@@ -1359,8 +1243,7 @@ public void create_redefStations_dialog( String stn_id ) {
 			_dialog.validate();
 		}
 		catch ( Exception e ) {
-			Message.printWarning( 2, routine,
-			"Unable to create \"Redefine Stations panel\"." );
+			Message.printWarning( 2, routine, "Unable to create \"Redefine Stations panel\"." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
@@ -1378,192 +1261,112 @@ components only if a lookup table is used for the application, ie, if
 there is a translation file.  If the String cannot be located in the
 translation file, the original string will be utilized in non-translated form.
 */
-public void initialize_gui_strings()  {
-	String routine = _class + ".initialize_gui_strings";
+public void initialize_gui_strings()
+{
 	LanguageTranslator translator = null;
 	translator = LanguageTranslator.getTranslator();
 	if ( translator != null ) {
 		//Redefine Stations
 		_redefStations_title_string = 
-			translator.translate(
-			"redefStations_title_string",
-			_redefStations_title_string );
+			translator.translate( "redefStations_title_string", _redefStations_title_string );
 		_redefStations_select_string = 
-			translator.translate(
-			"redefStations_select_string",
-			_redefStations_select_string );
+			translator.translate( "redefStations_select_string", _redefStations_select_string );
 		_redefStations_edit_string =
-			translator.translate(
-			"redefStations_edit_string",
-			_redefStations_edit_string );
+			translator.translate( "redefStations_edit_string", _redefStations_edit_string );
 		_redefStations_run_string =
-			translator.translate(
-			"redefStations_run_string",
-			_redefStations_run_string );
+			translator.translate( "redefStations_run_string", _redefStations_run_string );
 		_redefStations_close_string = 
-			translator.translate(
-			"redefStations_close_string",
-			_redefStations_close_string );
+			translator.translate( "redefStations_close_string", _redefStations_close_string );
 
 		//add RatingCurve
 		_addRatingCurve_title_string = 
-			translator.translate(
-			"addRatingCurve_title_string",
-			_addRatingCurve_title_string );
+			translator.translate( "addRatingCurve_title_string", _addRatingCurve_title_string );
 		_addRatingCurve_add_string = 
-			translator.translate(
-			"addRatingCurve_add_string",
-			_addRatingCurve_add_string );
+			translator.translate( "addRatingCurve_add_string", _addRatingCurve_add_string );
 		_addRatingCurve_run_string = 
-			translator.translate(
-			"addRatingCurve_run_string",
-			_addRatingCurve_run_string );
+			translator.translate( "addRatingCurve_run_string", _addRatingCurve_run_string );
 		_addRatingCurve_close_string = 
-			translator.translate(
-			"addRatingCurve_close_string",
-			_addRatingCurve_close_string );
+			translator.translate( "addRatingCurve_close_string", _addRatingCurve_close_string );
 	
 		//add Stations
 		_addStations_title_string = 
-			translator.translate(
-			"addStations_title_string",
-			_addStations_title_string );
+			translator.translate( "addStations_title_string", _addStations_title_string );
 		_addStations_add_string = 
-			translator.translate(
-			"addStations_add_string",
-			_addStations_add_string );
+			translator.translate( "addStations_add_string", _addStations_add_string );
 		_addStations_run_string = 
-			translator.translate(
-			"addStations_run_string",
-			_addStations_run_string );
+			translator.translate( "addStations_run_string", _addStations_run_string );
 		_addStations_close_string = 
-			translator.translate(
-			"addStations_close_string",
-			_addStations_close_string );
+			translator.translate( "addStations_close_string", _addStations_close_string );
 	
 		//Redefine Segments
 		_redefSegments_title_string = 
-			translator.translate(
-			"redefSegments_title_string",
-			_redefSegments_title_string );
+			translator.translate( "redefSegments_title_string", _redefSegments_title_string );
 		_redefSegments_label_string = 
-			translator.translate(
-			"redefSegments_label_string",
-			_redefSegments_label_string );
+			translator.translate( "redefSegments_label_string", _redefSegments_label_string );
 		_redefSegments_edit_string = 
-			translator.translate(
-			"redefSegments_edit_string",
-			_redefSegments_edit_string );
+			translator.translate( "redefSegments_edit_string", _redefSegments_edit_string );
 		_redefSegments_viewCurrent_string = 
-			translator.translate(
-			"redefSegments_viewCurrent_string",
-			_redefSegments_viewCurrent_string );
+			translator.translate( "redefSegments_viewCurrent_string", _redefSegments_viewCurrent_string );
 		_redefSegments_run_string = 
-			translator.translate(
-			"redefSegments_run_string",
-			_redefSegments_run_string );
+			translator.translate( "redefSegments_run_string", _redefSegments_run_string );
 		_redefSegments_close_string = 
-			translator.translate(
-			"redefSegments_close_string",
-			_redefSegments_close_string );
+			translator.translate( "redefSegments_close_string", _redefSegments_close_string );
 	
 		//Redefine Rating Curves
 		_redefRatingCurves_title_string = 
-			translator.translate(
-			"redefRatingCurves_title_string",
-			_redefRatingCurves_title_string );
+			translator.translate("redefRatingCurves_title_string", _redefRatingCurves_title_string );
 		_redefRatingCurves_label_string = 
-			translator.translate(
-			"redefRatingCurves_label_string",
-			_redefRatingCurves_label_string );
+			translator.translate("redefRatingCurves_label_string",_redefRatingCurves_label_string );
 		_redefRatingCurves_edit_string = 
-			translator.translate(
-			"redefRatingCurves_edit_string",
-			_redefRatingCurves_edit_string );
+			translator.translate("redefRatingCurves_edit_string",_redefRatingCurves_edit_string );
 		_redefRatingCurves_viewCurrent_string = 
-			translator.translate(
-			"redefRatingCurves_viewCurrent_string",
-			_redefRatingCurves_viewCurrent_string );
+			translator.translate("redefRatingCurves_viewCurrent_string",_redefRatingCurves_viewCurrent_string );
 		_redefRatingCurves_run_string = 
-			translator.translate(
-			"redefRatingCurves_run_string",
-			_redefRatingCurves_run_string );
+			translator.translate("redefRatingCurves_run_string",_redefRatingCurves_run_string );
 		_redefRatingCurves_close_string = 
-			translator.translate(
-			"redefRatingCurves_close_string",
-			_redefRatingCurves_close_string );
+			translator.translate("redefRatingCurves_close_string",_redefRatingCurves_close_string );
 	
 		//Preprocessors Database Status
 		_preprocessDB_title_string = 
-			translator.translate(
-			"preprocessDB_title_string",
-			_preprocessDB_title_string );
+			translator.translate("preprocessDB_title_string",_preprocessDB_title_string );
 		_preprocessDB_run_string = 
-			translator.translate(
-			"preprocessDB_run_string",
-			_preprocessDB_run_string );
+			translator.translate("preprocessDB_run_string",_preprocessDB_run_string );
 		_preprocessDB_close_string = 
-			translator.translate(
-			"preprocessDB_close_string",
-			_preprocessDB_close_string );
+			translator.translate("preprocessDB_close_string",_preprocessDB_close_string );
 	
 		//Forecast Database Status
 		_forecastDB_title_string = 
-			translator.translate(
-			"forecastDB_title_string",
-			_forecastDB_title_string );
+			translator.translate("forecastDB_title_string",_forecastDB_title_string );
 		_forecastDB_run_string = 
-			translator.translate(
-			"forecastDB_run_string",
-			_forecastDB_run_string );
+			translator.translate("forecastDB_run_string",_forecastDB_run_string );
 		_forecastDB_close_string = 
-			translator.translate(
-			"forecastDB_close_string",
-			_forecastDB_close_string );
+			translator.translate("forecastDB_close_string",_forecastDB_close_string );
 	
 		//dump observations
 		_dumpObs_title_string = 
-			translator.translate(
-			"dumpObs_title_string",
-			_dumpObs_title_string );
+			translator.translate("dumpObs_title_string",_dumpObs_title_string );
 		_dumpObs_edit_string = 
-			translator.translate(
-			"dumpObs_edit_string",
-			_dumpObs_edit_string );
+			translator.translate("dumpObs_edit_string",_dumpObs_edit_string );
 		_dumpObs_run_string = 
-			translator.translate(
-			"dumpObs_run_string",
-			_dumpObs_run_string );
+			translator.translate("dumpObs_run_string",_dumpObs_run_string );
 		_dumpObs_close_string = 
-			translator.translate(
-			"dumpObs_close_string", 
-			_dumpObs_close_string );
+			translator.translate("dumpObs_close_string", _dumpObs_close_string );
 	
 		//dump time series
 		_dumpTS_title_string = 
-			translator.translate(
-			"dumpTS_title_string",
-			_dumpTS_title_string );
+			translator.translate("dumpTS_title_string",_dumpTS_title_string );
 		_dumpTS_edit_string = 
-			translator.translate(
-			"dumpTS_edit_string",
-			_dumpTS_edit_string );
+			translator.translate("dumpTS_edit_string",_dumpTS_edit_string );
 		_dumpTS_run_string = 
-			translator.translate(
-			"dumpTS_run_string",
-			_dumpTS_run_string );
+			translator.translate("dumpTS_run_string",_dumpTS_run_string );
 		_dumpTS_close_string = 
-			translator.translate(
-			"dumpTS_close_string",
-			_dumpTS_close_string );
+			translator.translate("dumpTS_close_string",_dumpTS_close_string );
 	
 		//popup menu
         	_popup_view_string =
-			translator.translate(
-			"popup_view_string", _popup_view_string );
+			translator.translate("popup_view_string", _popup_view_string );
         	_popup_clear_string =
-			translator.translate(
-			"popup_clear_string", _popup_clear_string );
+			translator.translate("popup_clear_string", _popup_clear_string );
 	}	
 } //end initialize_gui_strings
 
@@ -1577,21 +1380,18 @@ passed in for them are null.
 @return  panel containing the SimpleJButtons.
 */
 public JPanel make_button_panel( SimpleJButton button_1_JButton,
-					SimpleJButton button_2_JButton,
-					SimpleJButton button_3_JButton ) {
+					SimpleJButton button_2_JButton,	SimpleJButton button_3_JButton ) {
 	String routine = _class + ".make_button_panel";
 
 	JPanel button_JPanel = null;
 	Insets insets = new Insets( 5, 3, 3, 5 );
-	Dimension dim = new Dimension( 150, 25 );
 	try { 
 		button_JPanel = new JPanel(); 
 		button_JPanel.setLayout( new GridBagLayout() );
 
 		//now layout buttons 
 		if ( button_1_JButton == null ) {
-			Message.printWarning( 2, routine,
-			"Unable to create button panel." );
+			Message.printWarning( 2, routine, "Unable to create button panel." );
 			button_JPanel = null;
 		}
 		else {
@@ -1623,15 +1423,11 @@ public JPanel make_button_panel( SimpleJButton button_1_JButton,
 					cnt++;
 				}
 			}
-				
 		}
-
 	}
 	catch ( Exception e ) {
 		button_JPanel = null;
-
-		Message.printWarning( 2, routine,
-		"Unable to create Button Panel." );
+		Message.printWarning( 2, routine, "Unable to create Button Panel." );
 		if ( Message.isDebugOn ) {
 			Message.printWarning( 2, routine, e );
 		}
@@ -1639,14 +1435,12 @@ public JPanel make_button_panel( SimpleJButton button_1_JButton,
 
 	//clean up
 	insets = null;
-	dim = null;
 	
 	return button_JPanel;
 } //end make_button_panel
 	
 /**
-Creates a panel to place at the bottom of GUIs that contains
-one button- the "close" button.    
+Creates a panel to place at the bottom of GUIs that contains tne button- the "close" button.    
 @param close_string  String to use for button.
 @return  JPanel containing the "close" button.
 */
@@ -1664,8 +1458,7 @@ public JPanel make_close_panel( String close_string ) {
 		close_JPanel.setLayout( new GridBagLayout() );
 
 		//now create the button
-		_close_JButton = new SimpleJButton( close_string, 
-			close_string, this );
+		_close_JButton = new SimpleJButton( close_string, close_string, this );
 		//set size
 		_close_JButton.setPreferredSize( _comp_dim );
 
@@ -1677,8 +1470,7 @@ public JPanel make_close_panel( String close_string ) {
 			GridBagConstraints.CENTER );
 	}
 	catch ( Exception e ) {
-		Message.printWarning( 2, routine, 
-		"Error laying out Close panel." );
+		Message.printWarning( 2, routine, "Error laying out Close panel." );
 		close_JPanel = null;
 		_close_JButton = null;
 		if ( Message.isDebugOn ) {
@@ -1691,7 +1483,6 @@ public JPanel make_close_panel( String close_string ) {
 	return close_JPanel;
 } //end make_close_panel
 
-
 /**
 Creates a panel that contains a JComboBox with a JLabel beside it.
 @param label_string  String for JLabel that is next to the combo box.
@@ -1699,8 +1490,7 @@ Creates a panel that contains a JComboBox with a JLabel beside it.
 get the list of items to display in the JComboBox.
 return - panel containing the JLabel and JComboBox.
 */
-public JPanel make_combobox_panel( String label_string,
-					String command_string ) {
+public JPanel make_combobox_panel( String label_string, String command_string ) {
 	String routine = _class + ".make_combobox_panel";
 	
 	JPanel combo_JPanel = null;
@@ -1718,8 +1508,7 @@ public JPanel make_combobox_panel( String label_string,
 		//make vector that will go into combobox
 		int exitstat = -99;
 		Vector v = null;
-		//ProcessManager pm = new ProcessManager(
-		//	command_string, true, 0 );
+		//ProcessManager pm = new ProcessManager( command_string, true, 0 );
 		ProcessManager pm = new ProcessManager( command_string );
 		try {
 			pm.saveOutput( true );
@@ -1733,8 +1522,7 @@ public JPanel make_combobox_panel( String label_string,
 					size = v.size();
 				}
 				//if ( size > 0 ) {
-					//remove last line that is
-					//the exit status line.
+					//remove last line that is the exit status line.
 				//	v.removeElementAt( size - 1 );
 					//get new size
 				//	size = v.size();
@@ -1748,38 +1536,30 @@ public JPanel make_combobox_panel( String label_string,
 					size = sorted_list.size();
 				}
 				if ( size <= 0 ) {
-					Message.printWarning( 2, routine,
-					"Nothing returned from command: \"" +
-					command_string + "\".  Combo box "+
-					"will not be created." );
+					Message.printWarning( 2, routine, "Nothing returned from command: \"" +
+							command_string + "\".  Combo box will not be created." );
 				}
 				else { //size > 0
-					_comboBox_JComboBox = new JComboBox( 
-						sorted_list );	
+					_comboBox_JComboBox = new JComboBox( sorted_list );	
 				}
 				//clean up 
 				sorted_list = null;
 			}
 			else {
-				Message.printWarning( 2, routine,
-				"Unable to run command: \"" +
-				command_string + "\" " +
-				"which is used to create the " +
-				"combo box.  Will not create panel." ); 
+				Message.printWarning( 2, routine, "Unable to run command: \"" + command_string + "\" " +
+				"which is used to create the combo box.  Will not create panel." ); 
 			}
 		} 
 		catch ( Exception e ) {
 			combo_JPanel = null;
 
-			Message.printWarning( 2, routine,
-			"Unable to create ComboBox Panel." );
+			Message.printWarning( 2, routine, "Unable to create ComboBox Panel." );
 			if ( Message.isDebugOn ) {
 				Message.printWarning( 2, routine, e );
 			}
 		}
 
-		//now check to see if combo box was created... if not,
-		//just exit returning a null panel.
+		//now check to see if combo box was created... if not, just exit returning a null panel.
 		if ( _comboBox_JComboBox == null ) {
 			combo_JPanel = null;
 		}
@@ -1807,8 +1587,7 @@ public JPanel make_combobox_panel( String label_string,
 	catch ( Exception e ) {
 		combo_JPanel = null;
 
-		Message.printWarning( 2, routine,
-		"Unable to create ComboBox Panel." );
+		Message.printWarning( 2, routine, "Unable to create ComboBox Panel." );
 		if ( Message.isDebugOn ) {
 			Message.printWarning( 2, routine, e );
 		}
@@ -1825,10 +1604,9 @@ Creates a JPopupMenu and adds SimpleJMenuItems to it.
 @return  JPopupMenu created.
 */
 public JPopupMenu make_sysMaint_popup_menu() {
-	String routine  = _class + ".make_sysMaint_popup_menu";
 	//make popup
 	JPopupMenu popup_menu = new JPopupMenu();
-	popup_menu.setDefaultLightWeightPopupEnabled( false );
+	JPopupMenu.setDefaultLightWeightPopupEnabled( false );
 	
 	//create the menu items
 	_popup_view_JMenuItem = new SimpleJMenuItem(
@@ -1846,7 +1624,6 @@ public JPopupMenu make_sysMaint_popup_menu() {
 	
 } //end make_sysMaint_popup_menu
 
-
 /**
 Creates a panel and puts a title centered in the panel.
 @param title_string  String to use for title
@@ -1856,7 +1633,6 @@ public JPanel make_title_panel( String title_string ) {
 	String routine = _class + ".make_title_panel";
 	
 	JPanel title_JPanel = null;
-	Insets insets = new Insets( 5, 3, 5, 3 );
 	try { 
 		//make title panel
 		title_JPanel = new JPanel();
@@ -1879,20 +1655,13 @@ public JPanel make_title_panel( String title_string ) {
 	catch ( Exception e ) {
 		title_JPanel = null;
 
-		Message.printWarning( 2, routine,
-		"Unable to create Title Panel." );
+		Message.printWarning( 2, routine, "Unable to create Title Panel." );
 		if ( Message.isDebugOn ) {
 			Message.printWarning( 2, routine, e );
 		}
 	}
-
-	//clean up
-	insets = null;
-
 	return title_JPanel;
-
 } //end make_title_panel
-
 
 /**
 Creates a panel and puts a title centered in the panel and a subtitle
@@ -1905,7 +1674,6 @@ public JPanel make_title_panel( String title_string, String subtitle_string ) {
 	String routine = _class + ".make_title_panel";
 	
 	JPanel title_JPanel = null;
-	Insets insets = new Insets( 5, 3, 5, 3 );
 	try { 
 		//make title panel
 		title_JPanel = new JPanel();
@@ -1938,15 +1706,11 @@ public JPanel make_title_panel( String title_string, String subtitle_string ) {
 	catch ( Exception e ) {
 		title_JPanel = null;
 
-		Message.printWarning( 2, routine,
-		"Unable to create Title Panel." );
+		Message.printWarning( 2, routine, "Unable to create Title Panel." );
 		if ( Message.isDebugOn ) {
 			Message.printWarning( 2, routine, e );
 		}
 	}
-
-	//clean up
-	insets = null;
 
 	return title_JPanel;
 
@@ -1962,21 +1726,17 @@ public JPanel make_output_panel() {
 
 	JPanel output_JPanel = null;
 	
-	//top, left, bottom, right
-	Insets insets = new Insets( 5, 5, 5, 5 );
 	try {
 		output_JPanel = new JPanel();
 		//output_JPanel.setLayout( new GridBagLayout() );
-output_JPanel.setLayout( new BorderLayout() );
-
+		output_JPanel.setLayout( new BorderLayout() );
 
 		//create list model
 		_ListModel = new DefaultListModel();
 
 		//create list and add model to it
 		_output_JList = new JList( _ListModel );
-		_output_JList.setSelectionMode( 
-			ListSelectionModel.SINGLE_SELECTION );
+		_output_JList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 
 		//make popup menu
 		if (_output_JList != null ) {
@@ -1987,39 +1747,28 @@ output_JPanel.setLayout( new BorderLayout() );
 			output_JPanel.add( _popup_JPopupMenu );
 		}
 		else {
-			Message.printWarning( 2, routine,
-			"Unable to add a Popup Menu to the " +
-			"output window." );
+			Message.printWarning( 2, routine, "Unable to add a Popup Menu to the output window." );
 		}
 
 		//define a MouseListener for the output_JList window
 		//to display a JPopupMenu when the popup trigger occurs
 		_output_JList.addMouseListener(
 		new MouseAdapter() {
-			String routine = 
-			_class + ".make_output_panel"+ ".MouseAdapter";
+			String routine = _class + ".make_output_panel"+ ".MouseAdapter";
 
 			//mousePRESSED
 			public void mousePressed( MouseEvent e ) {
 				int mods = e.getModifiers();
 				Component c = e.getComponent();
 		
-				if( c.equals( _output_JList ) &&
-					( _output_JList.
-						getFirstVisibleIndex() > -1 ) &&
-					((mods & MouseEvent.
-						BUTTON3_MASK) != 0 ) ) {
+				if( c.equals( _output_JList ) && ( _output_JList.getFirstVisibleIndex() > -1 ) &&
+					((mods & MouseEvent.BUTTON3_MASK) != 0 ) ) {
 					if ( Message.isDebugOn ) {
-						Message.printDebug ( 20, 
-						routine,
-						"Calling show()" );
+						Message.printDebug ( 20, routine, "Calling show()" );
 					}
 	
-					if ( _popup_JPopupMenu
-						.isPopupTrigger(e) ) {
-						_popup_JPopupMenu.show(
-							e.getComponent(), 
-							e.getX(), e.getY() );
+					if ( _popup_JPopupMenu.isPopupTrigger(e) ) {
+						_popup_JPopupMenu.show(	e.getComponent(), e.getX(), e.getY() );
 						}//end if
 				}//end if
 				
@@ -2030,34 +1779,23 @@ output_JPanel.setLayout( new BorderLayout() );
 				int mods = e.getModifiers();
 				Component c = e.getComponent();
 				
-				if( c.equals( _output_JList ) &&
-					( _output_JList.
-						getFirstVisibleIndex() > -1 ) &&
-					((mods & MouseEvent.
-						BUTTON3_MASK) != 0 ) ) {
+				if( c.equals( _output_JList ) && ( _output_JList.getFirstVisibleIndex() > -1 ) &&
+					((mods & MouseEvent.BUTTON3_MASK) != 0 ) ) {
 					if ( Message.isDebugOn ) {
-						Message.printDebug ( 20,
-						routine,
-						"Calling show()" );
+						Message.printDebug ( 20, routine, "Calling show()" );
 					}
 	
-					if ( _popup_JPopupMenu
-						.isPopupTrigger(e) ) {
-						_popup_JPopupMenu.show(
-							e.getComponent(), 
-							e.getX(), e.getY() );
+					if ( _popup_JPopupMenu.isPopupTrigger(e) ) {
+						_popup_JPopupMenu.show(	e.getComponent(), e.getX(), e.getY() );
 					}//end if
 				}//end if
-				
 			}//end mousePressed()
 		}//end mouseAdapter
 		); //end addMouseListener		
 
 		//make scroll pane and put list in it
-		JScrollPane output_JScrollPane = 
-			new JScrollPane( _output_JList );
- 		output_JScrollPane.setVerticalScrollBarPolicy(
-                	JScrollPane.VERTICAL_SCROLLBAR_ALWAYS );
+		JScrollPane output_JScrollPane = new JScrollPane( _output_JList );
+ 		output_JScrollPane.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS );
         	output_JScrollPane.setPreferredSize( _output_dim );
         	output_JScrollPane.setMinimumSize( new Dimension( 500, 300) );
         	output_JScrollPane.setMaximumSize( new Dimension( 900, 500) );
@@ -2065,8 +1803,7 @@ output_JPanel.setLayout( new BorderLayout() );
         	output_JScrollPane.setBorder(
                 	BorderFactory.createCompoundBorder(
                        		BorderFactory.createCompoundBorder(
-                               		BorderFactory.createTitledBorder(
-                                        _output_string ),
+                               		BorderFactory.createTitledBorder( _output_string ),
                                 BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) ),
                 	output_JScrollPane.getBorder() ) );
 
@@ -2082,8 +1819,7 @@ output_JPanel.setLayout( new BorderLayout() );
 		
 	}
 	catch ( Exception e ) {
-		Message.printWarning( 2, routine, 
-		"Error laying out Output panel." );
+		Message.printWarning( 2, routine, "Error laying out Output panel." );
 
 		output_JPanel = null;
 		_output_JList = null;
@@ -2092,9 +1828,6 @@ output_JPanel.setLayout( new BorderLayout() );
 			Message.printWarning( 2, routine, e );
 		}
 	}
-
-	insets = null;
-
 	return output_JPanel;
 } //end make_output_panel
 
@@ -2105,6 +1838,7 @@ output_JPanel.setLayout( new BorderLayout() );
 */
 public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 	String routine = _class + ".run_redefRatingCurves_edit_commands";
+	String message;
 
 	//boolean that indicates if file editing and opening was successful.
 	boolean file_moved = true;
@@ -2114,16 +1848,13 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 	}
 	else {	
 		//first need to edit the PUNCHRC.GUI file- update it
-		//with the selected Rating Curve and then run the PUNCHRC.GUI
-		//ofs command.
+		//with the selected Rating Curve and then run the PUNCHRC.GUI ofs command.
 		Vector punch_vect = null;
-		punch_vect = NWSRFS_Util.
-			run_punch_ratingCurves( ratingCurve_id );
+		punch_vect = NWSRFS_Util.run_punch_ratingCurves( ratingCurve_id );
 
 		//update output window		
 		int exitstat = -999;
-		exitstat = updateOutputWindow( 
-			"PUNCHRC.GUI", punch_vect );
+		exitstat = updateOutputWindow( "PUNCHRC.GUI", punch_vect );
 
 		//make sure the PUNCHRC.GUI command was successful
 		if ( exitstat == 0 ) {
@@ -2163,45 +1894,31 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 				//Remove extra "==>" and "<==" chars
 				//and change "_log" to "_pun"
 				String pun_path = null;
-				pun_path = NWSRFS_Util.
-					get_pun_path_from_log( 
-					log_name );
+				pun_path = NWSRFS_Util.get_pun_path_from_log( log_name );
 
-				//now we have the file we need to move
-				//and rename
-				//first get path to DEFRC.GUI
+				//now we have the file we need to move and rename first get path to DEFRC.GUI
 				String defrc_path = null;
-				defrc_path = IOUtil.getPropValue(
-					"DEFRC.GUI" );
+				defrc_path = IOUtil.getPropValue( "DEFRC.GUI" );
 				if ( defrc_path == null ) {
 					file_moved = false;
 				}
-				else { // ( defrc_path != null ) 
+				else {
+					// ( defrc_path != null ) 
 					File pun_file = new File( pun_path );
-					File redefrc_file = 
-						new File( defrc_path );
-					if (( pun_file.canRead()) && 
-						( redefrc_file.canRead() )) {
+					File redefrc_file = new File( defrc_path );
+					if (( pun_file.canRead()) && ( redefrc_file.canRead() )) {
 
 						//actually move file
 						try {
-							pun_file.
-							renameTo( 
-							redefrc_file );
+							pun_file.renameTo( redefrc_file );
 
-							Message.printStatus( 
-							30, routine,
-							"Moved file: \"" +
-							pun_path + "\"" +
-							"to: \"" +
-							defrc_path +"\"");	
+							Message.printStatus( 30, routine,
+							"Moved file: \"" + pun_path + "\" to: \"" + defrc_path +"\"");	
 						}
 						catch( Exception e ) {
 							file_moved = false;
-							if ( Message.
-							isDebugOn ) {
-							Message.printWarning( 
-							2, routine, e );
+							if ( Message.isDebugOn ) {
+								Message.printWarning( 2, routine, e );
 							}
 						}
 					} 
@@ -2219,49 +1936,32 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 					//first line: "DEF-RC"
 					//last line: "END"
 					// ADD LINES:
-					File inputFile = new File(
-						defrc_path );
-					File outputFile = new File (
-						defrc_path + ".tmp" );
+					File inputFile = new File( defrc_path );
+					File outputFile = new File ( defrc_path + ".tmp" );
 
 					try {
-						FileInputStream fis = new 
-						FileInputStream( inputFile );
+						FileInputStream fis = new FileInputStream( inputFile );
+						InputStreamReader isr =	new InputStreamReader( fis );
+						BufferedReader br = new BufferedReader( isr );
+						FileOutputStream fos = new FileOutputStream( outputFile );
+						PrintWriter pw = new PrintWriter( fos ); 
 
-						InputStreamReader isr =
-						new InputStreamReader( fis );
-
-						BufferedReader br = 		
-						new BufferedReader( isr );
-
-						FileOutputStream fos = new 
-						FileOutputStream( outputFile );
-		
-						PrintWriter pw = new 
-						PrintWriter( fos ); 
-
-						//vector to hold all lines 
-						//of file
+						//vector to hold all lines of file
 						Vector v = new Vector();
 						do {
-							//store lines in 
-							//vector as
-							//read them in
+							//store lines in vector as read them in
 							s = br.readLine();
 							if ( s== null ) {
 								//no more lines
 								break;
 							}
 							else {
-								v.addElement( 
-									s );
+								v.addElement( s );
 							}
 						} while ( s != null );
 						//now have all lines.. 
 						//add line to beg and end.
-						v.insertElementAt(
-						"DEF-RC", 0 );
-
+						v.insertElementAt("DEF-RC", 0 );
 						v.addElement( "END" );
 					
 						//now print out.
@@ -2283,20 +1983,17 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 					catch( Exception e ) {
 						file_moved = false;
 						if ( Message.isDebugOn ) {
-							Message.printWarning( 
-							2, routine, e );
+							Message.printWarning( 2, routine, e );
 						}
 					}
 					//move output "tmp" file back
 					try {
-						outputFile.renameTo( 
-							inputFile );
+						outputFile.renameTo( inputFile );
 					}
 					catch ( Exception e ) {
 						file_moved = false;
 						if ( Message.isDebugOn ) {
-							Message.printWarning( 
-							2, routine, e );
+							Message.printWarning( 2, routine, e );
 						}
 					}
 				}	
@@ -2304,35 +2001,21 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 				if ( file_moved ) { 
 					//Finally Allow User to EDIT the File.
 					try {
-						NWSRFS_Util.runEditor(
-						_editor,
-						defrc_path, true );
+						NWSRFS_Util.runEditor( _editor, defrc_path, true );
 					}
 					catch ( Exception e ) {
-						Message.printWarning(
-						2, routine, e );
+						Message.printWarning( 2, routine, e );
 					}
-
 				}				
-				else {  // if ( !file_moved ) 
-					Message.printWarning ( 2, routine,
-					"Can not update the file: " +
-					"\"DEFRC.GUI\". with " +
-					"the latest punch file. Will "+
-					"not run the ofs command " + 
-					"\"DEFRC.GUI\"." );
-					_ListModel.addElement( 
-					"Can not update the file: " +
-					"\"DEFRC.GUI\". with " +
-					"the latest punch file. Will "+
-					"not run the ofs command " + 
-					"\"DEFRC.GUI\"." );
+				else {  // if ( !file_moved )
+					message = "Cannot update the file: \"DEFRC.GUI\". with " +
+					"the latest punch file. Will not run the ofs command \"DEFRC.GUI\".";
+					Message.printWarning ( 2, routine, message );
+					_ListModel.addElement( message );
 				}
 			} //end if log_name != null
 			else {
-				Message.printWarning( 2, routine, 
-				"Unable to run the " +
-				"\"DEFRC.GUI\" command " );
+				Message.printWarning( 2, routine, "Unable to run the \"DEFRC.GUI\" command " );
 				if ( Message.isDebugOn) {
 					Message.printDebug( 5, routine,
 					"Unable to locate the " +
@@ -2353,19 +2036,12 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 		}
 		else {
 			Message.printWarning( 2, routine,
-			"\"PUNCHRC.GUI\" command " +
-			"failed.  Will not run " +
-			"\"DEFRC.GUI\" command" );
-
-			_ListModel.addElement( 
-			"PUNCHRC.GUI Failed!" );
+			"\"PUNCHRC.GUI\" command failed.  Will not run \"DEFRC.GUI\" command" );
+			_ListModel.addElement( "PUNCHRC.GUI Failed!" );
 		}
-
 	}
 	return file_moved;
 } //end run_redefRatingCurve_edit_commands
-/////////////////////
-
 
 /**
 @param segment_id  ID of the Segment to redefine.
@@ -2373,6 +2049,7 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 */
 public boolean run_redefSegments_edit_commands( String segment_id ) {
 	String routine = _class + ".run_redefSegments_edit_commands";
+	String message;
 
 	//boolean that indicates if file editing and opening was successful.
 	boolean file_moved = true;
@@ -2382,15 +2059,13 @@ public boolean run_redefSegments_edit_commands( String segment_id ) {
 	}
 	else {	
 		//first need to edit the PUNCHSEGS.GUI file- update it
-		//with the selected Segment and then run the PUNCHSEGS.GUI
-		//ofs command.
+		//with the selected Segment and then run the PUNCHSEGS.GUI ofs command.
 		Vector punch_vect = null;
 		punch_vect = NWSRFS_Util.run_punch_segments( segment_id );
 	/////////
 		//update output window		
 		int exitstat = -999;
-		exitstat = updateOutputWindow( 
-			"PUNCHSEGS.GUI", punch_vect );
+		exitstat = updateOutputWindow( "PUNCHSEGS.GUI", punch_vect );
 
 		//make sure the PUNCHSEGS.GUI command was successful
 		if ( exitstat == 0 ) {
@@ -2422,130 +2097,79 @@ public boolean run_redefSegments_edit_commands( String segment_id ) {
 			String s = null;
 			for ( int i=0; i<size; i++ ) {
 				s = ((String) punch_vect.elementAt(i)).trim();
-				if (( s!= null ) && 
-				( s.regionMatches(true, 0, "==", 0, 2) )) {
+				if (( s!= null ) && ( s.regionMatches(true, 0, "==", 0, 2) )) {
 					log_name = (String)
 					punch_vect.elementAt( i );
 					break;
 				}
 			}//end loop
 			if ( log_name != null ) {
-				//Remove extra "==>" and "<==" chars
-				//and change "_log" to "_pun"
+				//Remove extra "==>" and "<==" chars and change "_log" to "_pun"
 				String pun_path = null;
-				pun_path = NWSRFS_Util.
-					get_pun_path_from_log( 
-					log_name );
+				pun_path = NWSRFS_Util.get_pun_path_from_log( log_name );
 
-				//now we have the file we need to move
-				//and rename
-				//first get path to RESEGDEF.GUI
+				// Now we have the file we need to move and rename first get path to RESEGDEF.GUI
 				String redef_segs_path = null;
-				redef_segs_path = IOUtil.getPropValue(
-					"RESEGDEF.GUI" );
+				redef_segs_path = IOUtil.getPropValue( "RESEGDEF.GUI" );
 				if ( redef_segs_path == null ) {
-					
-					Message.printWarning( 2, routine,
-					"Unable to locate" + 
-					"\"RESEGDEF.GUI\" file" );
-					_ListModel.addElement( 
-					"Unable to locate file: RESEGDEF.GUI." +
-					" Unable to run commands."  );
+					message = "Unable to locate \"RESEGDEF.GUI\" file";
+					Message.printWarning( 2, routine, message );
+					_ListModel.addElement( message );
 
 					file_moved = false;
 				}
 				else { // ( redef_stns_path != null ) 
 					File pun_file = new File( pun_path );
-					File redefsegs_file = 
-						new File( redef_segs_path );
-					if (( pun_file.canRead()) && 
-						( redefsegs_file.canRead() )) {
+					File redefsegs_file = new File( redef_segs_path );
+					if (( pun_file.canRead()) && ( redefsegs_file.canRead() )) {
 
 						//actually move file
 						try {
-							pun_file.
-							renameTo( 
-							redefsegs_file );
+							pun_file.renameTo( redefsegs_file );
 
 							Message.printStatus( 
-							30, routine,
-							"Moved file: \"" +
-							pun_path + "\"" +
-							"to: \"" +
+							30, routine, "Moved file: \"" +	pun_path + "\" to: \"" +
 							redef_segs_path +"\"");	
 						}
 						catch( Exception e ) {
 							file_moved = false;
-							Message.printWarning( 2,
-							 routine,
-							"Unable to rename" + 
-							" punch file to: " +
-							"\"RESEGDEF.GUI\" file" );
-
-							_ListModel.addElement( 
-							"Unable to rename" + 
-							" punch file to: " +
-							"\"RESEGDEF.GUI\" file" );
-							Message.printWarning( 
-							2, routine, e );
+							message = "Unable to rename punch file to: \"RESEGDEF.GUI\" file";
+							Message.printWarning( 2, routine, message );
+							_ListModel.addElement( message );
+							Message.printWarning( 2, routine, e );
 						}
 					}
 					else { // file(s) don't exist
 						//if (( pun_file.canRead()) && 
 						//( redefsegs_file.canRead() )) {
-						Message.printWarning( 2,
-						routine, 
-						"Unable to locate " + 
-						"punch file to rename it to: " +
-						"\"RESEGDEF.GUI\" file" );
-						_ListModel.addElement( 
-						"Unable to locate " + 
-						"punch file to rename it to: " +
-						"\"RESEGDEF.GUI\" file" );
-
+						message = "Unable to locate punch file to rename it to: \"RESEGDEF.GUI\" file";
+						Message.printWarning( 2, routine, message );
+						_ListModel.addElement( message );
 						file_moved = false;
 					}
 				}
-				if ( !file_moved ) { 
-					Message.printWarning ( 2, routine,
-					"Can not update the file: " +
-					"\"RESEGDEF.GUI\". with " +
-					"the latest punch file. Will "+
-					"not run the ofs command " + 
-					"\"RESEGDEF.GUI\"." );
-					_ListModel.addElement( 
-					"Can not update the file: " +
-					"\"RESEGDEF.GUI\". with " +
-					"the latest punch file. Will "+
-					"not run the ofs command " + 
-					"\"RESEGDEF.GUI\"." );
+				if ( !file_moved ) {
+					message = "Cannot update the file: \"RESEGDEF.GUI\". with " +
+						"the latest punch file. Will not run the ofs command \"RESEGDEF.GUI\".";
+					Message.printWarning ( 2, routine, message );
+					_ListModel.addElement( message );
 				}
 				if ( file_moved ) {
-					//Need to add: "RESEGDEF" to 
-					//Top line of file:
-					boolean editOK = 
-					NWSRFS_Util.update_resegdef_file(
-					redef_segs_path );
+					//Need to add: "RESEGDEF" to top line of file:
+					//boolean editOK = NWSRFS_Util.update_resegdef_file( redef_segs_path );
 					
-
-					//RESEGDEF.GUI is in place,
-					//Allow User to EDIT the File.
+					//RESEGDEF.GUI is in place.  Allow User to EDIT the File.
 					//Finally Allow User to EDIT the File.
 					try {
-						NWSRFS_Util.runEditor(
-						_editor,
-						redef_segs_path, true );
+						NWSRFS_Util.runEditor( _editor,	redef_segs_path, true );
 					}
 					catch ( Exception e ) {
-						Message.printWarning(
-						2, routine, e );
+						Message.printWarning( 2, routine, e );
 					}
 				}				
 			} //end if log_name != null
 			else {
-				Message.printWarning( 2, routine, 
-				"Unable to run the " +
-				"\"RESEGDEF.GUI\" command " );
+				Message.printWarning( 2, routine, "Unable to run the \"RESEGDEF.GUI\" command " );
 				if ( Message.isDebugOn) {
 					Message.printDebug( 5, routine,
 					"Unable to locate the " +
@@ -2565,19 +2189,13 @@ public boolean run_redefSegments_edit_commands( String segment_id ) {
 			}
 		}
 		else {
-			Message.printWarning( 2, routine,
-			"\"PUNCHSEGS.GUI\" command " +
-			"failed.  Will not run " +
-			"\"RESEGDEF.GUI\" command" );
-
-			_ListModel.addElement( 
-			"PUNCHSEGS.GUI Failed!" );
+			message = "\"PUNCHSEGS.GUI\" command failed.  Will not run \"RESEGDEF.GUI\" command";
+			Message.printWarning( 2, routine, message );
+			_ListModel.addElement( message );
 		}
-
 	}
 	return file_moved;
 } //end run_redefSegments_edit_commands
-
 
 /**
 Iterates through the steps needed to open up a file for the user
@@ -2594,8 +2212,9 @@ completed. <P><PRE><UL>
 */
 public boolean run_redefStations_edit_commands() {
 	String routine = _class + ".run_redefStations_edit_commands";
+	String message;
 
-	//indicates if all file manupilations went well.
+	//indicates if all file manipulations went well.
 	boolean file_moved = true;
 
 	//need to get station selected by getting the SUBTITLE STRING!
@@ -2609,9 +2228,7 @@ public boolean run_redefStations_edit_commands() {
 
 	String station_sel_ID = null;
 	station_sel_ID = station_sel_name.trim();
-	Message.printStatus( 55, routine,
-		"ID of station selected: \"" +
-		station_sel_ID + "\"." );
+	Message.printStatus( 55, routine, "ID of station selected: \"" + station_sel_ID + "\"." );
 
 	//now we have the station id... edit the 
 	//PUNCH.STATIONS.GUI file with this station ID
@@ -2622,8 +2239,7 @@ public boolean run_redefStations_edit_commands() {
 
 	//update output window		
 	int exitstat = -999;
-	exitstat = updateOutputWindow( 
-	"PUNCH.STATIONS.GUI", punch_vect );
+	exitstat = updateOutputWindow( "PUNCH.STATIONS.GUI", punch_vect );
 
 	//make sure the PUNCH.STATIONS.GUI command was successful
 	if ( exitstat == 0 ) {
@@ -2660,76 +2276,45 @@ public boolean run_redefStations_edit_commands() {
 			}
 		}//end loop
 		if ( log_name != null ) {
-			//Remove extra "==>" and "<==" chars
-			//and change "_log" to "_pun"
+			//Remove extra "==>" and "<==" chars and change "_log" to "_pun"
 			String pun_path = null;
-			pun_path = NWSRFS_Util.
-				get_pun_path_from_log( 
-				log_name );
+			pun_path = NWSRFS_Util.get_pun_path_from_log( log_name );
 
-			//now we have the file we need to move
-			//and rename
+			//now we have the file we need to move and rename
 			//first get path to REDEFINE.STATIONS.GUI
 			String redef_stns_path = null;
-			redef_stns_path = IOUtil.getPropValue(
-				"REDEFINE.STATIONS.GUI" );
+			redef_stns_path = IOUtil.getPropValue( "REDEFINE.STATIONS.GUI" );
 			if ( redef_stns_path == null ) {
 				file_moved = false;
-
-				Message.printWarning( 2, routine,
-				"Unable to locate" + 
-				"\"REDEFINE.STATIONS.GUI\" file" );
-				_ListModel.addElement( 
-				"Unable to locate file: REDEFINE.STATIONS.GUI." +
-				" Unable to run commands."  );
+				message = "Unable to locate \"REDEFINE.STATIONS.GUI\" file";
+				Message.printWarning( 2, routine, message );
+				_ListModel.addElement( message );
 			}
 			else { // ( redef_stns_path != null ) 
 				File pun_file = new File( pun_path);
-				File redefstn_file = 
-					new File( redef_stns_path );
-				if (( pun_file.canRead()) && 
-					( redefstn_file.canRead() )) {
+				File redefstn_file = new File( redef_stns_path );
+				if (( pun_file.canRead()) && ( redefstn_file.canRead() )) {
 
 					//actually move file
 					try {
-						pun_file.
-						renameTo( 
-						redefstn_file );
+						pun_file.renameTo( redefstn_file );
 
-						Message.printStatus( 
-						30, routine,
-						"Moved file: \"" +
-						pun_path + "\"" +
-						"to: \"" +
-						redef_stns_path +"\"");	
+						Message.printStatus( 30, routine,
+						"Moved file: \"" + pun_path + "\" to: \"" + redef_stns_path +"\"");	
 					}
 					catch( Exception e ) {
 						file_moved = false;
-						Message.printWarning( 
-						2, routine, e );
-						Message.printWarning( 2,
-						 routine,
-						"Unable to rename" + 
-						" punch file to: " +
-						"\"REDEFINE.STATIONS.GUI\" file" );
-
-						_ListModel.addElement( 
-						"Unable to rename" + 
-						" punch file to: " +
-						"\"REDEFINE.STATIONS.GUI\" file" );
+						Message.printWarning( 2, routine, e );
+						message = "Unable to rename punch file to: \"REDEFINE.STATIONS.GUI\" file";
+						Message.printWarning( 2, routine, message );
+						_ListModel.addElement( message );
 					}
 				} 
 				else { // file(s) don't exist
 					file_moved = false;
-					Message.printWarning( 2,
-					routine, 
-					"Unable to locate " + 
-					"punch file to rename it to: " +
-					"\"REDEFINE.STATIONS.GUI\" file" );
-					_ListModel.addElement( 
-					"Unable to locate " + 
-					"punch file to rename it to: " +
-					"\"REDEFINE.STATIONS.GUI\" file" );
+					message = "Unable to locate punch file to rename it to: \"REDEFINE.STATIONS.GUI\" file";
+					Message.printWarning( 2, routine, message );
+					_ListModel.addElement( message );
 				}
 			}
 			if ( file_moved ) {
@@ -2739,56 +2324,38 @@ public boolean run_redefStations_edit_commands() {
 				//"@DEFINE STATION OLD" and
 				//"@STOP".
 				// ADD LINES:
-				File inputFile = new File(
-					redef_stns_path );
-				File outputFile = new File (
-					redef_stns_path + ".tmp" );
+				File inputFile = new File( redef_stns_path );
+				File outputFile = new File ( redef_stns_path + ".tmp" );
 
 				try {
 					FileInputStream fis = new 
 					FileInputStream( inputFile );
+					InputStreamReader isr = new InputStreamReader( fis );
+					BufferedReader br = new BufferedReader( isr );
+					FileOutputStream fos = new FileOutputStream( outputFile );
+					PrintWriter pw = new PrintWriter( fos ); 
 
-					InputStreamReader isr =
-					new InputStreamReader( fis );
-
-					BufferedReader br = 		
-					new BufferedReader( isr );
-
-					FileOutputStream fos = new 
-					FileOutputStream( outputFile );
-	
-					PrintWriter pw = new 
-					PrintWriter( fos ); 
-
-					//vector to hold all lines 
-					//of file
+					//vector to hold all lines of file
 					Vector v = new Vector();
 					do {
-						//store lines in 
-						//vector as
-						//read them in
+						//store lines in vector as read them in
 						s = br.readLine();
 						if ( s== null ) {
 							//no more lines
 							break;
 						}
 						else {
-							v.addElement( 
-								s );
+							v.addElement( s );
 						}
 					} while ( s != null );
 					//now have all lines.. 
 					//add line to beg and end.
-					v.insertElementAt(
-					"@DEFINE STATION OLD", 0 );
-
+					v.insertElementAt( "@DEFINE STATION OLD", 0 );
 					v.addElement( "@STOP" );
-				
 					//now print out.
 					for(int i=0; i<v.size(); i++) {
 						String line = (String)
 						v.elementAt( i );
-
 						pw.println( line );
 						pw.flush(); 
 					}
@@ -2803,61 +2370,42 @@ public boolean run_redefStations_edit_commands() {
 				catch( Exception e ) {
 					file_moved = false;
 					if ( Message.isDebugOn ) {
-						Message.printWarning( 
-						2, routine, e );
+						Message.printWarning( 2, routine, e );
 					}
 				}
 				//move output "tmp" file back
 				try {
-					outputFile.renameTo( 
-						inputFile );
+					outputFile.renameTo( inputFile );
 				}
 				catch ( Exception e ) {
 					file_moved = false;
 					if ( Message.isDebugOn ) {
-						Message.printWarning( 
-						2, routine, e );
+						Message.printWarning( 2, routine, e );
 					}
 				}
 			
 			} //if file_moved
 			
 			//check again now...
-			if ( !file_moved ) { 
-				Message.printWarning ( 2, routine,
-				"Can not update the file: " +
-				"\"REDEFINE.STATIONS.GUI\". with " +
-				"the latest punch file. Will "+
-				"not run the ofs command " + 
-				"\"REDEFINE.STATIONS.GUI\"." );
-
-				_ListModel.addElement( 
-				"Can not update the file: " +
-				"\"REDEFINE.STATIONS.GUI\". with " +
-				"the latest punch file. Will "+
-				"not run the ofs command " + 
-				"\"REDEFINE.STATIONS.GUI\"." );
-
+			if ( !file_moved ) {
+				message = "Cannot update the file: \"REDEFINE.STATIONS.GUI\". with " +
+					"the latest punch file. Will not run the ofs command \"REDEFINE.STATIONS.GUI\".";
+				Message.printWarning ( 2, routine,message );
+				_ListModel.addElement( message );
 			}
 			if ( file_moved ) {
 				//FINALLY, open for user to edit.
 				//Finally Allow User to EDIT the File.
 				try {
-					NWSRFS_Util.runEditor(
-					_editor,
-					redef_stns_path, true );
+					NWSRFS_Util.runEditor( _editor,	redef_stns_path, true );
 				}
 				catch ( Exception e ) {
-					Message.printWarning(
-					2, routine, e );
+					Message.printWarning( 2, routine, e );
 				}
-			}
-							
+			}		
 		}
 		else {
-			Message.printWarning( 2, routine, 
-			"Unable to run the " +
-			"\"REDEFINE.STATIONS.GUI\" command " );
+			Message.printWarning( 2, routine, "Unable to run the \"REDEFINE.STATIONS.GUI\" command " );
 			if ( Message.isDebugOn) {
 				Message.printDebug( 5, routine,
 				"Unable to locate the " +
@@ -2877,20 +2425,14 @@ public boolean run_redefStations_edit_commands() {
 		}
 	}
 	else {
-		Message.printWarning( 2, routine,
-		"\"PUNCH.STATIONS.GUI\" command " +
-		"failed.  Will not run " +
-		"\"REDEFINE.STATIONS.GUI\" command" );
-
-		_ListModel.addElement( 
-		"PUNCH.STATIONS.GUI Failed!" );
+		message = "\"PUNCH.STATIONS.GUI\" command failed.  Will not run \"REDEFINE.STATIONS.GUI\" command";
+		Message.printWarning( 2, routine, message );
+		_ListModel.addElement( "PUNCH.STATIONS.GUI Failed!" );
 	}
 
 	return file_moved;
 		
 } //end run_redefStations_edit_commands
-
-
 
 /**
 Updates the output window by adding all lines of the vector
@@ -2909,8 +2451,8 @@ passed in), followed by the time stamp from the log file.
 @return  exit status returned by running the command through the
 process manager.  The exit status is in the last line of the vector.
 */
-public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
-	String routine = _class + ".updateOutputWindow";
+public int updateOutputWindow( String cmd_run, Vector vect_to_display )
+{
 
 	//int to return
 	int exitstat =0;
@@ -2920,24 +2462,16 @@ public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
 	if ( vect_to_display != null ) {
 		size = vect_to_display.size();
 	}
- //OCT 22- 
-        //on Linux, with the new ProcessManager, the
-        //exit status is no longer displayed since executatbles
-        //do not have to be wrapped up in the pm_unix 
-        //script any longer...
 
-	//set the exitstat to be 0 unless an error is encountered
-	//in the output
+	// Set the exitstat to be 0 unless an error is encountered in the output
         String error_str =null;
         for ( int i=0; i<size; i++ ){
-                error_str  =
-                ((String)vect_to_display.elementAt(i)).toLowerCase();
+                error_str = ((String)vect_to_display.elementAt(i)).toLowerCase();
                 if ( error_str.indexOf( "fail" ) > -1 )  {
                         exitstat = 99;
                         break;
                 }
         }
-
 
 /*
 	//first need to clean up vector.
@@ -3009,8 +2543,7 @@ public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
 		minus_u = ofs_command.lastIndexOf("-u");
 		//quote = ofs_command.lastIndexOf("\"");
 		if (( flag > 0 ) && ( minus_u > 0 )) {
-			outputfile_name = 
-			(ofs_command.substring( flag + 2, minus_u )).trim();
+			outputfile_name = (ofs_command.substring( flag + 2, minus_u )).trim();
 		}
 	/*
 		if (( flag > 0 ) && ( quote > 0 )) {
@@ -3025,8 +2558,7 @@ public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
 
 		//break it up to get path and time stamp
 		Vector v = null;
-		v = StringUtil.breakStringList( log_path, " ", 
-			StringUtil.DELIM_SKIP_BLANKS );
+		v = StringUtil.breakStringList( log_path, " ", StringUtil.DELIM_SKIP_BLANKS );
 		int p = 0;
 		if ( v != null ) {
 			p = v.size();
@@ -3039,8 +2571,7 @@ public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
 			//now get path and timestamp, do not include 
 			//break it up again based on file separator.
 			v = null;
-			v = StringUtil.breakStringList( log_path, _fs, 
-				StringUtil.DELIM_SKIP_BLANKS );
+			v = StringUtil.breakStringList( log_path, _fs, StringUtil.DELIM_SKIP_BLANKS );
 			p = -999;
 			if ( v != null ) {
 				p = v.size();
@@ -3069,11 +2600,8 @@ public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
 	} //if log_path !=null
 	
 	//now concatenate
-	if (( timestamp != null ) && ( path != null ) && 
-		( outputfile_name != null ) ) {
-		
-		full_output_file = "==> " + path + outputfile_name + 
-			timestamp + " <=="; 
+	if (( timestamp != null ) && ( path != null ) && ( outputfile_name != null ) ) {
+		full_output_file = "==> " + path + outputfile_name + timestamp + " <=="; 
 	}
 	//add this to end of vector
 	vect_to_display.addElement( "OUTPUT FILE: " );
@@ -3104,7 +2632,6 @@ public int updateOutputWindow( String cmd_run, Vector vect_to_display ) {
 
 } //end updateOutputWindow
 
-
 //////////////////////* ACTIONS *///////////////////////////////
 /**
 Event handler for action events.
@@ -3113,10 +2640,8 @@ Event handler for action events.
 public void actionPerformed( ActionEvent event ) {
 	String routine = _class + ".actionPerformed";
 	Object source = null;
-	String command = null;
 
 	try {
-		command = event.getActionCommand();
 		source = event.getSource();
 
 		//////////////////////////////////////
@@ -3158,11 +2683,9 @@ public void actionPerformed( ActionEvent event ) {
 			redefstn_vect = NWSRFS_Util.run_redefine_stations(); 
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"REDEFINE.STATIONS.GUI", redefstn_vect );
+			exitstat = updateOutputWindow( "REDEFINE.STATIONS.GUI", redefstn_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"REDEFINE.STTATIONS.GUI failed!" );
+				_ListModel.addElement( "REDEFINE.STTATIONS.GUI failed!" );
 			}
 
 			redefstn_vect = null;
@@ -3179,32 +2702,24 @@ public void actionPerformed( ActionEvent event ) {
 			ran_well = NWSRFS_Util.copy_addStn_to_newStn();
 			if ( ran_well ) {
 				String newStn_path = null;
-				newStn_path = IOUtil.getPropValue(
-					"NEWSTATION.GUI" );
-				if (( newStn_path != null ) &&
-					(IOUtil.fileExists( newStn_path ) )) {
+				newStn_path = IOUtil.getPropValue( "NEWSTATION.GUI" );
+				if (( newStn_path != null ) && (IOUtil.fileExists( newStn_path ) )) {
 					//open up file in editor.
 
 					//Finally Allow User to EDIT the File.
 					try {
-						NWSRFS_Util.runEditor(
-						_editor,
-						newStn_path, true );
+						NWSRFS_Util.runEditor( _editor, newStn_path, true );
 					}
 					catch ( Exception e ) {
-						Message.printWarning(
-						2, routine, e );
+						Message.printWarning( 2, routine, e );
 					}
 
 					//enable run button
-					_addStations_run_JButton.
-						setEnabled( true );
+					_addStations_run_JButton.setEnabled( true );
 				}
 				else {
 					Message.printWarning( 2, routine,
-					"Unable to open " +
-					"\"NEWSTATION.GUI\" " +
-					"file for editing.  Path to file: \"" +
+					"Unable to open \"NEWSTATION.GUI\" file for editing.  Path to file: \"" +
 					newStn_path + "\"." );
 				}
 			}
@@ -3218,23 +2733,17 @@ public void actionPerformed( ActionEvent event ) {
 			newstn_vect = NWSRFS_Util.run_newstation();
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"NEWSTATION.GUI", newstn_vect );
+			exitstat = updateOutputWindow( "NEWSTATION.GUI", newstn_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"NEWSTATION.GUI failed! " +
-				"Will not run \"NEWTORK_ORDER.GUI\"" );
+				_ListModel.addElement( "NEWSTATION.GUI failed! Will not run \"NEWTORK_ORDER.GUI\"" );
 			}
 			else { //exitstat == 0, so run next command
 				exitstat = -999;
 				Vector network_vect = null;
-				network_vect = 
-					NWSRFS_Util.run_network_order();
-				exitstat = updateOutputWindow(
-					"NETWORK_ORDER.GUI", network_vect );
+				network_vect = NWSRFS_Util.run_network_order();
+				exitstat = updateOutputWindow( "NETWORK_ORDER.GUI", network_vect );
 				if ( exitstat != 0 ) {
-					_ListModel.addElement(
-					"NETWORK_ORDER.GUI failed!" );
+					_ListModel.addElement( "NETWORK_ORDER.GUI failed!" );
 				}
 				network_vect = null;
 			}		
@@ -3251,8 +2760,7 @@ public void actionPerformed( ActionEvent event ) {
 			// indicates if the RESEGDEF.GUI file was 
 			// successfully edited.  If not, don't run next 
 			// command
-			boolean successful = run_redefSegments_edit_commands(
-				_redefSegments_subtitle_string);
+			boolean successful = run_redefSegments_edit_commands( _redefSegments_subtitle_string);
 		
 			if (successful) {
 				_redefSegments_run_JButton.setEnabled(true);
@@ -3268,22 +2776,18 @@ public void actionPerformed( ActionEvent event ) {
 			Vector redefinedSegments = null;
 			redefinedSegments = NWSRFS_Util.run_redefine_segments();
 			// update output window		
-			int status = updateOutputWindow("RESEGDEF.GUI", 
-				redefinedSegments);
+			int status = updateOutputWindow("RESEGDEF.GUI", redefinedSegments);
 			if (status != 0) {
 				_ListModel.addElement("RESEGDEF.GUI failed!");
 			}
 			else {
-				// completed successfuly, so rebuild the
-				// main system JTree
+				// completed successfuly, so rebuild the main system JTree
 				if (__systemJTree != null) {
 					__systemJTree.rebuild();
 				}
 			}
 		}
 		
-//////////////////////////
-
 		//////////////////////////////////////
 		///////////* ADD RatingCurve *///////////
 		//////////////////////////////////////
@@ -3292,15 +2796,12 @@ public void actionPerformed( ActionEvent event ) {
 			// NEWRC.GUI for editing by user.
 			
 			// returns null if couldn't move file
-			String newRCFilename 
-				= NWSRFS_Util.copy_addRC_to_newRC();
-			if ((newRCFilename != null) 
-				&& (IOUtil.fileExists(newRCFilename))) {
+			String newRCFilename = NWSRFS_Util.copy_addRC_to_newRC();
+			if ((newRCFilename != null) && (IOUtil.fileExists(newRCFilename))) {
 				// open up file in editor.
 				// Finally Allow User to EDIT the File.
 				try {
-					NWSRFS_Util.runEditor(_editor,
-						newRCFilename, true);
+					NWSRFS_Util.runEditor(_editor, newRCFilename, true);
 				}
 				catch (Exception e) {
 					Message.printWarning(2, routine, e);
@@ -3313,20 +2814,16 @@ public void actionPerformed( ActionEvent event ) {
 				}
 			}
 			else {
-				Message.printWarning(2, routine,
-					"Unable to open \"NEWRC.GUI\" " 
-					+ "file for editing.  Path to file: \"" 
-					+ newRCFilename + "\"." );
+				Message.printWarning(2, routine, "Unable to open \"NEWRC.GUI\" " 
+					+ "file for editing.  Path to file: \"" + newRCFilename + "\"." );
 			}
 		}
 		else if (source.equals(_addRatingCurve_run_JButton)) {
 			// run the ofs commands:
 			//	ofs -p fcinit -i NEWRC.GUI, etc
-			Vector newRatingCurves 
-				= NWSRFS_Util.run_newRatingCurve();
+			Vector newRatingCurves = NWSRFS_Util.run_newRatingCurve();
 			// update output window		
-			int status = updateOutputWindow("NEWRC.GUI", 
-				newRatingCurves);
+			int status = updateOutputWindow("NEWRC.GUI", newRatingCurves);
 			if (status != 0) {
 				_ListModel.addElement("NEWRC.GUI failed! ");
 			}
@@ -3346,18 +2843,15 @@ public void actionPerformed( ActionEvent event ) {
 			//file was successfully edited.  If not, don't
 			//run next command...
 			boolean ran_well = false;
-			ran_well = run_redefRatingCurves_edit_commands(
-				_redefRatingCurves_subtitle_string );
+			ran_well = run_redefRatingCurves_edit_commands(	_redefRatingCurves_subtitle_string );
 		
 			if ( ran_well ) {
 				//enable
-				_redefRatingCurves_run_JButton.
-					setEnabled( true );
+				_redefRatingCurves_run_JButton.setEnabled( true );
 			}
 			else {
 				//disable RUN button
-				_redefRatingCurves_run_JButton.
-					setEnabled( false );
+				_redefRatingCurves_run_JButton.setEnabled( false );
 			}
 
 		} //end if _redefRatingCurves_edit_JButton 
@@ -3367,22 +2861,16 @@ public void actionPerformed( ActionEvent event ) {
 			//ofs fcinit DEFRC.GUI 
 			Vector redefrc_vect = null;
 
-			redefrc_vect = 
-				NWSRFS_Util.run_redefine_ratingCurves(); 
+			redefrc_vect = NWSRFS_Util.run_redefine_ratingCurves(); 
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"DEFRC.GUI", redefrc_vect );
+			exitstat = updateOutputWindow( "DEFRC.GUI", redefrc_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"DEFRC.GUI failed!" );
+				_ListModel.addElement( "DEFRC.GUI failed!" );
 			}
 
 			redefrc_vect = null;
 		}// end _redefRatingCurves_run_JButton
-
-///////////////////
-
 
 		//////////////////////////////////////
 		/////* PREPROCESSOR DB STATUS *///////
@@ -3394,11 +2882,9 @@ public void actionPerformed( ActionEvent event ) {
 			preproc_vect = NWSRFS_Util.run_preprocessDB_status();
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"PPINIT.STATUS.GUI", preproc_vect );
+			exitstat = updateOutputWindow( "PPINIT.STATUS.GUI", preproc_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"PPINIT.STATUS.GUI failed!" );
+				_ListModel.addElement( "PPINIT.STATUS.GUI failed!" );
 			}
 			preproc_vect = null;
 		} //end if _preprocessDB_run_JButton 
@@ -3413,11 +2899,9 @@ public void actionPerformed( ActionEvent event ) {
 			forec_vect = NWSRFS_Util.run_forecastDB_status();
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"FCINIT.STATUS.GUI", forec_vect );
+			exitstat = updateOutputWindow( "FCINIT.STATUS.GUI", forec_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"FCINIT.STATUS.GUI failed!" );
+				_ListModel.addElement( "FCINIT.STATUS.GUI failed!" );
 			}
 			forec_vect = null;
 		} //end if _forecastDB_run_JButton 
@@ -3430,32 +2914,24 @@ public void actionPerformed( ActionEvent event ) {
 			//get path to file.
 			String dumpObs_path = null;
 			dumpObs_path = IOUtil.getPropValue( "DUMPOBS.GUI" );
-			if (( dumpObs_path != null ) && (
-				IOUtil.fileExists( dumpObs_path ) )) {
+			if (( dumpObs_path != null ) && ( IOUtil.fileExists( dumpObs_path ) )) {
 
 				//open it
 				//Finally Allow User to EDIT the File.
 				try {
-					NWSRFS_Util.runEditor(
-					_editor,
-					dumpObs_path, true );
+					NWSRFS_Util.runEditor( _editor, dumpObs_path, true );
 				}
 				catch ( Exception e ) {
-					Message.printWarning(
-					2, routine, e );
+					Message.printWarning( 2, routine, e );
 				}
-				
 			}
 			else {
 				//disable the run button
 				_dumpObs_run_JButton.setEnabled( false );
 
-				_ListModel.addElement(
-				"DUMPOBS.GUI file can not be edited." );
-				_ListModel.addElement(
-				"Can not run \"ppdutil DUMPOBS.GUI\"." );
+				_ListModel.addElement( "DUMPOBS.GUI file can not be edited." );
+				_ListModel.addElement( "Can not run \"ppdutil DUMPOBS.GUI\"." );
 			}
-
 		} //end  _dumpObs_edit_JButton
 
 		else if ( source.equals( _dumpObs_run_JButton ) ) {
@@ -3465,11 +2941,9 @@ public void actionPerformed( ActionEvent event ) {
 			dumpObs_vect = NWSRFS_Util.run_dump_obs();
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"DUMPOBS.GUI", dumpObs_vect );
+			exitstat = updateOutputWindow ( "DUMPOBS.GUI", dumpObs_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"DUMPOBS.GUI failed!" );
+				_ListModel.addElement( "DUMPOBS.GUI failed!" );
 			}
 			dumpObs_vect = null;
 		} //end  _dumpObs_run_JButton 
@@ -3482,29 +2956,23 @@ public void actionPerformed( ActionEvent event ) {
 			//get path to file.
 			String dumpTS_path = null;
 			dumpTS_path = IOUtil.getPropValue( "DUMPTS.GUI" );
-			if (( dumpTS_path != null ) && (
-				IOUtil.fileExists( dumpTS_path ) )) {
+			if (( dumpTS_path != null ) && ( IOUtil.fileExists( dumpTS_path ) )) {
 
 				//open it
 				//Finally Allow User to EDIT the File.
 				try {
-					NWSRFS_Util.runEditor(
-					_editor,
-					dumpTS_path, true );
+					NWSRFS_Util.runEditor( _editor, dumpTS_path, true );
 				}
 				catch ( Exception e ) {
-					Message.printWarning(
-					2, routine, e );
+					Message.printWarning( 2, routine, e );
 				}
 			}
 			else {
 				//disable the run button
 				_dumpTS_run_JButton.setEnabled( false );
 
-				_ListModel.addElement(
-				"DUMPTS.GUI file can not be edited." );
-				_ListModel.addElement(
-				"Can not run \"prdutil DUMPTS.GUI\"." );
+				_ListModel.addElement( "DUMPTS.GUI file can not be edited." );
+				_ListModel.addElement( "Can not run \"prdutil DUMPTS.GUI\"." );
 			}
 
 		} //end  _dumpTS_edit_JButton
@@ -3516,11 +2984,9 @@ public void actionPerformed( ActionEvent event ) {
 			dumpTS_vect = NWSRFS_Util.run_dump_ts();
 			//update output window		
 			int exitstat = -999;
-			exitstat = updateOutputWindow(	 
-				"DUMPTS.GUI", dumpTS_vect );
+			exitstat = updateOutputWindow( "DUMPTS.GUI", dumpTS_vect );
 			if ( exitstat != 0 ) {
-				_ListModel.addElement(
-				"DUMPTS.GUI failed!" );
+				_ListModel.addElement( "DUMPTS.GUI failed!" );
 			}
 			dumpTS_vect = null;
 		} //end  _dumpTS_run_JButton 
@@ -3531,63 +2997,42 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _popup_view_JMenuItem ) ) {
 			//get selected item
 			String selected_item = null;
-			selected_item = ((String)
-				_output_JList.getSelectedValue()).trim();
+			selected_item = ((String)_output_JList.getSelectedValue()).trim();
 			if ( selected_item == null ) {
-				Message.printWarning( 2, routine, 
-				"Nothing Selected in output window." );
+				Message.printWarning( 2, routine, "Nothing Selected in output window." );
 			}
 			else {
-				//see if it is a file 
-				//all files start with "==>" 
+				//see if it is a file all files start with "==>" 
 				if ( !selected_item.startsWith( "==" ) ) {
-					Message.printWarning( 
-					2, routine,
-					"No file selected." );
+					Message.printWarning( 2, routine, "No file selected." );
 				}
 				else {
 					//remove the "==> " and " <=="
 					String file_sel = null;
 					Vector v = null;
 					//break up based on spaces
-					v = StringUtil.breakStringList(
-					selected_item, " ", 
-					StringUtil.DELIM_SKIP_BLANKS );
+					v = StringUtil.breakStringList( selected_item, " ", StringUtil.DELIM_SKIP_BLANKS );
 				
-					//should be 3 pieces, with middle
-					//piece being the file path.
+					//should be 3 pieces, with middle piece being the file path.
 					if ( v.size() == 3 ) {
-						file_sel = (String)
-						v.elementAt( 1 );
-
-						if (( file_sel != null ) &&
-						( IOUtil.fileExists( 
-							file_sel )) ) {
+						file_sel = (String)v.elementAt( 1 );
+						if (( file_sel != null ) && ( IOUtil.fileExists( file_sel )) ) {
 							try {
 							//view file only
-								NWSRFS_Util.
-								runEditor(
-								_editor,
-								file_sel, false );
+								NWSRFS_Util.runEditor( _editor, file_sel, false );
 							}
 							catch ( Exception e ) {
-								Message.
-								printWarning(
-								2, routine, e );
+								Message.printWarning( 2, routine, e );
 							}
 						}
 						else {
-							Message.printWarning(
-							2, routine,
-							"Unable to view: \"" +
-							selected_item+ "\"." ); 
+							Message.printWarning( 2, routine,
+									"Unable to view: \"" + selected_item+ "\"." ); 
 						}
 					}
 					else {
 						Message.printWarning( 
-						2, routine,
-						"Unable to view file: \"" +
-						selected_item + "\"." ); 
+						2, routine, "Unable to view file: \"" + selected_item + "\"." ); 
 					}
 					
 				}
@@ -3606,6 +3051,5 @@ public void actionPerformed( ActionEvent event ) {
 		Message.printWarning( 2, routine, e );
 	}
 } //end actionPerformed
-
 
 } //end class NWSRFS_SystemMaintenance

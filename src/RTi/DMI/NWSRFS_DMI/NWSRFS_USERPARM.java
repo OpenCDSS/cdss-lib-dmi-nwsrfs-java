@@ -10,8 +10,6 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.util.Vector;
-
 /**
 The NWSRFS_USERPARM class contains the data for Operational Forecast System
 general user parameters stored in the USERPARM FS5Files file, as per the

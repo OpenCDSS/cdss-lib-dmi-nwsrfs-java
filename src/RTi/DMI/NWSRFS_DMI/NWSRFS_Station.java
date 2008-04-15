@@ -25,8 +25,6 @@ package RTi.DMI.NWSRFS_DMI;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import RTi.Util.Message.Message;
-
 /**
 The NWSRFS_Station class stores the organizational information about an
 NWSRFS Station. This class holds the information stored in the preprocesseor

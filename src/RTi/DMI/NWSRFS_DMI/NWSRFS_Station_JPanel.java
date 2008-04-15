@@ -47,8 +47,7 @@ import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 
 /**
-The NWSRFS_Station_JPanel class displays a list of the NWSRFS
-stations in a JTree.
+The NWSRFS_Station_JPanel class displays a list of the NWSRFS stations in a JTree.
 */
 public class NWSRFS_Station_JPanel extends JPanel
 implements ActionListener, MouseListener {
@@ -259,7 +258,6 @@ private Vector readStations() {
 	}
 
 	NWSRFS_Station station = null;
-	String listItemString = null;
 	String stationID = null;
 
 	// pull the IDs out of the hash table in whatever order they're in
@@ -278,11 +276,7 @@ private Vector readStations() {
 	// IDs to pull out station objects from the hash table
 	int size = sortedStationIDs.size();
 
-	String stationDesc = null;
-	String type = null;
-	
-	Message.printStatus(1, "", "The tree will be built for " 
-		+ size + " stations.");
+	Message.printStatus(1, "", "The tree will be built for " + size + " stations.");
 	
 	Vector data = new Vector();
 

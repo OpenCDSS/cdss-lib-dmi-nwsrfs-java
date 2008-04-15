@@ -24,6 +24,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import java.io.File;
+
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -44,12 +46,10 @@ import RTi.Util.IO.PropList;
 import RTi.Util.Message.Message;
 
 /**
-The NWSRFS_MAP_JPanel class displays a list of the NWSRFS
-stations in a JTree.
+The NWSRFS_MAP_JPanel class displays a list of the NWSRFS stations in a JTree.
 */
-public class NWSRFS_MAP_JPanel 
-extends JPanel
-implements ActionListener, MouseListener {
+public class NWSRFS_MAP_JPanel extends JPanel implements ActionListener, MouseListener
+{
 
 /**
 The font used in the system JTree -- set so that all the other panels in the
@@ -92,8 +92,8 @@ Popup menu menu items.
 */
 private SimpleJMenuItem 
 	__popup_printFMAP_JMenuItem = null,
-	__popup_printMAP_JMenuItem = null,
-	__popup_printMAT_JMenuItem = null;
+	__popup_printMAP_JMenuItem = null;
+	//__popup_printMAT_JMenuItem = null;
 
 /**
 Popup menu strings.
@@ -116,14 +116,13 @@ Constructor for NWSRFS_MAP_JPanel to display Contract information.
 @param treeFont the font used in the system tree in the gui.  Used so that
 all the panels of the tabbed panel share the same font.
 */
-public NWSRFS_MAP_JPanel(JFrame parent, NWSRFS nwsrfs, String fs5files,
-Font treeFont) {
+public NWSRFS_MAP_JPanel(JFrame parent, NWSRFS nwsrfs, String fs5files, Font treeFont) {
 	__nwsrfs = nwsrfs;
 	__parent = parent; 	
 	__fs5files = fs5files;
 	__treeFont = treeFont;
 
-	// translate gui strings
+	// translate GUI strings
 	initializeGUIStrings();
 
 	createPopupMenu();
@@ -141,12 +140,7 @@ public void actionPerformed(ActionEvent event ) {
 	String routine = "NWSRFS_MAP_JPanel.actionPerformed";
 	Object source = event.getSource();
 
-	// REVISIT (JTS - 2004-11-12)
-	// why not use File.separator?
-	String fs = IOUtil.getPropValue("FILE_SEPARATOR");
-	if ((fs == null) || (fs.length() <= 0)) {
-		fs = "/";
-	}
+	String fs = File.separator;
 	
 	String editor = IOUtil.getPropValue("EDITOR");
 	if ((editor == null) || (editor.length() <= 0)) {
@@ -159,16 +153,13 @@ public void actionPerformed(ActionEvent event ) {
 
 	if (source == __popup_printMAP_JMenuItem) {
 
-		NWSRFS_MAP map = (NWSRFS_MAP)__worksheet.getRowData(
-			__worksheet.getSelectedRow());
+		NWSRFS_MAP map = (NWSRFS_MAP)__worksheet.getRowData(__worksheet.getSelectedRow());
 			
-		String outputString  = NWSRFS_Util.run_dump_station_or_area(
-			map.getID(), fs, "DUMPMAP");
+		String outputString  = NWSRFS_Util.run_dump_station_or_area(map.getID(), fs, "DUMPMAP");
 			
 		if (outputString != null) { 
 			try { 
-				NWSRFS_Util.runEditor(editor, outputString,
-					false);
+				NWSRFS_Util.runEditor(editor, outputString,	false);
 			} 
 			catch (Exception e) { 
 				Message.printWarning(2, routine, e); 
@@ -176,16 +167,13 @@ public void actionPerformed(ActionEvent event ) {
 		}
 	}
 	else if (source == __popup_printFMAP_JMenuItem) {
-		NWSRFS_MAP map = (NWSRFS_MAP)__worksheet.getRowData(
-			__worksheet.getSelectedRow());
+		NWSRFS_MAP map = (NWSRFS_MAP)__worksheet.getRowData(__worksheet.getSelectedRow());
 
-		String outputString  = NWSRFS_Util.run_dump_station_or_area(
-			map.getMAPFMAPID(), fs, "DUMPFMAP");
+		String outputString  = NWSRFS_Util.run_dump_station_or_area(map.getMAPFMAPID(), fs, "DUMPFMAP");
 			
 		if (outputString != null) { 
 			try { 
-				NWSRFS_Util.runEditor(editor, outputString,
-					false);
+				NWSRFS_Util.runEditor(editor, outputString,	false);
 			} 
 			catch (Exception e) { 
 				Message.printWarning(2, routine, e); 
@@ -193,7 +181,6 @@ public void actionPerformed(ActionEvent event ) {
 		}
 	}
 }
-
 
 /**
 Clear all data from the tree.
@@ -212,14 +199,11 @@ private void createPopupMenu() {
 	__popup = new JPopupMenu();
 
 	//popup menu items
-	__popup_printMAP_JMenuItem = new SimpleJMenuItem(
-	_popup_printMAP_string, this );
+	__popup_printMAP_JMenuItem = new SimpleJMenuItem(_popup_printMAP_string, this );
 
-	__popup_printFMAP_JMenuItem = new SimpleJMenuItem(
-	_popup_printFMAP_string, this );
+	__popup_printFMAP_JMenuItem = new SimpleJMenuItem(_popup_printFMAP_string, this );
 
-	__popup_printMAT_JMenuItem = new SimpleJMenuItem(
-	_popup_printMAT_string, this );
+	//__popup_printMAT_JMenuItem = new SimpleJMenuItem(_popup_printMAT_string, this );
 
 	__popup.add(__popup_printMAP_JMenuItem);
 	__popup.add(__popup_printFMAP_JMenuItem);
@@ -232,8 +216,8 @@ components only if a translation table is used for the application, ie, if
 there is a translation file.  If the String cannot be located in the
 translation file, the original string will be utilized in non-translated form.
 */
-public void initializeGUIStrings()  {
-        String routine = "NWSRFS_MAP_JList.initializeGUIStrings"; 
+public void initializeGUIStrings()
+{
 	LanguageTranslator translator = null; 
 	translator = LanguageTranslator.getTranslator();
         if (translator != null) {
@@ -246,7 +230,6 @@ public void initializeGUIStrings()  {
 			"popup_printMAT_string", _popup_printMAT_string);
 	}
 }
-
 
 /**
 Does nothing.
@@ -279,16 +262,13 @@ Does nothing.
 public void mousePressed(MouseEvent event) {
 }
 
-
 /**
 Responds to mouse released events.
 @param event the MouseEvent that happened.
 */
 public void mouseReleased(MouseEvent event) {
-	if (__popup != null 
-		&& __popup.isPopupTrigger(event)) {
-		__popup.show(event.getComponent(), 
-			event.getX(), event.getY());
+	if (__popup != null && __popup.isPopupTrigger(event)) {
+		__popup.show(event.getComponent(), event.getX(), event.getY());
 	}
 }
 
@@ -323,8 +303,7 @@ private Vector readMAPAreas() {
 			dmi.readMAPArea(map, false);
 		}
 		catch (Exception e) {
-			Message.printWarning(2, routine, 
-				"Skipping object: " + map.getID());
+			Message.printWarning(2, routine, "Skipping object: " + map.getID());
 			Message.printWarning(2, routine, e);
 			continue;
 		}		
@@ -332,7 +311,6 @@ private Vector readMAPAreas() {
 	}
 	return v;
 }
-
 
 /**
 Refills the worksheet with data from the database.
@@ -376,8 +354,7 @@ public void setupPanel() {
 	props.set("JWorksheet.SelectionMode=SingleRowSelection");
 	//props.set("JWorksheet.ShowRowHeader=true");
 
-	JScrollWorksheet jsw = new JScrollWorksheet(__cellRenderer,
-		__tableModel, props);
+	JScrollWorksheet jsw = new JScrollWorksheet(__cellRenderer,	__tableModel, props);
 	__worksheet = jsw.getJWorksheet();	
 
 	setLayout(new GridBagLayout());

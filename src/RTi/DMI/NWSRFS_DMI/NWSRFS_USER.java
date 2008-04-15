@@ -12,8 +12,6 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.util.Vector;
-
 /**
 The NWSRFS_USER class stores the organizational information about an
 NWSRFS USER general parameters. This class holds the information stored in the 

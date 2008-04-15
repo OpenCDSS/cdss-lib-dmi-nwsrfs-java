@@ -10,8 +10,6 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.util.Vector;
-
 /**
 The NWSRFS_PDBDLY - class to contain the preprocessor record data for Daily data
 and is used to retrieve the data record for a specific time series. This class 

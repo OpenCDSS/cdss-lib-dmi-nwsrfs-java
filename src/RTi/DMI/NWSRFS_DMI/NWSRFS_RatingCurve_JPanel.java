@@ -28,8 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -52,8 +50,7 @@ import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 
 /**
-The NWSRFS_RatingCurve_JPanel class displays a list of the NWSRFS
-stations in a JTree.
+The NWSRFS_RatingCurve_JPanel class displays a list of the NWSRFS stations in a JTree.
 */
 public class NWSRFS_RatingCurve_JPanel extends JPanel
 implements ActionListener, MouseListener {
@@ -117,12 +114,8 @@ Constructor for NWSRFS_RatingCurve_JPanel to display Contract information.
 @param fs5files  String name of fs5files used.
 @param canEdit Boolean indicating if the list nodes can be edited. 
 */
-public NWSRFS_RatingCurve_JPanel ( JFrame parent, NWSRFS nwsrfs,
-				String fs5files,
-				Font listFont) {
-				
-	String routine = "NWSRFS_RatingCurve_JPanel.constructor";
-
+public NWSRFS_RatingCurve_JPanel ( JFrame parent, NWSRFS nwsrfs, String fs5files, Font listFont)
+{
 	__nwsrfs = nwsrfs;
 	__parent = parent; 	
 	__fs5files = fs5files;

@@ -1,16 +1,9 @@
 package RTi.DMI.NWSRFS_DMI;
 
 import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Vector;
 
 import RTi.TS.HourTS;
-import RTi.TS.TSData;
 import RTi.TS.TSIterator;
-import RTi.Util.Message.Message;
-import RTi.Util.String.StringUtil;
-import RTi.Util.Time.DateTime;
 
 /**
 NWSRFS TSCHNG Mod
@@ -72,15 +65,16 @@ public void write(FileWriter fileWriter)
     {
       e1.printStackTrace();
     }
-  DateTime date;
+  //DateTime date;
   double value;
-  TSData data;
-  for ( ; (data = tsi.next()) != null; ) {
+  //TSData data;
+  for ( ; //(data =
+  	tsi.next() != null; ) {
         // The first call will set the pointer to the
         // first data value in the period.  next() will return
         // null when the last date in the processing period
         // has been passed.
-    date = tsi.getDate();
+    //date = tsi.getDate();
     value = tsi.getDataValue();
     System.out.println(">>>--->" + value);
     valueAccu.append(' ').append(value);

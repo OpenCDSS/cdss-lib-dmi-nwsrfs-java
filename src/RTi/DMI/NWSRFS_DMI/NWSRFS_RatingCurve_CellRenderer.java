@@ -12,13 +12,10 @@ package RTi.DMI.NWSRFS_DMI;
 
 import RTi.Util.GUI.JWorksheet_AbstractExcelCellRenderer;
 
-import RTi.Util.String.StringUtil;
-
 /**
 This class is used for rendering cells for the rating curve table in the GUI.
 */
-public class NWSRFS_RatingCurve_CellRenderer
-extends JWorksheet_AbstractExcelCellRenderer {
+public class NWSRFS_RatingCurve_CellRenderer extends JWorksheet_AbstractExcelCellRenderer {
 
 /**
 Table model for which this class renders the cell.

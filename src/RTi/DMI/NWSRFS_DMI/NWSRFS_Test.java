@@ -128,7 +128,6 @@ throws Exception {
 				
 				for (int ofg = 0; ofg < numOps; ofg++) {
 					op = seg.getOperation(ofg);
-					String op_type = op.getSystemID();
 
 					if (printIDs) {
 						Message.printStatus(1, "", "         [" + ofg 
@@ -182,10 +181,8 @@ throws Exception {
 
 	Message.printStatus(1, "", 
 		"\n\n\n"
-		+ "parseOperationRecord exceptions: " 
-			+ __dmi.parseOperationExceptionCount + "\n"
-		+ "               other exceptions: " 
-			+ __dmi.exceptionCount);
+		+ "parseOperationRecord exceptions: " + NWSRFS_DMI.parseOperationExceptionCount + "\n"
+		+ "               other exceptions: " + NWSRFS_DMI.exceptionCount);
 }
 
 public static void main(String[] args) {

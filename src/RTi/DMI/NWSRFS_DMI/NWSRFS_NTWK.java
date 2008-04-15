@@ -12,7 +12,6 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.util.Vector;
 import RTi.Util.Time.DateTime;
 
 /**
@@ -701,7 +700,7 @@ public void setNTWKDateTime(
 	_networkDateTime.setMonth(networkMonth);
 	_networkDateTime.setDay(networkDay);
 	_networkDateTime.setYear(networkYear);
-	String HourMin = new String().valueOf(networkHourMin);
+	String HourMin = String.valueOf(networkHourMin);
 	int hour = (int) (new Integer(HourMin.substring(0,2)).intValue());
 	int min = (int) (new Integer(HourMin.substring(2)).intValue());
 	_networkDateTime.setHour(hour);

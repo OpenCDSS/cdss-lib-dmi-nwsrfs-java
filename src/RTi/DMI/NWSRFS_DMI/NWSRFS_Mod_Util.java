@@ -54,7 +54,6 @@ public static List convertTSCHNG_MAP_ModsToFMAPMods ( List mods, DateTime lastob
 				// Start by setting the date equal to the start
 				DateTime date = new DateTime (ts.getDate1());
 				// Iterate forward until the date is greater than the observed
-				int count = 0;
 				while ( date.lessThanOrEqualTo(lastobs_DateTime) ) {
 					date.addHour ( tsint );
 				}
