@@ -1486,8 +1486,7 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 	// Check time series to see if they have data.  All time
 	// series have been added to tree, but they have not been
 	// "read in" at this point, so may or may not contain data.
-	if( ( __forNWSRFSGUI ) && ( data instanceof NWSRFS_Operation ) ) {
-		
+	if( ( __forNWSRFSGUI ) && ( data instanceof NWSRFS_Operation ) ) {	
 		NWSRFS_Operation op = (NWSRFS_Operation) data;
 		SimpleJTree_Node tempNode = null;
 
@@ -1495,11 +1494,14 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 		Object[] arr = getChildrenArray(node);
 		NWSRFS_DMI dmi = __nwsrfs.getDMI();
 		for ( int i=0; i<arr.length; i++ ) {
-			tempNode = ( SimpleJTree_Node) arr[i];
+			tempNode = (SimpleJTree_Node)arr[i];
 			try {
 				if(!dmi.checkTimeSeriesExists(op.getTimeSeries(i), true )) {
 					//set Text for time series node
-					tempNode.setText( tempNode.getText() + " - No Data" );
+					String old = tempNode.getText();
+					if ( !old.endsWith ( "No Data") ) {
+						tempNode.setText(  old + " - No Data" );
+					}
 				}
 			}
 			catch ( Exception e ) {
@@ -1526,8 +1528,9 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 					}
 					else {
 						// Set Text for time series node, if not already labelled
-						if ( !tempNode.getText().endsWith ( "No Data") ) {
-							tempNode.setText( tempNode.getText() + " - No Data" );
+						String old = tempNode.getText();
+						if ( !old.endsWith ( "No Data") ) {
+							tempNode.setText(  old + " - No Data" );
 						}
 					}
 				}
