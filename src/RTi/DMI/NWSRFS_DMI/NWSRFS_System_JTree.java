@@ -24,7 +24,7 @@
 //					expansion events.  Time series
 //					that do not have data are still
 //					displayed, but their names are
-//					appended with a "No data -" flag.
+//					appended with a "- No Data" flag.
 //
 //					** If __checkTS	is TRUE, 
 //					then all the TS are checked
@@ -122,41 +122,62 @@ The NWSRFS_System_JTree class displays the NWSRFS "sysmap" which
 includes: carryover group, forecast groups, segments, operations, and time series.
 */
 public class NWSRFS_System_JTree extends SimpleJTree
-implements ActionListener, MouseListener, SimpleJTree_Listener {
+implements ActionListener, MouseListener, SimpleJTree_Listener
+{
+	
+/**
+String indicating no data for time series.  Typically a " - " may be inserted before this
+string when formatting labels.
+*/
+private final String __NoData = "No Data";
 
-//parent JFrame
+/**
+Parent JFrame
+*/
 private JFrame __parent;
 
-//NWSRFS instance
+/**
+NWSRFS instance (the core data model).
+*/
 private NWSRFS __nwsrfs;
 
-//string for top tree node
+/**
+String for top tree node.
+*/
 private String __top_node_str;
 
-//Top node of tree 
+/**
+Top node of tree.
+*/
 private SimpleJTree_Node __top_node = null;
 
-//fs5files
+/**
+FS5 files folder.
+*/
 private String __fs5files;
 
-//flags that can be re-set by PropList passed in to constructor.
+// Flags that can be re-set by PropList passed in to constructor.
 
-//If true, reads in all Time series and tests to see if each 
-//Time Series added to the JTree has data.  If the TS has no data and
-//__useAllTS flag is true, the node is added to the JTree,
-//but a "no data" message is attached to it.  If the 
-//__useAllTS flag is false, time series that do not have
-//data are simply not added to the JTree. 
-//If __checkTS if false, time series are *not* read in up
-//front, but are read in only on an event kicked off by
-//the expansion of the operation node under which the TS falls.
+/**
+If true, reads in all Time series and tests to see if each time series added to the JTree has data.
+If the TS has no data and __useAllTS flag is true, the node is added to the JTree,
+but a "no data" message is attached to it.  If the __useAllTS flag is false, time series that do
+not have data are simply not added to the JTree.  If __checkTS if false, time series are *not* read in up
+front, but are read in only on an event kicked off by
+the expansion of the operation node under which the TS falls.
+*/
 private boolean __checkTS =true;
 
-//if we just want to add ALL time series (with an 
-//indication of if they do not have any data or not).
+/**
+Indicate whether to add ALL time series (with an indication of if they do not have any data or not).
+*/
 private boolean __useAllTS =true;
 
-//For SnowGUI, we only display operations of type:  SNOW-17 and time series of type: SWE
+// FIXME SAM 2008-04-16 When maintenance is done on the snow updating GUI, check how these
+// are passed in and evaluate whether __forSnowUpdating is needed.
+/**
+For the SnowGUI, only display operations of type:  SNOW-17 and time series of type: SWE
+*/
 private boolean __useOnlySnowTSandOperations = false;
 private boolean __use_all_operations = true;
 
@@ -166,50 +187,68 @@ If the tree behavior should be for NWSRFSGUI.
 */
 private boolean __forNWSRFSGUI = true;
 
+// TODO SAM 2008-04-16 Need to document what these are (only SNOW-17?, only segments?)
 /**
 If the tree behavior should be for the SnowUpdating GUI.
 */
 private boolean __forSnowUpdate = false;
 
-//indicate if operations should be included in JTree
+/**
+Indicate if operations should be included in JTree.
+*/
 private boolean __include_all_operations = true;	
 
-//include rating curves in system tree
+/**
+Include rating curves in system tree.
+*/
 private boolean __include_ratingCurves= false;
 
-//Indicates whether the nodes in the JTree should be 
-//preceded by an abbreviation indicating data type or not.
+/**
+Indicate whether the nodes in the JTree should be preceded by an abbreviation indicating data type.
+*/
 private boolean __verbose = true;	
 
-//folder icon
+/**
+Folder icon.
+*/
 private Icon __folderIcon;
 
-//if the Tree nodes can be edited --currently not used.
+/**
+Indicate whether the Tree nodes can be edited -- currently not used.
+*/
 //private boolean __canEdit = false;
 
-// A single popup menu that is used to provide access to other features 
-//from the tree.  The single menu has its items added/removed as necessary 
-//based on the state of the tree.
+/**
+A single popup menu that is used to provide access to other features 
+from the tree.  The single menu has its items added/removed as necessary 
+based on the state of the tree.
+*/
 private JPopupMenu __popup_JPopupMenu;		
 
-//pop menu items 
-// Define STRINGs here used for NWSRFSGUI menus in case we need
-// to translate the strings.  Do not need to add popup menu
-// items for the Snow Updating GUI since this GUI is not translated.
+/**
+Popup menu items.
+Define STRINGs here used for NWSRFSGUI menus in case we need
+to translate the strings to another language.  Do not need to add popup menu
+items for the Snow Updating GUI since this GUI is not translated.
+*/
 protected String _popup_graphTS_string = "Graph Selected Time Series";
 protected String _popup_printCG_string = "View Current Carryover Group Definition";
 protected String _popup_printFG_string = "View Current Forecast Group Definition";
 protected String _popup_printSegs_string = "View Current Segment Definition";
 protected String _popup_redefSegs_string = "Redefine Segment";
 
-//menus 
+/**
+Menu items for use in the popup menu.
+*/
 private SimpleJMenuItem __popup_graphTS_JMenuItem = null;
 private SimpleJMenuItem __popup_printCG_JMenuItem = null;
 private SimpleJMenuItem __popup_printFG_JMenuItem = null;
 private SimpleJMenuItem __popup_printSegs_JMenuItem = null;
 private SimpleJMenuItem __popup_redefSegs_JMenuItem = null;
 
-//SnowGUI only has 1 popup menu
+/**
+SnowGUI only has 1 popup menu item.
+*/
 private SimpleJMenuItem __popup_snow_selectSubareas_JMenuItem = null;
 
 /**
@@ -278,9 +317,8 @@ operations will be shown).</td>
 <tr>
 <td>SystemJTree.useAllTS</td>
 <td>boolean indicating if all Time Series should be included in JTree 
-whether they have data or not.
-If time series has no data, but this 
-flag is true, the time series is added to the JTree, with "no data" 
+whether they have data or not.  If time series has no data, but this 
+flag is true, the time series is added to the JTree, with "No Data" 
 appended to its name to indicate it has no data.  If this flag is false
 and a time series has no data, it is not added to the JTree.</td>
 <td>true</td>
@@ -411,6 +449,9 @@ private void createPopupMenu() {
 
 	//create Popupu Menu
 	__popup_JPopupMenu = new JPopupMenu();
+	
+	// Initialize menus based on software that is being used.  The non-null menus can be added
+	// later without rechecking the flag.
 	
 	if ( __forNWSRFSGUI ) {
 		//popup menu items
@@ -689,7 +730,7 @@ public void displayTreeData() {
 								//check and indicate TS has no data 
 								try {
 									if(!dmi.checkTimeSeriesExists(op.getTimeSeries(tsg), true )) {
-										tsid_node.setText( tsid_node.getText() + " - No Data" );
+										tsid_node.setText( tsid_node.getText() + " - " + __NoData );
 									}
 								}
 								catch (Exception e ) { 
@@ -1094,7 +1135,7 @@ public void initialize_properties ( PropList p )
 	// Likewise, for SNOW GUI, it is assumed that operations WILL NOT be added (since only
 	// SNOW-17 operations are used).  So with _checkTS = false, the time series are
 	// checked for data when a Segment node is expanded.
-	if ( ( ! __checkTS ) && ( __forSnowUpdate ) ) {
+	if ( !__checkTS && __forSnowUpdate ) {
 		Message.printWarning( 2, routine, "No operations will be included in System Tree." );
 		__include_all_operations = false;
 	}
@@ -1184,6 +1225,7 @@ private void showPopupMenu (MouseEvent e) {
 		Object data = null;	// Data object associated with the node
 
 		// Now reset the popup menu based on the selected node...
+		// If more than one node is selected, this is the first selection.
 		data = node.getData();
 		if ( Message.isDebugOn ) {
 			Message.printDebug( 2, "NWSRFS_SystemJTree.showPopupMenu",
@@ -1192,8 +1234,7 @@ private void showPopupMenu (MouseEvent e) {
 		}
 
 		// FIXME SAM 2008-04-15 Evaluate checking for null for all these, like the
-		// "else" clause below and define the menus non-null at initialization based on
-		// properties.
+		// "else" clause below and define the menus non-null at initialization based on properties.
 		if ( __forNWSRFSGUI ) {
 			if( data instanceof NWSRFS_CarryoverGroup ) {
 				__popup_JPopupMenu.add ( __popup_printCG_JMenuItem );
@@ -1215,7 +1256,7 @@ private void showPopupMenu (MouseEvent e) {
 			( data instanceof NWSRFS_CarryoverGroup ) || ( data instanceof NWSRFS_Segment )  ) {
 				__popup_JPopupMenu.add ( __popup_snow_selectSubareas_JMenuItem );
 			}
-			else if ( data instanceof NWSRFS_TimeSeries ) {
+			else if ( data instanceof NWSRFS_TimeSeries && !node.getText().endsWith(__NoData) ) {
 				__popup_JPopupMenu.add ( __popup_graphTS_JMenuItem );
 				__popup_JPopupMenu.add ( __popup_snow_selectSubareas_JMenuItem );
 			}
@@ -1236,7 +1277,8 @@ private void showPopupMenu (MouseEvent e) {
 					__popup_JPopupMenu.add ( __popup_redefSegs_JMenuItem );
 				}
 			}
-			else if ( data instanceof NWSRFS_TimeSeries && (__popup_graphTS_JMenuItem != null)) {
+			else if ( data instanceof NWSRFS_TimeSeries && (__popup_graphTS_JMenuItem != null) &&
+					!node.getText().endsWith(__NoData) ) {
 				__popup_JPopupMenu.add ( __popup_graphTS_JMenuItem );
 			}
 		}
@@ -1246,7 +1288,6 @@ private void showPopupMenu (MouseEvent e) {
 
 }//end showPopupMenu
 
-/////////////     *** actions ***       ////////////
 /**
 Handle action events from the popup menu.
 @param event ActionEvent to handle.
@@ -1276,7 +1317,7 @@ public void actionPerformed(ActionEvent event ) {
 		//string  to hold output from ofs command (string will be null if command failed)
 
 		//update the PUNCCG.GUI file to fill in correct carryover group.
-		output_str  = NWSRFS_Util.run_print_cgs_or_fgs( name, fs, "PUNCHCG" ); 
+		output_str = NWSRFS_Util.run_print_cgs_or_fgs( name, fs, "PUNCHCG" ); 
 
 		if ( output_str != null ) { 
 			try { 
@@ -1351,7 +1392,7 @@ public void actionPerformed(ActionEvent event ) {
 				continue;
 			}
 
-			if (tempNode.getText().indexOf("No Data") > 0) {
+			if (tempNode.getText().indexOf(__NoData) > 0) {
 				errors.add(name);
 			}	
 			else {
@@ -1486,7 +1527,7 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 	// Check time series to see if they have data.  All time
 	// series have been added to tree, but they have not been
 	// "read in" at this point, so may or may not contain data.
-	if( ( __forNWSRFSGUI ) && ( data instanceof NWSRFS_Operation ) ) {	
+	if( !__forSnowUpdate && data instanceof NWSRFS_Operation ) {	
 		NWSRFS_Operation op = (NWSRFS_Operation) data;
 		SimpleJTree_Node tempNode = null;
 
@@ -1499,8 +1540,8 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 				if(!dmi.checkTimeSeriesExists(op.getTimeSeries(i), true )) {
 					//set Text for time series node
 					String old = tempNode.getText();
-					if ( !old.endsWith ( "No Data") ) {
-						tempNode.setText(  old + " - No Data" );
+					if ( !old.endsWith ( __NoData) ) {
+						tempNode.setText(  old + " - " + __NoData );
 					}
 				}
 			}
@@ -1509,7 +1550,7 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 			}
 		}
 	}
-	else if ( ( __forSnowUpdate) && ( data instanceof NWSRFS_Segment ) ) {
+	else if ( __forSnowUpdate && data instanceof NWSRFS_Segment ) {
 		SimpleJTree_Node tempNode = null;
 		//get Segment children nodes which will be NWSRFS_TimeSeries
 		Object[] arr = getChildrenArray(node);
@@ -1529,8 +1570,8 @@ public void nodeExpanding( SimpleJTree_Node node ) {
 					else {
 						// Set Text for time series node, if not already labelled
 						String old = tempNode.getText();
-						if ( !old.endsWith ( "No Data") ) {
-							tempNode.setText(  old + " - No Data" );
+						if ( !old.endsWith ( __NoData) ) {
+							tempNode.setText(  old + " - " + __NoData );
 						}
 					}
 				}
