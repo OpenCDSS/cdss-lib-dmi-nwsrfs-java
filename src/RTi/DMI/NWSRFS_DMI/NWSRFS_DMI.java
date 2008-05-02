@@ -896,12 +896,13 @@ throws Exception {
 		throw new NullPointerException(	"Time series data time interval is null.");
 	}
 	else {
+	    // TODO SAM 2008-05-02 Evaluate whether needed
 		//tsIdentIn = tsID + "." + tsDT + "." + tsDTInterval;
 	}
 
 	// Check if the the database binary file is open as a Random Access object
 	if (!checkRandomAccessFileOpen(__PRDPARM, true)) {
-		throw new Exception("Can not open the " + __dbFileNames[__PRDPARM] + " binary database file");
+		throw new Exception("Cannot open the " + __dbFileNames[__PRDPARM] + " binary database file");
 	}
 
 	if(__tsDTUHashtable.containsKey(tsDT)) {
@@ -961,7 +962,7 @@ throws Exception {
 	for (i = 0; i < 5; i++) {
 		// FIXME SAM 2008-04-07 What is the following?  Simplify
 		prdIndex = (int)new Integer(String.valueOf(__PRDTS1 + i)).intValue();
-		/*
+		/* TODO SAM 2008-05-02 Evaluate if needed - are paths full always?
 		if (__useFS5Files && true) {
 			prdtsDataFile = __fs5FilesLocation + __dbFileNames[prdIndex]; 
 		}
@@ -987,7 +988,7 @@ throws Exception {
 
 	// Check the PRDTSn to see if it is null!
 	if (__NWSRFS_DBFiles[prdIndex] == null) {
-		Message.printWarning(10, routine,"No Time Series of data type: "+ tsDT + " was found.");
+		Message.printWarning(10, routine,"No time series of data type: "+ tsDT + " was found.");
 		return false;
 	}
 
@@ -1119,7 +1120,7 @@ public Vector getDatabaseProperties( int level )
 		v.addElement ( "No FS5Files directory has been specified." );
 	}
 	else {
-		v.addElement ( "FS5Files directory:  " +  getFS5FilesLocation());
+		v.addElement ( "FS5Files directory:  " + getFS5FilesLocation());
 	}
 	return v;
 }
@@ -9223,7 +9224,7 @@ throws Exception {
 		//"After creating time series, date1 = ", tsObject.getDate1() +
 		//" date2 = " + tsObject.getDate2() );
 		
-		// If this time series has data type of MAP TS and both
+		// If this time series has data type of MAP and both
 		// observed and future data are desired, then read the FMAP datatype.
 		// TODO SAM 2006-11-22 Why does NWSRFS_TimeSeries have observed and future time series if we need to do two reads?
 
@@ -9231,26 +9232,26 @@ throws Exception {
 			dataScenario.equalsIgnoreCase("fut")) ) {
 			// Read the future MAP (FMAP).
 			// TODO SAM 2006-12-12 FMAP time series are returned below as observed and
-			// then set in the future time series.  This is
-			// confusing and needs to be corrected.
+			// then set in the future time series.  This is confusing and needs to be corrected.
 			Message.printStatus( 2, routine, "Requested time series is MAP so read FMAP for " + dataLoc );
 			try {
 				NWSRFS_TimeSeries tsObject2 = readTimeSeriesPRD(dataLoc,"FMAP",tsDTInterval,true);
 				if ( tsObject2 == null ) {
 					Message.printStatus(2, routine,
-					"No FMAP time series available for "+ dataLoc + " FMAP " + tsDTInterval );
+					    "No FMAP time series available for "+ dataLoc + " FMAP " + tsDTInterval );
 				}
-				else {	// Use the data...
-				tsObject.setIPTFUT(tsObject2.getIPTREG());
-				tsObject.setFutureTS(tsObject2.getObservedTS());
-				futureTS = tsObject.getFutureTS();
-				// For troubleshooting/understanding code...
-				TS obsts2 = tsObject.getObservedTS();
-				if ( obsts2 != null ) {
-					Message.printStatus(2, routine,
-					"After FMAP read, observed start Date: " + obsts2.getDate1());
-					Message.printStatus(2, routine, "After FMAP read, observed end Date: " + obsts2.getDate2());
-				}
+				else {
+				    // Use the data...
+    				tsObject.setIPTFUT(tsObject2.getIPTREG());
+    				tsObject.setFutureTS(tsObject2.getObservedTS());
+    				futureTS = tsObject.getFutureTS();
+    				// For troubleshooting/understanding code...
+    				TS obsts2 = tsObject.getObservedTS();
+    				if ( obsts2 != null ) {
+    					Message.printStatus(2, routine,
+    					"After FMAP read, observed start Date: " + obsts2.getDate1());
+    					Message.printStatus(2, routine, "After FMAP read, observed end Date: " + obsts2.getDate2());
+    				}
 				}
 			}
 			catch (Exception e) {
@@ -9517,11 +9518,13 @@ throws Exception
 
 		// This is the NWSRFS TimeSeries implementation.
 		if (dataScenario == null || dataScenario.equalsIgnoreCase("")) {
+		    // Read observed and future data
 			dataScenario = "Both";
 		}
 		
 		// Get the Vector of TSIdentList returned from the database
 		if(subDataType.equalsIgnoreCase("PPDB")) {
+		    // Preprocessor database for observations...
 			tsIdentList=readTSIdentListPDB(dataLoc,dataType,interval);
 		}
 		else {
@@ -9878,8 +9881,11 @@ throws Exception
 				
 			parseChar = new String(charValue).trim();
 
-			if (parseChar.length() == 0 ||
-				!parseChar.equalsIgnoreCase(dataType)) {
+			// Uncomment for troubleshooting
+			//Message.printStatus ( 2, routine, "Requested type = \"" + dataType +
+			//        "\", read \"" + parseChar + "\"" );
+			if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(dataType)) {
+			    // Data type from file does not match requested type.
 				continue;
 			}
 
@@ -9905,7 +9911,7 @@ throws Exception
 	EndianDataInputStream EDISData = null;
 	//String prdtsDataFile = null;
 	for (i = 0; i < 5; i++) {
-		//prdIndex = (int)new Integer((String)new String().valueOf(__PRDTS1 + i)).intValue();
+		prdIndex = (int)new Integer(String.valueOf(__PRDTS1 + i)).intValue();
 		/* TODO SAM 2008-04-07 What are these used for?
 		if (__useFS5Files) {
 			prdtsDataFile = __fs5FilesLocation + __dbFileNames[prdIndex] + i; 
@@ -9959,11 +9965,15 @@ throws Exception
 			parseChar = new String(charValue).trim();
 		
 			if (parseChar.length() == 0) {
+			     // Uncomment for troubleshooting
+	             //Message.printStatus(2,routine, "Time series identifier \""+parseChar+
+	             //   "\" is blank.  The time series will be skipped.");
 				continue;
 			}
 			else if(parseChar.indexOf('.') >= 0 || parseChar.indexOf('~') >= 0) {
-				Message.printWarning(2,routine,	"Time Series Identifier: "+parseChar+
-				" contains an illegal character.  The Time Series will be skipped.");
+			    // Uncomment for troubleshooting
+				//Message.printStatus(2,routine,	"Time series identifier \""+parseChar+
+				//"\" contains an illegal character (. or ~).  The time series will be skipped.");
 				continue;
 			}
 			else {
@@ -9977,6 +9987,8 @@ throws Exception
 			}
 		
 			parseChar = new String(charValue).trim();
+			// Uncomment for troubleshooting
+            //Message.printStatus(2,routine, "Time series data type is \"" + parseChar + "\".");
 	
 			if (parseChar.length() == 0 || !parseChar.equalsIgnoreCase(dataType)) {
 				continue;
@@ -9997,6 +10009,8 @@ throws Exception
 	
 			// Field 2 - [type field name here]
 			dataInterval = (byte)EDISData.readByte();
+			// Uncomment for troubleshooting
+            //Message.printStatus(2,routine, "Time series data interval is " + dataInterval );
 
 			// Check to see if the data interval equals the value passed in. If so add to the tsID Vector otherwise
 			// continue. If the passed in interval is 0 or -1 then assume to pickup all tsIDs.
@@ -10009,12 +10023,14 @@ throws Exception
 
 			// Now create the TSIdent String
 			if(dataScenario.equalsIgnoreCase("both")) {
+			    // Getting all data so don't include anything special for the scenario
 				tsIdentString=tsid + ".NWSRFS." + dataType + "."
 				+ dataIntString +"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			}
 			else {
+			    // Include requested part of the data ("OBS" or "FUT") in the scenario
 				tsIdentString=tsid + ".NWSRFS." + dataType + "."
-				+ dataIntString + "."+dataScenario+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
+				+ dataIntString + "." + dataScenario + "~NWSRFS_FS5Files~" + getFS5FilesLocation();
 			}
 			// Now fill the Vector with TSIdent objects
 			tsidVector.add(new TSIdent(tsIdentString));
@@ -10023,6 +10039,8 @@ throws Exception
 		}
 		catch (EOFException EOFe) {
 			exceptionCount++;
+			// Uncomment for troubleshooting
+			//Message.printWarning( 3, routine, EOFe);
 			break;
 		}
 	}
