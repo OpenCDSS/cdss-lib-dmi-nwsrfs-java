@@ -632,11 +632,9 @@ file and preprocessor data types.  In the future, it may actually perform a
 query for data that are present in the database files.
 @return the valid data intervals for a time series data type.
 @param dmi An open NWSRFS_DMI instance.
-@param include_desc If true, include the data type description using the format
-"Type - Description".
+@param include_desc If true, include the data type description using the format "Type - Description".
 */
-public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
-						boolean include_desc )
+public static Vector getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc )
 {	return getTimeSeriesDataTypes ( dmi, include_desc,
 					true,	// Preprocessor DB
 					true );	// Processed DB
@@ -649,21 +647,17 @@ file and preprocessor data types.  In the future, it may actually perform a
 query for data that are present in the database files.
 @return the valid data intervals for a time series data type.
 @param dmi An open NWSRFS_DMI instance.
-@param include_desc If true, include the data type description using the format
-"Type - Description".
+@param include_desc If true, include the data type description using the format "Type - Description".
 @param include_preprocessor_db If true, time series data types for the
 preprocessor database will be included in the returned list.  These data types,
 if in conflict with the processed database, have a sub-datatype of "-PPDB".
 @param include_preprocessor_db If true, time series data types for the
 processed database will be included in the returned list.
 */
-public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
-						boolean include_desc,
-						boolean include_preprocessor_db,
-						boolean include_processed_db )
+public static Vector getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc,
+						boolean include_preprocessor_db, boolean include_processed_db )
 {	// TODO SAM 2004-09-01 - need to determine if performance will
-	// allow determining the data types that are actually defined in the
-	// database.
+	// allow determining the data types that are actually defined in the database.
 	String routine = "NWSRFS_Util.getTimeSeriesDataTypes";
 	Vector datatypes = new Vector ( 100 );
 	int size = 0;
@@ -719,12 +713,10 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 	if ( include_processed_db ) {
 		// The DATATYPE file contains mainly processed database data
 		// types.  Where preprocessor data types are included, they
-		// match processed database and special care is taken above
-		// for preprocessor data types.
-		try {	// This will place the data types in the global
-			// IOUtil.DataType space...
-			// TODO SAM 2004-09-07 - need to initialize the
-			// data types once and not read here each time.
+		// match processed database and special care is taken above for preprocessor data types.
+		try {
+		    // This will place the data types in the global IOUtil.DataType space...
+			// TODO SAM 2004-09-07 - need to initialize the data types once and not read here each time.
 			dmi.readDataTypeList ();
 			Vector v = DataType.getDataTypesData();
 			if ( v != null ) {
@@ -746,18 +738,17 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 			}
 		}
 		catch ( Exception e ) {
-			// TODO SAM 2004-09-01 will get an exception if apps
-			// defaults are NOT used.  Need to configure the
+			// TODO SAM 2004-09-01 will get an exception if apps defaults are NOT used.  Need to configure the
 			// DATATYPE file in the TSTool.cfg for this case!
 		}
 		if ( size == 0 ) {
-			// Unable to get data types from the DATATYPE FILE...
-			// Add some common types...
+			// Unable to get data types from the DATATYPE FILE.  Add some common types.
 			datatypes.addElement( "* - All Processed Database Types" );
 			datatypes.addElement( "AESC - Areal Extent of Snow Cover" );
 			datatypes.addElement( "AQME - River Discharge, Adjusted, Mean");
 			datatypes.addElement( "DQIN - Diversion Instantaneous Flow" );
 			datatypes.addElement( "DQME - Diversion Mean Flow" );
+			datatypes.addElement( "FMAP - Future Mean Areal Precipitation");
 			datatypes.addElement( "MAP - Mean Areal Precipitation");
 			datatypes.addElement( "MAPX - Mean Areal Precipitation (Gridded)" );
 			datatypes.addElement( "MAT - Mean Areal Temperature" );
@@ -804,8 +795,7 @@ public static Vector getTimeSeriesDataTypes (	NWSRFS_DMI dmi,
 		}
 	}
 
-	// If preprocessor and processed database time series are being
-	// returned, sort...
+	// If preprocessor and processed database time series are being returned, sort...
 	if ( include_preprocessor_db && include_processed_db ) {
 		return StringUtil.sortStringList ( datatypes );
 	}
