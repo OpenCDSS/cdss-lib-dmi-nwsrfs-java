@@ -5507,7 +5507,7 @@ throws Exception {
 		DataType.readNWSDataTypeFile(inputDTFile);
 	}
 	else {
-		throw new Exception("Unable to find the Data Types file. Using defaults.");
+		throw new Exception("Unable to find the Data Types file. Using defaults from software startup.");
 	}
 }
 
