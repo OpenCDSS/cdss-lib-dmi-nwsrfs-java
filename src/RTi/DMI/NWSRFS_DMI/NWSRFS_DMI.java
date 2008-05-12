@@ -669,13 +669,13 @@ throws Exception {
 		int byteTest = endianCheck.readInt();
 
 		// If byteTest is < 0 or > 100000 then probably there is
-		// an endian problem. The files passed in will alway
+		// an endian problem. The files passed in will always
 		// contain an integer for the first four bytes thus if it is
 		// too big then chances are the endianess is wrong.
 		// Also we check twice if the test fails since the fs5files
 		// should be little endian! The second test is to check using
 		// little endian. This is necessary since the first check
-		// could definately yield a false positive.
+		// could definitely yield a false positive.
 		if (byteTest >= 0 && byteTest < 100000) {
 			endianCheck.seek(0);
 			EDIS = read(endianCheck, 0, 4);
@@ -689,15 +689,15 @@ throws Exception {
 		endianCheck.close();
 	}
 	else {
-		// Check the machine to determine the endianess.
+		// Check the machine to determine the endian-ness.
 		__isBigEndian = IOUtil.isBigEndianMachine();
 	}
 	
 	if(__isBigEndian) {
-		Message.printStatus(10,routine, "The NWSRFS FS5Files endianess is Big Endian");
+		Message.printStatus(10,routine, "The NWSRFS FS5Files endian-ness is Big Endian");
 	}
 	else {
-		Message.printStatus(10,routine,	"The NWSRFS FS5Files endianess is Little Endian");
+		Message.printStatus(10,routine,	"The NWSRFS FS5Files endian-ness is Little Endian");
 	}
 }
 
@@ -5507,7 +5507,8 @@ throws Exception {
 		DataType.readNWSDataTypeFile(inputDTFile);
 	}
 	else {
-		throw new Exception("Unable to find the Data Types file. Using defaults from software startup.");
+		throw new Exception("Unable to find the DATATYPE file \"" + inputDTFile +
+		        "\".  Using values that were previously read.");
 	}
 }
 
@@ -5545,7 +5546,8 @@ throws Exception {
 		DataUnits.readNWSUnitsFile(inputDUFile);
 	}
 	else {
-		throw new Exception("Unable to find the Data Units file. Using defaults.");
+		throw new Exception( "Unable to find the DATAUNIT file \"" + inputDUFile +
+		        "\".  Using values that were previously read.");
 	}
 }
 
@@ -6091,13 +6093,15 @@ throws Exception {
 		readDataTypeList();
 	}
 	catch(Exception e) {
-		Message.printWarning(2,routine,"Error reading DATATYPE file.  Using defaults.");
+		Message.printWarning(2,routine,"Error reading DATATYPE file.  Using values that were previously read.");
+		Message.printWarning( 3, routine, e);
 	}
 	try {
 		readDataUnitsList();
 	}
 	catch(Exception e) {
-		Message.printWarning(2,routine, "Error reading DATATYPE file. Using defaults." );
+		Message.printWarning(2,routine, "Error reading DATAUNIT file.  Using values that were previously read." );
+		Message.printWarning( 3, routine, e);
 	}
 }
 
@@ -9055,7 +9059,8 @@ only read header information).
 */
 public TS readTimeSeries(String tsident_string, DateTime requested_date1,
 DateTime requested_date2, String req_units, boolean read_data) 
-throws Exception {
+throws Exception
+{
 	String routine = "NWSRFS_DMI.readTimeSeries";
 	int tsDTInterval = -1;
 	TimeInterval timeInt = null;
@@ -9094,8 +9099,7 @@ throws Exception {
 	String dataScenario = tsident.getScenario();
 	String inputType = tsident.getInputType();
 	String inputDir = tsident.getInputName();
-	// TODO SAM 2006-11-22
-	// If this method only reads one time series, then why is the wildcard even of interest?
+	// TODO SAM 2006-11-22 If this method only reads one time series, then why is the wildcard even of interest?
 	if(!interval.equalsIgnoreCase("*")) {
 		timeInt = (TimeInterval.parseInterval(interval));
 		tsDTInterval = timeInt.getMultiplier();
@@ -9104,7 +9108,7 @@ throws Exception {
 		return null;
 	}
 
-	Message.printStatus(10, routine,"TSIdent: "
+	Message.printStatus(10, routine,"Requested time series TSIdent information: "
 		+ "\n          location   = " + dataLoc
 		+ "\n          source     = " + dataSource
 		+ "\n          type       = " + dataType
@@ -9113,21 +9117,18 @@ throws Exception {
 		+ "\n          scenario   = " + dataScenario
 		+ "\n          input type = " + inputType
 		+ "\n          input Dir  = " + inputDir + "\n");
-	Message.printStatus(2, routine, "Requested start Date: " + req_date1 + "\n");
-	Message.printStatus(2, routine, "Requested end Date: " + req_date2 + "\n");
-	Message.printStatus(10, routine, "Units: " + req_units + "\n");
+	Message.printStatus(10, routine, "Requested start Date: " + req_date1 );
+	Message.printStatus(10, routine, "Requested end Date: " + req_date2 );
+	Message.printStatus(10, routine, "Units: " + req_units );
 
 	if (inputType.equalsIgnoreCase("NWSRFS_ESPTraceEnsemble")) {
 		NWSRFS_ESPTraceEnsemble espTE = readESPTraceEnsemble(tsident.getInputName(), read_data);
-		// TODO (JTS - 2004-08-21)
-		// ts never instantiated above -- gonna get null pointers
-		// if this if() {} is ever entered.
+		// TODO (JTS - 2004-08-21) ts never instantiated above -- will get null pointers if this if() {} is ever entered.
 		ts = new HourTS();
 		ts.setIdentifier(tsident);
 		ts.setInputName(inputDir);
 		ts.allocateDataSpace();
-		ts = new HourTS((HourTS)espTE.readTimeSeries(tsident_string,
-			req_date1, req_date2, req_units, read_data));
+		ts = new HourTS((HourTS)espTE.readTimeSeries(tsident_string, req_date1, req_date2, req_units, read_data));
 	}
 	else if (inputType.equalsIgnoreCase("NWSRFS_FS5Files") || inputType.length() == 0) {
 		// Read the requested time series from the binary FS5 Files specified by the input directory...
@@ -9627,19 +9628,25 @@ throws Exception
 /**
 Return a Vector of time series identifiers (TSIdent instances) given a data type
 and interval.  Data are read from the PDBINDEX preprocessed database binary files.
-@param dataType the data type identifier in which to pull data I.E. "STG"
-@param interval Data interval in hours, or <= zero to retrieve all time series
+@param tsID the time series location identifier to read.
+@param requestedDataType the data type identifier in which to pull data (e.g., "STG").
+The -PPDB needs to be removed prior to calling.
+@param requestedInterval Data interval in hours, or <= zero to retrieve all time series
 identifiers for the data type.
 @return a Vector of time series identifiers (TSIdent instances) given a data type and interval.
 */
-public Vector readTSIdentListPDB(String tsID, String dataType, String interval)
+public Vector readTSIdentListPDB(String tsID, String requestedDataType, String requestedInterval)
 throws Exception
-{
+{   String routine = "NWSRFS_DMI.readTSIdentListPDB";
 	int pdbAddDT;
 	String timeInt = null;
 	NWSRFS_PDBINDEX pdbIndex = getPDBIndex();
 	String tsIdentString = null;
 	Vector tsidVector = new Vector();
+	if ( Message.isDebugOn ) {
+	    Message.printDebug( 2, routine, "Requesting preprocessor DB time series read for station \"" + tsID +
+	        "\" data type \"" + requestedDataType + "\" requested interval \"" + requestedInterval + "\"" );
+	}
 	
 	// Check to see if the pdbindex file exists! If not get the index.
 	if(pdbIndex == null) { 
@@ -9649,9 +9656,15 @@ throws Exception
 	// Loop through the pdbIndex to get the station ids which have data
 	// of the "dataType" type! Build the tsIdent String here and put into
 	// the Vector for return to calling routine.
-	for(int i = 0; i < (pdbIndex.getSTAID()).size(); i++) {
+	int numsta = pdbIndex.getSTAID().size();
+	for(int i = 0; i < numsta; i++) {
 		// Check to see if the TS ID is set!
-		if(!tsID.equalsIgnoreCase("*") && !pdbIndex.getSTAID(i).equalsIgnoreCase(tsID)) {
+	    String staid = pdbIndex.getSTAID(i);
+	    if ( Message.isDebugOn ) {
+	        Message.printDebug ( 2, routine, "Preprocessor database station ID is \"" + staid + "\"" );
+	    }
+		if(!tsID.equalsIgnoreCase("*") && !staid.equalsIgnoreCase(tsID) ) {
+		    // Requested a specific station and this is not it.
 			continue;
 		}
 		
@@ -9660,175 +9673,181 @@ throws Exception
 		// special since it is not included in the Addtional data types 
 		// array we check below. It is generally assumed that 24 hour
 		// precip and/or 24 Temp WILL be defined.
-		if(dataType.equalsIgnoreCase("PP24") && pdbIndex.getSTAID(i).indexOf(".") < 0 &&
-		!pdbIndex.getSTAID(i).equalsIgnoreCase("Deleted")) {
+		if(requestedDataType.equalsIgnoreCase("PP24") && staid.indexOf(".") < 0 && !staid.equalsIgnoreCase("Deleted")) {
 			if(pdbIndex.getPCPPTR(i) > 0) {
-				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
-					"PP24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
-					
+				tsIdentString = staid + ".NWSRFS.PP24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
 			}
 		}
-		else if(dataType.equalsIgnoreCase("TA24") && // 24 hour Temp.
-		pdbIndex.getSTAID(i).indexOf(".") < 0 && !pdbIndex.getSTAID(i).equalsIgnoreCase("Deleted")) {
+		// 24 hour temperature
+		else if(requestedDataType.equalsIgnoreCase("TA24") && staid.indexOf(".") < 0 && !staid.equalsIgnoreCase("Deleted")) {
 			if(pdbIndex.getTMPPTR(i) > 0) {
-				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
-					"TA24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
-					
+				tsIdentString = staid + ".NWSRFS.TA24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
 			}
 		}
-		else if(dataType.equalsIgnoreCase("*") && // Other types wild card
-		pdbIndex.getSTAID(i).indexOf(".") < 0 && !pdbIndex.getSTAID(i).equalsIgnoreCase("Deleted")) {
+		// Other types wild card
+		else if(requestedDataType.equalsIgnoreCase("*") && staid.indexOf(".") < 0 && !staid.equalsIgnoreCase("Deleted")) {
+		    // Station ID does not contain "." and is not "Deleted" (meaning place-holder to be overwritten)
 			// Add PP24 since it also is a data type the wildcard accepts
 			if(pdbIndex.getPCPPTR(i) > 0 && 
-				(interval.equalsIgnoreCase("24Hour")||	interval.equalsIgnoreCase("*"))) {
-				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
-					"PP24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
+				(requestedInterval.equalsIgnoreCase("24Hour")||	requestedInterval.equalsIgnoreCase("*"))) {
+				tsIdentString = staid + ".NWSRFS.PP24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
 			}
 			
 			// Add TA24
-			if(pdbIndex.getTMPPTR(i) > 0 && (interval.equalsIgnoreCase("24Hour")||interval.equalsIgnoreCase("*"))) {
-				tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
-					"TA24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
+			if(pdbIndex.getTMPPTR(i) > 0 && (requestedInterval.equalsIgnoreCase("24Hour")||requestedInterval.equalsIgnoreCase("*"))) {
+				tsIdentString = staid +".NWSRFS.TA24-PPDB.24Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 				// Add the tsIdentString to the TSIDent Vector
 				tsidVector.addElement(new TSIdent(tsIdentString));
 			}
 			
-			// Everything else!
+			// Everything else!  Get the number of additional data types...
 			pdbAddDT = pdbIndex.getNADDTP(i);
+			if ( Message.isDebugOn ) {
+			    Message.printDebug(2, routine, "Requesting datatype *, the number of additional data types is " + pdbAddDT );
+			}
 			
+			// FIXME SAM 2008-05-08 The following does not properly match requested interval with what is returned.
 			// If the number of additional data types is <= 0 then no more data types to check so continue!
 			// Now addDTIndex is the true Vector index holding the additional data types!
-			if(pdbAddDT > 0) {
-				for(int j = 0; j < pdbAddDT; j++) {
-					// Set the tsIdentString to null for check!
-					tsIdentString = null;
+			for(int j = 0; j < pdbAddDT; j++) {
+				// Set the tsIdentString to null for check!
+				tsIdentString = null;
+				String dtype = pdbIndex.getADDDTP(i,j); // Data type
+				if ( Message.isDebugOn ) {
+				    Message.printDebug(2, routine, "Additional data type [" + j + "] is \"" + dtype + "\"" );
+				}
 
-					// Now check to see if we can get the interval from the data type!
-					if(pdbIndex.getADDDTP(i,j).indexOf("24") >= 0) {
-						timeInt = "24Hour";
-					}
-					else if(pdbIndex.getADDDTP(i,j).indexOf("6") >= 0) {
-						timeInt = "6Hour";
-					}
-					else if(pdbIndex.getADDDTP(i,j).indexOf("3") >= 0) {
-						timeInt = "3Hour";
-					}
-					else if(pdbIndex.getADDDTP(i,j).indexOf("1") >= 0) {
-						timeInt = "1Hour";
-					} 
-//					else if(getPDBIndex().getIsRRSType(pdbIndex.getADDDTP(i,j))) {
+				// Now check to see if we can get the interval from the data type!
+				if(dtype.indexOf("24") >= 0) {
+					timeInt = "24Hour";
+				}
+				else if(dtype.indexOf("6") >= 0) {
+					timeInt = "6Hour";
+				}
+				else if(dtype.indexOf("3") >= 0) {
+					timeInt = "3Hour";
+				}
+				else if(dtype.indexOf("1") >= 0) {
+					timeInt = "1Hour";
+				} 
+//					else if(getPDBIndex().getIsRRSType(dtype)) {
 //							timeInt=interval;
 //					}
 //					else if(interval.equalsIgnoreCase("*")) {
 //						timeInt = "*Hour";
 //					} 
-					else {
-						// Use the passed in value
-						timeInt = interval;
-					}
-					
-					// Check timeInt the time interval
-					if(interval.equalsIgnoreCase("*")) {
-						// Now loop through most common time intervals for default of *.
-						int intervalArray[] = new int[6];
-						intervalArray[0] = 1;
-						intervalArray[1] = 3;
-						intervalArray[2] = 6;
-						intervalArray[3] = 12;
-						intervalArray[4] = 18;
-						intervalArray[5] = 24;
-						for(int k=0; k<6;k++) {
-							tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+
-							pdbIndex.getADDDTP(i,j)+
-							"-PPDB."+intervalArray[k]+"Hour"+
-							"~NWSRFS_FS5Files~" + getFS5FilesLocation();
-							// Add the tsIdentString to the TSIDent Vector
-							if(tsIdentString != null) {
-								tsidVector.addElement(new TSIdent(tsIdentString));
-							}
-						}
-					}
-					else if(interval.equalsIgnoreCase(timeInt)) {
-						tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+pdbIndex.
-						getADDDTP(i,j)+"-PPDB."+timeInt+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
+				else {
+					// Use the passed in value
+					timeInt = requestedInterval;
+				}
+				if ( Message.isDebugOn ) {
+				    Message.printDebug(2, routine, "Using interval \"" + timeInt + "\" (requested is \"" + requestedInterval + "\")" );
+				}
+
+				// Check timeInt the time interval
+				if(requestedInterval.equals("*")) {
+					// Now loop through most common time intervals for default of *.
+				    // FIXME SAM 2008-05-08 Is there any way to know for sure that these exist in the database?
+				    // Otherwise extra TSID are returned.
+					int intervalArray[] = new int[6];
+					intervalArray[0] = 1;
+					intervalArray[1] = 3;
+					intervalArray[2] = 6;
+					intervalArray[3] = 12;
+					intervalArray[4] = 18;
+					intervalArray[5] = 24;
+					for(int k=0; k<6;k++) {
+						tsIdentString = staid + ".NWSRFS." + dtype + "-PPDB." + intervalArray[k] + "Hour" +
+						"~NWSRFS_FS5Files~" + getFS5FilesLocation();
 						// Add the tsIdentString to the TSIDent Vector
 						if(tsIdentString != null) {
 							tsidVector.addElement(new TSIdent(tsIdentString));
 						}
 					}
 				}
+				else if(requestedInterval.equalsIgnoreCase(timeInt)) {
+					tsIdentString = staid + ".NWSRFS." + dtype+"-PPDB."+
+					timeInt+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
+					// Add the tsIdentString to the TSIDent Vector
+					if(tsIdentString != null) {
+						tsidVector.addElement(new TSIdent(tsIdentString));
+					}
+				}
 			}
 		}
-		else if(pdbIndex.getSTAID(i).indexOf(".") < 0 && !pdbIndex.getSTAID(i).equalsIgnoreCase("Deleted")) {
+		// TODO SAM 2008-05-08 Why is this extra clause needed.  Just do above?
+		else if( staid.indexOf(".") < 0 && !pdbIndex.getSTAID(i).equalsIgnoreCase("Deleted")) {
+		    // Requested a specific data type
 			// Other data types including RRS types
 			pdbAddDT = pdbIndex.getNADDTP(i);
 			
 			// If the number of additional data types is <= 0 then no more data types to check so continue!
 			// Now addDTIndex is the true Vector index holding the additional data types!
-			if(pdbAddDT > 0) {
-				for(int j = 0; j < pdbAddDT; j++) {
-					// Set the tsIdentString to null for check!
-					tsIdentString = null;
+			for(int j = 0; j < pdbAddDT; j++) {
+				// Set the tsIdentString to null for check!
+				tsIdentString = null;
+	            String dtype = pdbIndex.getADDDTP(i,j); // Data type
+	            if ( Message.isDebugOn ) {
+	                Message.printDebug(2, routine, "Additional data type [" + j + "] is \"" + dtype + "\"" );
+	            }
 
-					// Check to see if the passed in dataType is in the list
-					if(!pdbIndex.getADDDTP(i,j).equalsIgnoreCase(dataType)) {
-						continue;
-					}
-					
-					// Now check to see if we can get the interval from the data type!
-					if(pdbIndex.getADDDTP(i,j).indexOf("24") >= 0) {
-						timeInt = "24Hour";
-					}
-					else if(pdbIndex.getADDDTP(i,j).indexOf("6") >= 0) {
-						timeInt = "6Hour";
-					}
-					else if(pdbIndex.getADDDTP(i,j).indexOf("3") >= 0) {
-						timeInt = "3Hour";
-					}
-					else if(pdbIndex.getADDDTP(i,j).indexOf("1") >= 0) {
-						timeInt = "1Hour";
-					} 
-//					else if(pdbIndex.getIsRRSType(pdbIndex.getADDDTP(i,j))) {
+				// Check to see if the passed in dataType is in the list
+				if(!dtype.equalsIgnoreCase(requestedDataType)) {
+					continue;
+				}
+				
+				// Now check to see if we can get the interval from the data type!
+				if(dtype.indexOf("24") >= 0) {
+					timeInt = "24Hour";
+				}
+				else if(dtype.indexOf("6") >= 0) {
+					timeInt = "6Hour";
+				}
+				else if(dtype.indexOf("3") >= 0) {
+					timeInt = "3Hour";
+				}
+				else if(dtype.indexOf("1") >= 0) {
+					timeInt = "1Hour";
+				} 
+//					else if(pdbIndex.getIsRRSType(dtype)) {
 //							timeInt="*";
 //					}
-					else {
-						// Use the passed in value
-						timeInt = interval;
-					}
-					
-					// Check timeInt the time interval
-					if(interval.equalsIgnoreCase("*")) {
-						// Now loop through most common time intervals for default of *.
-						int intervalArray[] = new int[6];
-						intervalArray[0] = 1;
-						intervalArray[1] = 3;
-						intervalArray[2] = 6;
-						intervalArray[3] = 12;
-						intervalArray[4] = 18;
-						intervalArray[5] = 24;
-						for(int k=0; k<6;k++) {
-							tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+pdbIndex.getADDDTP(i,j)+
-							"-PPDB."+intervalArray[k]+"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
-							// Add the tsIdentString to the TSIDent Vector
-							if(tsIdentString != null) {
-								tsidVector.addElement(new TSIdent(tsIdentString));
-							}
-						}
-					}
-					else if(interval.
-					equalsIgnoreCase(timeInt)) {
-						tsIdentString = pdbIndex.getSTAID(i)+".NWSRFS."+pdbIndex.
-						getADDDTP(i,j)+"-PPDB."+timeInt+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
+				else {
+					// Use the passed in value
+					timeInt = requestedInterval;
+				}
+				
+				// Check timeInt the time interval
+				if(requestedInterval.equalsIgnoreCase("*")) {
+					// Now loop through most common time intervals for default of *.
+					int intervalArray[] = new int[6];
+					intervalArray[0] = 1;
+					intervalArray[1] = 3;
+					intervalArray[2] = 6;
+					intervalArray[3] = 12;
+					intervalArray[4] = 18;
+					intervalArray[5] = 24;
+					for(int k=0; k<6;k++) {
+						tsIdentString = staid + ".NWSRFS."+dtype+
+						"-PPDB."+intervalArray[k]+"Hour~NWSRFS_FS5Files~" + getFS5FilesLocation();
 						// Add the tsIdentString to the TSIDent Vector
 						if(tsIdentString != null) {
 							tsidVector.addElement(new TSIdent(tsIdentString));
 						}
+					}
+				}
+				else if(requestedInterval.equalsIgnoreCase(timeInt)) {
+					tsIdentString = staid + ".NWSRFS."+dtype+"-PPDB."+
+					timeInt+"~NWSRFS_FS5Files~" + getFS5FilesLocation();
+					// Add the tsIdentString to the TSIDent Vector
+					if(tsIdentString != null) {
+						tsidVector.addElement(new TSIdent(tsIdentString));
 					}
 				}
 			}
@@ -9836,6 +9855,12 @@ throws Exception
 	}
 	
 	// Return the Vector of tsIdent Strings
+	if ( Message.isDebugOn ) {
+	    int size = tsidVector.size();
+	    for ( int i = 0; i < size; i++ ) {
+	        Message.printDebug(2, routine, "Returned TSID is \"" + tsidVector.elementAt(i) + "\"" );
+	    }
+	}
 	return tsidVector;
 }
 
@@ -10057,20 +10082,24 @@ It is necessary that the data time interval be supplied to get a unique set of
 Time Series from the data files.
 @param readData this determines whether or not to actually read the data or
 just determine if data exists!
-@return an NWSRFS_TimeSeries object which holds all of the information and data
+@return an NWSRFS_TimeSeries object, which holds all of the information and data
 from the PDBRRS and PDBLYn binary files.
 @throws Exception if there is an error reading from the database.
 @throws NullPointerException if the time series identifier is null.
 */
 private NWSRFS_TimeSeries readTimeSeriesPDB( String tsID, String tsDT, int tsDTInterval, boolean readData) 
 throws Exception
-{
+{   String routine = "NWSRFS_TimeSeries readTimeSeriesPDB";
 	int i=0;
 	String tsIdentKey, tsident_string;
 	NWSRFS_TimeSeries tsFile = null;
 	NWSRFS_Station station = null;
 	HourTS ITS = new HourTS();
 	DateTime dtTemp, dtTempStart, dtTempEnd;
+	if ( Message.isDebugOn ) {
+	    Message.printDebug( 2, routine, "Requesting preprocessor DB time series read for station \"" + tsID +
+	            "\" data type \"" + tsDT + "\" requested interval \"" + tsDTInterval + "\"" );
+	}
 	
 	// Check to see if the pdbindex file exists! If not return empty list.
 	if(getPDBIndex() == null) { 
@@ -10078,19 +10107,19 @@ throws Exception
 	}
 	
 	if (tsID == null) {
-		throw new Exception("The Time Series identifier argument is empty.");
+		throw new Exception("The time series identifier argument is empty.");
 	}
 	else if(tsDT == null) {
-		throw new Exception("The Time Series Data Type argument is empty.");
+		throw new Exception("The time series data type argument is empty.");
 	}
 	else if(tsDTInterval < 0) {
-		throw new Exception("The Time Series Data Time Interval argument is empty.");
+		throw new Exception("The time series interval argument is empty.");
 	}
 
 	// Set the TSIdent String
 	tsIdentKey = tsID+"."+tsDT+"."+tsDTInterval;
 
-	// If we have already looked at this time series just return it and  do not retreive it again!
+	// If we have already looked at this time series just return it and do not retrieve it again!
 	if(__tsHashtable.containsKey(tsIdentKey) && __cacheTS) {
 		tsFile = (NWSRFS_TimeSeries)__tsHashtable.get(tsIdentKey);
 		if(tsFile.getIsDataFilled()) {
@@ -10102,10 +10131,12 @@ throws Exception
 	tsFile = new NWSRFS_TimeSeries(tsID, tsDT, tsDTInterval);
 
 	// Check the data type to see if it is a RRS data type or daily data.  Then populate the pdbFile object
-	if(!NWSRFS_PDBINDEX.getIsRRSType(tsDT)) {
+	if ( !NWSRFS_PDBINDEX.getIsRRSType(tsDT) ) {
 		//NWSRFS_PDBDLY pdbFile = readPDBDLY(tsID, tsDT, tsDTInterval, readData);
 			
 		// Not implemented yet return a null
+	    Message.printWarning(3, routine, "Non-RRS data types (like \"" + tsDT +
+	            "\") from the preprocessor database are not yet handled." );
 		return null;
 	}
 	else {
@@ -10126,16 +10157,16 @@ throws Exception
 		
 		// Check to see if we have data!  Check to see if we were to just check to see if we
 		// have data without actually reading all of the data into structures!
-		if (!readData && (pdbFile == null || 
-			pdbFile.getOBSTIME().size() == 0 ||
-			pdbFile.getDATAVAL().size() == 0)) {
+		if (!readData && (pdbFile == null || pdbFile.getOBSTIME().size() == 0 || pdbFile.getDATAVAL().size() == 0)) {
 //Message.printStatus(1,routine,"I am in readTimeSeriesPDB: !read_data and pdbFile == null!");
 //Message.printStatus(1,routine,"        readTimeSeriesPDB: tsDTInterval = "+tsDTInterval);
 //Message.printStatus(1,routine,"        readTimeSeriesPDB: tsident_string = "+tsident_string);
+		    Message.printWarning ( 3, routine,
+		            "The time series \"" + tsident_string + "\" does not have data.  Returning null." );
 			return null;
 		}
 		else if (readData && (pdbFile == null || pdbFile.getOBSTIME().size() == 0 || pdbFile.getDATAVAL().size() == 0)) {
-			throw new Exception("The Time Series "+tsID+".NWSRFS."+tsDT+" is empty.");
+			throw new Exception("The time series "+tsID+".NWSRFS."+tsDT+" is empty.");
 		}
 		else {
 			// Get station info
