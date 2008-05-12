@@ -1503,15 +1503,6 @@ throws IOException
     	// Data may not be needed if reading header information only.
 		
 		if (!read_data) {
-		    // FIXME SAM 2008-04-04 Why convert the units if data are not being read?  To test conversion
-		    // factors?
-		    try {
-		        readTimeSeriesList_ConvertDataUnits ( ts, req_units );
-		    }
-		    catch ( Exception e ) {
-		        // Warning is printed in the helper method but continue on, but update the warning count
-		        ++warning_count;
-		    }
 		   	TSList.addElement(ts);
 
 		   	if ( is_nwsCardTrace ) {
@@ -1635,7 +1626,9 @@ throws IOException
                     	// process and generate one exception at the end.
                     	try {
                     		// Convert units (error will be printed in this method).
-                    	    readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+                    	    if ( !read_data ) {
+                    	        readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+                    	    }
                     	}
                     	catch (Exception e) {
                    			warning_count++;
@@ -1668,7 +1661,9 @@ throws IOException
                     	Message.printStatus(2, routine,
                     		"Finished reading single time series card file data at: " + idate_file );
                     	// Convert the data units if requested...
-                    	readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+                    	if ( !read_data ) {
+                    	    readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+                    	}
                     	TSList.addElement(ts);
                     	// Since we are processing NWS Card single time series file there is nothing else to do,
                     	// so just return the TSList with the single time series. 
@@ -1750,7 +1745,9 @@ throws IOException
 
 						try {
 						    // Convert units
-							readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+						    if ( !read_data ) {
+						        readTimeSeriesList_ConvertDataUnits ( ts, req_units );
+						    }
 						}
 						catch (Exception e) {
 						    // Warning is printed in above method.  Add to list
@@ -1941,7 +1938,8 @@ throws Exception
         catch (Exception e) {
             String msg = "Could not convert time series units from \"" + ts.getDataUnits() +
             "\" to requested \"" + req_units + "\".";
-            Message.printWarning(2, routine, msg);
+            Message.printWarning(3, routine, msg);
+            Message.printWarning(3, routine, e);
             throw new Exception(msg);
         }
     }
