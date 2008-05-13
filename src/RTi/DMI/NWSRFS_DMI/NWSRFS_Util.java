@@ -1813,12 +1813,18 @@ public static String getenv(String request)
 	                    (String)value_list.get(i),"=",StringUtil.DELIM_ALLOW_STRINGS);
 	            env_var = ((String)env_var_tokens.elementAt(0)).trim();
 	            if ( env_var.equalsIgnoreCase(request) ) {
-    	            env_val = ((String)env_var_tokens.elementAt(1)).trim();
-    	            if ( Message.isDebugOn ) {
-    	                Message.printDebug(dl, routine, "Environment variable \"" + request +
-    				        "\"=\"" + env_val + "\"");
-    	            }
-    				return env_val;
+	                if ( env_var_tokens.size() < 2 ) {
+	                    // No value on the end (why would this happen?)
+	                    return null;
+	                }
+	                else {
+        	            env_val = ((String)env_var_tokens.elementAt(1)).trim();
+        	            if ( Message.isDebugOn ) {
+        	                Message.printDebug(dl, routine, "Environment variable \"" + request +
+        				        "\"=\"" + env_val + "\"");
+        	            }
+        				return env_val;
+	                }
 	            }
 			}
 	        // No match was found...
