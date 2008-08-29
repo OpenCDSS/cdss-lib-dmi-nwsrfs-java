@@ -1626,7 +1626,7 @@ throws IOException
                     	// process and generate one exception at the end.
                     	try {
                     		// Convert units (error will be printed in this method).
-                    	    if ( !read_data ) {
+                    	    if ( read_data ) {
                     	        readTimeSeriesList_ConvertDataUnits ( ts, req_units );
                     	    }
                     	}
@@ -1661,7 +1661,7 @@ throws IOException
                     	Message.printStatus(2, routine,
                     		"Finished reading single time series card file data at: " + idate_file );
                     	// Convert the data units if requested...
-                    	if ( !read_data ) {
+                    	if ( read_data ) {
                     	    readTimeSeriesList_ConvertDataUnits ( ts, req_units );
                     	}
                     	TSList.addElement(ts);
@@ -1745,7 +1745,7 @@ throws IOException
 
 						try {
 						    // Convert units
-						    if ( !read_data ) {
+						    if ( read_data ) {
 						        readTimeSeriesList_ConvertDataUnits ( ts, req_units );
 						    }
 						}
