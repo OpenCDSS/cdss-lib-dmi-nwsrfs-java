@@ -823,6 +823,11 @@ throws Exception
 	if ( tslist != null ) {
 		size = tslist.size();
 	}
+	if ( size == 0 ) {
+	    String message = "Cannot create ensemble because time series list has zero time series.";
+        Message.printWarning ( 3, routine, message );
+        throw new Exception ( message );
+	}
 	__ts = new HourTS[size];
 	for ( int i = 0; i < size; i++ ) {
 		if ( !(tslist.elementAt(i) instanceof HourTS) ) {
