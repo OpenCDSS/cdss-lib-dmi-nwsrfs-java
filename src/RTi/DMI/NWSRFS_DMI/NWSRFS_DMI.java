@@ -560,6 +560,10 @@ throws Exception {
 	initialize();
 	
 	__fs5FilesLocation = NWSRFS_Util.getAppsDefaults("ofs_fs5files");
+	if ( Message.isDebugOn ) {
+	    Message.printDebug ( 1, routine,
+	            "Setting FS5 file location to app default ofs_fs5files value \"" + __fs5FilesLocation + "\"");
+	}
 	__opened_with_AppsDefaults = true;
 	
 	// If __fs5FilesLocation string is null then print message
@@ -623,6 +627,9 @@ public NWSRFS_DMI(String directory) {
 
 	__fs5FilesLocation = directory;
 	setInputName ( directory );
+    if ( Message.isDebugOn ) {
+        Message.printDebug ( 1, routine, "Setting FS5 file location to directory \"" + __fs5FilesLocation + "\"");
+    }
 	__opened_with_AppsDefaults = false;
 	
 	// If input string is empty or equals "stand alone" then print message
@@ -9151,7 +9158,7 @@ throws Exception
 				// does not match the request.  This should not normally be the case.
 				throw new Exception("The time series \""+
 				tsident_string + "\" does not reside in the"+
-				" opened FS5Files binary database: "+ getFS5FilesLocation());
+				" opened FS5Files binary database: " + getFS5FilesLocation());
 			}
 		}
 		else {
@@ -9401,7 +9408,7 @@ throws Exception
 	}
 	else {
 		Message.printWarning(10, routine,
-			"Incorrect TSIdent value for Source. It needs to be one of: "
+			"Incorrect TSIdent value for input type (" + inputType + "). It needs to be one of: "
 			+ "NWSRFS_FS5Files or NWSRFS_ESPTraceEnsemble.");
 	}
 	
