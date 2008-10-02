@@ -160,99 +160,53 @@ programmer knows what sample is supported.
 */
 public static Vector getSample ()
 {	Vector	s = new Vector ( 50 );
-	s.addElement (
-"#NWSCard" );
-	s.addElement (
-"#" );
-	s.addElement (
-"# This is an example of a typical National Weather Service (NWS) CARD format");
-	s.addElement (
-"# time series, which can be used for hourly data (1-24 hours).  This format");
-	s.addElement (
-"# is commonly used by the NWS.  The NWS Card file uses hours 1 to 24 whereas");
-	s.addElement (
-"# in-memory time series storage uses 0-23.  The translation of date/times");
-	s.addElement (
-"# from the CARD file to in-memory time series occurs as follows as the file" );
-	s.addElement (
-"# is read (using a single 31-day month).  The inverse occurs when writing.");
-	s.addElement (
-"#" );
-	s.addElement (
-"# Data     | CARD         | Time Series | CARD          | Time Series" );
-	s.addElement (
-"# Interval | Start        | Start       | End           | End" );
-	s.addElement (
-"# ---------|--------------|-------------|---------------|--------------------" );
-	s.addElement (
-"# 6-Hour   | Day 1, Hr 6  | Day 1, Hr 6 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
-	s.addElement (
-"# 24-Hour  | Day 1, Hr 24 | Day 2, Hr 0 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
-	s.addElement (
-"#" );
-	s.addElement (
-"# If, for example, a DateValue time series is read and then is written as a" );
-	s.addElement (
-"# CARD file, then use a 1Day interval DateValue file and don't specify hour" );
-	s.addElement (
-"# in the dates, OR, use an hourly file and specify hours in the date/times." );
-	s.addElement (
-"# Otherwise, the precision of the input data may not translate correctly." );
-	s.addElement (
-"#" );
-	s.addElement (
-"# An example file is as follows and conforms to the following guidelines:");
-	s.addElement (
-"# * Only one time series per file." );
-	s.addElement (
-"# * The sequence number in data lines (field 3) has a maximum value of 9999.");
-	s.addElement (
-"# * Full months are included, with missing values as needed." );
-	s.addElement (
-"# * See the header below for more information." );
-	s.addElement (
-"# * Data are fixed format." );
-	s.addElement (
-"# * Comments in the file start with $ (these #-comments are for illustration");
-	s.addElement (
-"#   only." );
-	s.addElement (
-"# * Data lines are printed using the specified format." );
-	s.addElement (
-"# * Data lines have station, month, year (2 digit), count, data values." );
-	s.addElement (
-"#" );
-	s.addElement (
-"$  IDENTIFIER=STATIONX       DESCRIPTION=RIVER Y BELOW Z     " );
-	s.addElement (
-"$  PERIOD OF RECORD=08/1978 THRU 11/1995" );
-	s.addElement (
-"$  SYMBOL FOR MISSING DATA=-999.00   SYMBOL FOR ACCUMULATED DATA=-998.00" );
-	s.addElement (
-"$  TYPE=SQIN   UNITS=CMS    DIMENSIONS=L3/T   DATA TIME INTERVAL= 6 HOURS" );
-	s.addElement (
-"$  OUTPUT FORMAT=(3A4,2I2,I4,6F10.2)             " );
-	s.addElement (
-"DATACARD      SQIN L3/T CMS   6    26433                                  " );
-	s.addElement (
-" 8  1984 10   1984  6   F10.2       " );
-	s.addElement (
-"STATIONX     884   1     91.66     88.95     86.24     83.53     81.14     78.74" );
-	s.addElement (
-"STATIONX     884   2     76.35     73.96     73.00     72.04     71.07     70.11" );
+	s.addElement ( "#NWSCard" );
+	s.addElement ( "#" );
+	s.addElement ( "# This is an example of a typical National Weather Service (NWS) CARD format");
+	s.addElement ( "# time series, which can be used for hourly data (1-24 hours).  This format");
+	s.addElement ( "# is commonly used by the NWS.  The NWS Card file uses hours 1 to 24 whereas");
+	s.addElement ( "# in-memory time series storage uses 0-23.  The translation of date/times");
+	s.addElement ( "# from the CARD file to in-memory time series occurs as follows as the file" );
+	s.addElement ( "# is read (using a single 31-day month).  The inverse occurs when writing.");
+	s.addElement ( "#" );
+	s.addElement ( "# Data     | CARD         | Time Series | CARD          | Time Series" );
+	s.addElement ( "# Interval | Start        | Start       | End           | End" );
+	s.addElement ( "# ---------|--------------|-------------|---------------|--------------------" );
+	s.addElement ( "# 6-Hour   | Day 1, Hr 6  | Day 1, Hr 6 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
+	s.addElement ( "# 24-Hour  | Day 1, Hr 24 | Day 2, Hr 0 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
+	s.addElement ( "#" );
+	s.addElement ( "# If, for example, a DateValue time series is read and then is written as a" );
+	s.addElement ( "# CARD file, then use a 1Day interval DateValue file and don't specify hour" );
+	s.addElement ( "# in the dates, OR, use an hourly file and specify hours in the date/times." );
+	s.addElement ( "# Otherwise, the precision of the input data may not translate correctly." );
+	s.addElement ( "#" );
+	s.addElement ( "# An example file is as follows and conforms to the following guidelines:");
+	s.addElement ( "# * Only one time series per file." );
+	s.addElement ( "# * The sequence number in data lines (field 3) has a maximum value of 9999.");
+	s.addElement ( "# * Full months are included, with missing values as needed." );
+	s.addElement ( "# * See the header below for more information." );
+	s.addElement ( "# * Data are fixed format." );
+	s.addElement ( "# * Comments in the file start with $ (these #-comments are for illustration");
+	s.addElement ( "#   only." );
+	s.addElement ( "# * Data lines are printed using the specified format." );
+	s.addElement ( "# * Data lines have station, month, year (2 digit), count, data values." );
+	s.addElement ( "#" );
+	s.addElement ( "$  IDENTIFIER=STATIONX       DESCRIPTION=RIVER Y BELOW Z     " );
+	s.addElement ( "$  PERIOD OF RECORD=08/1978 THRU 11/1995" );
+	s.addElement ( "$  SYMBOL FOR MISSING DATA=-999.00   SYMBOL FOR ACCUMULATED DATA=-998.00" );
+	s.addElement ( "$  TYPE=SQIN   UNITS=CMS    DIMENSIONS=L3/T   DATA TIME INTERVAL= 6 HOURS" );
+	s.addElement ( "$  OUTPUT FORMAT=(3A4,2I2,I4,6F10.2)             " );
+	s.addElement ( "DATACARD      SQIN L3/T CMS   6    26433                                  " );
+	s.addElement ( " 8  1984 10   1984  6   F10.2       " );
+	s.addElement ( "STATIONX     884   1     91.66     88.95     86.24     83.53     81.14     78.74" );
+	s.addElement ( "STATIONX     884   2     76.35     73.96     73.00     72.04     71.07     70.11" );
 	s.addElement ( "..." );
-	s.addElement (
-"STATIONX     884  20    299.88    296.23    273.81    251.39    228.97    206.55" );
-	s.addElement (
-"STATIONX     884  21    192.56    178.56    164.57    150.57" );
-	s.addElement (
-"STATIONX     984   1    145.28    139.99    134.70    129.41    123.45    117.50" );
-	s.addElement (
-"STATIONX     984   2    111.54    105.58    102.26     98.94     95.63     92.31" );
-	s.addElement (
-"STATIONX     984   3    163.89    235.48    307.07    378.65   1032.13   1685.60" );
+	s.addElement ( "STATIONX     884  20    299.88    296.23    273.81    251.39    228.97    206.55" );
+	s.addElement ( "STATIONX     884  21    192.56    178.56    164.57    150.57" );
+	s.addElement ( "STATIONX     984   1    145.28    139.99    134.70    129.41    123.45    117.50" );
+	s.addElement ( "STATIONX     984   2    111.54    105.58    102.26     98.94     95.63     92.31" );
+	s.addElement ( "STATIONX     984   3    163.89    235.48    307.07    378.65   1032.13   1685.60" );
 	s.addElement ( "..." );
-
 	return s;
 }
 
@@ -278,16 +232,12 @@ public static boolean isNWSCardFile ( String filename )
 		String string = null;
 		boolean	is_nwscard = false;
 		while( ( string = in.readLine() ) != null ) {
-
 			if ( string.regionMatches( true,0,"DATACARD",0,8 ) ) {
 				is_nwscard = true;
 				break;
 			}
-
-			if ( string.charAt(0) == '$' &&
-			     (string.regionMatches(true,0,"IDENTIFIER=",0,14)
-			    ||string.regionMatches(true,0,"TYPE=",      0, 8)) )
-			{
+			if ( string.charAt(0) == '$' && (string.regionMatches(true,0,"IDENTIFIER=",0,14)
+			    ||string.regionMatches(true,0,"TYPE=", 0, 8)) ) {
 				is_nwscard = true;
 				break;
 			}
@@ -296,14 +246,20 @@ public static boolean isNWSCardFile ( String filename )
 				break;
 			}
 		}
-
-		in.close();
-		in = null;
-		string = null;
 		return is_nwscard;
 	}
 	catch ( Exception e ) {
 		return false;
+	}
+	finally {
+	    if ( in != null ) {
+	        try {
+	            in.close();
+	        }
+	        catch ( IOException e ) {
+	            // Don't do anything.
+	        }
+	    }
 	}
 }
 
@@ -321,22 +277,28 @@ IOUtil.getPathUsingWorkingDir() is called to expand the filename.
 public static boolean isNWSCardTraceFile ( String filename )
 {
 	boolean is_NWSCardTraceFile = false;
-
+	BufferedReader in = null;
 	try {
 		String full_fname = IOUtil.getPathUsingWorkingDir ( filename );
-		BufferedReader inBufferedReader = new BufferedReader (new InputStreamReader( IOUtil.getInputStream (full_fname)));
-
-		is_NWSCardTraceFile = isNWSCardTraceFile ( inBufferedReader );
-
-		inBufferedReader.close();
-		inBufferedReader = null;
-
+		in = new BufferedReader (new InputStreamReader( IOUtil.getInputStream (full_fname)));
+		is_NWSCardTraceFile = isNWSCardTraceFile ( in );
+		in.close();
+		in = null;
 		return is_NWSCardTraceFile;
-
 	}
 	catch ( Exception e ) {
 		return false;
 	}
+    finally {
+        if ( in != null ) {
+            try {
+                in.close();
+            }
+            catch ( IOException e ) {
+                // Don't do anything.
+            }
+        }
+    }
 }
 
 /**
@@ -348,8 +310,7 @@ following strings, it is assumed to be an NWS Card Trace file:
 <li>	A line starts with "MONTHS PER TRACE".</li>
 </ol>
 IOUtil.getPathUsingWorkingDir() is called to expand the filename.
-@param inBufferedReader - Reference to a Buffered Reader object containing the 
-file.
+@param inBufferedReader - Reference to a Buffered Reader object containing the file.
 */
 private static boolean isNWSCardTraceFile ( BufferedReader inBufferedReader )
 {
@@ -362,27 +323,21 @@ private static boolean isNWSCardTraceFile ( BufferedReader inBufferedReader )
 		// Read lines and check for common NWS Card trace file strings.
 		String string = null;
 		while( (string = inBufferedReader.readLine()) != null ) {
-
 			if ( string.charAt(0)=='$' ) {
-
 				if ( StringUtil.indexOfIgnoreCase( string, "HISTORICAL RUN PERIOD=", 0) != -1 ) {
                    	foundFirst = true;
                	}
-
 	            if ( StringUtil.indexOfIgnoreCase( string, "NUMBER OF TRACES=", 0) != -1 ) {
 	               	foundSecond = true;
 	            }
-
 	            if ( StringUtil.indexOfIgnoreCase( string, "MONTHS PER TRACE=", 0) != -1 ) {
 	               	foundThird = true;
 	            }
 	        }
-
     		if ( foundFirst && foundSecond && foundThird ) {
    				is_nwsCardTrace = true;
 				break;
    			}
-
 			if ( (string.length()==0) || (string.charAt(0)!='$') ) {
 				break;
 			}
@@ -437,8 +392,9 @@ throws IOException
 	TS	ts = null;
 
 	String full_fname = IOUtil.getPathUsingWorkingDir ( fname );
+	BufferedReader in = null;
 	try {
-        BufferedReader in = new BufferedReader ( new InputStreamReader(	IOUtil.getInputStream ( full_fname )) );
+        in = new BufferedReader ( new InputStreamReader(	IOUtil.getInputStream ( full_fname )) );
 		// Don't have a requested time series...
 		ts = readTimeSeries ( (TS)null, in,	req_date1, req_date2, req_units, read_data );
 			
@@ -446,13 +402,20 @@ throws IOException
 		ts.setInputName ( fname );
 		ts.getIdentifier().setInputType( "NWSCard" );
 		ts.getIdentifier().setInputName( fname );
-		
-		in.close();
-		in = null;
 	}
 	catch ( Exception e ) {
 		Message.printWarning( 2, "NWSCardTS.readTimeSeries(String,...)", "Unable to open file \"" + fname + "\"" );
 	}
+    finally {
+        if ( in != null ) {
+            try {
+                in.close();
+            }
+            catch ( IOException e ) {
+                // Don't do anything.
+            }
+        }
+    }
 	return ts;
 }
 
@@ -462,10 +425,8 @@ This version when working with NWS Card file (single TS per file) will use
 the time series identifier passed in (first parameter) to set properties
 for the returning time series. 
 When working with NWS Card Trace file it will will return a single time 
-series representing the trace that matches the time series identifier passed in
-(first trace).
-@return a pointer to a newly-allocated time series if successful, a null
-pointer if not.
+series representing the trace that matches the time series identifier passed in (first trace).
+@return a pointer to a newly-allocated time series if successful, null if not.
 @param tsident_string Identifier of a time series to be used to customize the 
 identifier of the returning time series. 
 @param fname The input file name.
@@ -550,8 +511,7 @@ throws IOException
 				if ( tsCount != 0 ) {
 				    for ( int i = 0; i<tsCount; i++ ) {
 				    	ts = (TS) TSList.elementAt(i);
-				    	if ( tsident_string.equalsIgnoreCase (
-				    	    ts.getIdentifierString() ) ) {
+				    	if ( tsident_string.equalsIgnoreCase ( ts.getIdentifierString() ) ) {
 				    	    break;
 				    	}
 				    } 
@@ -577,15 +537,12 @@ This version works with NWS Card file (single TS per file) or will return the
 first trace out of NWS Card Trace files.
 This private method overload is called from the public overload versions
 returning a single time series, where the BufferedReader object is instantiated
-and additional post processing are still performed to set the returning time
-series identifier.
+and additional post processing are still performed to set the returning time series identifier.
 @param req_ts Pointer to time series to fill.  If null return a new time series.
 This parameter is used only when processing single time series from a NWS Card
-file.  All data are reset, except for the identifier, which is assumed to have
-been set in the calling code.
+file.  All data are reset, except for the identifier, which is assumed to have been set in the calling code.
 This parameter is ignored when processing NWS Trace Card.  In this case the
-returning vector will contain several new time series, one for each trace
-available in the file.
+returning vector will contain several new time series, one for each trace available in the file.
 @param in Reference to open input stream.
 @param fname The input file name.
 @param req_date1 Requested starting date to initialize the period (or null to
@@ -608,10 +565,10 @@ throws IOException
 	// Read the time series.
 	// This version should return only one time series. When processing a 
 	// NWS Card Trace only the first time series is expected in the
-	// returning vector.  To ensure this behaviour, the first parameter 
+	// returning vector.  To ensure this behavior, the first parameter 
 	// "is_nwsCardTrace" to the processing method is always passed as
 	// "false", even if the file is a NWS Card Trace file.  This ensure
-	// that the file will alwasy be processed as a NWS Card single time
+	// that the file will always be processed as a NWS Card single time
 	// series file and the returning time series is the one expected. 
 	TSList = readTimeSeriesList ( false, req_ts, in, req_date1, req_date2, req_units, read_data );
 
@@ -629,8 +586,7 @@ throws IOException
 
 /**
 Read one or more time series from a file.
-It will read all the traces from a NWS Card Trace file or a single time series
-from a NWS Card file.
+It will read all the traces from a NWS Card Trace file or a single time series from a NWS Card file.
 @return a vector containing reference to one or more time series (or null in 
 case of problems) when processing a NWS Card or a NWS Card Trace file.
 @param fname The input file name.
@@ -721,21 +677,18 @@ throws IOException {
 	String routine = "NWSCardTS.readTimeSeriesList";
 	Vector TSList = null;
 
+	BufferedReader in = null;
 	try {
 		String full_fname = IOUtil.getPathUsingWorkingDir(fname);
-		BufferedReader in = new BufferedReader(new InputStreamReader( IOUtil.getInputStream(full_fname)));
-
 		// Check if we are dealing with a NWS Trace Card file.
-		boolean is_nwsCardTrace = isNWSCardTraceFile(in);
-		// Create a new buffer to start fresh from the begining of the
-		// file.
+		boolean is_nwsCardTrace = isNWSCardTraceFile(full_fname);
+		// Create a new buffer to start fresh from the beginning of the file.
 		in = new BufferedReader(new InputStreamReader( IOUtil.getInputStream(full_fname)));
 
 		// Read the time series list
 		TSList = readTimeSeriesList ( is_nwsCardTrace, req_ts, in, req_date1, req_date2, req_units, read_data, props);
 				      		
-		// Update the time series InputType (NWSCard) and InputName
-		// (fname) properties.
+		// Update the time series InputType (NWSCard) and InputName (fname) properties.
 		TS ts = null;
 		if (TSList != null) {
 			int tsCount = TSList.size();
@@ -750,17 +703,22 @@ throws IOException {
 				} 
 			}
 		}	
-		
-		// Clean up
-		in.close();
-		in = null;
-		full_fname = null;
 	}
 	catch (Exception e) {
-        String message = "Unable to read file \"" + fname + "\"";
+        String message = "Error reading file \"" + fname + "\" (" + e + ")";
 		Message.printWarning(3, routine, message );
 		Message.printWarning(3, routine, e );
         throw new IOException ( message );
+	}
+	finally {
+        if ( in != null ) {
+            try {
+                in.close();
+            }
+            catch ( IOException e ) {
+                // Don't do anything.
+            }
+        }
 	}
 
 	return TSList;
@@ -768,12 +726,10 @@ throws IOException {
 
 /**
 Read one or more time series from a file.
-It will read all the traces from a NWS Card Trace file or a single time series
-from a NWS Card file. 
+It will read all the traces from a NWS Card Trace file or a single time series from a NWS Card file. 
 This private method overload is called from the public overload versions
 returning a single time series and a vector of time series, where the 
-BufferedReader object is instantiated and additional post processing are still
-performed.
+BufferedReader object is instantiated and additional post processing are still performed.
 @return a vector containing reference to one or more time series (or null in 
 case of problems) when processing a NWS Card or a NWS Card Trace file.
 @param is_nwsCardTrace flag indicating that the file is to be read as a NWS Card
@@ -807,8 +763,7 @@ throws IOException {
 // refactored, e.g., adding of time series to the list
 /**
 Read one or more time series from a file.
-It will read all the traces from a NWS Card Trace file or a single time series
-from a NWS Card file. 
+It will read all the traces from a NWS Card Trace file or a single time series from a NWS Card file. 
 This private method overload is called from the public overload versions
 returning a single time series and a vector of time series, where the 
 BufferedReader object is instantiated and additional post processing are still performed.
@@ -832,8 +787,7 @@ read the entire time series).  If specified, the precision must be to hour.
 read the entire time series).  If specified, the precision must be to hour.
 @param req_units Units to convert to (currently ignored).
 @param read_data Indicates whether data should be read (false=no, true=yes).
-@param props properties to control how the file is read.  Recognized 
-properties are:<p>
+@param props properties to control how the file is read.  Recognized properties are:<p>
 <table>
 <tr>
 <td><b>Property Name</b></td>
@@ -1383,7 +1337,7 @@ throws IOException
     
     				break;	// last line of header
     			}
-		    }  // End of the Internal while  (header1 and header2)
+		    }  // End of the internal while  (header1 and header2)
 		}
 		catch ( Exception e ) {
 			msg = "Error processing line " + line_count + ": \"" + string + "\"";
@@ -1393,6 +1347,13 @@ throws IOException
 		}
 
 		// Declare the time series of the proper type based on the interval.
+		
+        if ( Read24HoursAsDay_boolean && (hourMultiplier != 24) ) {
+            msg = "Requesting that data be read as daily but time series interval (" +
+            hourMultiplier + ") is not 24.";
+            Message.printWarning ( 2, routine, msg);
+            throw new IOException ( msg );
+        }
 
 		TSIdent ident = null;
 		int data_interval_base = -1;
