@@ -2383,11 +2383,9 @@ public TS readTimeSeries (String tsident_string, DateTime req_date1,
 	TSIdent tsident = new TSIdent(tsident_string);
 	input_type = tsident.getInputType();
 
-	TS ts = null;
 	filename = tsident.getInputName();
 	NWSRFS_ESPTraceEnsemble espTE = new NWSRFS_ESPTraceEnsemble(filename,read_data,true);
-	ts.allocateDataSpace();
-	ts = new HourTS(espTE.__ts[0]); // This currently pulls the first trace
+	TS ts = new HourTS(espTE.__ts[0]); // This currently pulls the first trace
 
 	Message.printStatus(2,routine,"tsident_string = "+tsident_string+
 		"\nfilename = "+filename+"input type = "+input_type);
