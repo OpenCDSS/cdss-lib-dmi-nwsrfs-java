@@ -79,7 +79,7 @@ throws IOException
 	f = new LineNumberReader( new InputStreamReader( IOUtil.getInputStream ( _filename )));
 	String line;
   int modLineStart = 1; // Line # for start of mod
-	Vector modstrings= new Vector();
+	List modstrings= new Vector();
   boolean inMod = false;
 	/*
 	 * Scan for mod, all mods begin w/ dot
@@ -133,10 +133,10 @@ throws IOException
 
 } // eof read
 
-private void emitMod(Vector modStrings, int line)
+private void emitMod(List modStrings, int line)
 {
   // Only able to process TSCHNG mods so...
-  if (!((String)modStrings.elementAt(0)).startsWith(".TSCHNG")) 
+  if (!((String)modStrings.get(0)).startsWith(".TSCHNG")) 
     {
       return;
     }

@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// NWSRFS_USERPARM - class to contain the operational forecast syste user
+// NWSRFS_USERPARM - class to contain the operational forecast system user
 //				parameters (FS5Files USERPARM records)
 //------------------------------------------------------------------------------
 // History:

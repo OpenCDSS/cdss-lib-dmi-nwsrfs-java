@@ -25,7 +25,9 @@ import java.awt.event.MouseListener;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
+
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -241,7 +243,7 @@ Reads the data for all the stations from the database and returns a Vector
 of station objects.
 @return a Vector station objects.  This Vector will never be null.
 */
-private Vector readStations() {
+private List readStations() {
 	String routine = "NWSRFS_Main_JFrame.createStationList()";
 
 	NWSRFS_DMI dmi = __nwsrfs.getDMI();	
@@ -263,14 +265,14 @@ private Vector readStations() {
 	// pull the IDs out of the hash table in whatever order they're in
 	// and put them in a separate Vector -- this Vector is going to 
 	// be sorted
-	Vector stationIDs = new Vector();
+	List stationIDs = new Vector();
 	for (Enumeration e = hash.keys(); e.hasMoreElements();) {
 		stationID = (String)e.nextElement();
 		stationIDs.add(stationID);
 	}
 
 	// take the Vector of station IDs and sort it alphabetically.
-	Vector sortedStationIDs = StringUtil.sortStringList(stationIDs);
+	List sortedStationIDs = StringUtil.sortStringList(stationIDs);
 
 	// iterate through the sorted station ID list and use the station 
 	// IDs to pull out station objects from the hash table
@@ -278,10 +280,10 @@ private Vector readStations() {
 
 	Message.printStatus(1, "", "The tree will be built for " + size + " stations.");
 	
-	Vector data = new Vector();
+	List data = new Vector();
 
 	for (int i = 0; i < size; i++) {
-		stationID = (String)sortedStationIDs.elementAt(i);
+		stationID = (String)sortedStationIDs.get(i);
 
 		station = (NWSRFS_Station) hash.get(stationID);
 		if (station == null) {	

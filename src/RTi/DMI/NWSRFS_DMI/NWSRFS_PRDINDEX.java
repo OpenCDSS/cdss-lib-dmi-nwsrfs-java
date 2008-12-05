@@ -10,13 +10,14 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
 The NWSRFS_PRDINDEX - class to contain the processed database record 
 pointers and is used to increase performance in reading the file PRDTSn 
 by retrieving the record number for a specific parameter used in that file. 
-This class reads and stores data from the PRDINDEX preprocessor parameteric 
+This class reads and stores data from the PRDINDEX preprocessor parametric 
 database file; it stores the entire contents of PRDINDEX in this object. The 
 PRDINDEX database file has the following definition:
 <pre>
@@ -66,18 +67,18 @@ public class NWSRFS_PRDINDEX {
 /**
 The Time Series ID
 */
-protected Vector _TSID; 
+protected List _TSID; 
 
 /**
 The Time Series Data Type.
 */
-protected Vector _TSDataType; 
+protected List _TSDataType; 
 
 /**
 The Record Number in the PRDTSn file containing 
 the Time Series data.
 */
-protected Vector _IREC; 
+protected List _IREC; 
 
 /**
 Constructor.
@@ -144,7 +145,7 @@ public void finalize() {
 Returns the Vector of record numbers.
 @return the Vector of record numbers.
 */
-public Vector getIREC() {
+public List getIREC() {
 	return _IREC;
 }
 
@@ -154,14 +155,14 @@ Return the Record Number at an index.
 @return the Record Number at an index.
 */
 public int getIREC(int index) {
-	return ((Integer)_IREC.elementAt(index)).intValue();
+	return ((Integer)_IREC.get(index)).intValue();
 }
 
 /**
 Returns the Vector of Data Types.
 @return the Vector of Data Types.
 */
-public Vector getTSDT() {
+public List getTSDT() {
 	return _TSDataType;
 }
 
@@ -171,14 +172,14 @@ Return the Data Type at an index.
 @return the Data Type at an index.
 */
 public String getTSDT(int index) {
-	return (String)_TSDataType.elementAt(index);
+	return (String)_TSDataType.get(index);
 }
 
 /**
 Returns the Vector of Time Series Identifiers.
 @return the Vector of Time Series Identifiers.
 */
-public Vector getTSID() {
+public List getTSID() {
 	return _TSID;
 }
 
@@ -188,7 +189,7 @@ Return the Time Series ID at an index.
 @return the Time Series ID at an index.
 */
 public String getTSID(int index) {
-	return (String)_TSID.elementAt(index);
+	return (String)_TSID.get(index);
 }
 
 /**

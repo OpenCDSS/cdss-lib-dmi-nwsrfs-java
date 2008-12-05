@@ -12,6 +12,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -191,7 +192,7 @@ protected int _orrsNSTA;
 /**
 ORRS record numbers of RRS parameters in the PPDB.
 */
-protected Vector _orrsIREC;
+protected List _orrsIREC;
 
 /**
 Constructor.
@@ -211,7 +212,7 @@ for RRS parameters in PPDB.
 @param orrsIRECNum ORRS recoird number.
 */
 public void addORRSIREC(int orrsIRECNum) {
-	_orrsIREC.addElement(new Integer(orrsIRECNum));
+	_orrsIREC.add(new Integer(orrsIRECNum));
 }
 
 /**
@@ -266,7 +267,7 @@ public int getORRSNSTA() {
 Returns the Vector of the ORRS record numbers for RRS parameters in PPDB.
 @return the Vector of the ORRS record numbers.
 */
-public Vector getORRSIREC() {
+public List getORRSIREC() {
 	return _orrsIREC;
 }
 
@@ -277,7 +278,7 @@ at an index.
 @return the Vector of the ORRS record numbers at an index.
 */
 public int getORRSIREC(int orrsIRECIndex) {
-	return (int)((Integer)_orrsIREC.elementAt(orrsIRECIndex)).intValue();
+	return (int)((Integer)_orrsIREC.get(orrsIRECIndex)).intValue();
 }
 
 /**

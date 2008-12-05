@@ -15,6 +15,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_CarryoverGroup;
@@ -170,12 +171,12 @@ protected String _FGID;
 /**
 Segments in the Forecast Group.
 */
-private Vector	__segment = new Vector();
+private List	__segment = new Vector();
 
 /**
 Segment IDs in the Forecast Group.
 */
-private Vector	__segmentID = new Vector();
+private List	__segmentID = new Vector();
 
 /**
 Constructor.  Initializes with no segment groups or parent.
@@ -211,7 +212,7 @@ Add an NWSRFS_Segment to the NWSRFS_ForecastGroup.
 @param seg NWSRFS_Segment to add.
 */
 public void addSegment(NWSRFS_Segment seg) {
-	__segment.addElement(seg);
+	__segment.add(seg);
 }
 
 /**
@@ -219,7 +220,7 @@ Add a Segment ID to the NWSRFS_ForecastGroup.
 @param segID Segment ID to add.
 */
 public void addSegmentID(String segID) {
-	__segmentID.addElement(segID);
+	__segmentID.add(segID);
 }
 
 /**
@@ -368,7 +369,7 @@ Return the Segment at an index.
 @return the Segment at an index.
 */
 public NWSRFS_Segment getSegment(int index) {
-	return (NWSRFS_Segment)__segment.elementAt(index);
+	return (NWSRFS_Segment)__segment.get(index);
 }
 
 /**
@@ -380,7 +381,7 @@ public NWSRFS_Segment getSegment (String segid) {
 	int size = __segment.size();
 	NWSRFS_Segment seg = null;
 	for (int i = 0; i < size; i++) {
-		seg = (NWSRFS_Segment)__segment.elementAt(i);
+		seg = (NWSRFS_Segment)__segment.get(i);
 		if (seg.getSegID().equalsIgnoreCase(segid)) {
 			return seg;
 		}
@@ -389,10 +390,10 @@ public NWSRFS_Segment getSegment (String segid) {
 }
 
 /**
-Return the Segements groups.  This is guaranteed to be non-null.
-@return the list of Segements.
+Return the Segments groups.  This is guaranteed to be non-null.
+@return the list of Segments.
 */
-public Vector getSegments() {
+public List getSegments() {
 	return __segment;
 }
 
@@ -402,14 +403,14 @@ Return the Segment ID at an index.
 @return the Segment ID at an index.
 */
 public String getSegmentID(int index) {
-	return (String)__segmentID.elementAt(index);
+	return (String)__segmentID.get(index);
 }
 
 /**
-Return the Segement IDs.
-@return the list of Segement IDs.
+Return the Segment IDs.
+@return the list of Segment IDs.
 */
-public Vector getSegmentIDs() {
+public List getSegmentIDs() {
 	return __segmentID;
 }
 

@@ -14,6 +14,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_ForecastGroup;
@@ -273,12 +274,12 @@ protected String _CGNAME;
 /**
 Forecast group IDs in the Carryover Group.
 */
-private Vector	__fgID = null;
+private List	__fgID = null;
 
 /**
 Forecast group objects in the Carryover Group.
 */
-private Vector	__forecast_groups = null;
+private List	__forecast_groups = null;
 
 /**
 Constructor.  Initializes to have no forecast groups and no carryover group id.
@@ -304,7 +305,7 @@ Adds an NWSRFS_ForecastGroup to the NWSRFS_CarryoverGroup.
 @param fg NWSRFS_ForecastGroup to add.
 */
 public void addForecastGroup(NWSRFS_ForecastGroup fg) {
-	__forecast_groups.addElement(fg);
+	__forecast_groups.add(fg);
 }
 
 /**
@@ -312,7 +313,7 @@ Adds a ForecastGroup ID to the NWSRFS_CarryoverGroup.
 @param fgID ForecastGroup ID to add.
 */
 public void addForecastGroupID(String fgID) {	
-	__fgID.addElement(fgID);
+	__fgID.add(fgID);
 }
 
 /**
@@ -343,7 +344,7 @@ The dates will be at hour 12 Z time.
 Debug information is printed during this method at Debug levels of 2, 3, and 6.
 @return Vector of carryover dates as DateTime objects, guaranteed to be non-null.
 */
-public Vector getCarryoverDates()
+public List getCarryoverDates()
 {
 	String routine = "NWSRFS_CarryoverGroup.getCarryoverDates";
 	int num = _ICODAY.length;
@@ -355,7 +356,7 @@ public Vector getCarryoverDates()
 	int julianDay = -999;
 	int julianHour = -999;
 	DateTime date = null;
-	Vector v = new Vector();
+	List v = new Vector();
 	for (int i = 0; i < num; i++) {
 		julianDay = _ICODAY[i];
 		julianHour = _ICOTIM[i];
@@ -381,7 +382,7 @@ public Vector getCarryoverDates()
 				Message.printDebug(3, routine,
 						"Carryover date at position + " + i + " is: \"" + date + "\"");
 			}
-			v.addElement(date);
+			v.add(date);
 		}
 	}
 	return v;
@@ -432,7 +433,7 @@ public NWSRFS_ForecastGroup getForecastGroup(int index) {
 	if(index >= __forecast_groups.size())
 		return null;
 	
-	return (NWSRFS_ForecastGroup)__forecast_groups.elementAt(index);
+	return (NWSRFS_ForecastGroup)__forecast_groups.get(index);
 }
 
 /**
@@ -446,7 +447,7 @@ public NWSRFS_ForecastGroup getForecastGroup(String fgid) {
 	int size = __forecast_groups.size();
 	NWSRFS_ForecastGroup fg = null;
 	for (int i = 0; i < size; i++) 	{
-		fg = (NWSRFS_ForecastGroup)__forecast_groups.elementAt(i);
+		fg = (NWSRFS_ForecastGroup)__forecast_groups.get(i);
 		if (fg.getFGID().equalsIgnoreCase(fgid)) {
 			return fg;
 		}
@@ -461,7 +462,7 @@ __fgID.size().
 @return the Forecast Group ID at an index.
 */
 public String getForecastGroupID(int index) {
-	return (String)__fgID.elementAt(index);
+	return (String)__fgID.get(index);
 }
 
 /**
@@ -469,7 +470,7 @@ Returns the Vector of forecast group IDs in this carryover group.  Guaranteed to
 be non-null.
 @return the Vector of forecast group IDs in this carryover group.
 */
-public Vector getForecastGroupIDs() {
+public List getForecastGroupIDs() {
 	return __fgID;
 }
 
@@ -478,7 +479,7 @@ Returns the Vector of forecast groups in this carryover group.  Guaranteed to
 be non-null.
 @return the Vector of forecast groups in this carryover group.
 */
-public Vector getForecastGroups() {
+public List getForecastGroups() {
 	return __forecast_groups;
 }
 

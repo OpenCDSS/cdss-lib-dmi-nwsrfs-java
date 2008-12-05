@@ -120,6 +120,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.filechooser.FileFilter;
@@ -158,55 +159,55 @@ now, the samples are compiled into the code to make absolutely sure that the
 programmer knows what sample is supported.
 @return Sample file contents.
 */
-public static Vector getSample ()
-{	Vector	s = new Vector ( 50 );
-	s.addElement ( "#NWSCard" );
-	s.addElement ( "#" );
-	s.addElement ( "# This is an example of a typical National Weather Service (NWS) CARD format");
-	s.addElement ( "# time series, which can be used for hourly data (1-24 hours).  This format");
-	s.addElement ( "# is commonly used by the NWS.  The NWS Card file uses hours 1 to 24 whereas");
-	s.addElement ( "# in-memory time series storage uses 0-23.  The translation of date/times");
-	s.addElement ( "# from the CARD file to in-memory time series occurs as follows as the file" );
-	s.addElement ( "# is read (using a single 31-day month).  The inverse occurs when writing.");
-	s.addElement ( "#" );
-	s.addElement ( "# Data     | CARD         | Time Series | CARD          | Time Series" );
-	s.addElement ( "# Interval | Start        | Start       | End           | End" );
-	s.addElement ( "# ---------|--------------|-------------|---------------|--------------------" );
-	s.addElement ( "# 6-Hour   | Day 1, Hr 6  | Day 1, Hr 6 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
-	s.addElement ( "# 24-Hour  | Day 1, Hr 24 | Day 2, Hr 0 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
-	s.addElement ( "#" );
-	s.addElement ( "# If, for example, a DateValue time series is read and then is written as a" );
-	s.addElement ( "# CARD file, then use a 1Day interval DateValue file and don't specify hour" );
-	s.addElement ( "# in the dates, OR, use an hourly file and specify hours in the date/times." );
-	s.addElement ( "# Otherwise, the precision of the input data may not translate correctly." );
-	s.addElement ( "#" );
-	s.addElement ( "# An example file is as follows and conforms to the following guidelines:");
-	s.addElement ( "# * Only one time series per file." );
-	s.addElement ( "# * The sequence number in data lines (field 3) has a maximum value of 9999.");
-	s.addElement ( "# * Full months are included, with missing values as needed." );
-	s.addElement ( "# * See the header below for more information." );
-	s.addElement ( "# * Data are fixed format." );
-	s.addElement ( "# * Comments in the file start with $ (these #-comments are for illustration");
-	s.addElement ( "#   only." );
-	s.addElement ( "# * Data lines are printed using the specified format." );
-	s.addElement ( "# * Data lines have station, month, year (2 digit), count, data values." );
-	s.addElement ( "#" );
-	s.addElement ( "$  IDENTIFIER=STATIONX       DESCRIPTION=RIVER Y BELOW Z     " );
-	s.addElement ( "$  PERIOD OF RECORD=08/1978 THRU 11/1995" );
-	s.addElement ( "$  SYMBOL FOR MISSING DATA=-999.00   SYMBOL FOR ACCUMULATED DATA=-998.00" );
-	s.addElement ( "$  TYPE=SQIN   UNITS=CMS    DIMENSIONS=L3/T   DATA TIME INTERVAL= 6 HOURS" );
-	s.addElement ( "$  OUTPUT FORMAT=(3A4,2I2,I4,6F10.2)             " );
-	s.addElement ( "DATACARD      SQIN L3/T CMS   6    26433                                  " );
-	s.addElement ( " 8  1984 10   1984  6   F10.2       " );
-	s.addElement ( "STATIONX     884   1     91.66     88.95     86.24     83.53     81.14     78.74" );
-	s.addElement ( "STATIONX     884   2     76.35     73.96     73.00     72.04     71.07     70.11" );
-	s.addElement ( "..." );
-	s.addElement ( "STATIONX     884  20    299.88    296.23    273.81    251.39    228.97    206.55" );
-	s.addElement ( "STATIONX     884  21    192.56    178.56    164.57    150.57" );
-	s.addElement ( "STATIONX     984   1    145.28    139.99    134.70    129.41    123.45    117.50" );
-	s.addElement ( "STATIONX     984   2    111.54    105.58    102.26     98.94     95.63     92.31" );
-	s.addElement ( "STATIONX     984   3    163.89    235.48    307.07    378.65   1032.13   1685.60" );
-	s.addElement ( "..." );
+public static List getSample ()
+{	List	s = new Vector ( 50 );
+	s.add ( "#NWSCard" );
+	s.add ( "#" );
+	s.add ( "# This is an example of a typical National Weather Service (NWS) CARD format");
+	s.add ( "# time series, which can be used for hourly data (1-24 hours).  This format");
+	s.add ( "# is commonly used by the NWS.  The NWS Card file uses hours 1 to 24 whereas");
+	s.add ( "# in-memory time series storage uses 0-23.  The translation of date/times");
+	s.add ( "# from the CARD file to in-memory time series occurs as follows as the file" );
+	s.add ( "# is read (using a single 31-day month).  The inverse occurs when writing.");
+	s.add ( "#" );
+	s.add ( "# Data     | CARD         | Time Series | CARD          | Time Series" );
+	s.add ( "# Interval | Start        | Start       | End           | End" );
+	s.add ( "# ---------|--------------|-------------|---------------|--------------------" );
+	s.add ( "# 6-Hour   | Day 1, Hr 6  | Day 1, Hr 6 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
+	s.add ( "# 24-Hour  | Day 1, Hr 24 | Day 2, Hr 0 | Day 31, Hr 24 | Mon 2, Day 1, Hr 0");
+	s.add ( "#" );
+	s.add ( "# If, for example, a DateValue time series is read and then is written as a" );
+	s.add ( "# CARD file, then use a 1Day interval DateValue file and don't specify hour" );
+	s.add ( "# in the dates, OR, use an hourly file and specify hours in the date/times." );
+	s.add ( "# Otherwise, the precision of the input data may not translate correctly." );
+	s.add ( "#" );
+	s.add ( "# An example file is as follows and conforms to the following guidelines:");
+	s.add ( "# * Only one time series per file." );
+	s.add ( "# * The sequence number in data lines (field 3) has a maximum value of 9999.");
+	s.add ( "# * Full months are included, with missing values as needed." );
+	s.add ( "# * See the header below for more information." );
+	s.add ( "# * Data are fixed format." );
+	s.add ( "# * Comments in the file start with $ (these #-comments are for illustration");
+	s.add ( "#   only." );
+	s.add ( "# * Data lines are printed using the specified format." );
+	s.add ( "# * Data lines have station, month, year (2 digit), count, data values." );
+	s.add ( "#" );
+	s.add ( "$  IDENTIFIER=STATIONX       DESCRIPTION=RIVER Y BELOW Z     " );
+	s.add ( "$  PERIOD OF RECORD=08/1978 THRU 11/1995" );
+	s.add ( "$  SYMBOL FOR MISSING DATA=-999.00   SYMBOL FOR ACCUMULATED DATA=-998.00" );
+	s.add ( "$  TYPE=SQIN   UNITS=CMS    DIMENSIONS=L3/T   DATA TIME INTERVAL= 6 HOURS" );
+	s.add ( "$  OUTPUT FORMAT=(3A4,2I2,I4,6F10.2)             " );
+	s.add ( "DATACARD      SQIN L3/T CMS   6    26433                                  " );
+	s.add ( " 8  1984 10   1984  6   F10.2       " );
+	s.add ( "STATIONX     884   1     91.66     88.95     86.24     83.53     81.14     78.74" );
+	s.add ( "STATIONX     884   2     76.35     73.96     73.00     72.04     71.07     70.11" );
+	s.add ( "..." );
+	s.add ( "STATIONX     884  20    299.88    296.23    273.81    251.39    228.97    206.55" );
+	s.add ( "STATIONX     884  21    192.56    178.56    164.57    150.57" );
+	s.add ( "STATIONX     984   1    145.28    139.99    134.70    129.41    123.45    117.50" );
+	s.add ( "STATIONX     984   2    111.54    105.58    102.26     98.94     95.63     92.31" );
+	s.add ( "STATIONX     984   3    163.89    235.48    307.07    378.65   1032.13   1685.60" );
+	s.add ( "..." );
 	return s;
 }
 
@@ -493,7 +494,7 @@ throws IOException
 	else {
 		// Dealing with NWS Card Trace file.
 		try {
-			Vector TSList = null;
+			List TSList = null;
 			
 			// Read all the time series in the file.
 			// REVISIT [LT 2005-05-18] This could be improved if the
@@ -510,7 +511,7 @@ throws IOException
 				int tsCount = TSList.size();
 				if ( tsCount != 0 ) {
 				    for ( int i = 0; i<tsCount; i++ ) {
-				    	ts = (TS) TSList.elementAt(i);
+				    	ts = (TS) TSList.get(i);
 				    	if ( tsident_string.equalsIgnoreCase ( ts.getIdentifierString() ) ) {
 				    	    break;
 				    	}
@@ -560,7 +561,7 @@ throws IOException
 	//String	routine = "NWSCardTS.readTimeSeries";
 
 	TS ts         = null;
-	Vector TSList = null;
+	List TSList = null;
 
 	// Read the time series.
 	// This version should return only one time series. When processing a 
@@ -576,7 +577,7 @@ throws IOException
 	// null and contains one element. Retrieve the element.
 	if ( TSList != null ) {
 		if ( TSList.size() != 0 ) {
-			ts = (TS) TSList.elementAt(0);
+			ts = (TS) TSList.get(0);
 		}
 	}
 
@@ -598,7 +599,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static Vector readTimeSeriesList ( String fname, DateTime req_date1, DateTime req_date2,
+public static List readTimeSeriesList ( String fname, DateTime req_date1, DateTime req_date2,
 					  String req_units, boolean read_data )
 throws IOException
 {
@@ -626,7 +627,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static Vector readTimeSeriesList ( TS req_ts, String fname, DateTime req_date1, DateTime req_date2,
+public static List readTimeSeriesList ( TS req_ts, String fname, DateTime req_date1, DateTime req_date2,
 					  String req_units, boolean read_data )
 throws IOException
 {
@@ -670,12 +671,12 @@ instead (True or False).</td>
 This parameter can be null, and if so, defaults to false.
 @exception IOException If an error occurs reading the file.
 */
-public static Vector readTimeSeriesList(TS req_ts, String fname,
+public static List readTimeSeriesList(TS req_ts, String fname,
 DateTime req_date1, DateTime req_date2, String req_units, boolean read_data,
 PropList props)
 throws IOException {
 	String routine = "NWSCardTS.readTimeSeriesList";
-	Vector TSList = null;
+	List TSList = null;
 
 	BufferedReader in = null;
 	try {
@@ -694,7 +695,7 @@ throws IOException {
 			int tsCount = TSList.size();
 			if (tsCount != 0) {
 				for (int i = 0; i<tsCount; i++) {
-					ts = (TS)TSList.elementAt(i);
+					ts = (TS)TSList.get(i);
 					
 					// Set some time series properties.
 					ts.setInputName(fname);
@@ -752,7 +753,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-private static Vector readTimeSeriesList ( boolean is_nwsCardTrace, TS req_ts, BufferedReader in,
+private static List readTimeSeriesList ( boolean is_nwsCardTrace, TS req_ts, BufferedReader in,
 					  DateTime req_date1, DateTime req_date2, String req_units, boolean read_data )
 throws IOException {
 	return readTimeSeriesList(is_nwsCardTrace, req_ts, in, req_date1,
@@ -804,7 +805,7 @@ instead (True or False).</td>
 This parameter can be null, and if so, defaults to false.
 @exception IOException If an error occurs reading the file.
 */
-private static Vector readTimeSeriesList(boolean is_nwsCardTrace,
+private static List readTimeSeriesList(boolean is_nwsCardTrace,
 TS req_ts, BufferedReader in, DateTime req_date1, DateTime req_date2, 
 String req_units, boolean read_data, PropList props)
 throws IOException
@@ -837,7 +838,7 @@ throws IOException
 	
 	// ...end of trace file only variables
 
-	Vector TSList = null; // Time series list to return
+	List TSList = null; // Time series list to return
 
 	String string = null; // Line read from the file
 	int	dl = 10; // Debug level
@@ -864,7 +865,7 @@ throws IOException
 	String location = "";
 	String units = "";
 	String fixed_format = "";	// Format to read data, using strings.
-	Vector tokens = null;
+	List tokens = null;
 	boolean	header1_found = false;
 	boolean header2_found = false;
 
@@ -1178,14 +1179,14 @@ throws IOException
                     int year2_file = 0;
                     String fformat = null;  // Format for the data line
     				if ( tokens.size() == 6 ) {
-    				    month1_file = StringUtil.atoi((String)tokens.elementAt(0));
-                        year1_file = StringUtil.atoi((String)tokens.elementAt(1));
-                        month2_file = StringUtil.atoi((String)tokens.elementAt(2));
-                        year2_file = StringUtil.atoi((String)tokens.elementAt(3));
+    				    month1_file = StringUtil.atoi((String)tokens.get(0));
+                        year1_file = StringUtil.atoi((String)tokens.get(1));
+                        month2_file = StringUtil.atoi((String)tokens.get(2));
+                        year2_file = StringUtil.atoi((String)tokens.get(3));
                         // Number of data values per line...
-                        ndpl = StringUtil.atoi( (String)tokens.elementAt(4) );
+                        ndpl = StringUtil.atoi( (String)tokens.get(4) );
                         // Format for the data line...
-                        fformat = (String)tokens.elementAt(5);
+                        fformat = (String)tokens.get(5);
     				}
     				else {
     				    if ( !is_nwsCardTrace ) {
@@ -1203,7 +1204,7 @@ throws IOException
     				        // Try to parse read fixed format...
     				        Message.printStatus(2, routine,
     				                "Non-standard NWS Card header 2 record found.  Trying to handle..." );
-    				        Vector v = StringUtil.fixedRead ( string, "i2x2i4i2x2i4i4s10" );
+    				        List v = StringUtil.fixedRead ( string, "i2x2i4i2x2i4i4s10" );
     				        month1_file = ((Integer)v.get(0)).intValue();
     				        year1_file = ((Integer)v.get(1)).intValue();
     				        month2_file = ((Integer)v.get(2)).intValue();
@@ -1464,7 +1465,7 @@ throws IOException
     	// Data may not be needed if reading header information only.
 		
 		if (!read_data) {
-		   	TSList.addElement(ts);
+		   	TSList.add(ts);
 
 		   	if ( is_nwsCardTrace ) {
 		  		// Make sure to skip all the data lines when processing NWS Card Trace files so that the
@@ -1594,7 +1595,7 @@ throws IOException
                     	catch (Exception e) {
                    			warning_count++;
                     	}    
-                    	TSList.addElement(ts);
+                    	TSList.add(ts);
                     	if ( string == null ) {
                     	    // At the end of the file.
                         	if (warning_count > 0) {
@@ -1625,7 +1626,7 @@ throws IOException
                     	if ( read_data ) {
                     	    readTimeSeriesList_ConvertDataUnits ( ts, req_units );
                     	}
-                    	TSList.addElement(ts);
+                    	TSList.add(ts);
                     	// Since we are processing NWS Card single time series file there is nothing else to do,
                     	// so just return the TSList with the single time series. 
                     	return TSList;
@@ -1659,7 +1660,7 @@ throws IOException
 
 				blanks = 0;
 				for ( i = 0; i < size; i++ ) {
-					otoken = tokens.elementAt(i);
+					otoken = tokens.get(i);
 					if ( (otoken == null) || (((String)otoken).trim().length()==0)) {
 						++blanks;
 					}
@@ -1689,7 +1690,7 @@ throws IOException
 			        // the time series period.
 					if( idate_ts.greaterThanOrEqualTo( date1_ts ) && idate_ts.lessThanOrEqualTo(date2_ts) ) {
 						// In the requested period so set the data...
-						token = ( (String)tokens.elementAt(i)).trim();
+						token = ( (String)tokens.get(i)).trim();
 						ts.setDataValue(idate_ts, StringUtil.atod(token));
 						if ( Message.isDebugOn ) {
 							Message.printDebug ( dl, routine, "Setting value at " + idate_ts + ": " + token );
@@ -1715,7 +1716,7 @@ throws IOException
 							warning_count++;
 						}		
 
-						TSList.addElement(ts);
+						TSList.add(ts);
 						if ( is_nwsCardTrace ) {
     						// Done with this time series. The next lines should be comments or EOF since dealing
     						// with with NWS Card Trace files. Reset the header flags back to false to force the

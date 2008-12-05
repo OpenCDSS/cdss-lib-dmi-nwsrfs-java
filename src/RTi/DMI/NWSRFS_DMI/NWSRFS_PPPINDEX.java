@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// NWSRFS_PPPINDEX - class to contain the parameteric preprocessor 
+// NWSRFS_PPPINDEX - class to contain the parametric preprocessor 
 // index/record pointers
 //------------------------------------------------------------------------------
 // History:
@@ -13,13 +13,14 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
-The NWSRFS_PPPINDEX - class to contain the preprocessor parameteric record 
+The NWSRFS_PPPINDEX - class to contain the preprocessor parametric record 
 pointers and is used to increase performance in reading the file PPPPARMn 
 by retrieving the record number for a specific parameter used in that file. 
-This class reads and stores data from the PPPINDEX preprocessor parameteric 
+This class reads and stores data from the PPPINDEX preprocessor parametric 
 database file; it stores the entire contents of PPPINDEX in this object. The 
 PPPINDEX database file has the following definition:
 <pre>
@@ -159,51 +160,51 @@ protected String _USERID;
 Record number of first parameter 
 record of this type.
 */
-protected Vector _FIRST;
+protected List _FIRST;
 
 /**
 Holds the record number of the associated parameter identifier in the 
 binary file PPPPARMn.
 */
-protected Vector _IREC;
+protected List _IREC;
 
 /**
 Single record type indicator:
   0 =  not a single record type
   1 = single record type
 */
-protected Vector _ISNGL;
+protected List _ISNGL;
 
 /**
 Record number of last parameter record of this type.
 */
-protected Vector _LAST;
+protected List _LAST;
 
 /**
 Logical unit assigned to file that contains the parameter type.
 */
-protected Vector _LUFILE;
+protected List _LUFILE;
 
 /**
 Number of parameter records of this type.
 */
-protected Vector _NUMPRM;
+protected List _NUMPRM;
 
 /**
 Holds all of the parameter identifiers.
 */
-protected Vector _ID;
+protected List _ID;
 
 /**
 Holds the parameter type of the associated parameter identifier in the 
 binary file PPPINDEX.
 */
-protected Vector _ITYPE;
+protected List _ITYPE;
 
 /**
 Holds the available parameter types.
 */
-protected Vector _PARMTP;
+protected List _PARMTP;
 
 /**
 Constructor.
@@ -231,7 +232,7 @@ public void addFIRST(Integer I) {
 	if (_FIRST == null) {
 		_FIRST = new Vector();
 	}
-	_FIRST.addElement(I);
+	_FIRST.add(I);
 }
 
 /**
@@ -250,7 +251,7 @@ public void addIREC(Integer I) {
 	if (_IREC == null) {
 		_IREC = new Vector();
 	}
-	_IREC.addElement(I);
+	_IREC.add(I);
 }
 
 /**
@@ -269,7 +270,7 @@ public void addISNGL(Integer I) {
 	if (_ISNGL == null) {
 		_ISNGL = new Vector();
 	}
-	_ISNGL.addElement(I);
+	_ISNGL.add(I);
 }
 
 /**
@@ -288,7 +289,7 @@ public void addLAST(Integer I) {
 	if (_LAST == null) {
 		_LAST = new Vector();
 	}
-	_LAST.addElement(I);
+	_LAST.add(I);
 }
 
 /**
@@ -307,7 +308,7 @@ public void addLUFILE(Integer I) {
 	if (_LUFILE == null) {
 		_LUFILE = new Vector();
 	}
-	_LUFILE.addElement(I);
+	_LUFILE.add(I);
 }
 
 /**
@@ -326,7 +327,7 @@ public void addNUMPRM(Integer I) {
 	if (_NUMPRM == null) {
 		_NUMPRM = new Vector();
 	}
-	_NUMPRM.addElement(I);
+	_NUMPRM.add(I);
 }
 
 /**
@@ -337,7 +338,7 @@ public void addID(String s) {
 	if (_ID == null) {
 		_ID = new Vector();
 	}
-	_ID.addElement(s);
+	_ID.add(s);
 }
 
 /**
@@ -348,7 +349,7 @@ public void addITYPE(String s) {
 	if (_ITYPE == null) {
 		_ITYPE = new Vector();
 	}
-	_ITYPE.addElement(s);
+	_ITYPE.add(s);
 }
 
 /**
@@ -359,7 +360,7 @@ public void addPARMTP(String s) {
 	if (_PARMTP == null) {
 		_PARMTP = new Vector();
 	}
-	_PARMTP.addElement(s);
+	_PARMTP.add(s);
 }
 
 /**
@@ -431,7 +432,7 @@ public String getUSERID() {
 Returns the Vector of record numbers of the first parameters.
 @return the Vector of record numbers of the first parameters.
 */
-public Vector getFIRST() {
+public List getFIRST() {
 	return _FIRST;
 }
 
@@ -441,31 +442,31 @@ Returns the record number of the first parameters at an index.
 @return the record number of the first parameters at an index.
 */
 public int getFIRST(int firstIndex) {
-	return (int)((Integer)_FIRST.elementAt(firstIndex)).intValue();
+	return (int)((Integer)_FIRST.get(firstIndex)).intValue();
 }
 
 /**
-Returns the Vector of record numbers of assocatied parameter identifiers.
-@return the Vector of record numbers of assocatied parameter identifiers.
+Returns the List of record numbers of associated parameter identifiers.
+@return the List of record numbers of associated parameter identifiers.
 */
-public Vector getIREC() {
+public List getIREC() {
 	return _IREC;
 }
 
 /**
-Returns the record number of the assocatied parameter identifiers at an index.
+Returns the record number of the associated parameter identifiers at an index.
 @param irecIndex the index of the _IREC data record to return
-@return the record number of the assocatied parameter identifiers at an index.
+@return the record number of the associated parameter identifiers at an index.
 */
 public int getIREC(int irecIndex) {
-	return (int)((Integer)_IREC.elementAt(irecIndex)).intValue();
+	return (int)((Integer)_IREC.get(irecIndex)).intValue();
 }
 
 /**
-Returns the Vector of single record type indicators.
-@return the Vector of single record type indicators.
+Returns the List of single record type indicators.
+@return the List of single record type indicators.
 */
-public Vector getISNGL() {
+public List getISNGL() {
 	return _ISNGL;
 }
 
@@ -475,14 +476,14 @@ Returns the single record type indicator at an index.
 @return the single record type indicator at an index.
 */
 public int getISNGL(int isnglIndex) {
-	return (int)((Integer)_ISNGL.elementAt(isnglIndex)).intValue();
+	return (int)((Integer)_ISNGL.get(isnglIndex)).intValue();
 }
 
 /**
-Returns the Vector of record numbers of last parameters.
-@return the Vector of record numbers of last parameters.
+Returns the List of record numbers of last parameters.
+@return the List of record numbers of last parameters.
 */
-public Vector getLAST() {
+public List getLAST() {
 	return _LAST;
 }
 
@@ -492,14 +493,14 @@ Returns the record number of the last parameter at an index.
 @return the record number of the last parameter at an index.
 */
 public int getLAST(int lastIndex) {
-	return (int)((Integer)_LAST.elementAt(lastIndex)).intValue();
+	return (int)((Integer)_LAST.get(lastIndex)).intValue();
 }
 
 /**
-Returns the Vector of logical units assigned to files.
-@return the Vector of logical units assigned to files.
+Returns the List of logical units assigned to files.
+@return the List of logical units assigned to files.
 */
-public Vector getLUFILE() {
+public List getLUFILE() {
 	return _LUFILE;
 }
 
@@ -509,14 +510,14 @@ Returns the logical units assigned to files at an index.
 @return the logical units assigned to files at an index.
 */
 public int getLUFILE(int lufileIndex) {
-	return (int)((Integer)_LUFILE.elementAt(lufileIndex)).intValue();
+	return (int)((Integer)_LUFILE.get(lufileIndex)).intValue();
 }
 
 /**
-Returns the Vector of the number of parameter records.
-@return the Vector of the number of parameter records.
+Returns the List of the number of parameter records.
+@return the List of the number of parameter records.
 */
-public Vector getNUMPRM() {
+public List getNUMPRM() {
 	return _NUMPRM;
 }
 
@@ -526,14 +527,14 @@ Returns the number of parameter records at an index.
 @return the number of parameter records at an index.
 */
 public int getNUMPRM(int numprmIndex) {
-	return (int)((Integer)_NUMPRM.elementAt(numprmIndex)).intValue();
+	return (int)((Integer)_NUMPRM.get(numprmIndex)).intValue();
 }
 
 /**
-Returns the Vector of the parameter identifiers.
-@return the Vector of the parameter identifiers.
+Returns the List of the parameter identifiers.
+@return the List of the parameter identifiers.
 */
-public Vector getID() {
+public List getID() {
 	return _ID;
 }
 
@@ -543,14 +544,14 @@ Returns the parameter identifier at an index.
 @return the parameter identifier at an index.
 */
 public String getID(int idIndex) {
-	return (String)_ID.elementAt(idIndex);
+	return (String)_ID.get(idIndex);
 }
 
 /**
-Returns the Vector of parameter types of the associated parameter identifiers.
-@return the Vector of parameter types of the associated parameter identifiers.
+Returns the List of parameter types of the associated parameter identifiers.
+@return the List of parameter types of the associated parameter identifiers.
 */
-public Vector getITYPE() {
+public List getITYPE() {
 	return _ITYPE;
 }
 
@@ -560,14 +561,14 @@ Returns the record number of the assocatied parameter identifiers at an index.
 @return the record number of the assocatied parameter identifiers at an index.
 */
 public String getITYPE(int itypeIndex) {
-	return (String)_ITYPE.elementAt(itypeIndex);
+	return (String)_ITYPE.get(itypeIndex);
 }
 
 /**
-Returns the Vector of available parameter types.
-@return the Vector of available parameter types.
+Returns the List of available parameter types.
+@return the List of available parameter types.
 */
-public Vector getPARMTP() {
+public List getPARMTP() {
 	return _PARMTP;
 }
 
@@ -577,7 +578,7 @@ Returns the record number of the available parameter types at an index.
 @return the record number of the available parameter types at an index.
 */
 public String getPARMTP(int parmtpIndex) {
-	return (String)_PARMTP.elementAt(parmtpIndex);
+	return (String)_PARMTP.get(parmtpIndex);
 }
 
 /**

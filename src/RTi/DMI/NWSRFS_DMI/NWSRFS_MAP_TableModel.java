@@ -9,6 +9,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.Util.GUI.JWorksheet_AbstractRowTableModel;
@@ -35,7 +36,7 @@ public static final int
 Constructor.  
 @param maps the map areas that will be displayed in the table.
 */
-public NWSRFS_MAP_TableModel(Vector maps) {
+public NWSRFS_MAP_TableModel(List maps) {
 	if (maps == null) {
 		_data = new Vector();
 	}
@@ -101,8 +102,7 @@ public int getRowCount() {
 }
 
 /**
-From AbstractTableMode.  Returns the data that should be placed in the JTable
-at the given row and column.
+From AbstractTableMode.  Returns the data that should be placed in the JTable at the given row and column.
 @param row the row for which to return data.
 @param col the column for which to return data.
 @return the data that should be placed in the JTable at the given row and col.
@@ -112,7 +112,7 @@ public Object getValueAt(int row, int col) {
 		row = _sortOrder[row];
 	}
 
-	NWSRFS_MAP map = (NWSRFS_MAP)_data.elementAt(row);
+	NWSRFS_MAP map = (NWSRFS_MAP)_data.get(row);
 
 	switch (col) {
 		case COL_MAP:	return map.getID();

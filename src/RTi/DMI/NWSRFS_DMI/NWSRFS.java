@@ -54,6 +54,7 @@
 package RTi.DMI.NWSRFS_DMI;
 
 import java.lang.OutOfMemoryError;
+import java.util.List;
 import java.util.Vector;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_CarryoverGroup;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_DMI;
@@ -71,7 +72,7 @@ public class NWSRFS {
 /**
 Carryover groups in the NWSRFS (list of NWSRFS_CarryoverGroup).
 */
-private Vector __carryover_groups = new Vector();
+private List __carryover_groups = new Vector();
 
 /**
 The DMI object used in this NWSRFS instance.
@@ -92,7 +93,7 @@ Add an NWSRFSCarryoverGroup to the NWSRFS.
 */
 public void addCarryoverGroup ( NWSRFS_CarryoverGroup cg )
 {
-	__carryover_groups.addElement ( cg );
+	__carryover_groups.add ( cg );
 }
 
 /**
@@ -135,8 +136,8 @@ throws Exception
 	NWSRFS nwsrfs = new NWSRFS();
 	NWSRFS_CarryoverGroup cg  = null;
 	NWSRFS_ForecastGroup  fg  = null;
-	Vector cgIDs;
-	Vector fgIDs;
+	List cgIDs;
+	List fgIDs;
 
 	try
 	{
@@ -158,7 +159,7 @@ throws Exception
 			try
 			{
 				// Get the full carryover group
-				cg = dmi.readCarryoverGroup((String)cgIDs.elementAt(cgIndex), deepRead);
+				cg = dmi.readCarryoverGroup((String)cgIDs.get(cgIndex), deepRead);
 
 				// Get forecast groups
 				fgIDs = new Vector();
@@ -179,13 +180,12 @@ throws Exception
 					try
 					{
 					// Check to see if the FG ID is "OBSOLETE". If so skip.
-					if(fgIDs.elementAt(fgIndex) == null || 
-					((String)fgIDs.elementAt(fgIndex)).equalsIgnoreCase("OBSOLETE")) {
+					if(fgIDs.get(fgIndex) == null || ((String)fgIDs.get(fgIndex)).equalsIgnoreCase("OBSOLETE")) {
 						continue;
 					}
 	
 					// Get the complete forecast group
-					fg = dmi.readForecastGroup((String)fgIDs.elementAt(fgIndex),deepRead);
+					fg = dmi.readForecastGroup((String)fgIDs.get(fgIndex),deepRead);
 
 					// Set the CG to be the FG parent
 					fg.setCarryoverGroup(cg);
@@ -237,7 +237,7 @@ Return the carryover group at an index.
 */
 public NWSRFS_CarryoverGroup getCarryoverGroup ( int index )
 {	
-	return (NWSRFS_CarryoverGroup)__carryover_groups.elementAt(index);
+	return (NWSRFS_CarryoverGroup)__carryover_groups.get(index);
 }
 
 /**
@@ -250,7 +250,7 @@ public NWSRFS_CarryoverGroup getCarryoverGroup ( String cgid )
 	int size = __carryover_groups.size();
 	NWSRFS_CarryoverGroup cg= null;
 	for ( int i = 0; i < size; i++ ) {
-		cg = (NWSRFS_CarryoverGroup)__carryover_groups.elementAt(i);
+		cg = (NWSRFS_CarryoverGroup)__carryover_groups.get(i);
 		if ( cg.getCGID().equalsIgnoreCase(cgid) ) {
 			return cg;
 		}
@@ -263,7 +263,7 @@ public NWSRFS_CarryoverGroup getCarryoverGroup ( String cgid )
 Return the carryover groups.  This is guaranteed to be non-null.
 @return the list of carryover groups as NWSRFS_CarryoverGroup.
 */
-public Vector getCarryoverGroups()
+public List getCarryoverGroups()
 {
 	return __carryover_groups;
 }

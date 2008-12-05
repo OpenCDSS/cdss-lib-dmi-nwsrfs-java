@@ -12,6 +12,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.Util.GUI.InputFilter;
@@ -30,12 +31,12 @@ for time series queries.  This is used by TSTool.
 */
 public NWSRFS_TS_InputFilter_JPanel ()
 throws Exception
-{	Vector input_filters = new Vector(2);
-	input_filters.addElement ( new InputFilter (
+{	List input_filters = new Vector(2);
+	input_filters.add ( new InputFilter (
 		"", "",
 		StringUtil.TYPE_STRING,
 		null, null, true ) );	// Blank to disable filter
-	input_filters.addElement ( new InputFilter (
+	input_filters.add ( new InputFilter (
 		"ID", "ID",
 		StringUtil.TYPE_STRING,
 		null, null, true ) );

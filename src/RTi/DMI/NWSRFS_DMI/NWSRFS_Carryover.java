@@ -13,6 +13,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Segment;
@@ -203,7 +204,7 @@ protected String _opName;
 /**
 Holds the Carryover values for the Operation (often called the CO array).
 */
-protected Vector _coCarryoverValues;
+protected List _coCarryoverValues;
 
 /**
 Constructor.
@@ -243,7 +244,7 @@ throws Throwable {
 Returns the carryover values for the operation.
 @return the carryover values for the operation.
 */
-public Vector getCoCarryoverValues() {
+public List getCoCarryoverValues() {
 	return _coCarryoverValues;
 }
 
@@ -348,7 +349,7 @@ private void initialize() {
 Sets the carryover values for the operation.
 @param coCarryoverValues the carryover values for the operation.
 */
-public void setCoCarryoverValues(Vector coCarryoverValues) {
+public void setCoCarryoverValues(List coCarryoverValues) {
 	_coCarryoverValues = coCarryoverValues;
 }
 

@@ -20,6 +20,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Carryover;
@@ -150,12 +151,12 @@ private String __segmentID;
 /**
 Carryover in the Segment.
 */
-private Vector	__carryover;
+private List	__carryover;
 
 /**
 Operations in the Segment.
 */
-private Vector	__operations;
+private List	__operations;
 
 /**
 Latitude in degrees and decimal degrees.
@@ -297,7 +298,7 @@ is defined on this Segment object in a specific carryover slot.
 @param co A NWSRFS_Carryover object to add to the segment.
 */
 public void addCarryover(NWSRFS_Carryover co) {
-		__carryover.addElement( co );
+		__carryover.add( co );
 }
 
 /**
@@ -306,7 +307,7 @@ is defined on this Segment object.
 @param op A NWSRFS_Operation object to add to the segment.
 */
 public void addOperation(NWSRFS_Operation op) {
-		__operations.addElement( op );
+		__operations.add( op );
 }
 
 /**
@@ -334,7 +335,7 @@ throws Throwable {
 Return the Carryover.
 @return the Vector of Carryover objects in the Segment.
 */	
-public Vector getCarryover() {
+public List getCarryover() {
 	return __carryover;
 }
 
@@ -344,7 +345,7 @@ Return the Carryover at an index.
 @return the Carryover object at an index.
 */
 public NWSRFS_Carryover getCarryover(int index) {
-	return (NWSRFS_Carryover)__carryover.elementAt(index);
+	return (NWSRFS_Carryover)__carryover.get(index);
 }
 
 /**
@@ -526,7 +527,7 @@ public int getNumberOfOperations() {
 Returns the Operations.
 @return the Vector of Operation objects.
 */	
-public Vector getOperations() {
+public List getOperations() {
 	return __operations;
 }
 
@@ -536,20 +537,20 @@ Return the Operation at an index.
 @return the Operation at an index.
 */
 public NWSRFS_Operation getOperation(int index) {
-	return (NWSRFS_Operation)__operations.elementAt(index);
+	return (NWSRFS_Operation)__operations.get(index);
 }
 
 /**
 Return the Operation matching the Operation identifier or null if not found.
 @param sysid Operation system identifier.
 @param userid Operation user identifier.
-@return the Operation matching the identifer.
+@return the Operation matching the identifier.
 */	
 public NWSRFS_Operation getOperation(String sysid, String userid) {
 	int size = __operations.size();
 	NWSRFS_Operation op= null;
 	for (int i = 0; i < size; i++) {
-		op = (NWSRFS_Operation)__operations.elementAt(i);
+		op = (NWSRFS_Operation)__operations.get(i);
 		if (	op.getSystemID().equalsIgnoreCase(sysid) 
 			&& op.getUserID().equalsIgnoreCase(userid)) {
 			return op;

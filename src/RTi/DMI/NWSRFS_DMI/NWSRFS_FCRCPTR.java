@@ -14,6 +14,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -85,12 +86,12 @@ protected int _NRC;
 The Vector holding the record number of the associated rating curve 
 identifier in the binary file FCRATING.
 */
-protected Vector _IREC;
+protected List _IREC;
 
 /**
 The vector holding all of the rating curve identifiers.
 */
-protected Vector _RCID;
+protected List _RCID;
 
 /**
 Constructor.
@@ -172,7 +173,7 @@ identifier in the binary file FCRATING.
 @return the Vector holding the record number of the associated rating curve
 identifier in the binary file FCRATING.
 */
-public Vector getIREC() {
+public List getIREC() {
 	return _IREC;
 }
 
@@ -180,7 +181,7 @@ public Vector getIREC() {
 Returns the Vector holding all the rating curve identifiers.
 @return the Vector holding all the rating curve identifiers.
 */
-public Vector getRCID() {
+public List getRCID() {
 	return _RCID;
 }
 

@@ -22,7 +22,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import java.util.Vector;
+import java.util.List;
 
 import RTi.TS.TS;
 import RTi.TS.HourTS;
@@ -598,13 +598,13 @@ protected TS _observedTS;
 /**
 The String for TimeSeries additional information.
 */
-protected Vector _tsAddInformation;
+protected List _tsAddInformation;
 
 /**
 The String for external location information
 for TimeSeries and depends on type data file used.
 */
-protected Vector _tsExtLocInformation;
+protected List _tsExtLocInformation;
 
 /**
 Construct an NWSRFS_TimeSeries instance using TimeSeries identifier and data 
@@ -961,7 +961,7 @@ public String getSegmentID() {
 Returns additional time series information.
 @return additional time series information.
 */
-public Vector getTSAddInformation() {
+public List getTSAddInformation() {
 	return _tsAddInformation;
 }
 
@@ -1001,7 +1001,7 @@ public int getTSDTInterval() {
 Returns time series external location information.
 @return time series external location information.
 */
-public Vector getTSExtLocInformation() {
+public List getTSExtLocInformation() {
 	return _tsExtLocInformation;
 }
 
@@ -1471,7 +1471,7 @@ public void setSegmentID(String IDSEG) {
 Sets additional time series information.
 @param tsAddInformation additional time series information.
 */
-public void setTSAddInformation(Vector tsAddInformation) {
+public void setTSAddInformation(List tsAddInformation) {
 	_tsAddInformation = tsAddInformation;
 }
 
@@ -1511,7 +1511,7 @@ public void setTSDTInterval(int tsDTInterval) {
 Sets time series external location information.
 @param tsExtLocInformation time series external location information.
 */
-public void setTSExtLocInformation(Vector tsExtLocInformation) {
+public void setTSExtLocInformation(List tsExtLocInformation) {
 	_tsExtLocInformation = tsExtLocInformation;
 }
 

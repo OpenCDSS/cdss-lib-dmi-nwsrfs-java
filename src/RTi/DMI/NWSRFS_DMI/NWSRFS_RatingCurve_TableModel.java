@@ -10,6 +10,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.Util.GUI.JWorksheet_AbstractRowTableModel;
@@ -35,7 +36,7 @@ public static final int
 Constructor.  
 @param rcs the rating curves that will be displayed in the table.
 */
-public NWSRFS_RatingCurve_TableModel(Vector rcs) {
+public NWSRFS_RatingCurve_TableModel(List rcs) {
 	if (rcs == null) {
 		_data = new Vector();
 	}
@@ -99,8 +100,7 @@ public int getRowCount() {
 }
 
 /**
-From AbstractTableMode.  Returns the data that should be placed in the JTable
-at the given row and column.
+From AbstractTableMode.  Returns the data that should be placed in the JTable at the given row and column.
 @param row the row for which to return data.
 @param col the column for which to return data.
 @return the data that should be placed in the JTable at the given row and col.
@@ -110,7 +110,7 @@ public Object getValueAt(int row, int col) {
 		row = _sortOrder[row];
 	}
 
-	NWSRFS_RatingCurve rc = (NWSRFS_RatingCurve)_data.elementAt(row);
+	NWSRFS_RatingCurve rc = (NWSRFS_RatingCurve)_data.get(row);
 
 	switch (col) {
 		case COL_ID:	return rc.getRCID();

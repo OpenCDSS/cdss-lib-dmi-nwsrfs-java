@@ -135,6 +135,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.lang.Float;
+import java.util.List;
 import java.util.Vector;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Util;
@@ -795,7 +796,7 @@ the list.</td>
 </table>
 @exception Exception if there is an error constructing the ensemble.
 */
-public NWSRFS_ESPTraceEnsemble ( Vector tslist, PropList props ) 
+public NWSRFS_ESPTraceEnsemble ( List tslist, PropList props ) 
 throws Exception
 {	
 	String routine = "NWSRFS_ESPTraceEnsemble";
@@ -830,13 +831,13 @@ throws Exception
 	}
 	__ts = new HourTS[size];
 	for ( int i = 0; i < size; i++ ) {
-		if ( !(tslist.elementAt(i) instanceof HourTS) ) {
+		if ( !(tslist.get(i) instanceof HourTS) ) {
 			Message.printWarning ( 3, routine,
 			"ESP traces can only be hourly time series.  " +
 			"An attempt is being made to use time series with a different interval.");
 			throw new Exception ( "Other than Hour interval passed to ESP trace ensemble constructor.");
 		}
-		__ts[i] = (HourTS)tslist.elementAt(i);
+		__ts[i] = (HourTS)tslist.get(i);
 	}
 
 	// Transfer properties to internal data...
@@ -1143,10 +1144,10 @@ throws Exception
 
 	// Print the header in the order of the file (some get methods are not enabled)...
 
-	Vector header_strings = esp.getHeaderStrings ( null );
+	List header_strings = esp.getHeaderStrings ( null );
 	int size = header_strings.size();
 	for ( int i = 0; i < size; i++ ) {
-		out.println ( (String)header_strings.elementAt(i) );
+		out.println ( (String)header_strings.get(i) );
 	}
 	out.println (
 	"Note:  Output below has been converted from \"" + esp.getDataUnits() + " to \"" + out_units + "\"");
@@ -1375,95 +1376,95 @@ debugging, etc.
 @param tsin Time series to format strings for, or null for general ensemble
 strings.
 */
-protected Vector getHeaderStrings ( TS tsin )
-{	Vector strings = new Vector ();
-	strings.addElement("Values from ESP Trace Ensemble Header:");
-	strings.addElement("FormatVersion = " + __format_ver );
+protected List getHeaderStrings ( TS tsin )
+{	List strings = new Vector ();
+	strings.add("Values from ESP Trace Ensemble Header:");
+	strings.add("FormatVersion = " + __format_ver );
 	if ( tsin == null ) {
 		StringBuffer b = new StringBuffer ("SequenceNumber =");
 		for ( int i = 0; i < __n_traces; i++ ) {
 			b.append ( " " + __ts[i].getSequenceNumber() );
 		}
-		strings.addElement(b.toString() );
+		strings.add(b.toString() );
 	}
 	else {
-	    strings.addElement("SequenceNumber = "+	tsin.getSequenceNumber() );
+	    strings.add("SequenceNumber = "+	tsin.getSequenceNumber() );
 	}
-	strings.addElement("Segment = \"" + __seg_id + "\"");
-	strings.addElement("SegmentDescription = \""+__segdesc+"\"");
-	strings.addElement("Location = \"" + __ts_id + "\"");
-	strings.addElement("CarryoverGroup = \"" + __cg + "\"");
-	strings.addElement("ForecastGroup = \"" + __fg + "\"");
-	strings.addElement("DataType = \"" + __ts_type + "\"");
-	strings.addElement("Interval = " + __ts_dt );
-	strings.addElement("SimFlag = " + __simflag );
-	strings.addElement("DataUnits = \"" + __ts_unit + "\"");
-	strings.addElement("CreationDate = \"" + __hdr_id_creationdate + "\"");
+	strings.add("Segment = \"" + __seg_id + "\"");
+	strings.add("SegmentDescription = \""+__segdesc+"\"");
+	strings.add("Location = \"" + __ts_id + "\"");
+	strings.add("CarryoverGroup = \"" + __cg + "\"");
+	strings.add("ForecastGroup = \"" + __fg + "\"");
+	strings.add("DataType = \"" + __ts_type + "\"");
+	strings.add("Interval = " + __ts_dt );
+	strings.add("SimFlag = " + __simflag );
+	strings.add("DataUnits = \"" + __ts_unit + "\"");
+	strings.add("CreationDate = \"" + __hdr_id_creationdate + "\"");
 
-	strings.addElement("idarun = " + __idarun );
-	//strings.addElement("idarunParts = " +
+	strings.add("idarun = " + __idarun );
+	//strings.add("idarunParts = " +
 		//start_year + "-" + start_month + "-" + start_day );
-	strings.addElement("im = " + __im );
-		strings.addElement("iy = " + __iy );
-	//strings.addElement("start_date = " + start_date );
+	strings.add("im = " + __im );
+		strings.add("iy = " + __iy );
+	//strings.add("start_date = " + start_date );
 	if ( tsin != null ) {
-		strings.addElement("TSDate1 = " + tsin.getDate1() );
+		strings.add("TSDate1 = " + tsin.getDate1() );
 	}
-	strings.addElement("ldarun = " + __ldarun );
-	//strings.addElement("ldarunParts = " +
+	strings.add("ldarun = " + __ldarun );
+	//strings.add("ldarunParts = " +
 		//StringUtil.formatString(end_year,"%4d") + "-" +
 		//StringUtil.formatString(end_month,"%02d") + "-" +
 		//StringUtil.formatString(end_day,"%02d") );
-	//strings.addElement("end_date = " + end_date );
+	//strings.add("end_date = " + end_date );
 	if ( tsin != null ) {
-		strings.addElement("TSDate2 = " + tsin.getDate2() );
+		strings.add("TSDate2 = " + tsin.getDate2() );
 	}
 
-	strings.addElement("ijdlst = " + __ijdlst );
-	strings.addElement("ihlst = " + __ihlst );
-	strings.addElement("CarryoverDateLocal = " + NWSRFS_Util.toDateTime24(__carryover_date,false));
-	strings.addElement("ForecastStartLocal = " + NWSRFS_Util.toDateTime24(__start_date,false));
+	strings.add("ijdlst = " + __ijdlst );
+	strings.add("ihlst = " + __ihlst );
+	strings.add("CarryoverDateLocal = " + NWSRFS_Util.toDateTime24(__carryover_date,false));
+	strings.add("ForecastStartLocal = " + NWSRFS_Util.toDateTime24(__start_date,false));
 
-	strings.addElement("ljdlst = " + __ljdlst );
-	strings.addElement("lhlst = " + __lhlst );
-	strings.addElement("ForecastEndLocal = "+ NWSRFS_Util.toDateTime24(__end_date,false));
+	strings.add("ljdlst = " + __ljdlst );
+	strings.add("lhlst = " + __lhlst );
+	strings.add("ForecastEndLocal = "+ NWSRFS_Util.toDateTime24(__end_date,false));
 
-	strings.addElement("NumTraces = " + __n_traces );
-	strings.addElement("NCM = " + __ncm );
-	strings.addElement("TimeZone = " + __nlstz);
-	strings.addElement("noutds = " + __noutds);
-	strings.addElement("Irec = " + __irec);
-	strings.addElement("Dimension = \"" + __dim + "\"");
+	strings.add("NumTraces = " + __n_traces );
+	strings.add("NCM = " + __ncm );
+	strings.add("TimeZone = " + __nlstz);
+	strings.add("noutds = " + __noutds);
+	strings.add("Irec = " + __irec);
+	strings.add("Dimension = \"" + __dim + "\"");
 
-	strings.addElement("MeasTimeScale = \"" + __tscale + "\"");
-	strings.addElement("Latitude = " + __xlat);
-	strings.addElement("Longitude = " + __xlong);
+	strings.add("MeasTimeScale = \"" + __tscale + "\"");
+	strings.add("Latitude = " + __xlat);
+	strings.add("Longitude = " + __xlong);
 	
-	strings.addElement("RFC = \"" + __rfcname + "\"");
+	strings.add("RFC = \"" + __rfcname + "\"");
 	
-	strings.addElement("PRSFFlag = " + __prsf_flag );
-	strings.addElement("UserComments = \"" + __esptext + "\"");
+	strings.add("PRSFFlag = " + __prsf_flag );
+	strings.add("UserComments = \"" + __esptext + "\"");
 
 	// TODO SAM 2004-04-07 - need to evaluate whether the following
 	// make sense or just make the information more confusing.
 
 	/* Extra stuff that may not be needed
-	strings.addElement("Date1: '" + startDate + "'");
-	strings.addElement("Date1 Orig: '" + startDate + "'");
-	strings.addElement("Date2: '" + endDate + "'");
-	strings.addElement("Date2 Orig: '" + endDate + "'");
+	strings.add("Date1: '" + startDate + "'");
+	strings.add("Date1 Orig: '" + startDate + "'");
+	strings.add("Date2: '" + endDate + "'");
+	strings.add("Date2 Orig: '" + endDate + "'");
 	
-	strings.addElement("adjcount: " + adjcount);
-	strings.addElement("CreationDate: '" + creationDate + "'");
-	strings.addElement("CarryoverDate: '" + carryoverDate+ "'");
-	strings.addElement("ForecastEndDate: '" 
+	strings.add("adjcount: " + adjcount);
+	strings.add("CreationDate: '" + creationDate + "'");
+	strings.add("CarryoverDate: '" + carryoverDate+ "'");
+	strings.add("ForecastEndDate: '" 
 		+ forecastEndDate + "'");	
-	strings.addElement("ExceedProbDate: '" + startDate + "'");
+	strings.add("ExceedProbDate: '" + startDate + "'");
 	
-	strings.addElement("ProbFunction: " + FUNCTION_EMPIRICAL);
-	strings.addElement("NRanges: 3");
+	strings.add("ProbFunction: " + FUNCTION_EMPIRICAL);
+	strings.add("NRanges: 3");
 	
-	strings.addElement("IntervalOrig: '" + TimeInterval.HOUR
+	strings.add("IntervalOrig: '" + TimeInterval.HOUR
 		+ "', '" + tsInterval + "'");
 	*/
 	return strings;
@@ -1579,8 +1580,8 @@ Return the time series maintained in the ensemble as a Vector.
 @return the time series maintained in the ensemble as a Vector, or null if
 no time series.
 */
-public Vector getTimeSeriesVector ()
-{	Vector v = new Vector(__n_traces);
+public List getTimeSeriesVector ()
+{	List v = new Vector(__n_traces);
 	for (int i = 0; i < __n_traces;i++) {
 		v.add(__ts[i]);
 	}
@@ -1802,7 +1803,7 @@ throws Exception
 	EndianDataInputStream EDIS;
 	String prsf_string = null;
 	TZ localTZ;
-	Vector tzMatches;
+	List tzMatches;
 	DateTime temp_date;
 	// This is added to integers that are read as float to make sure that the
     // truncated integer is the proper value, in case the precision of the
@@ -2194,11 +2195,11 @@ throws Exception
 
 	// Get the local timezone abbreviation.
 	tzMatches = TZ.getMatchingDefinedTZ(__nlstz*60,__noutds);
-	localTZ = (TZ)tzMatches.elementAt(0);
+	localTZ = (TZ)tzMatches.get(0);
 	i = 1;
 	while((localTZ.getAbbreviation()).length() < 3 && i<tzMatches.size())
 	{
-		localTZ = (TZ)tzMatches.elementAt(i);
+		localTZ = (TZ)tzMatches.get(i);
 		i++;
 	}
 
@@ -2347,10 +2348,10 @@ throws Exception
 
 		// Use comments for now to pass information and troubleshoot...
 
-		Vector header_strings = getHeaderStrings ( __ts[i] );
+		List header_strings = getHeaderStrings ( __ts[i] );
 		int size = header_strings.size();
 		for ( int istr = 0; istr < size; istr++ ) {
-			__ts[i].addToComments (	(String)header_strings.elementAt(istr) );
+			__ts[i].addToComments (	(String)header_strings.get(istr) );
 		}
 	}
 }

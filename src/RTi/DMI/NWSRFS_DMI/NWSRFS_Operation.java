@@ -20,6 +20,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.DMI.NWSRFS_DMI.NWSRFS_RatingCurve;
@@ -284,12 +285,12 @@ private NWSRFS_Segment __segment;
 /**
 NWSRFSRatingCurve IDs in the operation.
 */
-private Vector  __rcIDs;
+private List  __rcIDs;
 
 /**
 NWSRFSRatingCurve objects in the operation.
 */
-private Vector  __ratingCurves;
+private List  __ratingCurves;
 
 /**
 System identifier for the operation.
@@ -300,17 +301,17 @@ private String __sysID;
 /**
 Time series data types in the operation (list of data type strings).
 */
-private Vector  __tsDTs;
+private List  __tsDTs;
 
 /**
 Time series identifiers in the operation (list of TSIdent strings).
 */
-private Vector  __tsIDs;
+private List  __tsIDs;
 
 /**
 TimeSeries in the operation.
 */
-private Vector	__timeseries;
+private List	__timeseries;
 
 /**
 User identifier for the operation.
@@ -421,11 +422,11 @@ throws Exception
 }
 
 /**
-Add a Rating Curve identifers to the NWSRFS_Operation.
+Add a Rating Curve identifiers to the NWSRFS_Operation.
 @param rcid Rating Curve ID to add.
 */
 public void addRCID(String rcid) {
-	__rcIDs.addElement(rcid);
+	__rcIDs.add(rcid);
 }
 
 /**
@@ -433,7 +434,7 @@ Add a Rating Curve to the NWSRFS_Operation.
 @param rc NWSRFS_RatingCurve object to add.
 */
 public void addRatingCurve(NWSRFS_RatingCurve rc) {	
-	__ratingCurves.addElement(rc);
+	__ratingCurves.add(rc);
 }
 
 /**
@@ -442,7 +443,7 @@ TimeSeries that is is defined on this Operation object.
 @param tsDT A TimeSeries DataType to add to the operation.
 */
 public void addTSDT(String tsDT) {
-		__tsDTs.addElement((String)tsDT);
+		__tsDTs.add((String)tsDT);
 }
 
 /**
@@ -451,7 +452,7 @@ TimeSeries that is is defined on this Operation object.
 @param tsID A TimeSeries object identifier to add to the operation.
 */
 public void addTSID(String tsID) {
-		__tsIDs.addElement( (String)tsID );
+		__tsIDs.add( (String)tsID );
 }
 
 /**
@@ -460,7 +461,7 @@ is defined on this Operation object.
 @param ts A NWSRFS_TimeSeries object to add to the operation.
 */
 public void addTimeSeries(NWSRFS_TimeSeries ts) {
-		__timeseries.addElement(ts);
+		__timeseries.add(ts);
 }
 
 /**
@@ -622,7 +623,7 @@ public String getOpTypeName() {
 Return the Rating Curve IDs.
 @return the Vector of Rating Curve IDs.
 */
-public Vector getRCIDs() {
+public List getRCIDs() {
 	return __rcIDs;
 }
 
@@ -632,14 +633,14 @@ Return the Rating Curve ID at an index.
 @return Rating Curve ID at an index.
 */
 public String getRCID(int index) {
-	return (String)__rcIDs.elementAt(index);
+	return (String)__rcIDs.get(index);
 }
 
 /**
 Return the NWSRFS_RatingCurve.
 @return the Vector of NWSRFS_RatingCurve objects.
 */
-public Vector getRatingCurves() {
+public List getRatingCurves() {
 	return __ratingCurves;
 }
 
@@ -649,7 +650,7 @@ Return the NWSRFS_RatingCurve at an index.
 @return NWSRFS_RatingCurve object at an index.
 */
 public NWSRFS_RatingCurve getRatingCurve(int index) {
-	return (NWSRFS_RatingCurve)__ratingCurves.elementAt(index);
+	return (NWSRFS_RatingCurve)__ratingCurves.get(index);
 }
 
 
@@ -663,7 +664,7 @@ public NWSRFS_RatingCurve getRatingCurve (String rcid) {
 	int size = __ratingCurves.size();
 	NWSRFS_RatingCurve rc= null;
 	for (int i = 0; i < size; i++)  {
-		rc = (NWSRFS_RatingCurve)__ratingCurves.elementAt(i);
+		rc = (NWSRFS_RatingCurve)__ratingCurves.get(i);
 		if (rc.getRCID().equalsIgnoreCase(rcid)) {
 			return rc;
 		}
@@ -691,7 +692,7 @@ public String getSystemID() {
 Return the TimeSeries DataTypes.
 @return the Vector of TimeSeries DataTypes.
 */	
-public Vector getTSDTs() {
+public List getTSDTs() {
 	return __tsDTs;
 }
 
@@ -701,14 +702,14 @@ Return the TimeSeries DataType at an index.
 @return the TimeSeries DataType at an index.
 */
 public String getTSDT(int index) {
-	return (String)__tsDTs.elementAt(index);
+	return (String)__tsDTs.get(index);
 }
 
 /**
 Return the TimeSeries IDs.
 @return the Vector of TimeSeries Identifiers.
 */	
-public Vector getTSIDs() {
+public List getTSIDs() {
 	return __tsIDs;
 }
 
@@ -718,14 +719,14 @@ Return the TimeSeries IDs at an index.
 @return the TimeSeries identifier at an index.
 */
 public String getTSID(int index) {
-	return (String)__tsIDs.elementAt(index);
+	return (String)__tsIDs.get(index);
 }
 
 /**
 Return the TimeSeries.
 @return the Vector of TimeSeries objects.
 */	
-public Vector getTimeSeries() {
+public List getTimeSeries() {
 	return __timeseries;
 }
 
@@ -735,7 +736,7 @@ Return the TimeSeries at an index.
 @return the TimeSeries at an index.
 */
 public NWSRFS_TimeSeries getTimeSeries(int index) {
-	return (NWSRFS_TimeSeries)__timeseries.elementAt(index);
+	return (NWSRFS_TimeSeries)__timeseries.get(index);
 }
 
 /**
@@ -747,7 +748,7 @@ public NWSRFS_TimeSeries getTimeSeries(String tsid) {
 	int size = __timeseries.size();
 	NWSRFS_TimeSeries ts = null;
 	for (int i = 0; i < size; i++) {
-		ts = (NWSRFS_TimeSeries)__timeseries.elementAt(i);
+		ts = (NWSRFS_TimeSeries)__timeseries.get(i);
 		if (ts.getTSID().equalsIgnoreCase(tsid))  {
 			return ts;
 		}

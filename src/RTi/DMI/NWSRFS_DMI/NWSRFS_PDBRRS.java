@@ -10,6 +10,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -244,9 +245,9 @@ protected float _RPTSM;
 protected int _SDATE;
 protected float _RPT2SM;
 protected int _S2DATE;
-protected Vector _OBSTIME;
-protected Vector _DATAVAL;
-protected Vector _DATATIMEINT;
+protected List _OBSTIME;
+protected List _DATAVAL;
+protected List _DATATIMEINT;
 protected int _NXTREC;
 protected int _NVALSFP;
 
@@ -260,15 +261,15 @@ public NWSRFS_PDBRRS(String ID) {
 
 // Add methods for Vector structures
 public void addOBSTIME(int OBSTIME) {
-	_OBSTIME.addElement(new Integer(OBSTIME)); 
+	_OBSTIME.add(new Integer(OBSTIME)); 
 }
 
 public void addDATAVAL(float DATAVAL) {
-	_DATAVAL.addElement(new Float(DATAVAL)); 
+	_DATAVAL.add(new Float(DATAVAL)); 
 }
 
 public void addDATATIMEINT(int DATATIMEINT) {
-	_DATATIMEINT.addElement(new Integer(DATATIMEINT)); 
+	_DATATIMEINT.add(new Integer(DATATIMEINT)); 
 }
 
 /**
@@ -494,29 +495,28 @@ public int getNVALSFP() {
 	return _NVALSFP; 
 }
 
-public Vector getOBSTIME() {
+public List getOBSTIME() {
 	return _OBSTIME; 
 }  
 
 public int getOBSTIME(int OBSTIMEindex) { 
-	return (int)((Integer)_OBSTIME.elementAt(OBSTIMEindex)).intValue();
+	return (int)((Integer)_OBSTIME.get(OBSTIMEindex)).intValue();
 }
 
-public Vector getDATAVAL() {
+public List getDATAVAL() {
 	return _DATAVAL; 
 }  
 
 public float getDATAVAL(int DATAVALindex) { 
-	return (float)((Float)_DATAVAL.elementAt(DATAVALindex)).floatValue();
+	return (float)((Float)_DATAVAL.get(DATAVALindex)).floatValue();
 }
 
-public Vector getDATATIMEINT() {
+public List getDATATIMEINT() {
 	return _DATATIMEINT; 
 }  
 
 public int getDATATIMEINT(int DATATIMEINTindex) { 
-	return (int)((Integer)_DATATIMEINT.elementAt(DATATIMEINTindex)).
-		intValue();
+	return (int)((Integer)_DATATIMEINT.get(DATATIMEINTindex)).intValue();
 }
 
 /**

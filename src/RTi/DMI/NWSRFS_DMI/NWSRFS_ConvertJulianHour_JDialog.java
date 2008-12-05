@@ -26,7 +26,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Vector;
+import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -88,8 +88,7 @@ to true.
 */
 private void checkInput ()
 {	String input = __input_JTextField.getText().trim();
-	Vector tokens = StringUtil.breakStringList ( input, " ",
-				StringUtil.DELIM_SKIP_BLANKS );
+	List tokens = StringUtil.breakStringList ( input, " ", StringUtil.DELIM_SKIP_BLANKS );
 	String routine = "NWSRFS_ConvertJulianHour_JDialog.checkInput";
 	String warning = "";
 
@@ -98,8 +97,8 @@ private void checkInput ()
 	boolean parse_error = false;
 	DateTime date = null;
 	if (	(tokens != null) && (tokens.size() == 2) &&
-		StringUtil.isInteger((String)tokens.elementAt(0)) &&
-		StringUtil.isInteger((String)tokens.elementAt(1)) ) {
+		StringUtil.isInteger((String)tokens.get(0)) &&
+		StringUtil.isInteger((String)tokens.get(1)) ) {
 		// Input is OK as julday and inthr...
 	}
 	else if ( StringUtil.isInteger(input) ) {
@@ -137,14 +136,13 @@ been called.
 */
 private void convert ()
 {	String input = __input_JTextField.getText().trim();
-	Vector tokens = StringUtil.breakStringList ( input, " ",
-				StringUtil.DELIM_SKIP_BLANKS );
+	List tokens = StringUtil.breakStringList ( input, " ", StringUtil.DELIM_SKIP_BLANKS );
 	if (	(tokens != null) && (tokens.size() == 2) &&
-		StringUtil.isInteger((String)tokens.elementAt(0)) &&
-		StringUtil.isInteger((String)tokens.elementAt(1)) ) {
+		StringUtil.isInteger((String)tokens.get(0)) &&
+		StringUtil.isInteger((String)tokens.get(1)) ) {
 		// Convert Julian day and hour...
-		int jday = StringUtil.atoi((String)tokens.elementAt(0));
-		int inthr = StringUtil.atoi((String)tokens.elementAt(1));
+		int jday = StringUtil.atoi((String)tokens.get(0));
+		int inthr = StringUtil.atoi((String)tokens.get(1));
 		DateTime datetime = NWSRFS_Util.mdyh1 ( jday, inthr );
 		__datetime_JTextField.setText ( datetime.toString() );
 		__julday_JTextField.setText("" + jday + " " +

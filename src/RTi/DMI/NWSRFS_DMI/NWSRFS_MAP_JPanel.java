@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 
 import java.io.File;
 
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -276,12 +277,12 @@ public void mouseReleased(MouseEvent event) {
 Reads the MAP Areas from the database and returns them in a Vector.
 @return a Vector of MAP Areas.  This Vector will never be null.
 */
-private Vector readMAPAreas() {
+private List readMAPAreas() {
 	String routine = "NWSRFS_MAP_JPanel.readMAPAreas";
 
 	NWSRFS_DMI dmi = __nwsrfs.getDMI();
 
-	Vector maps = null;
+	List maps = null;
 
 	try {
 		maps = dmi.readMAPAreaList();
@@ -296,9 +297,9 @@ private Vector readMAPAreas() {
 	}
 
 	NWSRFS_MAP map = null;
-	Vector v = new Vector();
+	List v = new Vector();
 	for (int i = 0; i < maps.size(); i++) {
-		map = (NWSRFS_MAP)maps.elementAt(i);
+		map = (NWSRFS_MAP)maps.get(i);
 		try {
 			dmi.readMAPArea(map, false);
 		}

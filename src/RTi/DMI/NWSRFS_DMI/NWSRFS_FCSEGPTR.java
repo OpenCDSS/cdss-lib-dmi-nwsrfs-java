@@ -15,6 +15,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -115,12 +116,12 @@ protected int _NWPRP;
 /**
 Vector holding record number associated with file FCSEGSTS.
 */
-protected Vector _IREC; 
+protected List _IREC; 
 
 /**
 Vector holding segment identifier.
 */
-protected Vector _ISEG;
+protected List _ISEG;
 
 /**
 Constructor.
@@ -221,7 +222,7 @@ public int getNWPRP() {
 Returns the Vector that holds record numbers associated with file FCSEGSTS.
 @return the Vector that holds record numbers associated with file FCSEGSTS.
 */
-public Vector getIREC() {
+public List getIREC() {
 	return _IREC;
 }
 
@@ -229,7 +230,7 @@ public Vector getIREC() {
 Returns the Vector that holds segment identifiers.
 @return the Vector that holds segment identifiers.
 */
-public Vector getISEG() {
+public List getISEG() {
 	return _ISEG;
 }
 

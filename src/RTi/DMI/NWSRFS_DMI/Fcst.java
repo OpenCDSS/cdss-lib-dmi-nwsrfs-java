@@ -142,7 +142,7 @@ import java.io.File;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
+import java.util.List;
 
 import RTi.TS.DateValueTS;
 import RTi.TS.DayTS;
@@ -393,7 +393,7 @@ throws Exception
 	double data;
 	String flag;
 	int i = 0;
-	Vector read = null;
+	List read = null;
 	String line = null;
 
 	// start looping through and reading the lines of text
@@ -437,10 +437,10 @@ throws Exception
 			// Data flag is always one after the data value...
 			flagPos = dataPos + 1;
 
-			name = ((String)read.elementAt(namePos)).trim();
-			id = ((String)read.elementAt(idPos)).trim();
-			data  = ((Double)read.elementAt(dataPos)).doubleValue();
-			flag = ((String)read.elementAt(flagPos)).trim();
+			name = ((String)read.get(namePos)).trim();
+			id = ((String)read.get(idPos)).trim();
+			data  = ((Double)read.get(dataPos)).doubleValue();
+			flag = ((String)read.get(flagPos)).trim();
 			if ( id.equals("") && (i == 0) ) {
 				// Unexpected.  Assume that the data section
 				// is incomplete.  This normally occurs when
@@ -495,11 +495,9 @@ confused with MAP time series files).
 written (typically the OFS or user output directory).
 @param append if true, the new data will be appended to the existing time series
 files data.  If false, old time series files will be overwritten with new data. 
-@throws Exception thrown if there is a problem writing out the time series
-to a file.
+@throws Exception thrown if there is a problem writing out the time series to a file.
 */
-public void processMAPOutput (	Vector fileList, String outputDir,
-				boolean append )
+public void processMAPOutput ( List fileList, String outputDir, boolean append )
 throws Exception
 {	String routine = "Fcst.processMAPOutput";
 	int dl = 10;
@@ -642,7 +640,7 @@ throws Exception
 
 		// Open the file...
 
-		filename = (String)fileList.elementAt(i);
+		filename = (String)fileList.get(i);
 
 		try {	br = new BufferedReader( new FileReader(filename));
 		}
@@ -678,8 +676,8 @@ throws Exception
 		}
 
 		int version = __VERSION_UNKNOWN;
-		Vector fixedRead = StringUtil.fixedRead(firstLine, "s53s25");
-		String ver = ((String)fixedRead.elementAt(1)).trim();
+		List fixedRead = StringUtil.fixedRead(firstLine, "s53s25");
+		String ver = ((String)fixedRead.get(1)).trim();
 		if (ver.endsWith(")")) {
 	 		ver = ver.substring(0, ver.length() -1);
 			int intver = __VERSION_UNKNOWN;
@@ -817,7 +815,7 @@ throws Exception
 		// Set up some variables for increased performance.
 		// They will be reused a lot.
 
-		Vector read;
+		List read;
 		DateTime tsd;
 		String line;
 
@@ -887,24 +885,18 @@ throws Exception
 				// a little - units should be consistent
 				// throughout the file...
 				if (!unitsSet && line.startsWith(unitsLine)) {
-					read = StringUtil.fixedRead(line,
-						unitsFormat);
-					units = ((String)read.elementAt(1)).
-						trim();
+					read = StringUtil.fixedRead(line, unitsFormat);
+					units = ((String)read.get(1)).trim();
 					unitsSet = true;
 				}
 				else if (line.startsWith(dailyLine)) {
 					read =	StringUtil.fixedRead(
 						line, formatDailyLine);
 					tsd = new DateTime();
-					tsd.setMonth(((Integer)
-						read.elementAt(1)).intValue());
-					tsd.setDay(((Integer)
-						read.elementAt(3)).intValue());
-					tsd.setYear(((Integer)
-						read.elementAt(5)).intValue());
-					tsd.setPrecision(
-						DateTime.PRECISION_DAY);
+					tsd.setMonth(((Integer)read.get(1)).intValue());
+					tsd.setDay(((Integer)read.get(3)).intValue());
+					tsd.setYear(((Integer)read.get(5)).intValue());
+					tsd.setPrecision(DateTime.PRECISION_DAY);
 
 					// Process a data section...
 
@@ -920,14 +912,10 @@ throws Exception
 					read = StringUtil.fixedRead(
 						line, formatLess24Line);
 					tsd = new DateTime();
-					tsd.setMonth(((Integer)
-						read.elementAt(1)).intValue());
-					tsd.setDay(((Integer)
-						read.elementAt(3)).intValue());
-					tsd.setYear(((Integer)
-						read.elementAt(5)).intValue());
-					tsd.setPrecision(
-						DateTime.PRECISION_DAY);
+					tsd.setMonth(((Integer)read.get(1)).intValue());
+					tsd.setDay(((Integer)read.get(3)).intValue());
+					tsd.setYear(((Integer)read.get(5)).intValue());
+					tsd.setPrecision( DateTime.PRECISION_DAY);
 		
 					MAP_line = processMAPDataSection (
 						br, htLess24, tsd, 
@@ -992,8 +980,7 @@ may have contributed to each time series.
 the resulting string is longer than zero characters, the calling method will
 print a warning.
 */
-private void writeFile (	Hashtable ht, String outputDir, boolean append,
-				Vector fileList, String warning )
+private void writeFile ( Hashtable ht, String outputDir, boolean append, List fileList, String warning )
 {	String routine = "Fcst.writeFile";
 	Enumeration en = ht.keys();
 	IrregularTS its;
@@ -1080,13 +1067,13 @@ private void writeFile (	Hashtable ht, String outputDir, boolean append,
 		// Add the list of files used as input to the process...
 
 		for ( i = 0; i < fileList_size; i++ ) {
-			dts.addToGenesis("   " + (String)fileList.elementAt(i));
+			dts.addToGenesis("   " + (String)fileList.get(i));
 		}
 		
 		// Write the DayTS time series to a DateValue file...
 
-		try {	DateValueTS.writeTimeSeries ( dts, filename, 
-			null, null, null, true );
+		try {
+			DateValueTS.writeTimeSeries ( dts, filename, null, null, null, true );
 		}
 		catch ( Exception e ) {
 			warning += "\nError writing " + tsident + " to \"" +

@@ -93,6 +93,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import java.io.File;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.Icon;
@@ -421,14 +422,14 @@ Clear all data from the tree.
 public void clear () {
 	String routine = "NWSRFS_System_JTree.clear";
 	SimpleJTree_Node node = getRoot();
-	Vector v = getChildrenVector(node);
+	List v = getChildrenList(node);
 	int size = 0;
 	if ( v != null ) {
 		size = v.size();
 	}
 	for ( int i = 0; i < size; i++ ) {
 		try {	removeNode (
-			(SimpleJTree_Node)v.elementAt(i), false );
+			(SimpleJTree_Node)v.get(i), false );
 		}
 		catch ( Exception e ) {
 			Message.printWarning ( 2, routine, "Cannot remove node " + node.toString() );
@@ -549,7 +550,7 @@ public void displayTreeData() {
 
 	NWSRFS_DMI dmi = __nwsrfs.getDMI();
 
-	Vector nodes_to_expand_vect = new Vector();
+	List nodes_to_expand_vect = new Vector();
 
 	try {
 	for (int icg=0; icg<numb_cgs; icg++ ) {
@@ -603,7 +604,7 @@ public void displayTreeData() {
 				Message.printWarning( 2, routine, e );
 			}
 
-			nodes_to_expand_vect.addElement( fg_node );
+			nodes_to_expand_vect.add( fg_node );
 
 			//Segments
 			numb_segs = fg.getNumberOfSegmentIDs();
@@ -879,7 +880,7 @@ public void displayTreeData() {
 	int s = nodes_to_expand_vect.size();
 	for ( int i=0; i<s; i++ ) {
 		//expand tree to this level
-		expandNode( (SimpleJTree_Node)nodes_to_expand_vect.elementAt(i) );
+		expandNode( (SimpleJTree_Node)nodes_to_expand_vect.get(i) );
 	}
 
 	//clean up
@@ -1376,15 +1377,15 @@ public void actionPerformed(ActionEvent event ) {
 	}
 	else if (source == __popup_graphTS_JMenuItem) {
 		// Get selected node - do not need the NWSRFS_Timeseries object, just the node name
-		Vector nodes = getSelectedNodes();
+		List nodes = getSelectedNodes();
 		int size = nodes.size();
 
 		SimpleJTree_Node tempNode = null;
 		String name = null;
-		Vector errors = new Vector();
-		Vector tsidVector = new Vector();
+		List errors = new Vector();
+		List tsidVector = new Vector();
 		for (int i = 0; i < size; i++) {
-			tempNode = (SimpleJTree_Node)nodes.elementAt(i);
+			tempNode = (SimpleJTree_Node)nodes.get(i);
 			name = tempNode.getName();
 			Message.printStatus(1, "", "Node: " + name);
 
@@ -1404,7 +1405,7 @@ public void actionPerformed(ActionEvent event ) {
 		if (size > 0) {
 			String concat = "";
 			for (int i = 0; i < size; i++) {
-				concat += "\n" + (String)errors.elementAt(i);
+				concat += "\n" + (String)errors.get(i);
 			}
 
 			String verb = "were";
@@ -1440,7 +1441,7 @@ public void actionPerformed(ActionEvent event ) {
 	else if ( source == __popup_snow_selectSubareas_JMenuItem ) {
 		//select all nodes under this
 		
-		Vector sel_nodes_vect = getSelectedNodes(); 
+		List sel_nodes_vect = getSelectedNodes(); 
 		int numb_nodes = 0;
 		if ( sel_nodes_vect != null ) {
 			numb_nodes = sel_nodes_vect.size();
@@ -1448,12 +1449,12 @@ public void actionPerformed(ActionEvent event ) {
 		SimpleJTree_Node sel_node = null;
 		//Object data = null;
 		for ( int i=0; i< numb_nodes; i++ ) {
-			sel_node = (SimpleJTree_Node)sel_nodes_vect.elementAt( i );
+			sel_node = (SimpleJTree_Node)sel_nodes_vect.get( i );
 			if ( sel_node == null ) {
 				continue;
 			}
-			Vector kids_vect = null;
-			kids_vect = getAllChildrenVector( sel_node );
+			List kids_vect = null;
+			kids_vect = getAllChildrenList( sel_node );
 			int numb_kids = 0;
 			
 			if ( kids_vect != null ) {
@@ -1461,7 +1462,7 @@ public void actionPerformed(ActionEvent event ) {
 			}
 			for( int j=0; j<numb_kids; j++) {
 				//select kids
-				selectNode( (SimpleJTree_Node)kids_vect.elementAt( j ), false );
+				selectNode( (SimpleJTree_Node)kids_vect.get( j ), false );
 			}
 			kids_vect = null;	
 			sel_node = null;

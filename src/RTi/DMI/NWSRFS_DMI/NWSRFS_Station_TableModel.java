@@ -9,6 +9,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 import RTi.Util.GUI.JWorksheet_AbstractRowTableModel;
@@ -39,7 +40,7 @@ public static final int
 Constructor.  
 @param stations the stations that will be displayed in the table.
 */
-public NWSRFS_Station_TableModel(Vector stations) {
+public NWSRFS_Station_TableModel(List stations) {
 	if (stations == null) {
 		_data = new Vector();
 	}
@@ -132,8 +133,7 @@ public int getRowCount() {
 }
 
 /**
-From AbstractTableMode.  Returns the data that should be placed in the JTable
-at the given row and column.
+From AbstractTableMode.  Returns the data that should be placed in the JTable at the given row and column.
 @param row the row for which to return data.
 @param col the column for which to return data.
 @return the data that should be placed in the JTable at the given row and col.
@@ -143,7 +143,7 @@ public Object getValueAt(int row, int col) {
 		row = _sortOrder[row];
 	}
 
-	NWSRFS_Station station = (NWSRFS_Station)_data.elementAt(row);
+	NWSRFS_Station station = (NWSRFS_Station)_data.get(row);
 
 	switch (col) {
 		case COL_STATION_ID:	return station.getID();

@@ -10,6 +10,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -293,48 +294,48 @@ protected int _NUMDDF;
 protected int _NUMTYP;
 protected int _NWRDS;
 protected int _TYPREC;
-protected Vector _ACDCP;
-protected Vector _ACPSQ;
-protected Vector _ADDDTP;
-protected Vector _ADTPTR;
-protected Vector _BDATE;
-protected Vector _DATAR1;
-protected Vector _DTYPE;
-protected Vector _ECRECN;
-protected Vector _EDATE;
-protected Vector _L2DATE;
-protected Vector _LDATE;
-protected Vector _LDATEDDT;
-protected Vector _LDDFRC;
-protected Vector _LDRECN;
-protected Vector _LSTDTA;
-protected Vector _LSTPTR;
-protected Vector _LUFILE;
-protected Vector _MAXDAY;
-protected Vector _MAXSTA;
-protected Vector _MDDFRC;
-protected Vector _NADDTP;
-protected Vector _NDATA;
-protected Vector _NDAYS;
-protected Vector _NPNTRS;
-protected Vector _NREC1D;
-protected Vector _NSTATS;
-protected Vector _NTOTAL;
-protected Vector _NUMID;
-protected Vector _NUMSTA;
-protected Vector _NWRDSDDT;
-protected Vector _NWRDSSTI;
-protected Vector _NWRDSO;
-protected Vector _NZERO;
-protected Vector _PCPPTR;
-protected Vector _PNTR;
-protected Vector _PRMPTR;
-protected Vector _RDATE;
-protected Vector _RPT2LG;
-protected Vector _RPTLG;
-protected Vector _SMNOZO;
-protected Vector _STAID;
-protected Vector _TMPPTR;
+protected List _ACDCP;
+protected List _ACPSQ;
+protected List _ADDDTP;
+protected List _ADTPTR;
+protected List _BDATE;
+protected List _DATAR1;
+protected List _DTYPE;
+protected List _ECRECN;
+protected List _EDATE;
+protected List _L2DATE;
+protected List _LDATE;
+protected List _LDATEDDT;
+protected List _LDDFRC;
+protected List _LDRECN;
+protected List _LSTDTA;
+protected List _LSTPTR;
+protected List _LUFILE;
+protected List _MAXDAY;
+protected List _MAXSTA;
+protected List _MDDFRC;
+protected List _NADDTP;
+protected List _NDATA;
+protected List _NDAYS;
+protected List _NPNTRS;
+protected List _NREC1D;
+protected List _NSTATS;
+protected List _NTOTAL;
+protected List _NUMID;
+protected List _NUMSTA;
+protected List _NWRDSDDT;
+protected List _NWRDSSTI;
+protected List _NWRDSO;
+protected List _NZERO;
+protected List _PCPPTR;
+protected List _PNTR;
+protected List _PRMPTR;
+protected List _RDATE;
+protected List _RPT2LG;
+protected List _RPTLG;
+protected List _SMNOZO;
+protected List _STAID;
+protected List _TMPPTR;
 
 /**
 Constructor.
@@ -347,171 +348,171 @@ public NWSRFS_PDBINDEX() {
 }
 
 public void addACDCP(float ACDCP) {
-	_ACDCP.addElement(new Float(ACDCP)); 
+	_ACDCP.add(new Float(ACDCP)); 
 }
 
 public void addACPSQ(float ACPSQ) {
-	_ACPSQ.addElement(new Float(ACPSQ)); 
+	_ACPSQ.add(new Float(ACPSQ)); 
 }
 
-public void addADDDTP(Vector ADDDTP) {
-	_ADDDTP.addElement(ADDDTP); 
+public void addADDDTP(List ADDDTP) {
+	_ADDDTP.add(ADDDTP); 
 }
 
-public void addADTPTR(Vector ADTPTR) {
-	_ADTPTR.addElement(ADTPTR); 
+public void addADTPTR(List ADTPTR) {
+	_ADTPTR.add(ADTPTR); 
 }
 
 public void addBDATE(int BDATE) {
-	_BDATE.addElement(new Integer(BDATE)); 
+	_BDATE.add(new Integer(BDATE)); 
 }
 
 public void addDATAR1(int DATAR1) {
-	_DATAR1.addElement(new Integer(DATAR1)); 
+	_DATAR1.add(new Integer(DATAR1)); 
 }
 
 public void addDTYPE(String DTYPE) {
-	_DTYPE.addElement(DTYPE); 
+	_DTYPE.add(DTYPE); 
 }
 
 public void addECRECN(int ECRECN) {
-	_ECRECN.addElement(new Integer(ECRECN)); 
+	_ECRECN.add(new Integer(ECRECN)); 
 }
 
 public void addEDATE(int EDATE) {
-	_EDATE.addElement(new Integer(EDATE)); 
+	_EDATE.add(new Integer(EDATE)); 
 }
 
 public void addL2DATE(int L2DATE) {
-	_L2DATE.addElement(new Integer(L2DATE)); 
+	_L2DATE.add(new Integer(L2DATE)); 
 }
 
 public void addLDATE(int LDATE) {
-	_LDATE.addElement(new Integer(LDATE)); 
+	_LDATE.add(new Integer(LDATE)); 
 }
 
 public void addLDATEDDT(int LDATEDDT) {
-	_LDATEDDT.addElement(new Integer(LDATEDDT)); 
+	_LDATEDDT.add(new Integer(LDATEDDT)); 
 }
 
 public void addLDDFRC(int LDDFRC) {
-	_LDDFRC.addElement(new Integer(LDDFRC)); 
+	_LDDFRC.add(new Integer(LDDFRC)); 
 }
 
 public void addLDRECN(int LDRECN) {
-	_LDRECN.addElement(new Integer(LDRECN)); 
+	_LDRECN.add(new Integer(LDRECN)); 
 }
 
 public void addLSTDTA(int LSTDTA) {
-	_LSTDTA.addElement(new Integer(LSTDTA)); 
+	_LSTDTA.add(new Integer(LSTDTA)); 
 }
 
 public void addLSTPTR(int LSTPTR) {
-	_LSTPTR.addElement(new Integer(LSTPTR)); 
+	_LSTPTR.add(new Integer(LSTPTR)); 
 }
 
 public void addLUFILE(int LUFILE) {
-	_LUFILE.addElement(new Integer(LUFILE)); 
+	_LUFILE.add(new Integer(LUFILE)); 
 }
 
 public void addMAXDAY(int MAXDAY) {
-	_MAXDAY.addElement(new Integer(MAXDAY)); 
+	_MAXDAY.add(new Integer(MAXDAY)); 
 }
 
 public void addMAXSTA(int MAXSTA) {
-	_MAXSTA.addElement(new Integer(MAXSTA)); 
+	_MAXSTA.add(new Integer(MAXSTA)); 
 }
 
 public void addMDDFRC(int MDDFRC) {
-	_MDDFRC.addElement(new Integer(MDDFRC)); 
+	_MDDFRC.add(new Integer(MDDFRC)); 
 }
 
 public void addNADDTP(int NADDTP) {
-	_NADDTP.addElement(new Integer(NADDTP)); 
+	_NADDTP.add(new Integer(NADDTP)); 
 }
 
 public void addNDATA(int NDATA) {
-	_NDATA.addElement(new Integer(NDATA)); 
+	_NDATA.add(new Integer(NDATA)); 
 }
 
 public void addNDAYS(int NDAYS) {
-	_NDAYS.addElement(new Integer(NDAYS)); 
+	_NDAYS.add(new Integer(NDAYS)); 
 }
 
 public void addNPNTRS(int NPNTRS) {
-	_NPNTRS.addElement(new Integer(NPNTRS)); 
+	_NPNTRS.add(new Integer(NPNTRS)); 
 }
 
 public void addNREC1D(int NREC1D) {
-	_NREC1D.addElement(new Integer(NREC1D)); 
+	_NREC1D.add(new Integer(NREC1D)); 
 }
 
 public void addNSTATS(int NSTATS) {
-	_NSTATS.addElement(new Integer(NSTATS)); 
+	_NSTATS.add(new Integer(NSTATS)); 
 }
 
 public void addNTOTAL(int NTOTAL) {
-	_NTOTAL.addElement(new Integer(NTOTAL)); 
+	_NTOTAL.add(new Integer(NTOTAL)); 
 }
 
 public void addNUMID(int NUMID) {
-	_NUMID.addElement(new Integer(NUMID)); 
+	_NUMID.add(new Integer(NUMID)); 
 }
 
 public void addNUMSTA(int NUMSTA) {
-	_NUMSTA.addElement(new Integer(NUMSTA)); 
+	_NUMSTA.add(new Integer(NUMSTA)); 
 }
 
 public void addNWRDSDDT(int NWRDSDDT) {
-	_NWRDSDDT.addElement(new Integer(NWRDSDDT)); 
+	_NWRDSDDT.add(new Integer(NWRDSDDT)); 
 }
 
 public void addNWRDSSTI(int NWRDSSTI) {
-	_NWRDSSTI.addElement(new Integer(NWRDSSTI)); 
+	_NWRDSSTI.add(new Integer(NWRDSSTI)); 
 }
 
 public void addNWRDSO(int NWRDSO) {
-	_NWRDSO.addElement(new Integer(NWRDSO)); 
+	_NWRDSO.add(new Integer(NWRDSO)); 
 }
 
 public void addNZERO(int NZERO) {
-	_NZERO.addElement(new Integer(NZERO)); 
+	_NZERO.add(new Integer(NZERO)); 
 }
 
 public void addPCPPTR(int PCPPTR) {
-	_PCPPTR.addElement(new Integer(PCPPTR)); 
+	_PCPPTR.add(new Integer(PCPPTR)); 
 }
 
 public void addPNTR(int PNTR) {
-	_PNTR.addElement(new Integer(PNTR)); 
+	_PNTR.add(new Integer(PNTR)); 
 }
 
 public void addPRMPTR(int PRMPTR) {
-	_PRMPTR.addElement(new Integer(PRMPTR)); 
+	_PRMPTR.add(new Integer(PRMPTR)); 
 }
 
 public void addRDATE(int RDATE) {
-	_RDATE.addElement(new Integer(RDATE)); 
+	_RDATE.add(new Integer(RDATE)); 
 }
 
 public void addRPT2LG(int RPT2LG) {
-	_RPT2LG.addElement(new Integer(RPT2LG)); 
+	_RPT2LG.add(new Integer(RPT2LG)); 
 }
 
 public void addRPTLG(int RPTLG) {
-	_RPTLG.addElement(new Integer(RPTLG)); 
+	_RPTLG.add(new Integer(RPTLG)); 
 }
 
 public void addSMNOZO(int SMNOZO) {
-	_SMNOZO.addElement(new Integer(SMNOZO)); 
+	_SMNOZO.add(new Integer(SMNOZO)); 
 }
 
 public void addSTAID(String STAID) {
-	_STAID.addElement(STAID); 
+	_STAID.add(STAID); 
 }
 
 public void addTMPPTR(int TMPPTR) {
-	_TMPPTR.addElement(new Integer(TMPPTR)); 
+	_TMPPTR.add(new Integer(TMPPTR)); 
 }
 
 /**
@@ -742,306 +743,306 @@ public int getTYPREC() {
 	return _TYPREC; 
 }
 
-public Vector getACDCP() {
+public List getACDCP() {
 	return _ACDCP; 
 }  
 public float getACDCP(int ACDCPindex) { 
-	return (float)((Float)_ACDCP.elementAt(ACDCPindex)).floatValue();
+	return (float)((Float)_ACDCP.get(ACDCPindex)).floatValue();
 }
 
-public Vector getACPSQ() {
+public List getACPSQ() {
 	return _ACPSQ; 
 }  
 public float getACPSQ(int ACPSQindex) { 
-	return (float)((Float)_ACPSQ.elementAt(ACPSQindex)).floatValue();
+	return (float)((Float)_ACPSQ.get(ACPSQindex)).floatValue();
 }
 
-public Vector getADDDTP() {
+public List getADDDTP() {
 	return _ADDDTP; 
 }  
-public Vector getADDDTP(int ADDDTPVindex) { 
-	return (Vector)_ADDDTP.elementAt(ADDDTPVindex);
+public List getADDDTP(int ADDDTPVindex) { 
+	return (List)_ADDDTP.get(ADDDTPVindex);
 }
 public String getADDDTP(int ADDDTPVindex,int ADDDTPindex) { 
-	Vector adddtpVect = (Vector)_ADDDTP.elementAt(ADDDTPVindex);
-	return (String)adddtpVect.elementAt(ADDDTPindex);
+	List adddtpVect = (List)_ADDDTP.get(ADDDTPVindex);
+	return (String)adddtpVect.get(ADDDTPindex);
 }
 
-public Vector getADTPTR() {
+public List getADTPTR() {
 	return _ADTPTR; 
 }  
-public Vector getADTPTR(int ADTPTRVindex) { 
-	return (Vector)_ADTPTR.elementAt(ADTPTRVindex);
+public List getADTPTR(int ADTPTRVindex) { 
+	return (List)_ADTPTR.get(ADTPTRVindex);
 }
 public int getADTPTR(int ADTPTRVindex, int ADTPTRindex) { 
-	Vector adtptrVect = (Vector)_ADTPTR.elementAt(ADTPTRVindex);
-	return (int)((Integer)adtptrVect.elementAt(ADTPTRindex)).intValue();
+	List adtptrVect = (List)_ADTPTR.get(ADTPTRVindex);
+	return (int)((Integer)adtptrVect.get(ADTPTRindex)).intValue();
 }
 
-public Vector getBDATE() {
+public List getBDATE() {
 	return _BDATE; 
 }  
 public int getBDATE(int BDATEindex) { 
-	return (int)((Integer)_BDATE.elementAt(BDATEindex)).intValue();
+	return (int)((Integer)_BDATE.get(BDATEindex)).intValue();
 }
 
-public Vector getDATAR1() {
+public List getDATAR1() {
 	return _DATAR1; 
 }  
 public int getDATAR1(int DATAR1index) { 
-	return (int)((Integer)_DATAR1.elementAt(DATAR1index)).intValue();
+	return (int)((Integer)_DATAR1.get(DATAR1index)).intValue();
 }
 
-public Vector getDTYPE() {
+public List getDTYPE() {
 	return _DTYPE; 
 }  
 public String getDTYPE(int DTYPEindex) { 
-	return (String)_DTYPE.elementAt(DTYPEindex);
+	return (String)_DTYPE.get(DTYPEindex);
 }
 
-public Vector getECRECN() {
+public List getECRECN() {
 	return _ECRECN; 
 }  
 public int getECRECN(int ECRECNindex) { 
-	return (int)((Integer)_ECRECN.elementAt(ECRECNindex)).intValue();
+	return (int)((Integer)_ECRECN.get(ECRECNindex)).intValue();
 }
 
-public Vector getEDATE() {
+public List getEDATE() {
 	return _EDATE; 
 }  
 public int getEDATE(int EDATEindex) { 
-	return (int)((Integer)_EDATE.elementAt(EDATEindex)).intValue();
+	return (int)((Integer)_EDATE.get(EDATEindex)).intValue();
 }
 
-public Vector getL2DATE() {
+public List getL2DATE() {
 	return _L2DATE; 
 }  
 public int getL2DATE(int L2DATEindex) { 
-	return (int)((Integer)_L2DATE.elementAt(L2DATEindex)).intValue();
+	return (int)((Integer)_L2DATE.get(L2DATEindex)).intValue();
 }
 
-public Vector getLDATE() {
+public List getLDATE() {
 	return _LDATE; 
 }  
 public int getLDATE(int LDATEindex) { 
-	return (int)((Integer)_LDATE.elementAt(LDATEindex)).intValue();
+	return (int)((Integer)_LDATE.get(LDATEindex)).intValue();
 }
 
-public Vector getLDATEDDT() {
+public List getLDATEDDT() {
 	return _LDATEDDT; 
 }  
 public int getLDATEDDT(int LDATEDDTindex) { 
-	return (int)((Integer)_LDATEDDT.elementAt(LDATEDDTindex)).intValue();
+	return (int)((Integer)_LDATEDDT.get(LDATEDDTindex)).intValue();
 }
 
-public Vector getLDDFRC() {
+public List getLDDFRC() {
 	return _LDDFRC; 
 }  
 public int getLDDFRC(int LDDFRCindex) { 
-	return (int)((Integer)_LDDFRC.elementAt(LDDFRCindex)).intValue();
+	return (int)((Integer)_LDDFRC.get(LDDFRCindex)).intValue();
 }
 
-public Vector getLDRECN() {
+public List getLDRECN() {
 	return _LDRECN; 
 }  
 public int getLDRECN(int LDRECNindex) { 
-	return (int)((Integer)_LDRECN.elementAt(LDRECNindex)).intValue();
+	return (int)((Integer)_LDRECN.get(LDRECNindex)).intValue();
 }
 
-public Vector getLSTDTA() {
+public List getLSTDTA() {
 	return _LSTDTA; 
 }  
 public int getLSTDTA(int LSTDTAindex) { 
-	return (int)((Integer)_LSTDTA.elementAt(LSTDTAindex)).intValue();
+	return (int)((Integer)_LSTDTA.get(LSTDTAindex)).intValue();
 }
 
-public Vector getLSTPTR() {
+public List getLSTPTR() {
 	return _LSTPTR; 
 }  
 public int getLSTPTR(int LSTPTRindex) { 
-	return (int)((Integer)_LSTPTR.elementAt(LSTPTRindex)).intValue();
+	return (int)((Integer)_LSTPTR.get(LSTPTRindex)).intValue();
 }
 
-public Vector getLUFILE() {
+public List getLUFILE() {
 	return _LUFILE; 
 }  
 public int getLUFILE(int LUFILEindex) { 
-	return (int)((Integer)_LUFILE.elementAt(LUFILEindex)).intValue();
+	return (int)((Integer)_LUFILE.get(LUFILEindex)).intValue();
 }
 
-public Vector getMAXDAY() {
+public List getMAXDAY() {
 	return _MAXDAY; 
 }  
 public int getMAXDAY(int MAXDAYindex) { 
-	return (int)((Integer)_MAXDAY.elementAt(MAXDAYindex)).intValue();
+	return (int)((Integer)_MAXDAY.get(MAXDAYindex)).intValue();
 }
 
-public Vector getMAXSTA() {
+public List getMAXSTA() {
 	return _MAXSTA; 
 }  
 public int getMAXSTA(int MAXSTAindex) { 
-	return (int)((Integer)_MAXSTA.elementAt(MAXSTAindex)).intValue();
+	return (int)((Integer)_MAXSTA.get(MAXSTAindex)).intValue();
 }
 
-public Vector getMDDFRC() {
+public List getMDDFRC() {
 	return _MDDFRC; 
 }  
 public int getMDDFRC(int MDDFRCindex) { 
-	return (int)((Integer)_MDDFRC.elementAt(MDDFRCindex)).intValue();
+	return (int)((Integer)_MDDFRC.get(MDDFRCindex)).intValue();
 }
 
-public Vector getNADDTP() {
+public List getNADDTP() {
 	return _NADDTP; 
 }  
 public int getNADDTP(int NADDTPindex) { 
-	return (int)((Integer)_NADDTP.elementAt(NADDTPindex)).intValue();
+	return (int)((Integer)_NADDTP.get(NADDTPindex)).intValue();
 }
 
-public Vector getNDATA() {
+public List getNDATA() {
 	return _NDATA; 
 }  
 public int getNDATA(int NDATAindex) { 
-	return (int)((Integer)_NDATA.elementAt(NDATAindex)).intValue();
+	return (int)((Integer)_NDATA.get(NDATAindex)).intValue();
 }
 
-public Vector getNDAYS() {
+public List getNDAYS() {
 	return _NDAYS; 
 }  
 public int getNDAYS(int NDAYSindex) { 
-	return (int)((Integer)_NDAYS.elementAt(NDAYSindex)).intValue();
+	return (int)((Integer)_NDAYS.get(NDAYSindex)).intValue();
 }
 
-public Vector getNPNTRS() {
+public List getNPNTRS() {
 	return _NPNTRS; 
 }  
 public int getNPNTRS(int NPNTRSindex) { 
-	return (int)((Integer)_NPNTRS.elementAt(NPNTRSindex)).intValue();
+	return (int)((Integer)_NPNTRS.get(NPNTRSindex)).intValue();
 }
 
-public Vector getNREC1D() {
+public List getNREC1D() {
 	return _NREC1D; 
 }  
 public int getNREC1D(int NREC1Dindex) { 
-	return (int)((Integer)_NREC1D.elementAt(NREC1Dindex)).intValue();
+	return (int)((Integer)_NREC1D.get(NREC1Dindex)).intValue();
 }
 
-public Vector getNSTATS() {
+public List getNSTATS() {
 	return _NSTATS; 
 }  
 public int getNSTATS(int NSTATSindex) { 
-	return (int)((Integer)_NSTATS.elementAt(NSTATSindex)).intValue();
+	return (int)((Integer)_NSTATS.get(NSTATSindex)).intValue();
 }
 
-public Vector getNTOTAL() {
+public List getNTOTAL() {
 	return _NTOTAL; 
 }  
 public int getNTOTAL(int NTOTALindex) { 
-	return (int)((Integer)_NTOTAL.elementAt(NTOTALindex)).intValue();
+	return (int)((Integer)_NTOTAL.get(NTOTALindex)).intValue();
 }
 
-public Vector getNUMID() {
+public List getNUMID() {
 	return _NUMID; 
 }  
 public int getNUMID(int NUMIDindex) { 
-	return (int)((Integer)_NUMID.elementAt(NUMIDindex)).intValue();
+	return (int)((Integer)_NUMID.get(NUMIDindex)).intValue();
 }
 
-public Vector getNUMSTA() {
+public List getNUMSTA() {
 	return _NUMSTA; 
 }  
 public int getNUMSTA(int NUMSTAindex) { 
-	return (int)((Integer)_NUMSTA.elementAt(NUMSTAindex)).intValue();
+	return (int)((Integer)_NUMSTA.get(NUMSTAindex)).intValue();
 }
 
-public Vector getNWRDSDDT() {
+public List getNWRDSDDT() {
 	return _NWRDSDDT; 
 }  
 public int getNWRDSDDT(int NWRDSDDTindex) { 
-	return (int)((Integer)_NWRDSDDT.elementAt(NWRDSDDTindex)).intValue();
+	return (int)((Integer)_NWRDSDDT.get(NWRDSDDTindex)).intValue();
 }
 
-public Vector getNWRDSSTI() {
+public List getNWRDSSTI() {
 	return _NWRDSSTI; 
 }  
 public int getNWRDSSTI(int NWRDSSTIindex) { 
-	return (int)((Integer)_NWRDSSTI.elementAt(NWRDSSTIindex)).intValue();
+	return (int)((Integer)_NWRDSSTI.get(NWRDSSTIindex)).intValue();
 }
 
-public Vector getNWRDSO() {
+public List getNWRDSO() {
 	return _NWRDSO; 
 }  
 public int getNWRDSO(int NWRDSOindex) { 
-	return (int)((Integer)_NWRDSO.elementAt(NWRDSOindex)).intValue();
+	return (int)((Integer)_NWRDSO.get(NWRDSOindex)).intValue();
 }
 
-public Vector getNZERO() {
+public List getNZERO() {
 	return _NZERO; 
 }  
 public int getNZERO(int NZEROindex) { 
-	return (int)((Integer)_NZERO.elementAt(NZEROindex)).intValue();
+	return (int)((Integer)_NZERO.get(NZEROindex)).intValue();
 }
 
-public Vector getPCPPTR() {
+public List getPCPPTR() {
 	return _PCPPTR; 
 }  
 public int getPCPPTR(int PCPPTRindex) { 
-	return (int)((Integer)_PCPPTR.elementAt(PCPPTRindex)).intValue();
+	return (int)((Integer)_PCPPTR.get(PCPPTRindex)).intValue();
 }
 
-public Vector getPNTR() {
+public List getPNTR() {
 	return _PNTR; 
 }  
 public int getPNTR(int PNTRindex) { 
-	return (int)((Integer)_PNTR.elementAt(PNTRindex)).intValue();
+	return (int)((Integer)_PNTR.get(PNTRindex)).intValue();
 }
 
-public Vector getPRMPTR() {
+public List getPRMPTR() {
 	return _PRMPTR; 
 }  
 public int getPRMPTR(int PRMPTRindex) { 
-	return (int)((Integer)_PRMPTR.elementAt(PRMPTRindex)).intValue();
+	return (int)((Integer)_PRMPTR.get(PRMPTRindex)).intValue();
 }
 
-public Vector getRDATE() {
+public List getRDATE() {
 	return _RDATE; 
 }  
 public int getRDATE(int RDATEindex) { 
-	return (int)((Integer)_RDATE.elementAt(RDATEindex)).intValue();
+	return (int)((Integer)_RDATE.get(RDATEindex)).intValue();
 }
 
-public Vector getRPT2LG() {
+public List getRPT2LG() {
 	return _RPT2LG; 
 }  
 public int getRPT2LG(int RPT2LGindex) { 
-	return (int)((Integer)_RPT2LG.elementAt(RPT2LGindex)).intValue();
+	return (int)((Integer)_RPT2LG.get(RPT2LGindex)).intValue();
 }
 
-public Vector getRPTLG() {
+public List getRPTLG() {
 	return _RPTLG; 
 }  
 public int getRPTLG(int RPTLGindex) { 
-	return (int)((Integer)_RPTLG.elementAt(RPTLGindex)).intValue();
+	return (int)((Integer)_RPTLG.get(RPTLGindex)).intValue();
 }
 
-public Vector getSMNOZO() {
+public List getSMNOZO() {
 	return _SMNOZO; 
 }  
 public int getSMNOZO(int SMNOZOindex) { 
-	return (int)((Integer)_SMNOZO.elementAt(SMNOZOindex)).intValue();
+	return (int)((Integer)_SMNOZO.get(SMNOZOindex)).intValue();
 }
 
-public Vector getSTAID() {
+public List getSTAID() {
 	return _STAID; 
 }  
 public String getSTAID(int STAIDindex) { 
-	return (String)_STAID.elementAt(STAIDindex);
+	return (String)_STAID.get(STAIDindex);
 }
 
-public Vector getTMPPTR() {
+public List getTMPPTR() {
 	return _TMPPTR; 
 }  
 public int getTMPPTR(int TMPPTRindex) { 
-	return (int)((Integer)_TMPPTR.elementAt(TMPPTRindex)).intValue();
+	return (int)((Integer)_TMPPTR.get(TMPPTRindex)).intValue();
 }
 
 /**

@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -182,7 +183,7 @@ public void actionPerformed(ActionEvent event ) {
 		refillData();
 	}
 	else if (source == __popup_deleteRatingCurve_JMenuItem) {
-		Vector v = NWSRFS_Util.run_delete_ratingCurve(id);
+		List v = NWSRFS_Util.run_delete_ratingCurve(id);
 		if (v != null) {
 			refillData();
 		}
@@ -247,11 +248,11 @@ Returns a Vector of all the rating curves in the database.
 @return a Vector of all the rating curves in the database.  Guaranteed to return
 a non-null Vector.
 */
-public Vector getRatingCurves() {
+public List getRatingCurves() {
 	String routine = "NWSRFS_RatingCurve_JPanel.getRatingCurves";
 
 	//make vector of rating curve IDs
-	Vector rc_vect = null;
+	List rc_vect = null;
 
 	NWSRFS_DMI dmi = __nwsrfs.getDMI();
 	try {
@@ -278,9 +279,9 @@ public Vector getRatingCurves() {
 
 	NWSRFS_RatingCurve rc = null;
 	String rcid = null;
-	Vector v = new Vector();
+	List v = new Vector();
 	for (int i = 0; i < numb_rcs; i++ ) {
-		rcid = (String)rc_vect.elementAt(i);
+		rcid = (String)rc_vect.get(i);
 		try {
 			rc = dmi.readRatingCurve(rcid);
 		}

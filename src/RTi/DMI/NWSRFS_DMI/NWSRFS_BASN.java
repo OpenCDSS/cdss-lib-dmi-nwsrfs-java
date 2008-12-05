@@ -12,6 +12,7 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -236,12 +237,12 @@ protected float _basinArea;
 /**
 Basin boundary points latitude.
 */
-protected Vector _basinLatitude;
+protected List _basinLatitude;
 
 /**
 Basin boundary points longitude.
 */
-protected Vector _basinLongitude;
+protected List _basinLongitude;
 
 /**
 Centroid of the basin area, NWSRFS/HRAP X coordinate
@@ -266,7 +267,7 @@ protected String _description;
 /**
 Basin grid point definition. A Vector of 3-value Vectors.
 */
-protected Vector _gridDef;
+protected List _gridDef;
 
 /**
 MAP ID that uses Basin boundary.
@@ -332,7 +333,7 @@ Member method for Basin parameter variables
 @param latitude the latitude for a basin boundary point.
 */
 public void addBASNLatitude(float latitude) {
-	_basinLatitude.addElement(new Float(latitude));
+	_basinLatitude.add(new Float(latitude));
 }
 
 /**
@@ -342,7 +343,7 @@ Member method for Basin parameter variables
 @param longitude the longitude for a basin boundary point.
 */
 public void addBASNLongitude(float longitude) {
-	_basinLongitude.addElement(new Float(longitude));
+	_basinLongitude.add(new Float(longitude));
 }
 
 /**
@@ -352,8 +353,8 @@ beginning column, and ending column in THAT ORDER! This is a Vector of Vectors.
 Member method for Basin parameter variables
 @param gpDef the grid point definition Vector to add to this Vector.
 */
-public void addBASNGridPointDef(Vector gpDef) {
-	_gridDef.addElement(gpDef);
+public void addBASNGridPointDef(List gpDef) {
+	_gridDef.add(gpDef);
 }
 
 /**
@@ -448,7 +449,7 @@ Returns the Vector of the latitude of basin boundary points.
 Member method for Basin parameter variables
 @return the Vector of the latitudes of basin boundary points.
 */
-public Vector getBASNLatitude() {
+public List getBASNLatitude() {
 	return _basinLatitude;
 }
 
@@ -459,8 +460,7 @@ Member method for BASN parameter variables
 @return the latitude of basin boundary points at an index.
 */
 public float getBASNLatitude(int basnLatIndex) {
-	return (float)((Float)_basinLatitude.elementAt(basnLatIndex)).
-		floatValue();
+	return (float)((Float)_basinLatitude.get(basnLatIndex)).floatValue();
 }
 
 /**
@@ -468,7 +468,7 @@ Returns the Vector of the longitude of basin boundary points.
 Member method for Basin parameter variables
 @return the Vector of the longitudes of basin boundary points.
 */
-public Vector getBASNLongitude() {
+public List getBASNLongitude() {
 	return _basinLongitude;
 }
 
@@ -479,8 +479,7 @@ Member method for BASN parameter variables
 @return the longitude of basin boundary points at an index.
 */
 public float getBASNLongitude(int basnLongIndex) {
-	return (float)((Float)_basinLongitude.elementAt(basnLongIndex)).
-		floatValue();
+	return (float)((Float)_basinLongitude.get(basnLongIndex)).floatValue();
 }
 
 /**
@@ -488,19 +487,19 @@ Returns the Vector of the grid point definition Vectors.
 Member method for Basin parameter variables
 @return the Vector of the grid point definition Vectors.
 */
-public Vector getBASNGridPointDef() {
+public List getBASNGridPointDef() {
 	return _gridDef;
 }
 
 /**
-Returns the grid point definition Vector at an index.
+Returns the grid point definition list at an index.
 Member method for BASN parameter variables
 @param gridDefIndex index to get the specific element in the grid point 
 definition Vector
 @return the grid point definition Vector at an index.
 */
-public Vector getBASNGridPointDef(int gridDefIndex) {
-	return (Vector)_gridDef.elementAt(gridDefIndex);
+public List getBASNGridPointDef(int gridDefIndex) {
+	return (List)_gridDef.get(gridDefIndex);
 }
 
 /**
