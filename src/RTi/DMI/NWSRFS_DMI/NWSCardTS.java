@@ -1915,7 +1915,7 @@ Write a time series to the open PrintWriter.
 */
 public static void writeTimeSeries ( TS ts, PrintWriter fp )
 throws IOException
-{	// Call the method that takes multiple time seres...
+{	// Call the method that takes multiple time series...
 	writeTimeSeries ( ts, fp, (DateTime)null, (DateTime)null, "", true );
 }
 
@@ -1989,8 +1989,7 @@ Write a time series to a NWSCard format file.
 @param fp PrintWriter to write to.
 @param req_date1 First date to write (if null write the entire time series).
 @param req_date2 Last date to write (if null write the entire time series).
-@param req_units Units to write.  If different than the current units the units
-will be converted on output.
+@param req_units Units to write.  If different than the current units the units will be converted on output.
 @param write_data Indicates whether data should be written.
 @exception IOException if there is an error writing the file.
 */
@@ -1998,7 +1997,7 @@ public static void writeTimeSeries ( TS ts, PrintWriter fp,	DateTime req_date1, 
 					String req_units, boolean write_data )
 throws IOException
 {	String	cfmt = "%10.3f", dimension, nfmt = "F10.3", message, routine="NWSHourTS.writePersistent";
-    int ndpl = 6;           // Number of data per line.
+    int ndpl = 6; // Number of data per line.
 
 	if ( ts == null ) {
 		message = "Time series is null, cannot continue.";
@@ -2180,17 +2179,22 @@ throws IOException
 			date2_file.setHour(24);
 		}
 	}
+	
+    // Card files need to use -999 or -998 for missing.  If the value is not in this range, set it to -999.
+	double missing = ts.getMissing();   // used when printing outside requested period
+    if ( (missing >= -997.99999) || (missing < -999.00001) ) {
+        Message.printStatus ( 2, routine, "Will output missing values as recognized CARD value -999 " +
+            "rather than internal value " + missing );
+        missing = -999.0;
+    }
 
 	// The above dates should not be printed anywhere else, although the
 	// 24-hour issue is addressed below.
 
-	fp.println (
-	"$  PERIOD OF RECORD=" +
-	date1_file.toString(DateTime.FORMAT_MM_SLASH_YYYY) + " THRU " +
+	fp.println ( "$  PERIOD OF RECORD=" + date1_file.toString(DateTime.FORMAT_MM_SLASH_YYYY) + " THRU " +
 	date2_file.toString(DateTime.FORMAT_MM_SLASH_YYYY));
 
-	fp.println ( "$  SYMBOL FOR MISSING DATA=" +
-		StringUtil.formatString(ts.getMissing(),"%.2f") +
+	fp.println ( "$  SYMBOL FOR MISSING DATA=" + StringUtil.formatString(missing,"%.2f") +
 		"   SYMBOL FOR ACCUMULATED DATA=-998.00" );
 
 	DataUnits units;
@@ -2211,14 +2215,10 @@ throws IOException
 	else {
         hours = 24;	// Checked for daily above.
 	}
-	fp.println (
-	"$  TYPE=" +
-	StringUtil.formatString (ts.getDataType(),"%-4.4s") +
-	"   UNITS=" +
-	StringUtil.formatString(data_units,"%-4.4s") +
+	fp.println ( "$  TYPE=" + StringUtil.formatString (ts.getDataType(),"%-4.4s") +
+	"   UNITS=" + StringUtil.formatString(data_units,"%-4.4s") +
 	"   DIMENSIONS=" + StringUtil.formatString(dimension,"%-4.4s") +
-	"   DATA TIME INTERVAL=" +
-	StringUtil.formatString(hours,"%2d") + " HOURS" );
+	"   DATA TIME INTERVAL=" + StringUtil.formatString(hours,"%2d") + " HOURS" );
 
 	fp.println ( "$  OUTPUT FORMAT=(3A4,2I2,I4," + ndpl + nfmt + ")" );
 
@@ -2231,17 +2231,12 @@ throws IOException
 	else if ( data_interval_base == TimeInterval.DAY ) {
 		interval_mult_string = "24";
 	}
-	fp.println (
-        "DATACARD      " +
-	StringUtil.formatString(ts.getDataType(),"%-4.4s") + " " +
+	fp.println ( "DATACARD      " + StringUtil.formatString(ts.getDataType(),"%-4.4s") + " " +
 	StringUtil.formatString(dimension,"%-4.4s") + " " +
-	StringUtil.formatString(data_units,"%-4.4s") + " " +
-	interval_mult_string + "   " +
-	StringUtil.formatString(id.getLocation(),"%-12.12s") + "   " +
-	ts.getDescription() );
+	StringUtil.formatString(data_units,"%-4.4s") + " " + interval_mult_string + "   " +
+	StringUtil.formatString(id.getLocation(),"%-12.12s") + "   " + ts.getDescription() );
 
-	fp.println (
-        StringUtil.formatString(date1_file.getMonth(),"%2d") + "  " +
+	fp.println ( StringUtil.formatString(date1_file.getMonth(),"%2d") + "  " +
 	StringUtil.formatString(date1_file.getYear(),"%4d") + " " +
 	StringUtil.formatString(date2_file.getMonth(),"%2d") + "   " +
 	StringUtil.formatString(date2_file.getYear(),"%4d") + " " +
@@ -2304,7 +2299,6 @@ throws IOException
 	}
 
 	String location = StringUtil.formatString(id.getLocation(),"%-12.12s");
-    double missing = ts.getMissing();   // used when printing outside requested period
 	for ( ; date.lessThanOrEqualTo(date2);
 		date.addInterval(data_interval_base,data_interval_mult) ) {
 		// For hour data:
@@ -2342,23 +2336,21 @@ throws IOException
             // Date being processed is outside the requested period so use missing.
             value = missing;
         }
-		if ( convert_units ) {
-			if ( !ts.isDataMissing(value) ) {
-				value = value*mult + add;
-			}
-			buffer.append( StringUtil.formatString(value,cfmt));
-		}
-		else {
-            buffer.append( StringUtil.formatString(value,cfmt) );
-		}
+        else if ( ts.isDataMissing(value)) {
+            // Use missing value that may have been adjusted to CARD missing value
+            value = missing;
+        }
+        else if ( convert_units ) {
+    		 // Need to convert units if not missing
+     		 value = value*mult + add;
+        }
+        // Now append the value to the buffer
+        buffer.append( StringUtil.formatString(value,cfmt) );
 
-		// Determine whether the line should be printed.
-		// The line is printed if the number of data values
-		// is evenly divisible by the number of values for the line or
-		// if all values for the month have been printed.
+		// Determine whether the line should be printed.  The line is printed if the number of data values is
+		// evenly divisible by the number of values for the line or if all values for the month have been printed.
 		//
-		// If read to print, print the line information and then the
-		// StringBuffer data contents from above.
+		// If read to print, print the line information and then the StringBuffer data contents from above.
 		//
 
 		if ( (month_data_count%ndpl == 0) ||(ndata_in_month == month_data_count) ) {
@@ -2389,12 +2381,10 @@ throws IOException
 		}
 
 		// If hourly data, check for new month AFTER processing the data
-		// since internal data will be stored in the future (period
-		// ending at end of day),
+		// since internal data will be stored in the future (period ending at end of day),
 		if ( (data_interval_base == TimeInterval.HOUR) && (date.getDay() == 1) && (date.getHour() == 0) ) {
 			// Last value of NWSCARD month is actually in next month
-			// in internal data so we need to start a new month for
-			// the next data value...
+			// in internal data so we need to start a new month for the next data value...
 
             // Num of intervals=[NumberOfDays] * [NumberOfData/Day]
             ndays_in_month = TimeUtil.numDaysInMonth( date.getMonth(), date.getYear() );
@@ -2436,4 +2426,4 @@ public static FileFilter[] getFileFilters() {
 	return filters;
 }
 
-} // Endof NWSCardTS class
+}
