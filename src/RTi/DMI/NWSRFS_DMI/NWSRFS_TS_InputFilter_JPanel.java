@@ -24,8 +24,7 @@ public class NWSRFS_TS_InputFilter_JPanel extends InputFilter_JPanel
 {
 
 /**
-Create an InputFilter_JPanel for creating where clauses
-for time series queries.  This is used by TSTool.
+Create an InputFilter_JPanel for creating where clauses for time series queries.  This is used by TSTool.
 @return a JPanel containing InputFilter instances for time series queries.
 @exception Exception if there is an error.
 */
@@ -35,12 +34,12 @@ throws Exception
 	input_filters.add ( new InputFilter (
 		"", "",
 		StringUtil.TYPE_STRING,
-		null, null, true ) );	// Blank to disable filter
+		null, null, true ) );	// Blank to disable filter (no filter active)
 	input_filters.add ( new InputFilter (
 		"ID", "ID",
 		StringUtil.TYPE_STRING,
 		null, null, true ) );
-	/* REVISIT - enable later (is it stored with the TS?)
+	/* TODO SAM - enable later (is it stored with the TS?)
 	input_filters.addElement ( new InputFilter (
 		"Name", "Name",
 		StringUtil.TYPE_STRING,
@@ -49,9 +48,7 @@ throws Exception
 	PropList filter_props = new PropList ( "InputFilter" );
 	filter_props.set ( "NumFilterGroups=1" );
 	setToolTipText (
-		"<HTML>NWSRFS FS5Files queries can be filtered" +
-		"<BR>based on time series header information." +
-		"</HTML>" );
+		"<HTML>NWSRFS FS5Files queries can be filtered <BR>based on time series header information.</HTML>" );
 	setInputFilters ( input_filters, filter_props );
 }
 
