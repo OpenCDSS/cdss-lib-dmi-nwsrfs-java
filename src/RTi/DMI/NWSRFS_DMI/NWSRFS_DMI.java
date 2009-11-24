@@ -5531,7 +5531,8 @@ throws Exception {
 
 	try {
 		rfs_sys_dir = NWSRFS_Util.getAppsDefaults("rfs_sys_dir");
-	} catch(Exception e) {
+	}
+	catch(Exception e) {
 		// If rfs_sys_dir string is null then print message
 		rfs_sys_dir = "/awips/hydroapps/lx/rfc/nwsrfs/sys_files/";
 	}
