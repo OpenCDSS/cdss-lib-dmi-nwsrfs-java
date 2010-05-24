@@ -17,7 +17,6 @@ import java.util.Vector;
 
 import RTi.Util.GUI.InputFilter;
 import RTi.Util.GUI.InputFilter_JPanel;
-import RTi.Util.IO.PropList;
 import RTi.Util.String.StringUtil;
 
 public class NWSRFS_TS_InputFilter_JPanel extends InputFilter_JPanel
@@ -45,11 +44,8 @@ throws Exception
 		StringUtil.TYPE_STRING,
 		null, null, true ) );
 	*/
-	PropList filter_props = new PropList ( "InputFilter" );
-	filter_props.set ( "NumFilterGroups=1" );
-	setToolTipText (
-		"<HTML>NWSRFS FS5Files queries can be filtered <BR>based on time series header information.</HTML>" );
-	setInputFilters ( input_filters, filter_props );
+	setToolTipText ( "<html>NWSRFS FS5Files queries can be filtered <BR>based on time series header information.</html>" );
+	setInputFilters ( input_filters, 1, -1 );
 }
 
 }
