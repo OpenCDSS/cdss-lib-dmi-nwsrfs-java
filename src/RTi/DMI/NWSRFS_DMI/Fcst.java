@@ -201,8 +201,8 @@ private DayTS buildDayTS ( IrregularTS its )
 
 	DayTS dts = new DayTS();
 	TSIdent tsid = null;
-	try {	tsid = new TSIdent (
-			its.getLocation(), "NWSRFS", "PTPX", "Day", "" );
+	try {
+	    tsid = new TSIdent ( its.getLocation(), "NWSRFS", "PTPX", "Day", "" );
 		dts.setIdentifier(tsid);
 	}
 	catch ( Exception e ) {
@@ -212,12 +212,13 @@ private DayTS buildDayTS ( IrregularTS its )
 	dts.setDate1(date1);
 	dts.setDate2(date2);
 	dts.setDataUnits(its.getDataUnits());
-	dts.hasDataFlags(true, 1);
+	dts.hasDataFlags(true,true);
 	dts.allocateDataSpace();
 	dts.setDescription(its.getDescription());
 
 	TSIterator itsi = null;
-	try {	itsi = its.iterator();
+	try {
+	    itsi = its.iterator();
 	}
 	catch ( Exception e ) {
 		// Should not happen...
@@ -226,8 +227,7 @@ private DayTS buildDayTS ( IrregularTS its )
 
 	TSData tsd;
 	for ( tsd = itsi.next(); tsd != null; tsd = itsi.next() ) {
-		dts.setDataValue(tsd.getDate(), tsd.getData(), 
-			tsd.getDataFlag(), 0);
+		dts.setDataValue(tsd.getDate(), tsd.getData(), tsd.getDataFlag(), 0);
 	}
 
 	return dts;
@@ -252,10 +252,10 @@ throws Exception
 	DateTime date1;
 	DateTime date2;
 
-	// The DayTS object needs to accomodate all the dates from earliest to
+	// The DayTS object needs to accommodate all the dates from earliest to
 	// latest, so check to see if the date extremes read in the existing
 	// time series lie outside of the dates in the DayTS.  If so, resize the
-	// DayTS to accomodate them.
+	// DayTS to accommodate them.
 
 	if (iDate1.lessThan(dDate1)) {
 		date1 = iDate1;
@@ -278,12 +278,11 @@ throws Exception
 	// Make sure the daily time series has data flags turned on.  Data read
 	// from an existing file may not have data flags, for some reason.
 
-	dts.hasDataFlags(true, 1);
+	dts.hasDataFlags(true,true);
 	
 	TSData tsd;
 	for ( tsd = itsi.next(); tsd != null; tsd = itsi.next() ) {
-		dts.setDataValue(tsd.getDate(), tsd.getData(),
-			tsd.getDataFlag(), 0 );
+		dts.setDataValue(tsd.getDate(), tsd.getData(), tsd.getDataFlag(), 0 );
 	}
 
 	return dts;
@@ -462,19 +461,16 @@ throws Exception
 			// associated with the identifier value just read out.
 			its = (IrregularTS)ht.get(id);
 			if (its == null) {
-				// A new time series needs to be created and
-				// populated with the base information.
+				// A new time series needs to be created and populated with the base information.
 				its = new IrregularTS();
-				TSIdent tsid = 
-				new TSIdent(id,"NWSRFS","PTPX","Irregular", "");
+				TSIdent tsid = new TSIdent(id,"NWSRFS","PTPX","Irregular", "");
 				its.setIdentifier(tsid);
 				its.setDataUnits(units);
 				its.setDescription(name);
-				its.hasDataFlags(true, 1);
+				its.hasDataFlags(true,true);
 				ht.put(id, its);
 			} 
-			// The date has a precision of day so that data can
-			// later be transferred to a DayTS.
+			// The date has a precision of day so that data later can be transferred to a DayTS.
 			its.setDataValue(date, data, flag, 0);
 		}
 	}
@@ -487,8 +483,7 @@ Process fcst program MAP function output file(s) into daily DateValue TS files
 written to the time series files.  Time series file names are the same as
 the time series identifiers.  Note that no special care is taken to deal with
 the start of the hydrologic day - the dates in the daily files do not have the
-hour and simply correspond to the daily values available in the MAP output
-files.
+hour and simply correspond to the daily values available in the MAP output files.
 @param fileList a Vector of MAP function output files to process (not to be
 confused with MAP time series files).
 @param outputDir the directory to which time series data files should be
