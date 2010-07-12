@@ -136,7 +136,6 @@ import RTi.Util.IO.DataUnits;
 import RTi.Util.IO.DataUnitsConversion;
 import RTi.Util.IO.IOUtil;
 import RTi.Util.IO.PropList;
-import RTi.Util.Math.MathUtil;
 import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 import RTi.Util.Time.DateTime;
@@ -343,8 +342,6 @@ private static boolean isNWSCardTraceFile ( BufferedReader inBufferedReader )
 				break;
 			}
 		}
-
-		string = null;
 		return is_nwsCardTrace;
 	}
 	catch ( Exception e ) {
@@ -357,8 +354,7 @@ Read a single time series from a file.
 This version works with NWS Card file (single TS per file) or will return the
 first trace out of NWS Card Trace files.
 @param fname Name of file to read.
-@return HourTS for data in the file or null if there is an error reading the
-time series.
+@return HourTS for data in the file or null if there is an error reading the time series.
 @exception IOException If an error occurs reading the file.
 */
 public static TS readTimeSeries ( String fname )
@@ -371,8 +367,7 @@ throws IOException
 Read a single time series from a file.
 This version works with NWS Card file (single TS per file) or will return the
 first trace out of NWS Card Trace files.
-@return a pointer to a newly-allocated time series if successful, a null
-pointer if not.
+@return a pointer to a newly-allocated time series if successful, a null pointer if not.
 @param fname The input file name.
 @param req_date1 Requested starting date to initialize the period (or null to
 read the entire time series).  If specified, the precision must be to hour.
@@ -383,11 +378,8 @@ read the entire time series).  If specified, the precision must be to hour.
 IOUtil.getPathUsingWorkingDir() is called to expand the filename.
 @exception IOException If an error occurs reading the file.
 */
-public static TS readTimeSeries ( String fname,
-				  DateTime req_date1,
-				  DateTime req_date2,
-				  String req_units,
-				  boolean read_data )
+public static TS readTimeSeries ( String fname, DateTime req_date1, DateTime req_date2,
+    String req_units,  boolean read_data )
 throws IOException			
 {
 	TS	ts = null;
@@ -439,12 +431,8 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static TS readTimeSeries ( String tsident_string,
-				  String 	fname,
-				  DateTime 	req_date1,
-				  DateTime 	req_date2,
-				  String 	req_units,
-				  boolean 	read_data )
+public static TS readTimeSeries ( String tsident_string, String fname, DateTime req_date1, DateTime req_date2,
+    String req_units, boolean read_data )
 throws IOException					
 {
 	String routine = "NWSCardTS.readTimeSeries(String,...)";
@@ -494,7 +482,7 @@ throws IOException
 	else {
 		// Dealing with NWS Card Trace file.
 		try {
-			List TSList = null;
+			List<TS> TSList = null;
 			
 			// Read all the time series in the file.
 			// REVISIT [LT 2005-05-18] This could be improved if the
@@ -511,15 +499,13 @@ throws IOException
 				int tsCount = TSList.size();
 				if ( tsCount != 0 ) {
 				    for ( int i = 0; i<tsCount; i++ ) {
-				    	ts = (TS) TSList.get(i);
+				    	ts = TSList.get(i);
 				    	if ( tsident_string.equalsIgnoreCase ( ts.getIdentifierString() ) ) {
 				    	    break;
 				    	}
 				    } 
 				}
 			}
-			TSList = null;
-			
 		}
 		catch ( Exception e ) {
 			msg = "Error reading the NWS Card Trace file \"" + fname + "\"";
@@ -558,10 +544,10 @@ private static TS readTimeSeries ( TS req_ts, BufferedReader in, DateTime req_da
 				  String req_units, boolean read_data )
 throws IOException				  
 {
-	//String	routine = "NWSCardTS.readTimeSeries";
+	//String routine = "NWSCardTS.readTimeSeries";
 
-	TS ts         = null;
-	List TSList = null;
+	TS ts = null;
+	List<TS> TSList = null;
 
 	// Read the time series.
 	// This version should return only one time series. When processing a 
@@ -577,7 +563,7 @@ throws IOException
 	// null and contains one element. Retrieve the element.
 	if ( TSList != null ) {
 		if ( TSList.size() != 0 ) {
-			ts = (TS) TSList.get(0);
+			ts = TSList.get(0);
 		}
 	}
 
@@ -599,7 +585,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static List readTimeSeriesList ( String fname, DateTime req_date1, DateTime req_date2,
+public static List<TS> readTimeSeriesList ( String fname, DateTime req_date1, DateTime req_date2,
 					  String req_units, boolean read_data )
 throws IOException
 {
@@ -627,7 +613,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-public static List readTimeSeriesList ( TS req_ts, String fname, DateTime req_date1, DateTime req_date2,
+public static List<TS> readTimeSeriesList ( TS req_ts, String fname, DateTime req_date1, DateTime req_date2,
 					  String req_units, boolean read_data )
 throws IOException
 {
@@ -671,12 +657,11 @@ instead (True or False).</td>
 This parameter can be null, and if so, defaults to false.
 @exception IOException If an error occurs reading the file.
 */
-public static List readTimeSeriesList(TS req_ts, String fname,
-DateTime req_date1, DateTime req_date2, String req_units, boolean read_data,
-PropList props)
+public static List<TS> readTimeSeriesList(TS req_ts, String fname,
+DateTime req_date1, DateTime req_date2, String req_units, boolean read_data, PropList props)
 throws IOException {
 	String routine = "NWSCardTS.readTimeSeriesList";
-	List TSList = null;
+	List<TS> TSList = null;
 
 	BufferedReader in = null;
 	try {
@@ -695,7 +680,7 @@ throws IOException {
 			int tsCount = TSList.size();
 			if (tsCount != 0) {
 				for (int i = 0; i<tsCount; i++) {
-					ts = (TS)TSList.get(i);
+					ts = TSList.get(i);
 					
 					// Set some time series properties.
 					ts.setInputName(fname);
@@ -805,7 +790,7 @@ instead (True or False).</td>
 This parameter can be null, and if so, defaults to false.
 @exception IOException If an error occurs reading the file.
 */
-private static List readTimeSeriesList(boolean is_nwsCardTrace,
+private static List<TS> readTimeSeriesList(boolean is_nwsCardTrace,
 TS req_ts, BufferedReader in, DateTime req_date1, DateTime req_date2, 
 String req_units, boolean read_data, PropList props)
 throws IOException
@@ -838,7 +823,7 @@ throws IOException
 	
 	// ...end of trace file only variables
 
-	List TSList = null; // Time series list to return
+	List<TS> TSList = null; // Time series list to return
 
 	String string = null; // Line read from the file
 	int	dl = 10; // Debug level
@@ -865,7 +850,7 @@ throws IOException
 	String location = "";
 	String units = "";
 	String fixed_format = "";	// Format to read data, using strings.
-	List tokens = null;
+	List<String> tokens = null;
 	boolean	header1_found = false;
 	boolean header2_found = false;
 
@@ -1204,7 +1189,7 @@ throws IOException
     				        // Try to parse read fixed format...
     				        Message.printStatus(2, routine,
     				                "Non-standard NWS Card header 2 record found.  Trying to handle..." );
-    				        List v = StringUtil.fixedRead ( string, "i2x2i4i2x2i4i4s10" );
+    				        List<Object> v = StringUtil.fixedRead ( string, "i2x2i4i2x2i4i4s10" );
     				        month1_file = ((Integer)v.get(0)).intValue();
     				        year1_file = ((Integer)v.get(1)).intValue();
     				        month2_file = ((Integer)v.get(2)).intValue();
@@ -2063,7 +2048,7 @@ throws IOException
 	}
     else if ( max > 99999999 || (min < -999999999) ) {
         // Make the format enough to display the value and have one space extra and allow for negative.
-        int ndigits = (int)MathUtil.log10(Math.max(Math.abs(max),Math.abs(min))) + 3;
+        int ndigits = (int)Math.log10(Math.max(Math.abs(max),Math.abs(min))) + 3;
         nfmt = "F" + ndigits + ".0";
         cfmt = "%" + ndigits + ".0f";
     }
