@@ -607,14 +607,13 @@ throws Exception {
 /**
 Return the valid data intervals for a time series data type.
 Currently this is hard-coded to return possible hourly intervals.  In the
-future, it may actually perform a query for data that are present in the
-database files.
+future, it may actually perform a query for data that are present in the database files.
 @return the valid data intervals for a time series data type.
 */
-public static List getDataTypeIntervals ( NWSRFS_DMI dmi, String datatype )
+public static List<String> getDataTypeIntervals ( NWSRFS_DMI dmi, String datatype )
 {	// TODO SAM 2004-09-01 - need to determine if performance will
 	// allow determining the intervals that are actually defined for the data type.
-	List intervals = new Vector ( 8 );
+	List<String> intervals = new Vector ( 8 );
 	//intervals.addElement ( "*" );
 	intervals.add ( "1Hour" );
 	intervals.add ( "3Hour" );
@@ -655,12 +654,12 @@ if in conflict with the processed database, have a sub-datatype of "-PPDB".
 @param include_preprocessor_db If true, time series data types for the
 processed database will be included in the returned list.
 */
-public static List getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc,
+public static List<String> getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc,
 						boolean include_preprocessor_db, boolean include_processed_db )
 {	// TODO SAM 2004-09-01 - need to determine if performance will
 	// allow determining the data types that are actually defined in the database.
 	String routine = "NWSRFS_Util.getTimeSeriesDataTypes";
-	List datatypes = new Vector ( 100 );
+	List<String> datatypes = new Vector ( 100 );
 	int size = 0;
 	if ( include_preprocessor_db ) {
 		// The simplest way to add these is manually...
@@ -719,7 +718,7 @@ public static List getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc
 		    // This will place the data types in the global IOUtil.DataType space...
 			// TODO SAM 2004-09-07 - need to initialize the data types once and not read here each time.
 			dmi.readDataTypeList ();
-			List v = DataType.getDataTypesData();
+			List<DataType> v = DataType.getDataTypesData();
 			if ( v != null ) {
 				size = v.size();
 			}
@@ -792,7 +791,7 @@ public static List getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc
 	if ( !include_desc ) {
 		size = datatypes.size();
 		for ( int i = 0; i < size; i++ ) {
-			datatypes.set( i, StringUtil.getToken( (String)datatypes.get(i), " ", 0, 0 ));
+			datatypes.set( i, StringUtil.getToken( datatypes.get(i), " ", 0, 0 ));
 		}
 	}
 
