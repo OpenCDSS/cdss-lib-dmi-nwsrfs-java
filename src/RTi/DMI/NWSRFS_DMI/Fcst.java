@@ -227,7 +227,7 @@ private DayTS buildDayTS ( IrregularTS its )
 
 	TSData tsd;
 	for ( tsd = itsi.next(); tsd != null; tsd = itsi.next() ) {
-		dts.setDataValue(tsd.getDate(), tsd.getData(), tsd.getDataFlag(), 0);
+		dts.setDataValue(tsd.getDate(), tsd.getDataValue(), tsd.getDataFlag(), 0);
 	}
 
 	return dts;
@@ -282,7 +282,7 @@ throws Exception
 	
 	TSData tsd;
 	for ( tsd = itsi.next(); tsd != null; tsd = itsi.next() ) {
-		dts.setDataValue(tsd.getDate(), tsd.getData(), tsd.getDataFlag(), 0 );
+		dts.setDataValue(tsd.getDate(), tsd.getDataValue(), tsd.getDataFlag(), 0 );
 	}
 
 	return dts;
