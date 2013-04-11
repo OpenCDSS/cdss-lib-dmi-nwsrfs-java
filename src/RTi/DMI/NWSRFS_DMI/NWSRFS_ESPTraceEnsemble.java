@@ -657,12 +657,9 @@ throws Exception
 /**
 Construct an NWSRFS_ESPTraceEnsemble by creating a new NWSRFS_DMI.  The DMI can
 be left open or be closed after the read.
-after the data are read.
 @param filename the file to open and read from.
-@param read_data If true, read all the data.  If false, only read the file
-header.
-@param remain_open If true, the DMI will remain open after reading the
-header.
+@param read_data If true, read all the data.  If false, only read the file header.
+@param remain_open If true, the DMI will remain open after reading the header.
 @exception Exception if there is an error reading the file.
 */
 public NWSRFS_ESPTraceEnsemble ( String filename, boolean read_data, boolean remain_open ) 
@@ -1369,15 +1366,15 @@ public DateTime getForecastStart ()
 {	return __start_date;
 }
 
+// TODO SAM 2013-04-01 evaluate whether to just rely on time series properties, which will be redundant
+// between traces but at least will be accessible and complete
 /**
-Utility method to return property-like strings for time series comments,
-debugging, etc.
-@return a Vector of String that can be printed or added to time series comments.
-@param tsin Time series to format strings for, or null for general ensemble
-strings.
+Utility method to return property-like strings for time series comments, debugging, etc.
+@return a list of String that can be printed or added to time series comments.
+@param tsin Time series to format strings for, or null for general ensemble strings.
 */
-protected List getHeaderStrings ( TS tsin )
-{	List strings = new Vector ();
+protected List<String> getHeaderStrings ( TS tsin )
+{	List<String> strings = new Vector<String>();
 	strings.add("Values from ESP Trace Ensemble Header:");
 	strings.add("FormatVersion = " + __format_ver );
 	if ( tsin == null ) {
@@ -1827,7 +1824,7 @@ throws Exception
 	// Read the header record from the dmi which is a __headerLength byte record
 	EDIS = __dmi.read(__traceRAF,0,__headerLength);
 
-	// Now parse the record for the header information. It is vital to know
+	// Parse the record for the header information. It is vital to know
 	// exactly the format of the ESP trace file in order to parse the header
 	// correctly.  The version might have an effect here so will need to
 	// revisit later to implement the version changes.
@@ -2327,8 +2324,7 @@ throws Exception
 		__ts[i] = new HourTS();
 
 		// Set information for the time series.  Because the RTi
-		// TSIdent is more streamlined than the NWS version, we only
-		// set some information...
+		// TSIdent is more streamlined than the NWS version, only set some information...
 
 		__ts[i].setIdentifier ( new TSIdent(ident) );
 		// The sequence number is used for the historical year...
@@ -2348,11 +2344,13 @@ throws Exception
 
 		// Use comments for now to pass information and troubleshoot...
 
-		List header_strings = getHeaderStrings ( __ts[i] );
-		int size = header_strings.size();
-		for ( int istr = 0; istr < size; istr++ ) {
-			__ts[i].addToComments (	(String)header_strings.get(istr) );
+		List<String> header_strings = getHeaderStrings ( __ts[i] );
+		for ( String h: header_strings ) {
+			__ts[i].addToComments (	h );
 		}
+		
+		// Set time series properties for metadata so it is accessible later
+		setTimeSeriesProperties(__ts[i], i);
 	}
 }
 
@@ -2362,22 +2360,17 @@ Read a time series matching a time series identifier.
 If no data records are available within the requested period, a call to
 hasData() on the returned time series will return false.
 @param tsident_string TSIdent string indentifying the time series.
-@param req_date1 Optional date to specify the start of the query (specify 
-null to read the entire time series).
-@param req_date2 Optional date to specify the end of the query (specify 
-null to read the entire time series).
-@param req_units requested data units (specify null or blank string to 
-return units from the database).
-@param read_data Indicates whether data should be read (specify false to 
-only read header information).
+@param req_date1 Optional date to specify the start of the query (specify null to read the entire time series).
+@param req_date2 Optional date to specify the end of the query (specify null to read the entire time series).
+@param req_units requested data units (specify null or blank string to return units from the database).
+@param read_data Indicates whether data should be read (specify false to only read header information).
 @exception if there is an error reading the time series.
 */
-public TS readTimeSeries (String tsident_string, DateTime req_date1,
-			  DateTime req_date2, String req_units,
-			  boolean read_data ) throws Exception
+public TS readTimeSeries (String tsident_string, DateTime req_date1, DateTime req_date2, String req_units,
+    boolean read_data ) throws Exception
 {
 	// Local variables 
-	String routine = "NWSRFS_ESPTraceEnsemble.readTimeSeries";
+	String routine = getClass().getName() + ".readTimeSeries";
 	String filename, input_type;
 
 	// Get TSIdent info
@@ -2394,8 +2387,99 @@ public TS readTimeSeries (String tsident_string, DateTime req_date1,
 }
 
 /**
-Writes out the trace ensemble time series to the specified file as one large
-DateValueTS.
+Set properties on the time series, based on ensemble trace information.  Currently there is no
+property list at the ensemble level.
+@param ts time series to being processed.
+@param i index of time series in ensemble
+*/
+private void setTimeSeriesProperties ( TS ts, int i )
+{
+    ts.setProperty("format_ver", new Float(__format_ver));
+    ts.setProperty("index", new Integer(i));
+    ts.setProperty("sequence_number", new Integer(ts.getSequenceNumber()));
+    ts.setProperty("seg_id", __seg_id);
+    ts.setProperty("seg_desc", __segdesc);
+    ts.setProperty("ts_id", __ts_id);
+    ts.setProperty("cg", __cg);
+    ts.setProperty("fg", __fg);
+    ts.setProperty("ts_type", __ts_type);
+    ts.setProperty("ts_dt", new Integer(__ts_dt) );
+    ts.setProperty("simflag", new Integer(__simflag));
+    ts.setProperty("ts_unit", __ts_unit);
+    ts.setProperty("now_0", new Integer(__now[0]));
+    ts.setProperty("now_1", new Integer(__now[1]));
+    ts.setProperty("now_2", new Integer(__now[2]));
+    ts.setProperty("now_3", new Integer(__now[3]));
+    ts.setProperty("now_4", new Integer(__now[4]));
+    // Create a DateTime that is more convenient to use as a property
+    DateTime now = new DateTime(DateTime.DATE_CURRENT|DateTime.PRECISION_SECOND);
+    now.setMonth(__now[0]);
+    now.setDay(__now[1]);
+    now.setYear(__now[2]);
+    now.setHour(__now[3]/100);
+    now.setMinute(__now[3]%100);
+    now.setSecond(__now[4]/100);
+    now.setTimeZone(""); // Avoid this for now
+    ts.setProperty("now", new DateTime(now));
+    ts.setProperty("hdr_id_creationdate", new DateTime(__hdr_id_creationdate));
+
+    ts.setProperty("idarun", new Integer(__idarun));
+    //ts.setProperty("idarunParts = " + start_year + "-" + start_month + "-" + start_day );
+    ts.setProperty("im", new Integer(__im));
+    ts.setProperty("iy", new Integer(__iy));
+    //ts.setProperty("start_date = " + start_date );
+    ts.setProperty("ldarun", new Integer(__ldarun));
+    //ts.setProperty("ldarunParts = " +
+        //StringUtil.formatString(end_year,"%4d") + "-" +
+        //StringUtil.formatString(end_month,"%02d") + "-" +
+        //StringUtil.formatString(end_day,"%02d") );
+    //ts.setProperty("end_date = " + end_date );
+
+    ts.setProperty("ijdlst", new Integer(__ijdlst));
+    ts.setProperty("ihlst", new Integer(__ihlst));
+    //ts.setProperty("CarryoverDateLocal = " + NWSRFS_Util.toDateTime24(__carryover_date,false));
+    //ts.setProperty("ForecastStartLocal = " + NWSRFS_Util.toDateTime24(__start_date,false));
+
+    ts.setProperty("ljdlst", new Integer(__ljdlst));
+    ts.setProperty("lhlst", new Integer(__lhlst));
+    //ts.setProperty("ForecastEndLocal = "+ NWSRFS_Util.toDateTime24(__end_date,false));
+
+    ts.setProperty("n_traces", new Integer(__n_traces));
+    ts.setProperty("ncm", new Integer(__ncm));
+    ts.setProperty("nlstz", new Integer(__nlstz));
+    ts.setProperty("noutds", new Integer(__noutds));
+    ts.setProperty("irec", new Integer(__irec));
+    ts.setProperty("dim", __dim);
+
+    ts.setProperty("tscale", __tscale);
+    ts.setProperty("xlat", new Float(__xlat));
+    ts.setProperty("xlong", new Float(__xlong));
+    
+    ts.setProperty("rfcname", __rfcname);
+    ts.setProperty("espfname", __espfname);
+    ts.setProperty("prsf_flag", new Integer(__prsf_flag) );
+    ts.setProperty("esptext", __esptext);
+    ts.setProperty("adjcount", new Integer(__adjcount));
+
+    // TODO SAM 2004-04-07 - need to evaluate whether the following
+    // make sense or just make the information more confusing.
+
+    /* Extra stuff that may not be needed
+    
+    ts.setProperty("CreationDate: '" + creationDate + "'");
+    ts.setProperty("CarryoverDate: '" + carryoverDate+ "'");
+    ts.setProperty("ForecastEndDate: '" + forecastEndDate + "'");   
+    ts.setProperty("ExceedProbDate: '" + startDate + "'");
+    
+    ts.setProperty("ProbFunction: " + FUNCTION_EMPIRICAL);
+    ts.setProperty("NRanges: 3");
+    
+    ts.setProperty("IntervalOrig: '" + TimeInterval.HOUR + "', '" + tsInterval + "'");
+    */
+}
+
+/**
+Writes out the trace ensemble time series to the specified file as one large DateValueTS.
 @param filename the name of the file to which to write the time series.
 */
 public void writeDateValueFile ( String filename ) 
