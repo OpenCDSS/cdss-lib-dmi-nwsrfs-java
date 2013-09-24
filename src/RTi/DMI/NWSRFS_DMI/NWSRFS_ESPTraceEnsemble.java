@@ -724,7 +724,7 @@ throws Exception
 // set all the data that are needed.
 
 /**
-Construct a conditional simulation NWSRFS_ESPTraceEnsemble from a Vector of HourTS,
+Construct a conditional simulation NWSRFS_ESPTraceEnsemble from a list of HourTS,
 which are assumed to have a consistent period where the start of each time
 series is the start of the forecast period (one interval after the carryover
 date/time), and the end of each time series is the end of the forecast period.
@@ -736,11 +736,9 @@ historical year used to produce the trace) - this information is used to compute
 the "idarun", "im", "iy", and "ldarun" values.  The time series should
 be in order of the historical years and the number of traces should be
 consistent with the range of sequence numbers (historical years).  After
-constructing, use the writeESPTraceEnsembleFile() method to write a conditional
-ESP trace ensemble file.
+constructing, use the writeESPTraceEnsembleFile() method to write a conditional ESP trace ensemble file.
 @param tslist The Vector of TS to place in the ensemble.  As much information as
-possible is taken from the time series, but can be specified as properties, as
-described below.
+possible is taken from the time series, but can be specified as properties, as described below.
 @param props Properties for the ensemble.
 <table width=100% cellpadding=10 cellspacing=0 border=2>
 <tr>
@@ -793,14 +791,13 @@ the list.</td>
 </table>
 @exception Exception if there is an error constructing the ensemble.
 */
-public NWSRFS_ESPTraceEnsemble ( List tslist, PropList props ) 
+public NWSRFS_ESPTraceEnsemble ( List<TS> tslist, PropList props ) 
 throws Exception
 {	
 	String routine = "NWSRFS_ESPTraceEnsemble";
 	initialize();	// Mostly blanks, conditional tracefile settings.
 
-	// FIXME SAM 2007-06-06 Should not need an NWSRFS DMI instance.  Should just
-	// write with binary file writer.
+	// FIXME SAM 2007-06-06 Should not need an NWSRFS DMI instance.  Should just write with binary file writer.
 	// Create a limited NWSRFS_DMI to do the write.
 	try {
 	    __dmi = new NWSRFS_DMI();
@@ -923,10 +920,11 @@ throws Exception
     else {
         // No adjustment for leap year is necessary...
         j = NWSRFS_Util.julda (
-         carryover_date24.getMonth(), carryover_date24.getDay(), __ts[0].getSequenceNumber(), carryover_date24.getHour() );
+         carryover_date24.getMonth(), carryover_date24.getDay(), Integer.parseInt(__ts[0].getSequenceID()),
+             carryover_date24.getHour() );
         __idarun = j[0];
         Message.printStatus ( 2, routine, "idarun computed from carryover date (24 hour local) " +
-                StringUtil.formatString(__ts[0].getSequenceNumber(),"%04d") + "-" +
+                __ts[0].getSequenceID() + "-" +
                 StringUtil.formatString(carryover_date24.getMonth(),"%02d") + "-" +
                 StringUtil.formatString(carryover_date24.getDay(),"%02d") + " " +
                 StringUtil.formatString(carryover_date24.getHour(),"%02d") +
@@ -934,7 +932,7 @@ throws Exception
                 " = " + __idarun + " (ihrrun = ihlst = " + __ihrrun + ")");
     }
     // Year and month corresponding to __idarun
-	__iy = __ts[0].getSequenceNumber();
+	__iy = Integer.parseInt(__ts[0].getSequenceID());
 	__im = carryover_date24.getMonth();
 
 	// Determine the number of conditional months
@@ -969,7 +967,7 @@ throws Exception
             " = " + __ljdlst + " (lhlst = " + __lhlst + ")" );
 
 	DateTime ldarun_date = new DateTime ( DateTime.PRECISION_MONTH );
-	ldarun_date.setYear ( __ts[__ts.length - 1].getSequenceNumber() );
+	ldarun_date.setYear ( Integer.parseInt(__ts[__ts.length - 1].getSequenceID()) );
 	ldarun_date.setMonth( __im );
 	ldarun_date.addMonth ( __ncm - 1 );
 	
@@ -1169,38 +1167,31 @@ throws Exception
 }
 
 /**
-Convert an NWSRFS_ESPTraceEnsemble file to a human-readable text file.  This is
-useful for debugging.
+Convert an NWSRFS_ESPTraceEnsemble file to a human-readable text file.  This is useful for debugging.
 @param out PrintWriter to write to the txt file.
 @param mult multiplier for conversion if desired.
 @param add addition for conversion.
 @exception Exception if there is an error.
 */
-protected void convertESPTraceEnsembleData (	PrintWriter out,
-						double mult,
-						double add)
+protected void convertESPTraceEnsembleData ( PrintWriter out, double mult, double add)
 throws Exception
 {	
 	// Local variables
 	String routine = "NWSRFS_ESPTraceEnsemble.convertESPTraceEnsembleData";
 
-
 	// Output the data records in bulk fashion and print to the output.
-	// Don't worry about knowing the exact number of records.  Just output
-	// until there is no more data...
+	// Don't worry about knowing the exact number of records.  Just output until there is no more data...
 
 	int i, ndata = __rec_words/4;	// Floats per line - should be 31
 	int nrecpermonth = (ndata/31)*(24/__ts_dt);
-	float [] data = new float[744];	// Enough for 31 days x 24 1-hour
-					// values...
+	float [] data = new float[744];	// Enough for 31 days x 24 1-hour values...
 	int icm;	// Loop counter for conditional months in each trace.
 	int y1 = getIy();
 	int ndays;	// Number of days per month.
 	int idata;	// Position in data array for month
 	int ntran;	// Number of data to transfer for a month's data
 	int ntran2;	// Number of data to transfer for a full month's data
-	DateTime date;	// Date/time to used to transfer data array to time
-			// series.
+	DateTime date;	// Date/time to used to transfer data array to time series.
 	DateTime hdate;	// Date/time to used to evaluate a historical date/time.
 	float missing_float = (float)-999.0;
 	try {
@@ -1229,8 +1220,7 @@ throws Exception
 		date.setTimeZone ( "" );
 		// Convert back to 0-23 hour...
 		date = NWSRFS_Util.toDateTime23(date,true);
-		// Loop through the number of conditional months (the month is
-		// incr...
+		// Loop through the number of conditional months (the month is incr)...
 		for ( icm = 0; icm < __ncm; icm++ ) {
 			// Loop through the records in the month...
 			// Transfer a complete month into the data array.
@@ -1245,14 +1235,12 @@ throws Exception
 			// file, even though 2004 in the forecast period has 29.
 			// Therefore, calculate the number of data values in
 			// the file based on the historical year and only
-			// increment the date for the time series as values are
-			// transferred.
+			// increment the date for the time series as values are transferred.
 			hdate = new DateTime(DateTime.PRECISION_MONTH);
 			// Set the year to the historical year...
 			hdate.setYear ( __iy + its );
 			hdate.setMonth ( __im );
-			// Now add the number of months that have been
-			// processed...
+			// Now add the number of months that have been processed...
 			hdate.addMonth ( icm );
 			// Now get the number of days in the month.  This does
 			// not look at the hour so an hour of 24 is OK...
@@ -1267,15 +1255,11 @@ throws Exception
 			// period because data outside the period will be
 			// ignored (and should be missing).
 			if ( Message.isDebugOn ) {
-				Message.printDebug ( 1, routine,
-				"Transferring " + ndays + " days, " + ntran +
-				" values for historical " + hdate +
-				" starting at " + date );
+				Message.printDebug ( 1, routine, "Transferring " + ndays + " days, " + ntran +
+				" values for historical " + hdate + " starting at " + date );
 			}
-			for (	idata = 0; idata < ntran;
-				idata++, date.addHour(__ts_dt) ) {
-				data[idata] =
-				(float)__ts[its].getDataValue(date);
+			for ( idata = 0; idata < ntran; idata++, date.addHour(__ts_dt) ) {
+				data[idata] = (float)__ts[its].getDataValue(date);
 			}
 			// Fill in the rest of the array if necessary...
 			ntran2 = 31*24/__ts_dt;
@@ -1284,40 +1268,28 @@ throws Exception
 			}
 			idata = 0;	// Reset array position.
 			if ( Message.isDebugOn ) {
-				Message.printDebug ( 1, routine,
-				"Writing trace [" + its + "] " +
-				__ts[its].getSequenceNumber() +
+				Message.printDebug ( 1, routine, "Writing trace [" + its + "] " + __ts[its].getSequenceID() +
 				" conditional month [" + icm + "]" );
 			}
-			for (	int ir = 0; ir < nrecpermonth; ir++ ) {
+			for ( int ir = 0; ir < nrecpermonth; ir++ ) {
 				if ( ir == 0 ) {
-					// Print the header information for the
-					// month (sequence year and date for
-					// trace data)...
-					out.print ( "" + (y1 + its) + " " +
-					date );
+					// Print the header information for the month (sequence year and date for trace data)...
+					out.print ( "" + (y1 + its) + " " + date );
 				}
-				else {	// Other data records for month...
-					out.print ( "                  " );
+				else {
+				    // Other data records for month...
+				    out.print ( "                  " );
 				}
-				// Loop through the data in the month,
-				// incrementing the hour to assign the data...
+				// Loop through the data in the month, incrementing the hour to assign the data...
 				for ( i = 0; i < ndata; i++ ) {
-					if (	(data[idata] < -997.9) &&
-						(data[idata] > -999.1)){
-						// Probably a missing data
-						// value...
+					if ( (data[idata] < -997.9) && (data[idata] > -999.1)){
+						// Probably a missing data value...
 						data[idata]=-999;
-						out.print (
-						StringUtil.formatString(
-						data[idata],"%10.2f") );
+						out.print ( StringUtil.formatString(data[idata],"%10.2f") );
 					}
-					else {	// Probably real data so
-						// convert...
-						out.print (
-						StringUtil.formatString(
-						(data[idata]*mult + add),
-						"%10.2f") );
+					else {
+					    // Probably real data so convert...
+						out.print ( StringUtil.formatString((data[idata]*mult + add), "%10.2f") );
 					}
 					idata++;
 				}
@@ -1380,12 +1352,12 @@ protected List<String> getHeaderStrings ( TS tsin )
 	if ( tsin == null ) {
 		StringBuffer b = new StringBuffer ("SequenceNumber =");
 		for ( int i = 0; i < __n_traces; i++ ) {
-			b.append ( " " + __ts[i].getSequenceNumber() );
+			b.append ( __ts[i].getSequenceID() );
 		}
 		strings.add(b.toString() );
 	}
 	else {
-	    strings.add("SequenceNumber = "+	tsin.getSequenceNumber() );
+	    strings.add("SequenceNumber = "+ tsin.getSequenceID() );
 	}
 	strings.add("Segment = \"" + __seg_id + "\"");
 	strings.add("SegmentDescription = \""+__segdesc+"\"");
@@ -1399,10 +1371,9 @@ protected List<String> getHeaderStrings ( TS tsin )
 	strings.add("CreationDate = \"" + __hdr_id_creationdate + "\"");
 
 	strings.add("idarun = " + __idarun );
-	//strings.add("idarunParts = " +
-		//start_year + "-" + start_month + "-" + start_day );
+	//strings.add("idarunParts = " + start_year + "-" + start_month + "-" + start_day );
 	strings.add("im = " + __im );
-		strings.add("iy = " + __iy );
+	strings.add("iy = " + __iy );
 	//strings.add("start_date = " + start_date );
 	if ( tsin != null ) {
 		strings.add("TSDate1 = " + tsin.getDate1() );
@@ -1454,15 +1425,13 @@ protected List<String> getHeaderStrings ( TS tsin )
 	strings.add("adjcount: " + adjcount);
 	strings.add("CreationDate: '" + creationDate + "'");
 	strings.add("CarryoverDate: '" + carryoverDate+ "'");
-	strings.add("ForecastEndDate: '" 
-		+ forecastEndDate + "'");	
+	strings.add("ForecastEndDate: '" + forecastEndDate + "'");	
 	strings.add("ExceedProbDate: '" + startDate + "'");
 	
 	strings.add("ProbFunction: " + FUNCTION_EMPIRICAL);
 	strings.add("NRanges: 3");
 	
-	strings.add("IntervalOrig: '" + TimeInterval.HOUR
-		+ "', '" + tsInterval + "'");
+	strings.add("IntervalOrig: '" + TimeInterval.HOUR + "', '" + tsInterval + "'");
 	*/
 	return strings;
 }
@@ -1577,8 +1546,8 @@ Return the time series maintained in the ensemble as a Vector.
 @return the time series maintained in the ensemble as a Vector, or null if
 no time series.
 */
-public List getTimeSeriesVector ()
-{	List v = new Vector(__n_traces);
+public List<TS> getTimeSeriesVector ()
+{	List<TS> v = new Vector<TS>(__n_traces);
 	for (int i = 0; i < __n_traces;i++) {
 		v.add(__ts[i]);
 	}
@@ -1586,8 +1555,7 @@ public List getTimeSeriesVector ()
 }
 
 /**
-Initialize the instance data.  This is similar to the C++ ESPTraceEns.init()
-method.
+Initialize the instance data.  This is similar to the C++ ESPTraceEns.init() method.
 */
 private void initialize ()
 {	
@@ -1643,8 +1611,7 @@ private void initialize ()
 
 /**
 Read ensemble data from the ESP trace ensemble file.  The file must already be
-opened.  The time series data space for each trace is allocated and filled with
-data.
+opened.  The time series data space for each trace is allocated and filled with data.
 */
 private void readData() 
 throws Exception
@@ -1652,30 +1619,26 @@ throws Exception
 
 	if ( __data_read ) {
 		// Should not happen...
-		Message.printWarning ( 2, routine, "ESP trace ensemble data " +
-		"are already read from file - rereading." );
+		Message.printWarning ( 2, routine, "ESP trace ensemble data are already read from file - rereading." );
 	}
 
 	int ndata = __rec_words/4;	// Floats per line - should be 31
 	int nrecpermonth = (ndata/31)*(24/__ts_dt);
-	float [] data = new float[744];	// Enough for 31 days x 24 1-hour
-					// values...
+	float [] data = new float[744];	// Enough for 31 days x 24 1-hour values...
 	//byte [] record = new byte[4]; 	// This is the byte value returned from the read.
 	int icm;	// Loop counter for conditional months in each trace.
 	int ndays;	// Number of days per month.
 	int i;		// Position in loop for data per record
 	int idata;	// Position in data array for month
 	int ntran;	// Number of data to transfer for a month's data
-	DateTime date;	// Date/time to used to transfer data array to time
-			// series.
+	DateTime date;	// Date/time to used to transfer data array to time series.
 	DateTime hdate;	// Date/time to used to evaluate a historical date/time.
 	EndianDataInputStream EDIS;
 
 	try {
 	// Position the file pointer...
 	// Check to see if RandomAccessFile is open
-	if(!__traceRAFOpen)
-	{
+	if(!__traceRAFOpen)	{
 		__traceRAF = new EndianRandomAccessFile(__filename,"r"); 
 		__traceRAFOpen = true;
 	}
@@ -1685,8 +1648,7 @@ throws Exception
 
 	// Loop through the number of time series traces...
 	for ( int its = 0; its < __n_traces; its++ ) {
-		// The data space is not allocated in readHeader() so do it
-		// here...
+		// The data space is not allocated in readHeader() so do it here...
 		__ts[its].allocateDataSpace();
 		// Initialize the date that will be used to transfer data to
 		// the starting interval in the data file.
@@ -1714,7 +1676,7 @@ throws Exception
 			idata = 0;	// Reset array position.
 			if ( Message.isDebugOn ) {
 				Message.printDebug ( 1, routine, "Reading trace [" + its + "] " +
-				__ts[its].getSequenceNumber() + " conditional month [" + icm + "]" );
+				__ts[its].getSequenceID() + " conditional month [" + icm + "]" );
 			}
 			for (	int ir = 0; ir < nrecpermonth; ir++ ) {
 				// Loop through the data in the month, incrementing the hour to assign the data...
@@ -1742,17 +1704,14 @@ throws Exception
 			// though 2004 in the forecast period has 29.
 			// Therefore, calculate the number of data values in
 			// the file based on the historical year and only
-			// increment the date for the time series as values are
-			// transferred.
+			// increment the date for the time series as values are transferred.
 			hdate = new DateTime(DateTime.PRECISION_MONTH);
 			// Set the year to the historical year...
 			hdate.setYear ( __iy + its );
 			hdate.setMonth ( __im );
-			// Now add the number of months that have been
-			// processed...
+			// Now add the number of months that have been processed...
 			hdate.addMonth ( icm );
-			// Now get the number of days in the month.  This does
-			// not look at the hour so an hour of 24 is OK...
+			// Now get the number of days in the month.  This does not look at the hour so an hour of 24 is OK...
 			ndays = TimeUtil.numDaysInMonth ( hdate );
 			// Now compute the number of data that will need to be
 			// transferred.  It may be less than the number read
@@ -1764,12 +1723,10 @@ throws Exception
 			// period because data outside the period will be
 			// ignored (and should be missing).
 			if ( Message.isDebugOn ) {
-				Message.printDebug ( 1, routine,
-				"Transferring " + ndays + " days, " + ntran +
+				Message.printDebug ( 1, routine, "Transferring " + ndays + " days, " + ntran +
 				" values for historical " + hdate +	" starting at " + date );
 			}
-			for (	idata = 0; idata < ntran;
-				idata++, date.addHour(__ts_dt) ) {
+			for ( idata = 0; idata < ntran; idata++, date.addHour(__ts_dt) ) {
 				__ts[its].setDataValue(date,data[idata]);
 			}
 		}
@@ -1803,22 +1760,18 @@ throws Exception
 	List tzMatches;
 	DateTime temp_date;
 	// This is added to integers that are read as float to make sure that the
-    // truncated integer is the proper value, in case the precision of the
-    // write rounded under.
-	// ESP writes some floats with the .01 already added, but better to add again
-	// to be better safe than sorry.
+    // truncated integer is the proper value, in case the precision of the write rounded under.
+	// ESP writes some floats with the .01 already added, but better to add again to be better safe than sorry.
 	float shift = (float).01;
 
 	// Check to see if RandomAccessFile is open
-	if(!__traceRAFOpen)
-	{
+	if(!__traceRAFOpen)	{
 		__traceRAF = new EndianRandomAccessFile(__filename,"r"); 
 		__traceRAFOpen = true;
 	}
 
 	// Rewind the file to make sure we read the header.
-	// Although if the file has not been opened yet it will
-	// not need to be rewound.
+	// Although if the file has not been opened yet it will not need to be rewound.
 	__dmi.rewind(__traceRAF);
 
 	// Read the header record from the dmi which is a __headerLength byte record
@@ -1834,8 +1787,7 @@ throws Exception
 
 	// Check to see if there is an endianess problem! The format version
 	// should be between 1 and 10. Current version seems to be "1.01".
-	if(new Float(floatValue).isNaN() || floatValue <= 0 || floatValue > 10)
-	{
+	if(new Float(floatValue).isNaN() || floatValue <= 0 || floatValue > 10) {
 		// Change the value of the endianess
 		if(__big_endian)
 		{
@@ -1858,8 +1810,7 @@ throws Exception
 		// Check again.
 		if(	new Float(floatValue).isNaN() || (floatValue <= 0) || (floatValue > 10 ) )
 		{
-			throw new Exception("Can't read ESP trace file \""+
-			__filename+"\" because of byte order problems.");
+			throw new Exception("Can't read ESP trace file \""+__filename+"\" because of byte order problems.");
 		}
 	}
 	
@@ -1980,24 +1931,21 @@ throws Exception
 
 	__idarun = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read idarun = " + __idarun + " (float=" + floatValue +
-	        ") (see below for local time)");
+	Message.printStatus ( 2, routine, "Read idarun = " + __idarun + " (float=" + floatValue + ") (see below for local time)");
 
 	// End of the traces as a julian day relative to 12/31/1899.  A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ldarun = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ldarun = " + __ldarun + " (float=" + floatValue +
-	        ") (see below for local time)");
+	Message.printStatus ( 2, routine, "Read ldarun = " + __ldarun + " (float=" + floatValue + ") (see below for local time)");
 
 	// Carryover day (1-31). A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
 
 	__ijdlst = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ijdlst = " + __ijdlst + " (float=" + floatValue +
-	        ") (see below for local time)");
+	Message.printStatus ( 2, routine, "Read ijdlst = " + __ijdlst + " (float=" + floatValue + ") (see below for local time)");
 
 	// Carryover hour (1-24). A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
@@ -2011,8 +1959,7 @@ throws Exception
 
 	__ljdlst = (int)(floatValue + shift);
 
-	Message.printStatus ( 2, routine, "Read ljdlst = " + __ljdlst + " (float=" + floatValue +
-	        ") (see below for local time)");
+	Message.printStatus ( 2, routine, "Read ljdlst = " + __ljdlst + " (float=" + floatValue + ") (see below for local time)");
 
 	// Last hour of forecast (1-24) in zulu time. A 4 byte integer
 	floatValue = EDIS.readEndianFloat();
@@ -2200,21 +2147,18 @@ throws Exception
 		i++;
 	}
 
-	Message.printStatus ( 2, routine, "Local timezone abbreviation from nlstz=" + __nlstz + " is " +
-		localTZ.getAbbreviation() );
+	Message.printStatus ( 2, routine, "Local timezone abbreviation from nlstz=" + __nlstz + " is " + localTZ.getAbbreviation() );
 
 	// idarun in the file is already in local time because that is what
 	// ESP writes - use the local hour to convert, as per Jay Day
 	DateTime idarun_date = NWSRFS_Util.mdyh1(__idarun, __ihlst);
-	Message.printStatus ( 2, routine, "idarun as local date/time = " +
-		NWSRFS_Util.toDateTime24(idarun_date,false) );
+	Message.printStatus ( 2, routine, "idarun as local date/time = " + NWSRFS_Util.toDateTime24(idarun_date,false) );
 
 	// ldarun in the file is already in local time because that is what
 	// ESP writes - use the local hour to convert, as per Jay Day
 	// TODO - should __lhlst be put in here?
 	DateTime ldarun_date = NWSRFS_Util.mdyh1(__ldarun, __lhlst );
-	Message.printStatus ( 2, routine, "ldarun as local date/time = " +
-		NWSRFS_Util.toDateTime24(ldarun_date,false) );
+	Message.printStatus ( 2, routine, "ldarun as local date/time = " + NWSRFS_Util.toDateTime24(ldarun_date,false) );
 
 	// ijdlst and ihlst in the file are in local time
 	temp_date = NWSRFS_Util.mdyh1(__ijdlst, __ihlst);
@@ -2265,12 +2209,10 @@ throws Exception
 	// TODO - need to handle data types her to get the time scale
 	// ACCM, MEAN, INST, etc.
 
-	// Break the data type description by commas, and only use the first
-	// token in the list.
+	// Break the data type description by commas, and only use the first token in the list.
 
 	// TODO - apparently comes out of the data type information
-	//Vector desc_list = StringUtil.breakStringList ( words, ",",
-	//		StringUtil.DELIM_SKIP_BLANKS );
+	//Vector desc_list = StringUtil.breakStringList ( words, ",", StringUtil.DELIM_SKIP_BLANKS );
 	//__hdr_id_datatypedesc ( (String)desc_list.elementAt(0) );
 
 	// The start of the forecast is one interval after the carryover date..
@@ -2288,8 +2230,7 @@ throws Exception
 	Message.printStatus ( 2, routine, "Trace start local time (one interval after carryover) = " + __start_date );
 	Message.printStatus ( 2, routine, "Trace end local time (end of forecast) = " + __end_date );
 
-	// Initialize with the ESP filename (what ESP thinks it was at the time of writing),
-	// because it has the form:
+	// Initialize with the ESP filename (what ESP thinks it was at the time of writing), because it has the form:
 	//
 	// SEGid.TSid.DataType.Interval
 	//
@@ -2328,7 +2269,7 @@ throws Exception
 
 		__ts[i].setIdentifier ( new TSIdent(ident) );
 		// The sequence number is used for the historical year...
-		__ts[i].setSequenceNumber ( __iy + i );
+		__ts[i].setSequenceID ( "" + (__iy + i) );
 
 		Message.printStatus ( 2, routine, "Setting identifier to \"" + __ts[i].getIdentifier().toString(true) + "\"" );
 		__ts[i].setDate1 ( new DateTime(__start_date) );
@@ -2336,11 +2277,11 @@ throws Exception
 		__ts[i].setDate2 ( new DateTime(__end_date) );
 		__ts[i].setDate2Original ( new DateTime(__end_date) );
 		Message.printStatus ( 2, routine, "Setting TS[" + i +
-		"] " + __ts[i].getSequenceNumber() + " period to " + __ts[i].getDate1() + " - " +__ts[i].getDate2());
+		"] " + __ts[i].getSequenceID() + " period to " + __ts[i].getDate1() + " - " +__ts[i].getDate2());
 		__ts[i].setDataInterval ( TimeInterval.HOUR, __ts_dt );
 		__ts[i].setDataUnits ( __ts_unit );
 		__ts[i].setDescription ( __segdesc );
-		__ts[i].setAlias ( ident.getLocation() + "_Trace_" + __ts[i].getSequenceNumber() );
+		__ts[i].setAlias ( ident.getLocation() + "_Trace_" + __ts[i].getSequenceID() );
 
 		// Use comments for now to pass information and troubleshoot...
 
@@ -2381,8 +2322,7 @@ public TS readTimeSeries (String tsident_string, DateTime req_date1, DateTime re
 	NWSRFS_ESPTraceEnsemble espTE = new NWSRFS_ESPTraceEnsemble(filename,read_data,true);
 	TS ts = new HourTS(espTE.__ts[0]); // This currently pulls the first trace
 
-	Message.printStatus(2,routine,"tsident_string = "+tsident_string+
-		"\nfilename = "+filename+"input type = "+input_type);
+	Message.printStatus(2,routine,"tsident_string = "+tsident_string+"\nfilename = "+filename+"input type = "+input_type);
 	return ts;
 }
 
@@ -2396,7 +2336,7 @@ private void setTimeSeriesProperties ( TS ts, int i )
 {
     ts.setProperty("format_ver", new Float(__format_ver));
     ts.setProperty("index", new Integer(i));
-    ts.setProperty("sequence_number", new Integer(ts.getSequenceNumber()));
+    ts.setProperty("sequence_number", new Integer(ts.getSequenceID()));
     ts.setProperty("seg_id", __seg_id);
     ts.setProperty("seg_desc", __segdesc);
     ts.setProperty("ts_id", __ts_id);
@@ -2489,26 +2429,23 @@ throws Exception
 }
 
 /* TODO - sat 2004-11-30
-  The following two write methods are really quite different. One uses an
+The following two write methods are really quite different. One uses an
 EndianDataOutputStream (EDOS) to write the file (the preferred method)
 the other does the bytes shifts manually then does a straight write to
 the file. The write method which uses the EDOS somehow does not write the file 
 quite right and needs to be debuged since it really is the best way to write the 
 file. The original write method was intended to only be a method to call the 
-EDOS write but did not become that since it wrote the file correctly and the EDOS
-method did not.
+EDOS write but did not become that since it wrote the file correctly and the EDOS method did not.
 */
 /**
-This method is under review to discover what is causing the output ESP trace 
-file to fail in ESPADP.
+This method is under review to discover what is causing the output ESP trace file to fail in ESPADP.
 
 Write the ESP trace ensemble to an ESP trace ensemble binary file. 
 A new file is created, even if the data were read from the same file originally.
 Because ESP trace files are not specifically little- or big-endian, write using
 the endianness of the current machine.  This method ONLY does the write.  It is
 expected that all internal data (such as idarun, ldarun, etc.) are computed
-elsewhere.  For example, construct an instance of this class with a list of time
-series and then call this method.
+elsewhere.  For example, construct an instance of this class with a list of time series and then call this method.
 @param fname Name of file to write. 
 @exception Exception if there is an error writing the file.
 */
@@ -2517,17 +2454,14 @@ throws Exception
 {
 	int i;
 	// This is added to integers that are read as float to make sure that the
-    // truncated integer is the proper value, in case the precision of the
-    // write rounded under.
+    // truncated integer is the proper value, in case the precision of the write rounded under.
     // ESP does not seem to be consistent in how it writes some integers as floats:
-	// sometimes .01 is added and sometimes not, but write here
-    // to be better safe than sorry.
+	// sometimes .01 is added and sometimes not, but write here to be better safe than sorry.
     float shift = (float).01;
 	String routine = "NWSRFS_ESPTraceEnsemble.writeESPTraceEnsembleFile";
 	File f = null;
 	// TODO SAM 2004-12-01 Both of the following approaches seem to
-	// give the same results.  At some point may want to do a performance
-	// test and pick the fastest.
+	// give the same results.  At some point may want to do a performance test and pick the fastest.
 	//EndianDataOutputStream fp;
 	EndianRandomAccessFile fp;
 
@@ -2540,8 +2474,7 @@ throws Exception
 
 	f = new File ( full_fname  );
 	if ( f.exists() ) {
-	    Message.printStatus ( 2, routine, "Deleting the old trace file \"" + full_fname +
-	            "\" before writing to new one.");
+	    Message.printStatus ( 2, routine, "Deleting the old trace file \"" + full_fname + "\" before writing to new one.");
 		boolean stat = f.delete();
 		Message.printStatus ( 2, routine, "Return status from delete:  " + stat );
 		// Wait for the file to disappear from the system but only wait a couple of seconds
@@ -2569,8 +2502,7 @@ throws Exception
 	// open the file.  Why is this necessary?  There may be times that
 	// an ESP trace ensemble file needs to be written independent of any
 	// DMI.  What benefit is there to use the DMI?
-	// Also, the method below uses "r" for "replacement" - this is contrary
-	// to the normal "r" = "read" notation.
+	// Also, the method below uses "r" for "replacement" - this is contrary to the normal "r" = "read" notation.
 	//fp = __dmi.write(full_fname,true,"r",false); 
 	fp = new EndianRandomAccessFile (
 			full_fname,
@@ -2583,19 +2515,16 @@ throws Exception
 			true );	// Match the endian-ness of the system.
 	*/
 
-	// This is important because the read code uses the ESP file name to
-	// get the TSIdent information...
+	// This is important because the read code uses the ESP file name to get the TSIdent information...
 	String espfname = f.getName();
 
 	// Format version. A 4 byte float converted back to bytes to write.
 	// No index is needed since we are just writing bytes to the file and
-	// letting the file move its position as the write is done. Sort of like
-	// a stream....
+	// letting the file move its position as the write is done. Sort of like a stream....
 	Message.printStatus(2,routine,"Writing version \"" + __format_ver+"\"");
 	fp.writeEndianFloat(__format_ver);
 
-	// Segment ID. An 8 byte String. Convert to bytes and pad with spaces
-	// if less than 8 characters.
+	// Segment ID. An 8 byte String. Convert to bytes and pad with spaces if less than 8 characters.
 	Message.printStatus ( 2, routine,"Writing seg_id \"" + __seg_id + "\"");
 	String string = StringUtil.formatString ( __seg_id.trim(), "%-8.8s" );
 	fp.writeEndianChar1(string);
@@ -2823,7 +2752,7 @@ throws Exception
     		date.setHour ( __ts_dt );
     		// Convert back to 0-23 hour...
     		date = NWSRFS_Util.toDateTime23(date,true);
-    		Message.printStatus ( 2, routine, "For trace [" + __ts[its].getIdentifier().getSequenceNumber() +
+    		Message.printStatus ( 2, routine, "For trace [" + __ts[its].getIdentifier().getSequenceID() +
     		        "] date for first value to write is " + date + ", local 24 = " + NWSRFS_Util.toDateTime24(date,true) );
     		// Loop through the number of conditional months (the month is incremented)...
     		for ( icm = 0; icm < __ncm; icm++ ) {
@@ -2881,7 +2810,7 @@ throws Exception
     			idata = 0;	// Reset array position.
     			if ( Message.isDebugOn ) {
     				Message.printDebug ( 1, routine, "Writing trace [" + its + "] " +
-    				__ts[its].getSequenceNumber() + " conditional month [" + icm + "]: " +
+    				__ts[its].getSequenceID() + " conditional month [" + icm + "]: " +
     				ntran + " data values, " + ntran2 + " overall with missing to pad to 31 days." );
     			}
     
@@ -2929,8 +2858,7 @@ throws Exception
 // convert to little endian in memory.  The write method writes as big-endian,
 // which essentially passes through the data.  Therefore, the in-memory little
 // endian values are passed through to the file.  I think that the method above
-// works correctly and is less convoluted since the conversions occur in the
-// low-level code.
+// works correctly and is less convoluted since the conversions occur in the low-level code.
 /**
 This method appears to work but does not use the EndianDataOutputStream.
 Retain the method for comparison until the other version is verified to work.
@@ -2939,8 +2867,7 @@ Write the ESP trace ensemble to an ESP trace ensemble binary file.  The trace
 ensemble in memory must be complete.  This method was ported from the C++
 ESPTraceEns.writeBinOutput() method.  Note that a new file is created, even if
 the data were read from the same file originally.  Because ESP trace files are
-not specifically little- or big-endian, write using the endianness of the
-current machine.
+not specifically little- or big-endian, write using the endianness of the current machine.
 @param fname Name of file to write.  This MUST follow the format
 FGID.SEGID.DataType.Interval.CS (e.g., PRLI.PRLI.QINE.06.CS).  This is used
 internally to determine some information about the trace.
@@ -3472,7 +3399,7 @@ throws Exception
     			idata = 0;	// Reset array position.
     			if ( Message.isDebugOn ) {
     				Message.printDebug ( 1, routine, "Writing trace [" + its + "] " +
-    				__ts[its].getSequenceNumber() + " conditional month [" + icm + "]" );
+    				__ts[its].getSequenceID() + " conditional month [" + icm + "]" );
     			}
     			
     			// Loop through the data in the month, incrementing the hour to assign the data...
@@ -3496,4 +3423,4 @@ throws Exception
 	}
 }
 
-} // End class ESPTraceEnsemble
+}

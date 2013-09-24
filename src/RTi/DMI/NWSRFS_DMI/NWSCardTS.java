@@ -1408,7 +1408,7 @@ throws IOException
 		if ( is_nwsCardTrace ) {
 		    // Set additional information for the trace
 	        // Set the sequence number.
-	        ts.setSequenceNumber ( date1_fileHeader.getYear() );
+	        ts.setSequenceID ( "" + date1_fileHeader.getYear() );
 		}
 		
         // Get the original dates as that of the full-month period in the file, accounting for ESP shift to
