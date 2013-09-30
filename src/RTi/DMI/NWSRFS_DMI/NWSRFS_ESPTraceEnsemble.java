@@ -135,6 +135,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.lang.Float;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -1546,8 +1547,8 @@ Return the time series maintained in the ensemble as a Vector.
 @return the time series maintained in the ensemble as a Vector, or null if
 no time series.
 */
-public List<TS> getTimeSeriesVector ()
-{	List<TS> v = new Vector<TS>(__n_traces);
+public List<TS> getTimeSeriesList ()
+{	List<TS> v = new ArrayList<TS>(__n_traces);
 	for (int i = 0; i < __n_traces;i++) {
 		v.add(__ts[i]);
 	}
@@ -2425,7 +2426,7 @@ Writes out the trace ensemble time series to the specified file as one large Dat
 public void writeDateValueFile ( String filename ) 
 throws Exception
 {	// Traces are stored in an array so transfer to a Vector for writing...
-	DateValueTS.writeTimeSeriesList ( getTimeSeriesVector(), filename );
+	DateValueTS.writeTimeSeriesList ( getTimeSeriesList(), filename );
 }
 
 /* TODO - sat 2004-11-30
