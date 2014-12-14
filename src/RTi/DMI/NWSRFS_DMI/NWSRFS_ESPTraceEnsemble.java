@@ -2337,6 +2337,7 @@ private void setTimeSeriesProperties ( TS ts, int i )
 {
     ts.setProperty("format_ver", new Float(__format_ver));
     ts.setProperty("index", new Integer(i));
+    ts.setProperty("index1", new Integer(i + 1));
     ts.setProperty("sequence_number", new Integer(ts.getSequenceID()));
     ts.setProperty("seg_id", __seg_id);
     ts.setProperty("seg_desc", __segdesc);
