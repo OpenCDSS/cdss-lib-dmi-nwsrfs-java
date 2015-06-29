@@ -11,3 +11,4 @@
 
 # Ignore Microsoft Office temporary files
 ~$*
+/bin
