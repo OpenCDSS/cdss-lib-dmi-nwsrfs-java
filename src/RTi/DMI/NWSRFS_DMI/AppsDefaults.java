@@ -112,8 +112,7 @@ public class AppsDefaults
 
    private String _appsDefaultsNationalFilePath = null;
 
-  //TODO: jdk1.5 private HashMap<String,String> cache = new HashMap<String,String>();
-   private HashMap cache = new HashMap();
+   private HashMap<String,String> cache = new HashMap<String,String>();
    private String NULL = new String("");
 
    // --------------------------------------------------------------

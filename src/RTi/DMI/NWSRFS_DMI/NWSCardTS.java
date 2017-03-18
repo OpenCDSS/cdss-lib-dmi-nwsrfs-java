@@ -119,9 +119,8 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.filechooser.FileFilter;
 
@@ -158,8 +157,8 @@ now, the samples are compiled into the code to make absolutely sure that the
 programmer knows what sample is supported.
 @return Sample file contents.
 */
-public static List getSample ()
-{	List	s = new Vector ( 50 );
+public static List<String> getSample ()
+{	List<String> s = new ArrayList<String>();
 	s.add ( "#NWSCard" );
 	s.add ( "#" );
 	s.add ( "# This is an example of a typical National Weather Service (NWS) CARD format");
@@ -547,7 +546,7 @@ throws IOException
 	//String routine = "NWSCardTS.readTimeSeries";
 
 	TS ts = null;
-	List<TS> TSList = null;
+	List<TS> tslist = null;
 
 	// Read the time series.
 	// This version should return only one time series. When processing a 
@@ -557,13 +556,13 @@ throws IOException
 	// "false", even if the file is a NWS Card Trace file.  This ensure
 	// that the file will always be processed as a NWS Card single time
 	// series file and the returning time series is the one expected. 
-	TSList = readTimeSeriesList ( false, req_ts, in, req_date1, req_date2, req_units, read_data );
+	tslist = readTimeSeriesList ( false, req_ts, in, req_date1, req_date2, req_units, read_data );
 
 	// One time series is expected. So make sure the returned vector is not
 	// null and contains one element. Retrieve the element.
-	if ( TSList != null ) {
-		if ( TSList.size() != 0 ) {
-			ts = TSList.get(0);
+	if ( tslist != null ) {
+		if ( tslist.size() != 0 ) {
+			ts = tslist.get(0);
 		}
 	}
 
@@ -738,7 +737,7 @@ read the entire time series).  If specified, the precision must be to hour.
 @param read_data Indicates whether data should be read (false=no, true=yes).
 @exception IOException If an error occurs reading the file.
 */
-private static List readTimeSeriesList ( boolean is_nwsCardTrace, TS req_ts, BufferedReader in,
+private static List<TS> readTimeSeriesList ( boolean is_nwsCardTrace, TS req_ts, BufferedReader in,
 					  DateTime req_date1, DateTime req_date2, String req_units, boolean read_data )
 throws IOException {
 	return readTimeSeriesList(is_nwsCardTrace, req_ts, in, req_date1,
@@ -1021,7 +1020,7 @@ throws IOException
 	String warning_message = "";
 
 	// Instantiate the vector that will contain the time series.
-	TSList = new Vector ( numberOfTimeSeries );
+	TSList = new ArrayList<TS> ( numberOfTimeSeries );
 	if ( is_nwsCardTrace ) {
 		msg = "Processing NWS Card Traces file.";
 	}
@@ -1636,16 +1635,16 @@ throws IOException
 				// format width.  The format uses strings so that different numbers of values in a month do
 				// not cause conversion errors.
 
-				tokens = StringUtil.fixedRead (	string.substring(20), fixed_format );
+				List<Object> oTokens = StringUtil.fixedRead ( string.substring(20), fixed_format );
 
 				// Size can be less if at end of month.  Since the values are read as strings, check for
 				// blanks and reduce the length accordingly...
 
-				size = tokens.size();
+				size = oTokens.size();
 
 				blanks = 0;
 				for ( i = 0; i < size; i++ ) {
-					otoken = tokens.get(i);
+					otoken = oTokens.get(i);
 					if ( (otoken == null) || (((String)otoken).trim().length()==0)) {
 						++blanks;
 					}
@@ -1675,7 +1674,7 @@ throws IOException
 			        // the time series period.
 					if( idate_ts.greaterThanOrEqualTo( date1_ts ) && idate_ts.lessThanOrEqualTo(date2_ts) ) {
 						// In the requested period so set the data...
-						token = ( (String)tokens.get(i)).trim();
+						token = ( (String)oTokens.get(i)).trim();
 						ts.setDataValue(idate_ts, StringUtil.atod(token));
 						if ( Message.isDebugOn ) {
 							Message.printDebug ( dl, routine, "Setting value at " + idate_ts + ": " + token );

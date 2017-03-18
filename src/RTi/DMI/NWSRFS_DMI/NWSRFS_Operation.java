@@ -285,12 +285,12 @@ private NWSRFS_Segment __segment;
 /**
 NWSRFSRatingCurve IDs in the operation.
 */
-private List  __rcIDs;
+private List<String>  __rcIDs;
 
 /**
 NWSRFSRatingCurve objects in the operation.
 */
-private List  __ratingCurves;
+private List<NWSRFS_RatingCurve>  __ratingCurves;
 
 /**
 System identifier for the operation.
@@ -301,17 +301,17 @@ private String __sysID;
 /**
 Time series data types in the operation (list of data type strings).
 */
-private List  __tsDTs;
+private List<String>  __tsDTs;
 
 /**
 Time series identifiers in the operation (list of TSIdent strings).
 */
-private List  __tsIDs;
+private List<String>  __tsIDs;
 
 /**
 TimeSeries in the operation.
 */
-private List	__timeseries;
+private List<NWSRFS_TimeSeries>	__timeseries;
 
 /**
 User identifier for the operation.
@@ -443,7 +443,7 @@ TimeSeries that is is defined on this Operation object.
 @param tsDT A TimeSeries DataType to add to the operation.
 */
 public void addTSDT(String tsDT) {
-		__tsDTs.add((String)tsDT);
+		__tsDTs.add(tsDT);
 }
 
 /**
@@ -623,7 +623,7 @@ public String getOpTypeName() {
 Return the Rating Curve IDs.
 @return the Vector of Rating Curve IDs.
 */
-public List getRCIDs() {
+public List<String> getRCIDs() {
 	return __rcIDs;
 }
 
@@ -640,7 +640,7 @@ public String getRCID(int index) {
 Return the NWSRFS_RatingCurve.
 @return the Vector of NWSRFS_RatingCurve objects.
 */
-public List getRatingCurves() {
+public List<NWSRFS_RatingCurve> getRatingCurves() {
 	return __ratingCurves;
 }
 
@@ -692,7 +692,7 @@ public String getSystemID() {
 Return the TimeSeries DataTypes.
 @return the Vector of TimeSeries DataTypes.
 */	
-public List getTSDTs() {
+public List<String> getTSDTs() {
 	return __tsDTs;
 }
 
@@ -702,14 +702,14 @@ Return the TimeSeries DataType at an index.
 @return the TimeSeries DataType at an index.
 */
 public String getTSDT(int index) {
-	return (String)__tsDTs.get(index);
+	return __tsDTs.get(index);
 }
 
 /**
 Return the TimeSeries IDs.
 @return the Vector of TimeSeries Identifiers.
 */	
-public List getTSIDs() {
+public List<String> getTSIDs() {
 	return __tsIDs;
 }
 
@@ -726,7 +726,7 @@ public String getTSID(int index) {
 Return the TimeSeries.
 @return the Vector of TimeSeries objects.
 */	
-public List getTimeSeries() {
+public List<NWSRFS_TimeSeries> getTimeSeries() {
 	return __timeseries;
 }
 
@@ -736,7 +736,7 @@ Return the TimeSeries at an index.
 @return the TimeSeries at an index.
 */
 public NWSRFS_TimeSeries getTimeSeries(int index) {
-	return (NWSRFS_TimeSeries)__timeseries.get(index);
+	return __timeseries.get(index);
 }
 
 /**
@@ -769,11 +769,11 @@ Initialize global objects
 private void initialize() {
 	__sysID = "";
 	__userID = "";
-	__ratingCurves = new Vector();
-	__rcIDs = new Vector();
-	__tsDTs = new Vector();
-	__tsIDs = new Vector();
-	__timeseries = new Vector();
+	__ratingCurves = new Vector<NWSRFS_RatingCurve>();
+	__rcIDs = new Vector<String>();
+	__tsDTs = new Vector<String>();
+	__tsIDs = new Vector<String>();
+	__timeseries = new Vector<NWSRFS_TimeSeries>();
 
 	__IDSEG = null;
 	__opNumber = -1;

@@ -151,12 +151,12 @@ private String __segmentID;
 /**
 Carryover in the Segment.
 */
-private List	__carryover;
+private List<NWSRFS_Carryover> __carryover;
 
 /**
 Operations in the Segment.
 */
-private List	__operations;
+private List<NWSRFS_Operation> __operations;
 
 /**
 Latitude in degrees and decimal degrees.
@@ -333,9 +333,9 @@ throws Throwable {
 
 /**
 Return the Carryover.
-@return the Vector of Carryover objects in the Segment.
+@return the list of Carryover objects in the Segment.
 */	
-public List getCarryover() {
+public List<NWSRFS_Carryover> getCarryover() {
 	return __carryover;
 }
 
@@ -345,7 +345,7 @@ Return the Carryover at an index.
 @return the Carryover object at an index.
 */
 public NWSRFS_Carryover getCarryover(int index) {
-	return (NWSRFS_Carryover)__carryover.get(index);
+	return __carryover.get(index);
 }
 
 /**
@@ -525,9 +525,9 @@ public int getNumberOfOperations() {
 
 /**
 Returns the Operations.
-@return the Vector of Operation objects.
+@return the list of Operation objects.
 */	
-public List getOperations() {
+public List<NWSRFS_Operation> getOperations() {
 	return __operations;
 }
 
@@ -537,7 +537,7 @@ Return the Operation at an index.
 @return the Operation at an index.
 */
 public NWSRFS_Operation getOperation(int index) {
-	return (NWSRFS_Operation)__operations.get(index);
+	return __operations.get(index);
 }
 
 /**
@@ -595,10 +595,10 @@ public float getXLONG() {
 Initialize global objects.
 */
 private void initialize() {
-	__carryover = new Vector();
+	__carryover = new Vector<NWSRFS_Carryover>();
 	__segmentID = null;
 	__fg = null;
-	__operations = new Vector();
+	__operations = new Vector<NWSRFS_Operation>();
 	_IDSEG = null;
 	_IUPSEG = new String[5];
 	_IDNSEG = new String[2];

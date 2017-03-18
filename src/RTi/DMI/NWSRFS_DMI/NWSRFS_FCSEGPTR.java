@@ -114,14 +114,14 @@ Number of words per record in FCPARAM.
 protected int _NWPRP;
 
 /**
-Vector holding record number associated with file FCSEGSTS.
+List holding record number associated with file FCSEGSTS.
 */
-protected List _IREC; 
+protected List<Integer> _IREC; 
 
 /**
-Vector holding segment identifier.
+List holding segment identifier.
 */
-protected List _ISEG;
+protected List<String> _ISEG;
 
 /**
 Constructor.
@@ -144,7 +144,7 @@ Adds a value to the IREC Vector.
 */
 public void addIREC(Integer I) {
 	if (_IREC == null) {
-		_IREC = new Vector();
+		_IREC = new Vector<Integer>();
 	}
 	_IREC.add(I);
 }
@@ -155,7 +155,7 @@ Adds a value to the ISEG Vector.
 */
 public void addISEG(String s) {
 	if (_ISEG == null) {
-		_ISEG = new Vector();
+		_ISEG = new Vector<String>();
 	}
 	_ISEG.add(s);
 }
@@ -222,7 +222,7 @@ public int getNWPRP() {
 Returns the Vector that holds record numbers associated with file FCSEGSTS.
 @return the Vector that holds record numbers associated with file FCSEGSTS.
 */
-public List getIREC() {
+public List<Integer> getIREC() {
 	return _IREC;
 }
 
@@ -230,7 +230,7 @@ public List getIREC() {
 Returns the Vector that holds segment identifiers.
 @return the Vector that holds segment identifiers.
 */
-public List getISEG() {
+public List<String> getISEG() {
 	return _ISEG;
 }
 

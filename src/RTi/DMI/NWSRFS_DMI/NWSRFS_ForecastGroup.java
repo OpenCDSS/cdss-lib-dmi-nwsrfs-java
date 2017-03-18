@@ -171,12 +171,12 @@ protected String _FGID;
 /**
 Segments in the Forecast Group.
 */
-private List	__segment = new Vector();
+private List<NWSRFS_Segment>	__segment = new Vector<NWSRFS_Segment>();
 
 /**
 Segment IDs in the Forecast Group.
 */
-private List	__segmentID = new Vector();
+private List<String>	__segmentID = new Vector<String>();
 
 /**
 Constructor.  Initializes with no segment groups or parent.
@@ -393,7 +393,7 @@ public NWSRFS_Segment getSegment (String segid) {
 Return the Segments groups.  This is guaranteed to be non-null.
 @return the list of Segments.
 */
-public List getSegments() {
+public List<NWSRFS_Segment> getSegments() {
 	return __segment;
 }
 
@@ -403,14 +403,14 @@ Return the Segment ID at an index.
 @return the Segment ID at an index.
 */
 public String getSegmentID(int index) {
-	return (String)__segmentID.get(index);
+	return __segmentID.get(index);
 }
 
 /**
 Return the Segment IDs.
 @return the list of Segment IDs.
 */
-public List getSegmentIDs() {
+public List<String> getSegmentIDs() {
 	return __segmentID;
 }
 

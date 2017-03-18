@@ -237,12 +237,12 @@ protected float _basinArea;
 /**
 Basin boundary points latitude.
 */
-protected List _basinLatitude;
+protected List<Float> _basinLatitude;
 
 /**
 Basin boundary points longitude.
 */
-protected List _basinLongitude;
+protected List<Float> _basinLongitude;
 
 /**
 Centroid of the basin area, NWSRFS/HRAP X coordinate
@@ -479,7 +479,7 @@ Member method for BASN parameter variables
 @return the longitude of basin boundary points at an index.
 */
 public float getBASNLongitude(int basnLongIndex) {
-	return (float)((Float)_basinLongitude.get(basnLongIndex)).floatValue();
+	return _basinLongitude.get(basnLongIndex).floatValue();
 }
 
 /**
@@ -589,8 +589,8 @@ private void initialize() {
 	_ID                 = null;
 	_logicalUnitNum     = -1;
 	_basinArea          = -1;
-	_basinLatitude      = new Vector();
-	_basinLongitude     = new Vector();
+	_basinLatitude      = new Vector<Float>();
+	_basinLongitude     = new Vector<Float>();
 	_centroidX          = -1;
 	_centroidY          = -1;
 	_computedBasinArea  = -1;

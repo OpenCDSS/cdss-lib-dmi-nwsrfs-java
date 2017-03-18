@@ -4889,15 +4889,15 @@ throws Exception
 }
 
 /**
-Reads in to a Vector of NWSRFS_BASN the list of Basin Boundary identifiers. It
+Reads in to a list of NWSRFS_BASN the list of Basin Boundary identifiers. It
 will basically regurgetate the PPPINDEX file which creates a list of BASN ids and a record number.
 @return Vector of NWSRFS_BASN objects containing the list of all BASN ids 
 and record numbers in the database.
 @throws Exception if something goes wrong.
 */
-public List readBASNParamList() throws Exception
+public List<String> readBASNParamList() throws Exception
 {
-	List basinList = new Vector();
+	List<String> basinList = new Vector<String>();
 	int logicalUnitNum = -1;
 	int numberOFParamRecs = -1;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
@@ -4931,7 +4931,7 @@ public List readBASNParamList() throws Exception
 				basin = new NWSRFS_BASN((String)(pppindex.getID()).get(i));
 				basin.setLogicalUnitNum(logicalUnitNum);
 				basin.setRecordNum(((Integer)(pppindex.getFIRST()).get(i)).intValue());
-				basinList.add((NWSRFS_BASN)basin);
+				basinList.add(basin.getID());
 				break;
 			}
 		}
@@ -4944,7 +4944,7 @@ public List readBASNParamList() throws Exception
 				basin = new NWSRFS_BASN((String)(pppindex.getID()).get(i));
 					basin.setLogicalUnitNum(logicalUnitNum);
 					basin.setRecordNum(((Integer)(pppindex.getIREC()).get(i)).intValue());
-					basinList.add((NWSRFS_BASN)basin);
+					basinList.add(basin.getID());
 			}
 		}
 	}
@@ -4972,7 +4972,7 @@ be instantiated and compare ID's for reading in the FCCARRY binary database data
 FCCARRY binary database file.
 @throws Exception if segment object is NULL or segment objects parent FG and CG's are NULL.
 */
-public List readCarryover(NWSRFS_Segment segObject, boolean deepRead) 
+public List<NWSRFS_Carryover> readCarryover(NWSRFS_Segment segObject, boolean deepRead) 
 throws Exception {
 	// Check to see if the segObject is null. If so throw an Exception
 	if (segObject == null) {
@@ -5344,12 +5344,12 @@ throws Exception {
 	}
 
 	// Get forecast group list for this carryover group
-	List forecastGroupIDs;
+	List<String> forecastGroupIDs;
 	if(cgFile.getNFG() > 0) {
-		forecastGroupIDs = new Vector((int)cgFile.getNFG());
+		forecastGroupIDs = new Vector<String>((int)cgFile.getNFG());
 	}
 	else {
-		forecastGroupIDs = new Vector();
+		forecastGroupIDs = new Vector<String>();
 	}
 
 	// The following handles carryover group "Special"
@@ -5371,10 +5371,10 @@ throws Exception {
 /** 
 This method returns the IDS of all the carryover groups defined in the database.
 The method pulls the CGIDS String array from the database. 
-@return a Vector of String Carryover Group IDs from the FCCOGDEF binary database file.
+@return a list of String Carryover Group IDs from the FCCOGDEF binary database file.
 @throws Exception if the database could not be opened.
 */
-public List readCarryoverGroupList() 
+public List<String> readCarryoverGroupList() 
 throws Exception
 {
 	// Check if the the database binary file is open as a Random Access object
@@ -5461,7 +5461,7 @@ throws Exception
 	}
 
 	// Now loop through the CGIDS and create an NWSRFS_CarryoverGroup object for each ID
-	List cgObjs = new Vector();
+	List<String> cgObjs = new Vector<String>();
 	int vectSize = cgFile.getNCG();
 	if(vectSize < cgIDSLength) {
 		vectSize = cgIDSLength;
@@ -5983,7 +5983,7 @@ A carryover group identifier of "Special" will match all forecast groups that ha
 the FCFGSTAT binary database file. This class should be instantiated by the user.
 @throws Exceptiton if there is an error reading from the database.
 */
-public List readForecastGroupList(NWSRFS_CarryoverGroup cg) 
+public List<String> readForecastGroupList(NWSRFS_CarryoverGroup cg) 
 throws Exception
 {	String routine = "NWSRFS_DMI.readForecastGroupList";
 	char[] charValue;
@@ -5991,7 +5991,7 @@ throws Exception
 	int i = 0;
 	int sl = 0;	// Status level for messages (used in troubleshooting)
 	String parseChar = null;
-	List fgObjs = new Vector();
+	List<String> fgObjs = new Vector<String>();
 
 	// Will need to read the entire FCFGSTAT binary database to get the
 	// forecast groups associated with the given carryover group id.
@@ -6152,14 +6152,14 @@ throws Exception
 // so the readMAPArea() methods can be written to actually get and store the
 // PPDB data for the Areal PPDB parameter types.
 /**
-Reads in to a Vector of Strings the list of MAP area identifiers. It will
+Reads in to a list of Strings the list of MAP area identifiers. It will
 basically regurgetate the PPPINDEX file which creates a list of MAP ids and a record number.
-@return Vector of Strings containing the list of all MAP Area ids in the database.
+@return list of Strings containing the list of all MAP Area ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readMAPAreaList() throws Exception
+public List<String> readMAPAreaList() throws Exception
 {
-	List mapAreaList = new Vector();
+	List<String> mapAreaList = new Vector<String>();
 	int logicalUnitNum = -1;
 	int numberOFParamRecs = -1;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
@@ -6194,7 +6194,7 @@ public List readMAPAreaList() throws Exception
 				map = new NWSRFS_MAP((String)(pppindex.getID()).get(i));
 				map.setLogicalUnitNum(logicalUnitNum);
 				map.setRecordNum(((Integer)(pppindex.getFIRST()).get(i)).intValue());
-				mapAreaList.add((NWSRFS_MAP)map);
+				mapAreaList.add(map.getID());
 				break;
 			}
 		}
@@ -6207,24 +6207,24 @@ public List readMAPAreaList() throws Exception
 				map = new NWSRFS_MAP((String)(pppindex.getID()).get(i));
 					map.setLogicalUnitNum(logicalUnitNum);
 					map.setRecordNum(((Integer)(pppindex.getIREC()).get(i)).intValue());
-					mapAreaList.add((NWSRFS_MAP)map);
+					mapAreaList.add(map.getID());
 			}
 		}
 	}
 	
-	// Return Vector of map area ids
+	// Return list of map area ids
 	return mapAreaList;
 }
 
 /**
-Reads in to a Vector of Strings the list of MAPE area identifiers. It will
-basically regurgetate the PPPINDEX file which creates a list of MAPE ids and a record number.
-@return Vector of Strings containing the list of all MAPE Area ids in the database.
+Reads in to a list of Strings the list of MAPE area identifiers. It will
+basically regurgitate the PPPINDEX file which creates a list of MAPE ids and a record number.
+@return list of Strings containing the list of all MAPE Area ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readMAPEAreaList() throws Exception
+public List<String> readMAPEAreaList() throws Exception
 {
-	List mapeAreaList = new Vector();
+	List<String> mapeAreaList = new Vector<String>();
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
 	
 	// Check to see if the pppindex file exists! If not return empty list.
@@ -6248,14 +6248,14 @@ public List readMAPEAreaList() throws Exception
 }
 
 /**
-Reads in to a Vector of Strings the list of MAPS area identifiers. It will
+Reads in to a list of Strings the list of MAPS area identifiers. It will
 basically regurgetate the PPPINDEX file which creates a list of MAPE ids and a record number.
-@return Vector of Strings containing the list of all MAPS Area ids in the database.
+@return list of Strings containing the list of all MAPS Area ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readMAPSAreaList() throws Exception
+public List<String> readMAPSAreaList() throws Exception
 {
-	List mapsAreaList = new Vector();
+	List<String> mapsAreaList = new Vector<String>();
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
 	
 	// Check to see if the pppindex file exists! If not return empty list.
@@ -6274,19 +6274,19 @@ public List readMAPSAreaList() throws Exception
 		}
 	}
 	
-	// Return Vector of maps area ids
+	// Return list of maps area ids
 	return mapsAreaList;
 }
 
 /**
-Reads in to a Vector of Strings the list of MAPX area identifiers. It will
+Reads in to a list of Strings the list of MAPX area identifiers. It will
 basically regurgetate the PPPINDEX file which creates a list of MAPE ids and a record number.
-@return Vector of Strings containing the list of all MAPX Area ids in the database.
+@return list of Strings containing the list of all MAPX Area ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readMAPXAreaList() throws Exception
+public List<String> readMAPXAreaList() throws Exception
 {
-	List mapxAreaList = new Vector();
+	List<String> mapxAreaList = new Vector<String>();
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
 	
 	// Check to see if the pppindex file exists! If not return empty list.
@@ -6345,14 +6345,14 @@ throws Exception
 }
 
 /**
-Reads in to a Vector of Strings the list of MAT area identifiers. It will
-basically regurgetate the PPPINDEX file which creates a list of MAP ids and a record number.
-@return Vector of Strings containing the list of all MAT Area ids in the database.
+Reads in to a list of Strings the list of MAT area identifiers. It will
+basically regurgitate the PPPINDEX file which creates a list of MAP ids and a record number.
+@return list of Strings containing the list of all MAT Area ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readMATAreaList() throws Exception
+public List<String> readMATAreaList() throws Exception
 {
-	List matAreaList = new Vector();
+	List<String> matAreaList = new Vector<String>();
 	int logicalUnitNum = -1;
 	int numberOFParamRecs = -1;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
@@ -6387,7 +6387,7 @@ public List readMATAreaList() throws Exception
 				mat = new NWSRFS_MAT((String)(pppindex.getID()).get(i));
 				mat.setLogicalUnitNum(logicalUnitNum);
 				mat.setRecordNum(((Integer)(pppindex.getFIRST()).get(i)).intValue());
-				matAreaList.add((NWSRFS_MAT)mat);
+				matAreaList.add(mat.getID());
 				break;
 			}
 		}
@@ -6400,7 +6400,7 @@ public List readMATAreaList() throws Exception
 				mat = new NWSRFS_MAT((String)(pppindex.getID()).get(i));
 					mat.setLogicalUnitNum(logicalUnitNum);
 					mat.setRecordNum(((Integer)(pppindex.getIREC()).get(i)).intValue());
-					matAreaList.add((NWSRFS_MAT)mat);
+					matAreaList.add(mat.getID());
 			}
 		}
 	}
@@ -6443,17 +6443,17 @@ throws Exception
 }
 
 /**
-Reads in to a Vector of NWSRFS_NTWK the list of Network identifiers. It
+Reads in to a list of NWSRFS_NTWK the list of Network identifiers. It
 will basically regurgetate the PPPINDEX file which creates a list of NTWK ids 
 and a record number.Please note that the NTWK parameter record is different
 in that it only has one record in the PPPPARAM<i>n</i> file and is not listed
 in the PPPINDEX records except in the "FIRST" and "LAST" record of the index!
-@return Vector of Strings containing the list of all NTWK param ids in the database.
+@return list of Strings containing the list of all NTWK param ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readNTWKParamList() throws Exception
+public List<String> readNTWKParamList() throws Exception
 {
-	List networkList = new Vector();
+	List<String> networkList = new Vector<String>();
 	int logicalUnitNum = -1;
 	int numberOFParamRecs = -1;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
@@ -6488,7 +6488,7 @@ public List readNTWKParamList() throws Exception
 				network = new NWSRFS_NTWK((String)(pppindex.getID()).get(i));
 				network.setLogicalUnitNum(logicalUnitNum);
 				network.setRecordNum(((Integer)(pppindex.getFIRST()).get(i)).intValue());
-				networkList.add((NWSRFS_NTWK)network);
+				networkList.add(network.getID());
 				break;
 			}
 		}
@@ -6501,7 +6501,7 @@ public List readNTWKParamList() throws Exception
 				network = new NWSRFS_NTWK((String)(pppindex.getID()).get(i));
 					network.setLogicalUnitNum(logicalUnitNum);
 					network.setRecordNum(((Integer)(pppindex.getIREC()).get(i)).intValue());
-					networkList.add((NWSRFS_NTWK)network);
+					networkList.add(network.getID());
 			}
 		}
 	}
@@ -6517,12 +6517,12 @@ to be instantiated and compare ID's for reading in the FCPARAM binary database d
 TODO (JTS - 2004-08-21) What???  That's confusing.
 @param deepRead a boolean used to determine if all of the data from the 
 Operation object and Timeseries object are read. If true read all of the data.
-@return Vector of NWSRFS_Operation objects which stores the data from 
+@return list of NWSRFS_Operation objects which stores the data from 
 the FCPARAM binary database file. This class should be instantiated by the user.
 @throws Exception if the database could not be read from.
 @throws NullPointerException if the segObject is null.
 */
-public List readOperations(NWSRFS_Segment segObject, boolean deepRead) 
+public List<NWSRFS_Operation> readOperations(NWSRFS_Segment segObject, boolean deepRead) 
 throws Exception {
 //StopWatch sw1 = new StopWatch();
 //StopWatch sw2 = new StopWatch();
@@ -6651,17 +6651,17 @@ throws Exception
 }
 
 /**
-Reads in to a Vector of NWSRFS_ORRS the list of ORRS identifiers. It
-will basically regurgetate the PPPINDEX file which creates a list of ORRS ids 
+Reads in to a list of NWSRFS_ORRS the list of ORRS identifiers. It
+will basically regurgitate the PPPINDEX file which creates a list of ORRS ids 
 and a record number. Please note that the ORRS parameter record is different
 in that it only has one record in the PPPPARAM<i>n</i> file and is not listed
 in the PPPINDEX records except in the "FIRST" and "LAST" record of the index!
-@return Vector of Strings containing the list of all ORRS param ids in the database.
+@return list of Strings containing the list of all ORRS param ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readORRSParamList() throws Exception
+public List<String> readORRSParamList() throws Exception
 {
-	List orrsList = new Vector();
+	List<String> orrsList = new Vector<String>();
 	int logicalUnitNum = -1;
 	int numberOFParamRecs = -1;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
@@ -6696,7 +6696,7 @@ public List readORRSParamList() throws Exception
 				orrsObj = new NWSRFS_ORRS((String)(pppindex.getID()).get(i));
 				orrsObj.setLogicalUnitNum(logicalUnitNum);
 				orrsObj.setRecordNum(((Integer)(pppindex.getFIRST()).get(i)).intValue());
-				orrsList.add((NWSRFS_ORRS)orrsObj);
+				orrsList.add(orrsObj.getID());
 				break;
 			}
 		}
@@ -6709,7 +6709,7 @@ public List readORRSParamList() throws Exception
 				orrsObj = new NWSRFS_ORRS((String)(pppindex.getID()).get(i));
 					orrsObj.setLogicalUnitNum(logicalUnitNum);
 					orrsObj.setRecordNum(((Integer)(pppindex.getIREC()).get(i)).intValue());
-					orrsList.add((NWSRFS_ORRS)orrsObj);
+					orrsList.add(orrsObj.getID());
 			}
 		}
 	}
@@ -6768,8 +6768,8 @@ throws Exception
 	String parseChar = null;
 	EndianDataInputStream EDIS = null;
 	NWSRFS_PDBINDEX pdbindex = null;
-	List tempADDDTPVect = null;
-	List tempADTPTRVect = null;
+	List<String> tempADDDTPVect = null;
+	List<Integer> tempADTPTRVect = null;
 
 	try {
 		// Create the RandoAccessFile
@@ -6971,8 +6971,8 @@ throws Exception
 			pdbindex.addNADDTP(NADDTP);
 
 			// Now define and loop through station data type records
-			tempADDDTPVect = new Vector();
-			tempADTPTRVect = new Vector();
+			tempADDDTPVect = new Vector<String>();
+			tempADTPTRVect = new Vector<Integer>();
 			
 			for (i = 0; i < NADDTP; i++) {
 				// Define the pppChar character array to hold segment info
@@ -7033,7 +7033,10 @@ throws Exception
 		}
 	} catch (Exception e) {
 		e.printStackTrace();
-	}	
+	}
+	finally {
+		EDIS.close();
+	}
 	return pdbindex;
 }
 
@@ -7341,10 +7344,12 @@ private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boo
 
 					// If reading data continue else return since we know we have a record!
 					if(!readData) {
+						EDIS.close();
 						return pdbFile;
 					}
 				}
 				else {
+					EDIS.close();
 					return pdbFile;
 				}
 			}
