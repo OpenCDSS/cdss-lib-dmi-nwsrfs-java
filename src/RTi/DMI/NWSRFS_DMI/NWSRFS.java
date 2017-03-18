@@ -72,7 +72,7 @@ public class NWSRFS {
 /**
 Carryover groups in the NWSRFS (list of NWSRFS_CarryoverGroup).
 */
-private List __carryover_groups = new Vector();
+private List<NWSRFS_CarryoverGroup> __carryover_groups = new Vector<NWSRFS_CarryoverGroup>();
 
 /**
 The DMI object used in this NWSRFS instance.
@@ -136,8 +136,8 @@ throws Exception
 	NWSRFS nwsrfs = new NWSRFS();
 	NWSRFS_CarryoverGroup cg  = null;
 	NWSRFS_ForecastGroup  fg  = null;
-	List cgIDs;
-	List fgIDs;
+	List<String> cgIDs;
+	List<String> fgIDs;
 
 	try
 	{
@@ -159,10 +159,10 @@ throws Exception
 			try
 			{
 				// Get the full carryover group
-				cg = dmi.readCarryoverGroup((String)cgIDs.get(cgIndex), deepRead);
+				cg = dmi.readCarryoverGroup(cgIDs.get(cgIndex), deepRead);
 
 				// Get forecast groups
-				fgIDs = new Vector();
+				fgIDs = new Vector<String>();
 				fgIDs = cg.getForecastGroupIDs();
 				fgSize = cg.getNFG();
 				if(fgSize <= 0) {
@@ -263,7 +263,7 @@ public NWSRFS_CarryoverGroup getCarryoverGroup ( String cgid )
 Return the carryover groups.  This is guaranteed to be non-null.
 @return the list of carryover groups as NWSRFS_CarryoverGroup.
 */
-public List getCarryoverGroups()
+public List<NWSRFS_CarryoverGroup> getCarryoverGroups()
 {
 	return __carryover_groups;
 }

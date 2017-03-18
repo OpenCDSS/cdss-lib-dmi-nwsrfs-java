@@ -83,15 +83,15 @@ binary file.
 protected int _NRC; 
 
 /**
-The Vector holding the record number of the associated rating curve 
+The list holding the record number of the associated rating curve 
 identifier in the binary file FCRATING.
 */
-protected List _IREC;
+protected List<Integer> _IREC;
 
 /**
-The vector holding all of the rating curve identifiers.
+The list holding all of the rating curve identifiers.
 */
-protected List _RCID;
+protected List<String> _RCID;
 
 /**
 Constructor.
@@ -117,7 +117,7 @@ Adds an Integer to the _IREC Vector.
 */
 public void addIREC(Integer I) {
 	if (_IREC == null) {
-		_IREC = new Vector();
+		_IREC = new Vector<Integer>();
 	}
 	_IREC.add(I);
 }
@@ -128,7 +128,7 @@ Adds an Integer to the _RCID Vector.
 */
 public void addRCID(String s) {
 	if (_RCID == null) {
-		_RCID = new Vector();
+		_RCID = new Vector<String>();
 	}
 	_RCID.add(s);
 }
@@ -168,20 +168,20 @@ public int getNRC() {
 }
 
 /**
-Returns the Vector holding the record number of the associated rating curve
+Returns the list holding the record number of the associated rating curve
 identifier in the binary file FCRATING.
-@return the Vector holding the record number of the associated rating curve
+@return the list holding the record number of the associated rating curve
 identifier in the binary file FCRATING.
 */
-public List getIREC() {
+public List<Integer> getIREC() {
 	return _IREC;
 }
 
 /**
-Returns the Vector holding all the rating curve identifiers.
-@return the Vector holding all the rating curve identifiers.
+Returns the list holding all the rating curve identifiers.
+@return the list holding all the rating curve identifiers.
 */
-public List getRCID() {
+public List<String> getRCID() {
 	return _RCID;
 }
 

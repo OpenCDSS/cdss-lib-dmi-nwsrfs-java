@@ -1140,7 +1140,7 @@ throws Exception
 
 	// Print the header in the order of the file (some get methods are not enabled)...
 
-	List header_strings = esp.getHeaderStrings ( null );
+	List<String> header_strings = esp.getHeaderStrings ( null );
 	int size = header_strings.size();
 	for ( int i = 0; i < size; i++ ) {
 		out.println ( (String)header_strings.get(i) );
@@ -1758,7 +1758,7 @@ throws Exception
 	EndianDataInputStream EDIS;
 	String prsf_string = null;
 	TZ localTZ;
-	List tzMatches;
+	List<TZ> tzMatches;
 	DateTime temp_date;
 	// This is added to integers that are read as float to make sure that the
     // truncated integer is the proper value, in case the precision of the write rounded under.

@@ -787,14 +787,14 @@ has. This logical unit number corresponds to the <i>n</i> in the file
 PPPPARM<i>n</i> and is used to pull all of the station info for a specific
 parameter type. The Hashtable key is the parameterType String: GENL, PCPN, etc.
 */
-protected Hashtable _logicalUnitNum;
+protected Hashtable<String,Integer> _logicalUnitNum;
 
 /**
 Hashtable of the record number in the PPPINDEX file for retrieving data from the 
 PPPPARM<i>n</i> file. The Hashtable key is the parameterType String: GENL, 
 PCPN, etc.
 */
-protected Hashtable _recordNum;
+protected Hashtable<String,Integer> _recordNum;
 
 /**
 Station number.
@@ -810,7 +810,7 @@ protected int _completionInd;
 /**
 Station Data Group Codes.  Only read in if deepRead is true. GENL parameter.
 */
-protected List _dataGroupCodes;
+protected List<String> _dataGroupCodes;
 
 /**
 Station description. GENL parameter.
@@ -841,7 +841,7 @@ protected int _hrapY;
 Station record number for each parameter record in the PPDB. Only read in if 
 deepRead is true. GENL parameter.
 */
-protected List _IREC;
+protected List<Integer> _IREC;
 
 /**
 Station latitude. GENL parameter.
@@ -935,7 +935,7 @@ Station Potential Evaporation Fourier series coefficients
 a0, a1, a2, a3, b1, and b2.
 Only read in if deepRead is true. PE parameter.
 */
-protected List _peFourierCoef;
+protected List<Float> _peFourierCoef;
 
 /**
 Station Potential Evaporation Julian Date of the Last day included in SUMPE
@@ -947,7 +947,7 @@ Station Potential Evaporation number of values in
 SUMPE for each month.
 Only read in if deepRead is true. PE parameter.
 */
-protected List _peNumValuesSUMPE;
+protected List<Integer> _peNumValuesSUMPE;
 
 /**
 Station Potential Evaporation P factor.
@@ -965,7 +965,7 @@ protected int _pePRadiation;
 Station Potential Evaporation sum for each of last 12 months (SUMPE).
 Only read in if deepRead is true. PE parameter.
 */
-protected List _peSUMPE;
+protected List<Float> _peSUMPE;
 
 // River, Reservoir, and Snow parameters (RRS); only read in when deepRead is 
 // true.
@@ -973,56 +973,56 @@ protected List _peSUMPE;
 Station RRS data time interval.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsDataTimeInt;
+protected List<Integer> _rrsDataTimeInt;
 
 /**
 Station RRS data types codes.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsDataTypeCodes;
+protected List<String> _rrsDataTypeCodes;
 
 /**
 Station RRS extrapolation recession constant.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsExtrapRecessConst;
+protected List<Float> _rrsExtrapRecessConst;
 
 /**
 Station RRS fraction of flow occurring during
 each hour of the hydrologic day.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsFractQ;
+protected List<Float> _rrsFractQ;
 
 /**
 Station RRS interpolation option.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsInterpOpt;
+protected List<Integer> _rrsInterpOpt;
 
 /**
 Station RRS record number of TS header in PRDB.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsIREC;
+protected List<Integer> _rrsIREC;
 
 /**
 Station RRS minimum number of days to retain in PPDB.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsMinDaysToRetain;
+protected List<Integer> _rrsMinDaysToRetain;
 
 /**
 Station RRS minimum discharge allowed before distribution is applied
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsMinQAllowed;
+protected List<Float> _rrsMinQAllowed;
 
 /**
 Station RRS missing data indicator.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsMissingInd;
+protected List<String> _rrsMissingInd;
 
 /**
 Station RRS number of data types which allow mean 
@@ -1047,13 +1047,13 @@ protected int _rrsNTYPE;
 Station RRS number of values per observation.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsNumObs;
+protected List<Integer> _rrsNumObs;
 
 /**
 Station RRS number of of observations in PPDB.
 Only read in if deepRead is true. RRS parameter.
 */
-protected List _rrsNumObsInPPDB;
+protected List<Integer> _rrsNumObsInPPDB;
 
 // Temperature parameters; only read in when deepRead is true.
 /**
@@ -1077,19 +1077,19 @@ protected int _tempLocMeanMonthMaxMin;
 Station Temperature Array Location of pointers for two closest stations
 with forecast temperatures in each quadrant
 */
-protected List _tempLocPointForecast;
+protected List<Integer> _tempLocPointForecast;
 
 /**
 Station Temperature Array Location of pointers for two closest stations
 with instantaneous temperatures in each quadrant
 */
-protected List _tempLocPointInst;
+protected List<Integer> _tempLocPointInst;
 
 /**
 Station Temperature Array Location of pointers for three closest stations
 with Max/Min temperatures in each quadrant
 */
-protected List _tempLocPointMaxMin;
+protected List<Integer> _tempLocPointMaxMin;
 
 /**
 Station Temperature Max correction factor.
@@ -1129,17 +1129,17 @@ protected int _tempTimeIntervalInst;
 /**
 Station Temperature weights for stations with forecast temperatures in each quadrant
 */
-protected List _tempWeightForecast;
+protected List<Float> _tempWeightForecast;
 
 /**
 Station Temperature weights for stations with instantaneous temperatures in each quadrant
 */
-protected List _tempWeightInst;
+protected List<Float> _tempWeightInst;
 
 /**
 Station Temperature weights for stations with Max/Min temperatures in each quadrant
 */
-protected List _tempWeightMaxMin;
+protected List<Float> _tempWeightMaxMin;
 
 /**
 Constructor.
@@ -1574,7 +1574,7 @@ Member method for GENL station parameter variables
 Only read if it is a deep read.
 @return the station data group codes Vector.
 */
-public List getDataGroupCodes() {
+public List<String> getDataGroupCodes() {
 	return _dataGroupCodes;
 }
 
@@ -1586,7 +1586,7 @@ Only read if it is a deep read.
 @return the station data group codes at an index.
 */
 public String getDataGroupCodes(int dgcIndex) {
-	return (String)_dataGroupCodes.get(dgcIndex);
+	return _dataGroupCodes.get(dgcIndex);
 }
 
 /**
@@ -1641,7 +1641,7 @@ Member method for GENL station parameter variables
 Only read if it is a deep read.
 @return the station record number Vector.
 */
-public List getIREC() {
+public List<Integer> getIREC() {
 	return _IREC;
 }
 
@@ -1653,7 +1653,7 @@ Only read if it is a deep read.
 @return the station record number.
 */
 public int getIREC(int irecIndex) {
-	return ((Integer)_IREC.get(irecIndex)).intValue();
+	return _IREC.get(irecIndex).intValue();
 }
 
 /**
@@ -1841,7 +1841,7 @@ Member method for PE station parameter variables
 Only read if it is a deep read.
 @return the station PE Vector of Fourier coefficient.
 */
-public List getPEFourierCoef() {
+public List<Float> getPEFourierCoef() {
 	return _peFourierCoef;
 }
 
@@ -1854,7 +1854,7 @@ coefficients Vector.
 @return the station PE Fourier coefficient at an index.
 */
 public float getPEFourierCoef(int peFourIndex) {
-	return ((Float)_peFourierCoef.get(peFourIndex)).floatValue();
+	return _peFourierCoef.get(peFourIndex).floatValue();
 }
 
 /**
@@ -1872,7 +1872,7 @@ Member method for PE station parameter variables
 Only read if it is a deep read.
 @return the station PE SUMPE value.
 */
-public List getPESUMPE() {
+public List<Float> getPESUMPE() {
 	return _peSUMPE;
 }
 
@@ -1885,7 +1885,7 @@ Vector. This will be a month number starting at 0.
 @return the station PE SUMPE at an index.
 */
 public float getPESUMPE(int peSUMPEIndex) {
-	return ((Float)_peSUMPE.get(peSUMPEIndex)).floatValue();
+	return _peSUMPE.get(peSUMPEIndex).floatValue();
 }
 
 /**
@@ -1894,7 +1894,7 @@ Member method for PE station parameter variables
 Only read if it is a deep read.
 @return the station PE number of SUMPE values.
 */
-public List getPENumSUMPE() {
+public List<Integer> getPENumSUMPE() {
 	return _peNumValuesSUMPE;
 }
 
@@ -1907,8 +1907,7 @@ Vector. This will be a month number starting at 0.
 @return the station PE Number of SUMPE values at an index.
 */
 public int getPENumSUMPE(int peNumValuesSUMPEIndex) {
-	return ((Integer)_peNumValuesSUMPE.get(peNumValuesSUMPEIndex)).
-                 intValue();
+	return _peNumValuesSUMPE.get(peNumValuesSUMPEIndex).intValue();
 }
 
 // GET Member methods for RRS (River, Reservoir, and Snow) station parameter 
@@ -1919,7 +1918,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS data time Vector.
 */
-public List getRRSDataTimeInt() {
+public List<Integer> getRRSDataTimeInt() {
 	return _rrsDataTimeInt;
 }
 
@@ -1932,7 +1931,7 @@ Vector. This will be a TS index starting at 0.
 @return the station RRS data time interval at an index.
 */
 public int getRRSDataTimeInt(int rrsDTIIndex) {
-	return ((Integer)_rrsDataTimeInt.get(rrsDTIIndex)).intValue();
+	return _rrsDataTimeInt.get(rrsDTIIndex).intValue();
 }
 
 /**
@@ -1941,7 +1940,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS data type codes Vector.
 */
-public List getRRSDataTypeCodes() {
+public List<String> getRRSDataTypeCodes() {
 	return _rrsDataTypeCodes;
 }
 
@@ -1954,7 +1953,7 @@ Vector. This will be an index starting at 0.
 @return the station RRS data type codes at an index.
 */
 public String getRRSDataTypeCodes(int rrsDTCIndex) {
-	return (String)_rrsDataTypeCodes.get(rrsDTCIndex);
+	return _rrsDataTypeCodes.get(rrsDTCIndex);
 }
 
 /**
@@ -1963,7 +1962,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS extrapolation recess constant Vector.
 */
-public List getRRSExtrapRecessConst() {
+public List<Float> getRRSExtrapRecessConst() {
 	return _rrsExtrapRecessConst;
 }
 
@@ -1976,7 +1975,7 @@ recess constant Vector. This will be an index starting at 0.
 @return the station RRS extrapolation recess constant at an index.
 */
 public float getRRSExtrapRecessConst(int rrsERCIndex) {
-	return ((Float)_rrsExtrapRecessConst.get(rrsERCIndex)).floatValue();
+	return _rrsExtrapRecessConst.get(rrsERCIndex).floatValue();
 }
 
 /**
@@ -1986,7 +1985,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS fraction of flow Vector.
 */
-public List getRRSFractQ() {
+public List<Float> getRRSFractQ() {
 	return _rrsFractQ;
 }
 
@@ -2000,7 +1999,7 @@ Vector. This will be an index starting at 0.
 @return the station RRS fraction of flow at an index.
 */
 public float getRRSFractQ(int rrsFRQIndex) {
-	return ((Float)_rrsFractQ.get(rrsFRQIndex)).floatValue();
+	return _rrsFractQ.get(rrsFRQIndex).floatValue();
 }
 
 /**
@@ -2009,7 +2008,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS Vector of interpolation options.
 */
-public List getRRSInterpOpt() {
+public List<Integer> getRRSInterpOpt() {
 	return _rrsInterpOpt;
 }
 
@@ -2023,7 +2022,7 @@ options Vector. This will be an index starting at 0.
 @return the station RRS interpolation options at an index.
 */
 public int getRRSInterpOpt(int rrsIntOPIndex) {
-	return ((Integer)_rrsInterpOpt.get(rrsIntOPIndex)).intValue();
+	return _rrsInterpOpt.get(rrsIntOPIndex).intValue();
 }
 
 /**
@@ -2032,7 +2031,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS Vector of record number of TS header in PPDB.
 */
-public List getRRSIREC() {
+public List<Integer> getRRSIREC() {
 	return _rrsIREC;
 }
 
@@ -2046,7 +2045,7 @@ of TS header in PPDB Vector. This will be an index starting at 0.
 @return the station RRS record number of TS header in PPDB at an index.
 */
 public int getRRSIREC(int rrsIRECIndex) {
-	return ((Integer)_rrsIREC.get(rrsIRECIndex)).intValue();
+	return _rrsIREC.get(rrsIRECIndex).intValue();
 }
 
 /**
@@ -2055,7 +2054,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS Vector of minimum days to retain in PPDB.
 */
-public List getRRSMinDaysToRetain() {
+public List<Integer> getRRSMinDaysToRetain() {
 	return _rrsMinDaysToRetain;
 }
 
@@ -2069,7 +2068,7 @@ retain Vector. This will be an index starting at 0.
 @return the station RRS minimum days to retain in PPDB at an index.
 */
 public int getRRSMinDaysToRetain(int rrsMinDTRIndex) {
-	return ((Integer)_rrsMinDaysToRetain.get(rrsMinDTRIndex)).intValue();
+	return _rrsMinDaysToRetain.get(rrsMinDTRIndex).intValue();
 }
 
 /**
@@ -2079,7 +2078,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS minimum flow allowed Vector.
 */
-public List getRRSMinQAllowed() {
+public List<Float> getRRSMinQAllowed() {
 	return _rrsMinQAllowed;
 }
 
@@ -2093,7 +2092,7 @@ allowed Vector. This will be an index starting at 0.
 @return the station RRS minimum flow allowed at an index.
 */
 public float getRRSMinQAllowed(int rrsMinQIndex) {
-	return ((Float)_rrsMinQAllowed.get(rrsMinQIndex)).floatValue();
+	return _rrsMinQAllowed.get(rrsMinQIndex).floatValue();
 }
 
 /**
@@ -2102,7 +2101,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS missing data indicator Vector.
 */
-public List getRRSMissingInd() {
+public List<String> getRRSMissingInd() {
 	return _rrsMissingInd;
 }
 
@@ -2116,7 +2115,7 @@ indicator Vector. This will be an index starting at 0.
 @return the station RRS missing data indicator at an index.
 */
 public String getRRSMissingInd(int rrsMissIndex) {
-	return (String)_rrsMissingInd.get(rrsMissIndex);
+	return _rrsMissingInd.get(rrsMissIndex);
 }
 
 /**
@@ -2156,7 +2155,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS Vector of number of values per observation.
 */
-public List getRRSNumObs() {
+public List<Integer> getRRSNumObs() {
 	return _rrsNumObs;
 }
 
@@ -2170,7 +2169,7 @@ values per observation Vector. This will be an index starting at 0.
 @return the station RRS number of values per observation at an index.
 */
 public int getRRSNumObs(int rrsNumObsIndex) {
-	return ((Integer)_rrsNumObs.get(rrsNumObsIndex)).intValue();
+	return _rrsNumObs.get(rrsNumObsIndex).intValue();
 }
 
 /**
@@ -2179,7 +2178,7 @@ Member method for RRS station parameter variables
 Only read if it is a deep read.
 @return the station RRS Vector of number of observations in PPDB.
 */
-public List getRRSNumObsInPPDB() {
+public List<Integer> getRRSNumObsInPPDB() {
 	return _rrsNumObsInPPDB;
 }
 
@@ -2193,8 +2192,7 @@ observations in PPDB Vector. This will be an index starting at 0.
 @return the station RRS number of observations in PPDB at an index.
 */
 public int getRRSNumObsInPPDB(int rrsNumObsPPDBIndex) {
-	return ((Integer)_rrsNumObsInPPDB.get(rrsNumObsPPDBIndex)).
-        intValue();
+	return _rrsNumObsInPPDB.get(rrsNumObsPPDBIndex).intValue();
 }
 
 // GET Member methods for TEMP (Temperature) station parameter variables
@@ -2224,7 +2222,7 @@ forecast data
 Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
-public List getTEMPLocPointForecast() {
+public List<Integer> getTEMPLocPointForecast() {
 	return _tempLocPointForecast;
 }
 
@@ -2236,8 +2234,7 @@ Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
 public int getTEMPLocPointForecast(int tempLocPointForecastIndex) {
-	return (int)((Integer)_tempLocPointForecast.
-		get(tempLocPointForecastIndex)).intValue();
+	return _tempLocPointForecast.get(tempLocPointForecastIndex).intValue();
 }
 
 /**
@@ -2246,7 +2243,7 @@ instantaneous data.
 Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
-public List getTEMPLocPointInst() {
+public List<Integer> getTEMPLocPointInst() {
 	return _tempLocPointInst;
 }
 
@@ -2258,8 +2255,7 @@ Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
 public int getTEMPLocPointInst(int tempLocPointInstIndex) {
-	return (int)((Integer)_tempLocPointInst.
-		get(tempLocPointInstIndex)).intValue();
+	return _tempLocPointInst.get(tempLocPointInstIndex).intValue();
 }
 
 /**
@@ -2268,7 +2264,7 @@ Max/Min data
 Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
-public List getTEMPLocPointMaxMin() {
+public List<Integer> getTEMPLocPointMaxMin() {
 	return _tempLocPointMaxMin;
 }
 
@@ -2280,8 +2276,7 @@ Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
 public int getTEMPLocPointMaxMin(int tempLocPointMaxMinIndex) {
-	return (int)((Integer)_tempLocPointMaxMin.
-		get(tempLocPointMaxMinIndex)).intValue();
+	return _tempLocPointMaxMin.get(tempLocPointMaxMinIndex).intValue();
 }
 
 /**
@@ -2359,7 +2354,7 @@ forecast data.
 Member method for TEMP station parameter variables
 @return the station TEMP Vector of array Weight values.
 */
-public List getTEMPWeightForecast() {
+public List<Float> getTEMPWeightForecast() {
 	return _tempWeightForecast;
 }
 
@@ -2371,8 +2366,7 @@ Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
 public float getTEMPWeightForecast(int tempWeightForecastIndex) {
-	return (float)((Float)_tempWeightForecast.
-		get(tempWeightForecastIndex)).floatValue();
+	return _tempWeightForecast.get(tempWeightForecastIndex).floatValue();
 }
 
 /**
@@ -2381,7 +2375,7 @@ instantaneous data.
 Member method for TEMP station parameter variables
 @return the station TEMP Vector of array Weight values.
 */
-public List getTEMPWeightInst() {
+public List<Float> getTEMPWeightInst() {
 	return _tempWeightInst;
 }
 
@@ -2393,8 +2387,7 @@ Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
 public float getTEMPWeightInst(int tempWeightInstIndex) {
-	return (float)((Float)_tempWeightInst.
-		get(tempWeightInstIndex)).floatValue();
+	return _tempWeightInst.get(tempWeightInstIndex).floatValue();
 }
 
 /**
@@ -2403,7 +2396,7 @@ Max/Min data.
 Member method for TEMP station parameter variables
 @return the station TEMP Vector of array Weight values.
 */
-public List getTEMPWeightMaxMin() {
+public List<Float> getTEMPWeightMaxMin() {
 	return _tempWeightMaxMin;
 }
 
@@ -2415,8 +2408,7 @@ Member method for TEMP station parameter variables
 @return the station TEMP Vector of array location pointer values.
 */
 public float getTEMPWeightMaxMin(int tempWeightMaxMinIndex) {
-	return (float)((Float)_tempWeightMaxMin.
-		get(tempWeightMaxMinIndex)).floatValue();
+	return _tempWeightMaxMin.get(tempWeightMaxMinIndex).floatValue();
 }
 
 /**
@@ -2428,17 +2420,17 @@ private void initialize() {
 	_isPE			= false;
 	_isRRS			= false;
 	_isTEMP			= false;
-	_logicalUnitNum		= new Hashtable();
-	_recordNum		= new Hashtable();
+	_logicalUnitNum		= new Hashtable<String,Integer>();
+	_recordNum		= new Hashtable<String,Integer>();
 	_stationNum		= -1;
 	_completionInd		= 0;
-	_dataGroupCodes		= new Vector();
+	_dataGroupCodes		= new Vector<String>();
 	_description		= null;
 	_elevation		= 0;
 	_gridPointAddress	= 0;
 	_hrapX			= 0;
 	_hrapY			= 0;
-	_IREC			= new Vector();
+	_IREC			= new Vector<Integer>();
 	_latitude		= 0;
 	_longitude		= 0;
 	_NGPS			= 0;
@@ -2454,41 +2446,41 @@ private void initialize() {
 	_peAnemometerHeight	= 0;
 	_peB3			= 0;
 	_peCorrectFactor	= 0;
-	_peFourierCoef		= new Vector();
+	_peFourierCoef		= new Vector<Float>();
 	_peLastJulDay		= 0;
-	_peNumValuesSUMPE	= new Vector();
+	_peNumValuesSUMPE	= new Vector<Integer>();
 	_pePFactor		= 0;
 	_pePRadiation		= 0;
-	_peSUMPE		= new Vector();
-	_rrsDataTimeInt		= new Vector();
-	_rrsDataTypeCodes	= new Vector();
-	_rrsExtrapRecessConst	= new Vector();
-	_rrsFractQ		= new Vector();
-	_rrsInterpOpt		= new Vector();
-	_rrsIREC		= new Vector();
-	_rrsMinDaysToRetain	= new Vector();
-	_rrsMinQAllowed		= new Vector();
-	_rrsMissingInd		= new Vector();
+	_peSUMPE		= new Vector<Float>();
+	_rrsDataTimeInt		= new Vector<Integer>();
+	_rrsDataTypeCodes	= new Vector<String>();
+	_rrsExtrapRecessConst	= new Vector<Float>();
+	_rrsFractQ		= new Vector<Float>();
+	_rrsInterpOpt		= new Vector<Integer>();
+	_rrsIREC		= new Vector<Integer>();
+	_rrsMinDaysToRetain	= new Vector<Integer>();
+	_rrsMinQAllowed		= new Vector<Float>();
+	_rrsMissingInd		= new Vector<String>();
 	_rrsNDIST		= 0;
 	_rrsNMISS		= 0;
 	_rrsNTYPE		= 0;
-	_rrsNumObs		= new Vector();
-	_rrsNumObsInPPDB	= new Vector();
+	_rrsNumObs		= new Vector<Integer>();
+	_rrsNumObsInPPDB	= new Vector<Integer>();
 	_tempDataInd		= 0;
 	_tempElevationWeight	= 0;
 	_tempLocMeanMonthMaxMin	= 0;
-	_tempLocPointForecast	= new Vector();
-	_tempLocPointInst	= new Vector();
-	_tempLocPointMaxMin	= new Vector();
+	_tempLocPointForecast	= new Vector<Integer>();
+	_tempLocPointInst	= new Vector<Integer>();
+	_tempLocPointMaxMin	= new Vector<Integer>();
 	_tempMaxCorrect		= 0;
 	_tempMaxMinInd		= 0;
 	_tempMinCorrect		= 0;
 	_tempMountainInd	= 0;
 	_tempNetInd		= 0;
 	_tempTimeIntervalInst	= 0;
-	_tempWeightForecast	= new Vector();
-	_tempWeightInst		= new Vector();
-	_tempWeightMaxMin	= new Vector();
+	_tempWeightForecast	= new Vector<Float>();
+	_tempWeightInst		= new Vector<Float>();
+	_tempWeightMaxMin	= new Vector<Float>();
 }
 
 // SET Member methods for general station variables

@@ -274,12 +274,12 @@ protected String _CGNAME;
 /**
 Forecast group IDs in the Carryover Group.
 */
-private List	__fgID = null;
+private List<String>	__fgID = null;
 
 /**
 Forecast group objects in the Carryover Group.
 */
-private List	__forecast_groups = null;
+private List<NWSRFS_ForecastGroup>	__forecast_groups = null;
 
 /**
 Constructor.  Initializes to have no forecast groups and no carryover group id.
@@ -344,7 +344,7 @@ The dates will be at hour 12 Z time.
 Debug information is printed during this method at Debug levels of 2, 3, and 6.
 @return Vector of carryover dates as DateTime objects, guaranteed to be non-null.
 */
-public List getCarryoverDates()
+public List<DateTime> getCarryoverDates()
 {
 	String routine = "NWSRFS_CarryoverGroup.getCarryoverDates";
 	int num = _ICODAY.length;
@@ -356,7 +356,7 @@ public List getCarryoverDates()
 	int julianDay = -999;
 	int julianHour = -999;
 	DateTime date = null;
-	List v = new Vector();
+	List<DateTime> v = new Vector<DateTime>();
 	for (int i = 0; i < num; i++) {
 		julianDay = _ICODAY[i];
 		julianHour = _ICOTIM[i];
@@ -462,7 +462,7 @@ __fgID.size().
 @return the Forecast Group ID at an index.
 */
 public String getForecastGroupID(int index) {
-	return (String)__fgID.get(index);
+	return __fgID.get(index);
 }
 
 /**
@@ -470,7 +470,7 @@ Returns the Vector of forecast group IDs in this carryover group.  Guaranteed to
 be non-null.
 @return the Vector of forecast group IDs in this carryover group.
 */
-public List getForecastGroupIDs() {
+public List<String> getForecastGroupIDs() {
 	return __fgID;
 }
 
@@ -479,7 +479,7 @@ Returns the Vector of forecast groups in this carryover group.  Guaranteed to
 be non-null.
 @return the Vector of forecast groups in this carryover group.
 */
-public List getForecastGroups() {
+public List<NWSRFS_ForecastGroup> getForecastGroups() {
 	return __forecast_groups;
 }
 
@@ -643,8 +643,8 @@ private void initialize() {
 	_LUPTIM = new int[20];
 	_IPC = new int[20];
 	__cgid = null;
-	__fgID = new Vector();
-	__forecast_groups = new Vector();
+	__fgID = new Vector<String>();
+	__forecast_groups = new Vector<NWSRFS_ForecastGroup>();
 }
 
 /**
