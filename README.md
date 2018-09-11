@@ -44,7 +44,6 @@ cdss-lib-dmi-nwsrfs-java/          Source code and development working files.
   .gitattributes                   Git configuration file for repository.
   .gitignore                       Git configuration file for repository.
   .project                         Eclipse configuration file.
-  .settings                        Eclipse configuration file - may be removed in the future.
   bin/                             Eclipse folder for compiled files (dynamic so ignored from repo).
   conf/                            Configuration files for installer build tools.
   dist/                            Folder used to build distributable installer (ignored from repo).
