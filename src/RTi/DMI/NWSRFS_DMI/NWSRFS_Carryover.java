@@ -228,19 +228,6 @@ throws Exception {
 }
 	
 /**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize()
-throws Throwable {
-	_LUPTIM = null;
-	__segment = null;
-	_ISEG = null;
-	_opName = null;
-	_coCarryoverValues = null;
-}
-
-/**
 Returns the carryover values for the operation.
 @return the carryover values for the operation.
 */

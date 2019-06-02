@@ -19,6 +19,7 @@ import RTi.Util.GUI.InputFilter;
 import RTi.Util.GUI.InputFilter_JPanel;
 import RTi.Util.String.StringUtil;
 
+@SuppressWarnings("serial")
 public class NWSRFS_TS_InputFilter_JPanel extends InputFilter_JPanel
 {
 
@@ -29,7 +30,7 @@ Create an InputFilter_JPanel for creating where clauses for time series queries.
 */
 public NWSRFS_TS_InputFilter_JPanel ()
 throws Exception
-{	List input_filters = new Vector(2);
+{	List<InputFilter> input_filters = new Vector<InputFilter>(2);
 	input_filters.add ( new InputFilter (
 		"", "",
 		StringUtil.TYPE_STRING,

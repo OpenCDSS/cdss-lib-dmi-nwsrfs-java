@@ -160,51 +160,51 @@ protected String _USERID;
 Record number of first parameter 
 record of this type.
 */
-protected List _FIRST;
+protected List<Integer> _FIRST;
 
 /**
 Holds the record number of the associated parameter identifier in the 
 binary file PPPPARMn.
 */
-protected List _IREC;
+protected List<Integer> _IREC;
 
 /**
 Single record type indicator:
   0 =  not a single record type
   1 = single record type
 */
-protected List _ISNGL;
+protected List<Integer> _ISNGL;
 
 /**
 Record number of last parameter record of this type.
 */
-protected List _LAST;
+protected List<Integer> _LAST;
 
 /**
 Logical unit assigned to file that contains the parameter type.
 */
-protected List _LUFILE;
+protected List<Integer> _LUFILE;
 
 /**
 Number of parameter records of this type.
 */
-protected List _NUMPRM;
+protected List<Integer> _NUMPRM;
 
 /**
 Holds all of the parameter identifiers.
 */
-protected List _ID;
+protected List<String> _ID;
 
 /**
 Holds the parameter type of the associated parameter identifier in the 
 binary file PPPINDEX.
 */
-protected List _ITYPE;
+protected List<String> _ITYPE;
 
 /**
 Holds the available parameter types.
 */
-protected List _PARMTP;
+protected List<String> _PARMTP;
 
 /**
 Constructor.
@@ -230,7 +230,7 @@ Adds a value to the _FIRST Vector.
 */
 public void addFIRST(Integer I) {
 	if (_FIRST == null) {
-		_FIRST = new Vector();
+		_FIRST = new Vector<Integer>();
 	}
 	_FIRST.add(I);
 }
@@ -249,7 +249,7 @@ Adds a value to the _IREC Vector.
 */
 public void addIREC(Integer I) {
 	if (_IREC == null) {
-		_IREC = new Vector();
+		_IREC = new Vector<Integer>();
 	}
 	_IREC.add(I);
 }
@@ -268,7 +268,7 @@ Adds a value to the _ISNGL Vector.
 */
 public void addISNGL(Integer I) {
 	if (_ISNGL == null) {
-		_ISNGL = new Vector();
+		_ISNGL = new Vector<Integer>();
 	}
 	_ISNGL.add(I);
 }
@@ -287,7 +287,7 @@ Adds a value to the _LAST Vector.
 */
 public void addLAST(Integer I) {
 	if (_LAST == null) {
-		_LAST = new Vector();
+		_LAST = new Vector<Integer>();
 	}
 	_LAST.add(I);
 }
@@ -306,7 +306,7 @@ Adds a value to the _LUFILE Vector.
 */
 public void addLUFILE(Integer I) {
 	if (_LUFILE == null) {
-		_LUFILE = new Vector();
+		_LUFILE = new Vector<Integer>();
 	}
 	_LUFILE.add(I);
 }
@@ -325,7 +325,7 @@ Adds a value to the _NUMPRM Vector.
 */
 public void addNUMPRM(Integer I) {
 	if (_NUMPRM == null) {
-		_NUMPRM = new Vector();
+		_NUMPRM = new Vector<Integer>();
 	}
 	_NUMPRM.add(I);
 }
@@ -336,7 +336,7 @@ Adds a value to the _ID Vector.
 */
 public void addID(String s) {
 	if (_ID == null) {
-		_ID = new Vector();
+		_ID = new Vector<String>();
 	}
 	_ID.add(s);
 }
@@ -347,7 +347,7 @@ Adds a value to the _ITYPE Vector.
 */
 public void addITYPE(String s) {
 	if (_ITYPE == null) {
-		_ITYPE = new Vector();
+		_ITYPE = new Vector<String>();
 	}
 	_ITYPE.add(s);
 }
@@ -358,7 +358,7 @@ Adds a value to the _PARMTP Vector.
 */
 public void addPARMTP(String s) {
 	if (_PARMTP == null) {
-		_PARMTP = new Vector();
+		_PARMTP = new Vector<String>();
 	}
 	_PARMTP.add(s);
 }
@@ -432,7 +432,7 @@ public String getUSERID() {
 Returns the Vector of record numbers of the first parameters.
 @return the Vector of record numbers of the first parameters.
 */
-public List getFIRST() {
+public List<Integer> getFIRST() {
 	return _FIRST;
 }
 
@@ -449,7 +449,7 @@ public int getFIRST(int firstIndex) {
 Returns the List of record numbers of associated parameter identifiers.
 @return the List of record numbers of associated parameter identifiers.
 */
-public List getIREC() {
+public List<Integer> getIREC() {
 	return _IREC;
 }
 
@@ -466,7 +466,7 @@ public int getIREC(int irecIndex) {
 Returns the List of single record type indicators.
 @return the List of single record type indicators.
 */
-public List getISNGL() {
+public List<Integer> getISNGL() {
 	return _ISNGL;
 }
 
@@ -483,7 +483,7 @@ public int getISNGL(int isnglIndex) {
 Returns the List of record numbers of last parameters.
 @return the List of record numbers of last parameters.
 */
-public List getLAST() {
+public List<Integer> getLAST() {
 	return _LAST;
 }
 
@@ -500,7 +500,7 @@ public int getLAST(int lastIndex) {
 Returns the List of logical units assigned to files.
 @return the List of logical units assigned to files.
 */
-public List getLUFILE() {
+public List<Integer> getLUFILE() {
 	return _LUFILE;
 }
 
@@ -517,7 +517,7 @@ public int getLUFILE(int lufileIndex) {
 Returns the List of the number of parameter records.
 @return the List of the number of parameter records.
 */
-public List getNUMPRM() {
+public List<Integer> getNUMPRM() {
 	return _NUMPRM;
 }
 
@@ -534,7 +534,7 @@ public int getNUMPRM(int numprmIndex) {
 Returns the List of the parameter identifiers.
 @return the List of the parameter identifiers.
 */
-public List getID() {
+public List<String> getID() {
 	return _ID;
 }
 
@@ -551,7 +551,7 @@ public String getID(int idIndex) {
 Returns the List of parameter types of the associated parameter identifiers.
 @return the List of parameter types of the associated parameter identifiers.
 */
-public List getITYPE() {
+public List<String> getITYPE() {
 	return _ITYPE;
 }
 
@@ -561,14 +561,14 @@ Returns the record number of the assocatied parameter identifiers at an index.
 @return the record number of the assocatied parameter identifiers at an index.
 */
 public String getITYPE(int itypeIndex) {
-	return (String)_ITYPE.get(itypeIndex);
+	return _ITYPE.get(itypeIndex);
 }
 
 /**
 Returns the List of available parameter types.
 @return the List of available parameter types.
 */
-public List getPARMTP() {
+public List<String> getPARMTP() {
 	return _PARMTP;
 }
 

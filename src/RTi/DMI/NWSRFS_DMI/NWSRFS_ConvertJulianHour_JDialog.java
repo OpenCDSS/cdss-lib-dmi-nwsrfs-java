@@ -40,6 +40,7 @@ import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 import RTi.Util.Time.DateTime;
 
+@SuppressWarnings("serial")
 public class NWSRFS_ConvertJulianHour_JDialog extends JDialog
 implements ActionListener, KeyListener, WindowListener
 {
@@ -88,7 +89,7 @@ to true.
 */
 private void checkInput ()
 {	String input = __input_JTextField.getText().trim();
-	List tokens = StringUtil.breakStringList ( input, " ", StringUtil.DELIM_SKIP_BLANKS );
+	List<String> tokens = StringUtil.breakStringList ( input, " ", StringUtil.DELIM_SKIP_BLANKS );
 	String routine = "NWSRFS_ConvertJulianHour_JDialog.checkInput";
 	String warning = "";
 
@@ -97,8 +98,8 @@ private void checkInput ()
 	boolean parse_error = false;
 	DateTime date = null;
 	if (	(tokens != null) && (tokens.size() == 2) &&
-		StringUtil.isInteger((String)tokens.get(0)) &&
-		StringUtil.isInteger((String)tokens.get(1)) ) {
+		StringUtil.isInteger(tokens.get(0)) &&
+		StringUtil.isInteger(tokens.get(1)) ) {
 		// Input is OK as julday and inthr...
 	}
 	else if ( StringUtil.isInteger(input) ) {
@@ -136,13 +137,13 @@ been called.
 */
 private void convert ()
 {	String input = __input_JTextField.getText().trim();
-	List tokens = StringUtil.breakStringList ( input, " ", StringUtil.DELIM_SKIP_BLANKS );
-	if (	(tokens != null) && (tokens.size() == 2) &&
-		StringUtil.isInteger((String)tokens.get(0)) &&
-		StringUtil.isInteger((String)tokens.get(1)) ) {
+	List<String> tokens = StringUtil.breakStringList ( input, " ", StringUtil.DELIM_SKIP_BLANKS );
+	if ( (tokens != null) && (tokens.size() == 2) &&
+		StringUtil.isInteger(tokens.get(0)) &&
+		StringUtil.isInteger(tokens.get(1)) ) {
 		// Convert Julian day and hour...
-		int jday = StringUtil.atoi((String)tokens.get(0));
-		int inthr = StringUtil.atoi((String)tokens.get(1));
+		int jday = StringUtil.atoi(tokens.get(0));
+		int inthr = StringUtil.atoi(tokens.get(1));
 		DateTime datetime = NWSRFS_Util.mdyh1 ( jday, inthr );
 		__datetime_JTextField.setText ( datetime.toString() );
 		__julday_JTextField.setText("" + jday + " " +
