@@ -63,7 +63,7 @@ Parse a mod and return an instance.
 @param modstrings List of strings for the mod.
 @parm modLineStart - starting line of mod in file
 */
-public static NWSRFS_Mod_TSCHNG parse ( List modstrings, int modLineStart )
+public static NWSRFS_Mod_TSCHNG parse ( List<String> modstrings, int modLineStart )
 throws Exception
 {	
   String routine = "NWSRFS_Mod_TSCHNG.parse";
@@ -72,7 +72,7 @@ throws Exception
 	// TODO SAM 2008-01-14 Need to check for minimum size
 	// Parse first line, which has the start date
 	String line = (String)modstrings.get(0);
-	List tokens = StringUtil.breakStringList ( line, " ", StringUtil.DELIM_SKIP_BLANKS );
+	List<String> tokens = StringUtil.breakStringList ( line, " ", StringUtil.DELIM_SKIP_BLANKS );
 	if ( tokens == null ) {
 		throw new Exception ( "Expecting 3 tokens on first row.");
 	}
@@ -80,10 +80,10 @@ throws Exception
 	if ( nTokens != 3 ) {
 		throw new Exception ( "Expecting 3 tokens on first row.");
 	}
-	String modtype = (String)tokens.get(0);
+	String modtype = tokens.get(0);
 	
-	String start_String = (String)tokens.get(1);
-	String end_String = (String)tokens.get(2);
+	String start_String = tokens.get(1);
+	String end_String = tokens.get(2);
 	
 	DateTime start_DateTime = stringToDateTime(start_String);
 	mod.setStart ( start_DateTime );
@@ -98,10 +98,10 @@ throws Exception
 	// <segid> <tsid> <datetype> <timeint> values [values] [&|name] 
 	int jstart = 0;
 	String token;
-	List values = new Vector();	// Accumulate the data values
+	List<String> values = new Vector<String>();	// Accumulate the data values
 	for ( int i = 1; i < nLines; i++ ) 
 	  {
-		line = (String)modstrings.get(i);
+		line = modstrings.get(i);
 		tokens = StringUtil.breakStringList ( line, " ", StringUtil.DELIM_SKIP_BLANKS );
 		if ( tokens == null ) {
 			Message.printStatus ( 2, routine,"No tokens on line. Expecting "
@@ -116,9 +116,9 @@ throws Exception
 		    // a token that can't be converted to a double [opName] terminates 
 		    // the values.
 
-			mod.setSegment ( (String)tokens.get(0));
-			mod.setTsid ( (String)tokens.get(1));
-			mod.setTsDataType ( (String)tokens.get(2));
+			mod.setSegment ( tokens.get(0));
+			mod.setTsid ( tokens.get(1));
+			mod.setTsDataType ( tokens.get(2));
 			mod.setTsInterval ( Integer.parseInt((String)tokens.get(3)));
 			jstart = 4;
 		}
@@ -128,7 +128,7 @@ throws Exception
 		  }
 		for ( int j = jstart; j < tsize; j++ )
 		  {
-			token = (String)tokens.get(j);
+			token = tokens.get(j);
 			//
 			// Guard against token with trailing '&'
 			if (token.charAt(token.length()-1) == '&')

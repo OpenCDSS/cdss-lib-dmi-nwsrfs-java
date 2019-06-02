@@ -192,7 +192,7 @@ protected int _orrsNSTA;
 /**
 ORRS record numbers of RRS parameters in the PPDB.
 */
-protected List _orrsIREC;
+protected List<Integer> _orrsIREC;
 
 /**
 Constructor.
@@ -267,7 +267,7 @@ public int getORRSNSTA() {
 Returns the Vector of the ORRS record numbers for RRS parameters in PPDB.
 @return the Vector of the ORRS record numbers.
 */
-public List getORRSIREC() {
+public List<Integer> getORRSIREC() {
 	return _orrsIREC;
 }
 
@@ -300,7 +300,7 @@ private void initialize() {
 	_recordNum          = -1;
 	_orrsListInd        = -1;
 	_orrsNSTA           = -1;
-	_orrsIREC           = new Vector();
+	_orrsIREC           = new Vector<Integer>();
 }
 
 // SET Member methods for general ORRS variables

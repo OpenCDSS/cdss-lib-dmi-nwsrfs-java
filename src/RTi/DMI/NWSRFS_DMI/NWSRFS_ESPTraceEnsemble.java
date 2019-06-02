@@ -254,6 +254,7 @@ Word  Data (type)      Description
 1     version (real)   Binary file format version (initial is 1.0).
 </pre>
 */
+@SuppressWarnings("deprecation")
 public class NWSRFS_ESPTraceEnsemble {
 
 /**

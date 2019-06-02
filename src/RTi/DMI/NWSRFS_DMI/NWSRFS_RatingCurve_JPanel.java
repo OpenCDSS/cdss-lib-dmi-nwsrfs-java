@@ -53,6 +53,7 @@ import RTi.Util.String.StringUtil;
 /**
 The NWSRFS_RatingCurve_JPanel class displays a list of the NWSRFS stations in a JTree.
 */
+@SuppressWarnings("serial")
 public class NWSRFS_RatingCurve_JPanel extends JPanel
 implements ActionListener, MouseListener {
 
@@ -183,7 +184,7 @@ public void actionPerformed(ActionEvent event ) {
 		refillData();
 	}
 	else if (source == __popup_deleteRatingCurve_JMenuItem) {
-		List v = NWSRFS_Util.run_delete_ratingCurve(id);
+		List<String> v = NWSRFS_Util.run_delete_ratingCurve(id);
 		if (v != null) {
 			refillData();
 		}
@@ -248,11 +249,11 @@ Returns a Vector of all the rating curves in the database.
 @return a Vector of all the rating curves in the database.  Guaranteed to return
 a non-null Vector.
 */
-public List getRatingCurves() {
+public List<NWSRFS_RatingCurve> getRatingCurves() {
 	String routine = "NWSRFS_RatingCurve_JPanel.getRatingCurves";
 
 	//make vector of rating curve IDs
-	List rc_vect = null;
+	List<String> rc_vect = null;
 
 	NWSRFS_DMI dmi = __nwsrfs.getDMI();
 	try {
@@ -266,7 +267,7 @@ public List getRatingCurves() {
 
 		Message.printWarning(2, routine, e);
 
-		return new Vector();
+		return new Vector<NWSRFS_RatingCurve>();
 	}
 
 	int numb_rcs = 0;
@@ -274,14 +275,14 @@ public List getRatingCurves() {
 		numb_rcs = rc_vect.size();
 	}
 	else {
-		return new Vector();
+		return new Vector<NWSRFS_RatingCurve>();
 	}
 
 	NWSRFS_RatingCurve rc = null;
 	String rcid = null;
-	List v = new Vector();
+	List<NWSRFS_RatingCurve> v = new Vector<NWSRFS_RatingCurve>();
 	for (int i = 0; i < numb_rcs; i++ ) {
-		rcid = (String)rc_vect.get(i);
+		rcid = rc_vect.get(i);
 		try {
 			rc = dmi.readRatingCurve(rcid);
 		}

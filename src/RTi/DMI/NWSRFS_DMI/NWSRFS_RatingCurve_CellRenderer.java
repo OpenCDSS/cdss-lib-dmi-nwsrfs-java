@@ -15,6 +15,7 @@ import RTi.Util.GUI.JWorksheet_AbstractExcelCellRenderer;
 /**
 This class is used for rendering cells for the rating curve table in the GUI.
 */
+@SuppressWarnings("serial")
 public class NWSRFS_RatingCurve_CellRenderer extends JWorksheet_AbstractExcelCellRenderer {
 
 /**

@@ -294,48 +294,48 @@ protected int _NUMDDF;
 protected int _NUMTYP;
 protected int _NWRDS;
 protected int _TYPREC;
-protected List _ACDCP;
-protected List _ACPSQ;
-protected List _ADDDTP;
-protected List _ADTPTR;
-protected List _BDATE;
-protected List _DATAR1;
-protected List _DTYPE;
-protected List _ECRECN;
-protected List _EDATE;
-protected List _L2DATE;
-protected List _LDATE;
-protected List _LDATEDDT;
-protected List _LDDFRC;
-protected List _LDRECN;
-protected List _LSTDTA;
-protected List _LSTPTR;
-protected List _LUFILE;
-protected List _MAXDAY;
-protected List _MAXSTA;
-protected List _MDDFRC;
-protected List _NADDTP;
-protected List _NDATA;
-protected List _NDAYS;
-protected List _NPNTRS;
-protected List _NREC1D;
-protected List _NSTATS;
-protected List _NTOTAL;
-protected List _NUMID;
-protected List _NUMSTA;
-protected List _NWRDSDDT;
-protected List _NWRDSSTI;
-protected List _NWRDSO;
-protected List _NZERO;
-protected List _PCPPTR;
-protected List _PNTR;
-protected List _PRMPTR;
-protected List _RDATE;
-protected List _RPT2LG;
-protected List _RPTLG;
-protected List _SMNOZO;
-protected List _STAID;
-protected List _TMPPTR;
+protected List<Float> _ACDCP;
+protected List<Float> _ACPSQ;
+protected List<List<String>> _ADDDTP;
+protected List<List<Integer>> _ADTPTR;
+protected List<Integer> _BDATE;
+protected List<Integer> _DATAR1;
+protected List<String> _DTYPE;
+protected List<Integer> _ECRECN;
+protected List<Integer> _EDATE;
+protected List<Integer> _L2DATE;
+protected List<Integer> _LDATE;
+protected List<Integer> _LDATEDDT;
+protected List<Integer> _LDDFRC;
+protected List<Integer> _LDRECN;
+protected List<Integer> _LSTDTA;
+protected List<Integer> _LSTPTR;
+protected List<Integer> _LUFILE;
+protected List<Integer> _MAXDAY;
+protected List<Integer> _MAXSTA;
+protected List<Integer> _MDDFRC;
+protected List<Integer> _NADDTP;
+protected List<Integer> _NDATA;
+protected List<Integer> _NDAYS;
+protected List<Integer> _NPNTRS;
+protected List<Integer> _NREC1D;
+protected List<Integer> _NSTATS;
+protected List<Integer> _NTOTAL;
+protected List<Integer> _NUMID;
+protected List<Integer> _NUMSTA;
+protected List<Integer> _NWRDSDDT;
+protected List<Integer> _NWRDSSTI;
+protected List<Integer> _NWRDSO;
+protected List<Integer> _NZERO;
+protected List<Integer> _PCPPTR;
+protected List<Integer> _PNTR;
+protected List<Integer> _PRMPTR;
+protected List<Integer> _RDATE;
+protected List<Integer> _RPT2LG;
+protected List<Integer> _RPTLG;
+protected List<Integer> _SMNOZO;
+protected List<String> _STAID;
+protected List<Integer> _TMPPTR;
 
 /**
 Constructor.
@@ -355,11 +355,11 @@ public void addACPSQ(float ACPSQ) {
 	_ACPSQ.add(new Float(ACPSQ)); 
 }
 
-public void addADDDTP(List ADDDTP) {
+public void addADDDTP(List<String> ADDDTP) {
 	_ADDDTP.add(ADDDTP); 
 }
 
-public void addADTPTR(List ADTPTR) {
+public void addADTPTR(List<Integer> ADTPTR) {
 	_ADTPTR.add(ADTPTR); 
 }
 
@@ -743,302 +743,302 @@ public int getTYPREC() {
 	return _TYPREC; 
 }
 
-public List getACDCP() {
+public List<Float> getACDCP() {
 	return _ACDCP; 
 }  
 public float getACDCP(int ACDCPindex) { 
 	return (float)((Float)_ACDCP.get(ACDCPindex)).floatValue();
 }
 
-public List getACPSQ() {
+public List<Float> getACPSQ() {
 	return _ACPSQ; 
 }  
 public float getACPSQ(int ACPSQindex) { 
 	return (float)((Float)_ACPSQ.get(ACPSQindex)).floatValue();
 }
 
-public List getADDDTP() {
+public List<List<String>> getADDDTP() {
 	return _ADDDTP; 
 }  
-public List getADDDTP(int ADDDTPVindex) { 
-	return (List)_ADDDTP.get(ADDDTPVindex);
+public List<String> getADDDTP(int ADDDTPVindex) { 
+	return (List<String>)_ADDDTP.get(ADDDTPVindex);
 }
 public String getADDDTP(int ADDDTPVindex,int ADDDTPindex) { 
-	List adddtpVect = (List)_ADDDTP.get(ADDDTPVindex);
-	return (String)adddtpVect.get(ADDDTPindex);
+	List<String> adddtpVect = (List<String>)_ADDDTP.get(ADDDTPVindex);
+	return adddtpVect.get(ADDDTPindex);
 }
 
-public List getADTPTR() {
+public List<List<Integer>> getADTPTR() {
 	return _ADTPTR; 
 }  
-public List getADTPTR(int ADTPTRVindex) { 
-	return (List)_ADTPTR.get(ADTPTRVindex);
+public List<Integer> getADTPTR(int ADTPTRVindex) { 
+	return (List<Integer>)_ADTPTR.get(ADTPTRVindex);
 }
 public int getADTPTR(int ADTPTRVindex, int ADTPTRindex) { 
-	List adtptrVect = (List)_ADTPTR.get(ADTPTRVindex);
+	List<Integer> adtptrVect = (List<Integer>)_ADTPTR.get(ADTPTRVindex);
 	return (int)((Integer)adtptrVect.get(ADTPTRindex)).intValue();
 }
 
-public List getBDATE() {
+public List<Integer> getBDATE() {
 	return _BDATE; 
 }  
 public int getBDATE(int BDATEindex) { 
 	return (int)((Integer)_BDATE.get(BDATEindex)).intValue();
 }
 
-public List getDATAR1() {
+public List<Integer> getDATAR1() {
 	return _DATAR1; 
 }  
 public int getDATAR1(int DATAR1index) { 
-	return (int)((Integer)_DATAR1.get(DATAR1index)).intValue();
+	return (int)(_DATAR1.get(DATAR1index)).intValue();
 }
 
-public List getDTYPE() {
+public List<String> getDTYPE() {
 	return _DTYPE; 
 }  
 public String getDTYPE(int DTYPEindex) { 
-	return (String)_DTYPE.get(DTYPEindex);
+	return _DTYPE.get(DTYPEindex);
 }
 
-public List getECRECN() {
+public List<Integer> getECRECN() {
 	return _ECRECN; 
 }  
 public int getECRECN(int ECRECNindex) { 
-	return (int)((Integer)_ECRECN.get(ECRECNindex)).intValue();
+	return (int)(_ECRECN.get(ECRECNindex)).intValue();
 }
 
-public List getEDATE() {
+public List<Integer> getEDATE() {
 	return _EDATE; 
 }  
 public int getEDATE(int EDATEindex) { 
-	return (int)((Integer)_EDATE.get(EDATEindex)).intValue();
+	return (int)(_EDATE.get(EDATEindex)).intValue();
 }
 
-public List getL2DATE() {
+public List<Integer> getL2DATE() {
 	return _L2DATE; 
 }  
 public int getL2DATE(int L2DATEindex) { 
-	return (int)((Integer)_L2DATE.get(L2DATEindex)).intValue();
+	return (int)(_L2DATE.get(L2DATEindex)).intValue();
 }
 
-public List getLDATE() {
+public List<Integer> getLDATE() {
 	return _LDATE; 
 }  
 public int getLDATE(int LDATEindex) { 
-	return (int)((Integer)_LDATE.get(LDATEindex)).intValue();
+	return (int)(_LDATE.get(LDATEindex)).intValue();
 }
 
-public List getLDATEDDT() {
+public List<Integer> getLDATEDDT() {
 	return _LDATEDDT; 
 }  
 public int getLDATEDDT(int LDATEDDTindex) { 
-	return (int)((Integer)_LDATEDDT.get(LDATEDDTindex)).intValue();
+	return (int)(_LDATEDDT.get(LDATEDDTindex)).intValue();
 }
 
-public List getLDDFRC() {
+public List<Integer> getLDDFRC() {
 	return _LDDFRC; 
 }  
 public int getLDDFRC(int LDDFRCindex) { 
-	return (int)((Integer)_LDDFRC.get(LDDFRCindex)).intValue();
+	return (int)(_LDDFRC.get(LDDFRCindex)).intValue();
 }
 
-public List getLDRECN() {
+public List<Integer> getLDRECN() {
 	return _LDRECN; 
 }  
 public int getLDRECN(int LDRECNindex) { 
-	return (int)((Integer)_LDRECN.get(LDRECNindex)).intValue();
+	return (int)(_LDRECN.get(LDRECNindex)).intValue();
 }
 
-public List getLSTDTA() {
+public List<Integer> getLSTDTA() {
 	return _LSTDTA; 
 }  
 public int getLSTDTA(int LSTDTAindex) { 
-	return (int)((Integer)_LSTDTA.get(LSTDTAindex)).intValue();
+	return (int)(_LSTDTA.get(LSTDTAindex)).intValue();
 }
 
-public List getLSTPTR() {
+public List<Integer> getLSTPTR() {
 	return _LSTPTR; 
 }  
 public int getLSTPTR(int LSTPTRindex) { 
-	return (int)((Integer)_LSTPTR.get(LSTPTRindex)).intValue();
+	return (int)(_LSTPTR.get(LSTPTRindex)).intValue();
 }
 
-public List getLUFILE() {
+public List<Integer> getLUFILE() {
 	return _LUFILE; 
 }  
 public int getLUFILE(int LUFILEindex) { 
-	return (int)((Integer)_LUFILE.get(LUFILEindex)).intValue();
+	return (int)(_LUFILE.get(LUFILEindex)).intValue();
 }
 
-public List getMAXDAY() {
+public List<Integer> getMAXDAY() {
 	return _MAXDAY; 
 }  
 public int getMAXDAY(int MAXDAYindex) { 
-	return (int)((Integer)_MAXDAY.get(MAXDAYindex)).intValue();
+	return (int)(_MAXDAY.get(MAXDAYindex)).intValue();
 }
 
-public List getMAXSTA() {
+public List<Integer> getMAXSTA() {
 	return _MAXSTA; 
 }  
 public int getMAXSTA(int MAXSTAindex) { 
-	return (int)((Integer)_MAXSTA.get(MAXSTAindex)).intValue();
+	return (int)(_MAXSTA.get(MAXSTAindex)).intValue();
 }
 
-public List getMDDFRC() {
+public List<Integer> getMDDFRC() {
 	return _MDDFRC; 
 }  
 public int getMDDFRC(int MDDFRCindex) { 
-	return (int)((Integer)_MDDFRC.get(MDDFRCindex)).intValue();
+	return (int)(_MDDFRC.get(MDDFRCindex)).intValue();
 }
 
-public List getNADDTP() {
+public List<Integer> getNADDTP() {
 	return _NADDTP; 
 }  
 public int getNADDTP(int NADDTPindex) { 
-	return (int)((Integer)_NADDTP.get(NADDTPindex)).intValue();
+	return (int)(_NADDTP.get(NADDTPindex)).intValue();
 }
 
-public List getNDATA() {
+public List<Integer> getNDATA() {
 	return _NDATA; 
 }  
 public int getNDATA(int NDATAindex) { 
-	return (int)((Integer)_NDATA.get(NDATAindex)).intValue();
+	return (int)(_NDATA.get(NDATAindex)).intValue();
 }
 
-public List getNDAYS() {
+public List<Integer> getNDAYS() {
 	return _NDAYS; 
 }  
 public int getNDAYS(int NDAYSindex) { 
-	return (int)((Integer)_NDAYS.get(NDAYSindex)).intValue();
+	return (int)(_NDAYS.get(NDAYSindex)).intValue();
 }
 
-public List getNPNTRS() {
+public List<Integer> getNPNTRS() {
 	return _NPNTRS; 
 }  
 public int getNPNTRS(int NPNTRSindex) { 
-	return (int)((Integer)_NPNTRS.get(NPNTRSindex)).intValue();
+	return (int)(_NPNTRS.get(NPNTRSindex)).intValue();
 }
 
-public List getNREC1D() {
+public List<Integer> getNREC1D() {
 	return _NREC1D; 
 }  
 public int getNREC1D(int NREC1Dindex) { 
-	return (int)((Integer)_NREC1D.get(NREC1Dindex)).intValue();
+	return (int)(_NREC1D.get(NREC1Dindex)).intValue();
 }
 
-public List getNSTATS() {
+public List<Integer> getNSTATS() {
 	return _NSTATS; 
 }  
 public int getNSTATS(int NSTATSindex) { 
 	return (int)((Integer)_NSTATS.get(NSTATSindex)).intValue();
 }
 
-public List getNTOTAL() {
+public List<Integer> getNTOTAL() {
 	return _NTOTAL; 
-}  
+}
 public int getNTOTAL(int NTOTALindex) { 
-	return (int)((Integer)_NTOTAL.get(NTOTALindex)).intValue();
+	return (int)(_NTOTAL.get(NTOTALindex)).intValue();
 }
 
-public List getNUMID() {
+public List<Integer> getNUMID() {
 	return _NUMID; 
 }  
 public int getNUMID(int NUMIDindex) { 
-	return (int)((Integer)_NUMID.get(NUMIDindex)).intValue();
+	return (int)(_NUMID.get(NUMIDindex)).intValue();
 }
 
-public List getNUMSTA() {
+public List<Integer> getNUMSTA() {
 	return _NUMSTA; 
 }  
 public int getNUMSTA(int NUMSTAindex) { 
-	return (int)((Integer)_NUMSTA.get(NUMSTAindex)).intValue();
+	return (int)(_NUMSTA.get(NUMSTAindex)).intValue();
 }
 
-public List getNWRDSDDT() {
+public List<Integer> getNWRDSDDT() {
 	return _NWRDSDDT; 
 }  
 public int getNWRDSDDT(int NWRDSDDTindex) { 
-	return (int)((Integer)_NWRDSDDT.get(NWRDSDDTindex)).intValue();
+	return (int)(_NWRDSDDT.get(NWRDSDDTindex)).intValue();
 }
 
-public List getNWRDSSTI() {
+public List<Integer> getNWRDSSTI() {
 	return _NWRDSSTI; 
 }  
 public int getNWRDSSTI(int NWRDSSTIindex) { 
 	return (int)((Integer)_NWRDSSTI.get(NWRDSSTIindex)).intValue();
 }
 
-public List getNWRDSO() {
+public List<Integer> getNWRDSO() {
 	return _NWRDSO; 
 }  
 public int getNWRDSO(int NWRDSOindex) { 
 	return (int)((Integer)_NWRDSO.get(NWRDSOindex)).intValue();
 }
 
-public List getNZERO() {
+public List<Integer> getNZERO() {
 	return _NZERO; 
 }  
 public int getNZERO(int NZEROindex) { 
 	return (int)((Integer)_NZERO.get(NZEROindex)).intValue();
 }
 
-public List getPCPPTR() {
+public List<Integer> getPCPPTR() {
 	return _PCPPTR; 
 }  
 public int getPCPPTR(int PCPPTRindex) { 
 	return (int)((Integer)_PCPPTR.get(PCPPTRindex)).intValue();
 }
 
-public List getPNTR() {
+public List<Integer> getPNTR() {
 	return _PNTR; 
 }  
 public int getPNTR(int PNTRindex) { 
 	return (int)((Integer)_PNTR.get(PNTRindex)).intValue();
 }
 
-public List getPRMPTR() {
+public List<Integer> getPRMPTR() {
 	return _PRMPTR; 
 }  
 public int getPRMPTR(int PRMPTRindex) { 
 	return (int)((Integer)_PRMPTR.get(PRMPTRindex)).intValue();
 }
 
-public List getRDATE() {
+public List<Integer> getRDATE() {
 	return _RDATE; 
 }  
 public int getRDATE(int RDATEindex) { 
 	return (int)((Integer)_RDATE.get(RDATEindex)).intValue();
 }
 
-public List getRPT2LG() {
+public List<Integer> getRPT2LG() {
 	return _RPT2LG; 
 }  
 public int getRPT2LG(int RPT2LGindex) { 
 	return (int)((Integer)_RPT2LG.get(RPT2LGindex)).intValue();
 }
 
-public List getRPTLG() {
+public List<Integer> getRPTLG() {
 	return _RPTLG; 
 }  
 public int getRPTLG(int RPTLGindex) { 
 	return (int)((Integer)_RPTLG.get(RPTLGindex)).intValue();
 }
 
-public List getSMNOZO() {
+public List<Integer> getSMNOZO() {
 	return _SMNOZO; 
 }  
 public int getSMNOZO(int SMNOZOindex) { 
 	return (int)((Integer)_SMNOZO.get(SMNOZOindex)).intValue();
 }
 
-public List getSTAID() {
+public List<String> getSTAID() {
 	return _STAID; 
 }  
 public String getSTAID(int STAIDindex) { 
 	return (String)_STAID.get(STAIDindex);
 }
 
-public List getTMPPTR() {
+public List<Integer> getTMPPTR() {
 	return _TMPPTR; 
 }  
 public int getTMPPTR(int TMPPTRindex) { 
@@ -1061,42 +1061,42 @@ private void initialize() {
 	_H8CREC 	= -1;
 	_HINTRC 	= -1;
 	_INFREC 	= -1;
-	_L2DATE 	= new Vector();
-	_LDATE 		= new Vector();
-	_LDATEDDT 	= new Vector();
-	_LDDFRC 	= new Vector();
-	_LDRECN 	= new Vector();
+	_L2DATE 	= new Vector<Integer>();
+	_LDATE 		= new Vector<Integer>();
+	_LDATEDDT 	= new Vector<Integer>();
+	_LDDFRC 	= new Vector<Integer>();
+	_LDRECN 	= new Vector<Integer>();
 	_LFILE 		= -1;
 	_LRECL1 	= -1;
 	_LRECL2 	= -1;
 	_LRECL3 	= -1;
-	_LSTDTA 	= new Vector();
-	_LSTPTR 	= new Vector();
-	_LUFILE 	= new Vector();
+	_LSTDTA 	= new Vector<Integer>();
+	_LSTPTR 	= new Vector<Integer>();
+	_LUFILE 	= new Vector<Integer>();
 	_LURRS 		= -1;
-	_MAXDAY 	= new Vector();
+	_MAXDAY 	= new Vector<Integer>();
 	_MAXDDF 	= -1;
-	_MAXSTA 	= new Vector();
+	_MAXSTA 	= new Vector<Integer>();
 	_MAXTYP 	= -1;
-	_MDDFRC 	= new Vector();
+	_MDDFRC 	= new Vector<Integer>();
 	_MFILE 		= -1;
-	_NADDTP 	= new Vector();
-	_NDATA 		= new Vector();
-	_NDAYS 		= new Vector();
+	_NADDTP 	= new Vector<Integer>();
+	_NDATA 		= new Vector<Integer>();
+	_NDAYS 		= new Vector<Integer>();
 	_NHASHR 	= -1;
-	_NPNTRS 	= new Vector();
-	_NREC1D 	= new Vector();
-	_NSTATS 	= new Vector();
-	_NTOTAL 	= new Vector();
+	_NPNTRS 	= new Vector<Integer>();
+	_NREC1D 	= new Vector<Integer>();
+	_NSTATS 	= new Vector<Integer>();
+	_NTOTAL 	= new Vector<Integer>();
 	_NUMDDF 	= -1;
-	_NUMID 		= new Vector();
-	_NUMSTA 	= new Vector();
+	_NUMID 		= new Vector<Integer>();
+	_NUMSTA 	= new Vector<Integer>();
 	_NUMTYP 	= -1;
 	_NWRDS 		= -1;
-	_NWRDSDDT 	= new Vector();
-	_NWRDSSTI 	= new Vector();
-	_NWRDSO 	= new Vector();
-	_NZERO 		= new Vector();
+	_NWRDSDDT 	= new Vector<Integer>();
+	_NWRDSSTI 	= new Vector<Integer>();
+	_NWRDSO 	= new Vector<Integer>();
+	_NZERO 		= new Vector<Integer>();
 	_PCPPTR 	= new Vector();
 	_PNTR 		= new Vector();
 	_PRMPTR 	= new Vector();

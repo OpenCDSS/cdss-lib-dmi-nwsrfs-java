@@ -120,6 +120,7 @@ import RTi.Util.Message.Message;
 import RTi.Util.String.StringUtil;
 
 //public class NWSRFS_SystemMaintenance extends JFrame 
+@SuppressWarnings("serial")
 public class NWSRFS_SystemMaintenance extends JDialog implements ActionListener
 {
 
@@ -226,8 +227,8 @@ SimpleJButton _dumpTS_run_JButton = null;
 
 //output panel pieces
 String _output_string = "Output from ofs Commands";
-DefaultListModel _ListModel = null;
-JList _output_JList = null;
+DefaultListModel<String> _ListModel = null;
+JList<String> _output_JList = null;
 
 //Popup menu
 String _popup_view_string = "View File";
@@ -237,7 +238,7 @@ SimpleJMenuItem _popup_view_JMenuItem = null;
 SimpleJMenuItem _popup_clear_JMenuItem = null;
 
 //make combo box global 
-JComboBox _comboBox_JComboBox = null;
+JComboBox<String> _comboBox_JComboBox = null;
 
 //make one generic close button
 SimpleJButton _close_JButton = null;
@@ -1509,7 +1510,7 @@ public JPanel make_combobox_panel( String label_string, String command_string ) 
 	
 		//make vector that will go into combobox
 		int exitstat = -99;
-		List v = null;
+		List<String> v = null;
 		//ProcessManager pm = new ProcessManager( command_string, true, 0 );
 		ProcessManager pm = new ProcessManager( command_string );
 		try {
@@ -1530,7 +1531,7 @@ public JPanel make_combobox_panel( String label_string, String command_string ) 
 				//	size = v.size();
 				//}
 				//now sort alphabetically	
-				List sorted_list = null;
+				List<String> sorted_list = null;
 				sorted_list = StringUtil.sortStringList( v ); 
 				
 				//now create combo
@@ -1734,10 +1735,10 @@ public JPanel make_output_panel() {
 		output_JPanel.setLayout( new BorderLayout() );
 
 		//create list model
-		_ListModel = new DefaultListModel();
+		_ListModel = new DefaultListModel<String>();
 
 		//create list and add model to it
-		_output_JList = new JList( _ListModel );
+		_output_JList = new JList<String>( _ListModel );
 		_output_JList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 
 		//make popup menu
@@ -1851,7 +1852,7 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 	else {	
 		//first need to edit the PUNCHRC.GUI file- update it
 		//with the selected Rating Curve and then run the PUNCHRC.GUI ofs command.
-		List punch_vect = null;
+		List<String> punch_vect = null;
 		punch_vect = NWSRFS_Util.run_punch_ratingCurves( ratingCurve_id );
 
 		//update output window		
@@ -1949,7 +1950,7 @@ public boolean run_redefRatingCurves_edit_commands( String ratingCurve_id ) {
 						PrintWriter pw = new PrintWriter( fos ); 
 
 						//vector to hold all lines of file
-						List v = new Vector();
+						List<String> v = new Vector<String>();
 						do {
 							//store lines in vector as read them in
 							s = br.readLine();
@@ -2062,7 +2063,7 @@ public boolean run_redefSegments_edit_commands( String segment_id ) {
 	else {	
 		//first need to edit the PUNCHSEGS.GUI file- update it
 		//with the selected Segment and then run the PUNCHSEGS.GUI ofs command.
-		List punch_vect = null;
+		List<String> punch_vect = null;
 		punch_vect = NWSRFS_Util.run_punch_segments( segment_id );
 	/////////
 		//update output window		
@@ -2235,9 +2236,8 @@ public boolean run_redefStations_edit_commands() {
 	//now we have the station id... edit the 
 	//PUNCH.STATIONS.GUI file with this station ID
 	//And run the OFS PUNCH.STATIONS.GUI command.
-	List punch_vect = null;
-	punch_vect = NWSRFS_Util.run_punch_stations( 
-	station_sel_ID );
+	List<String> punch_vect = null;
+	punch_vect = NWSRFS_Util.run_punch_stations( station_sel_ID );
 
 	//update output window		
 	int exitstat = -999;
@@ -2338,7 +2338,7 @@ public boolean run_redefStations_edit_commands() {
 					PrintWriter pw = new PrintWriter( fos ); 
 
 					//vector to hold all lines of file
-					List v = new Vector();
+					List<String> v = new Vector<String>();
 					do {
 						//store lines in vector as read them in
 						s = br.readLine();
@@ -2356,8 +2356,7 @@ public boolean run_redefStations_edit_commands() {
 					v.add( "@STOP" );
 					//now print out.
 					for(int i=0; i<v.size(); i++) {
-						String line = (String)
-						v.get( i );
+						String line = v.get( i );
 						pw.println( line );
 						pw.flush(); 
 					}
@@ -2453,7 +2452,7 @@ passed in), followed by the time stamp from the log file.
 @return  exit status returned by running the command through the
 process manager.  The exit status is in the last line of the vector.
 */
-public int updateOutputWindow( String cmd_run, List vect_to_display )
+public int updateOutputWindow( String cmd_run, List<String> vect_to_display )
 {
 
 	//int to return
@@ -2468,7 +2467,7 @@ public int updateOutputWindow( String cmd_run, List vect_to_display )
 	// Set the exitstat to be 0 unless an error is encountered in the output
         String error_str =null;
         for ( int i=0; i<size; i++ ){
-                error_str = ((String)vect_to_display.get(i)).toLowerCase();
+                error_str = vect_to_display.get(i).toLowerCase();
                 if ( error_str.indexOf( "fail" ) > -1 )  {
                         exitstat = 99;
                         break;
@@ -2559,8 +2558,7 @@ public int updateOutputWindow( String cmd_run, List vect_to_display )
 		//ams/ppinit_log.20020106.180020 <=="
 
 		//break it up to get path and time stamp
-		List v = null;
-		v = StringUtil.breakStringList( log_path, " ", StringUtil.DELIM_SKIP_BLANKS );
+		List<String> v = StringUtil.breakStringList( log_path, " ", StringUtil.DELIM_SKIP_BLANKS );
 		int p = 0;
 		if ( v != null ) {
 			p = v.size();
@@ -2681,7 +2679,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _redefStations_run_JButton ) ) {
 			//execute the ofs command
 			//ofs ppinit REDEFINE.STATIONS.GUI 
-			List redefstn_vect = null;
+			List<String> redefstn_vect = null;
 			redefstn_vect = NWSRFS_Util.run_redefine_stations(); 
 			//update output window		
 			int exitstat = -999;
@@ -2731,7 +2729,7 @@ public void actionPerformed( ActionEvent event ) {
 			//run the ofs commands:
 			//ofs -p ppinit -i NEWSTATION.GUI, etc
 			//ofs -p ppinit -i NETWORK_ORDER.GUI, etc
-			List newstn_vect = null;
+			List<String> newstn_vect = null;
 			newstn_vect = NWSRFS_Util.run_newstation();
 			//update output window		
 			int exitstat = -999;
@@ -2741,7 +2739,7 @@ public void actionPerformed( ActionEvent event ) {
 			}
 			else { //exitstat == 0, so run next command
 				exitstat = -999;
-				List network_vect = null;
+				List<String> network_vect = null;
 				network_vect = NWSRFS_Util.run_network_order();
 				exitstat = updateOutputWindow( "NETWORK_ORDER.GUI", network_vect );
 				if ( exitstat != 0 ) {
@@ -2775,7 +2773,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if (source.equals( _redefSegments_run_JButton ) ) {
 			// execute the ofs command:
 			//	ofs fcinit RESEGDEF.GUI 
-			List redefinedSegments = null;
+			List<String> redefinedSegments = null;
 			redefinedSegments = NWSRFS_Util.run_redefine_segments();
 			// update output window		
 			int status = updateOutputWindow("RESEGDEF.GUI", redefinedSegments);
@@ -2823,7 +2821,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if (source.equals(_addRatingCurve_run_JButton)) {
 			// run the ofs commands:
 			//	ofs -p fcinit -i NEWRC.GUI, etc
-			List newRatingCurves = NWSRFS_Util.run_newRatingCurve();
+			List<String> newRatingCurves = NWSRFS_Util.run_newRatingCurve();
 			// update output window		
 			int status = updateOutputWindow("NEWRC.GUI", newRatingCurves);
 			if (status != 0) {
@@ -2861,7 +2859,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _redefRatingCurves_run_JButton ) ) {
 			//execute the ofs command
 			//ofs fcinit DEFRC.GUI 
-			List redefrc_vect = null;
+			List<String> redefrc_vect = null;
 
 			redefrc_vect = NWSRFS_Util.run_redefine_ratingCurves(); 
 			//update output window		
@@ -2880,8 +2878,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _preprocessDB_run_JButton ) ) {
 			//run ofs command:
 			//ofs -p ppinit -i PPINIT.STATUS.GUI, etc.
-			List preproc_vect = null;
-			preproc_vect = NWSRFS_Util.run_preprocessDB_status();
+			List<String> preproc_vect = NWSRFS_Util.run_preprocessDB_status();
 			//update output window		
 			int exitstat = -999;
 			exitstat = updateOutputWindow( "PPINIT.STATUS.GUI", preproc_vect );
@@ -2897,7 +2894,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _forecastDB_run_JButton ) ) {
 			//run ofs command:
 			//ofs -p fcinit -i FCINIT.STATUS.GUI, etc
-			List forec_vect = null;
+			List<String> forec_vect = null;
 			forec_vect = NWSRFS_Util.run_forecastDB_status();
 			//update output window		
 			int exitstat = -999;
@@ -2939,7 +2936,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _dumpObs_run_JButton ) ) {
 			//runs ofs command:
 			//ofs -p ppdutil -i DUMPOBS.GUI, etc
-			List dumpObs_vect = null;
+			List<String> dumpObs_vect = null;
 			dumpObs_vect = NWSRFS_Util.run_dump_obs();
 			//update output window		
 			int exitstat = -999;
@@ -2982,7 +2979,7 @@ public void actionPerformed( ActionEvent event ) {
 		else if ( source.equals( _dumpTS_run_JButton ) ) {
 			//runs ofs command:
 			//ofs -p prdutil -i DUMPTS.GUI, etc
-			List dumpTS_vect = null;
+			List<String> dumpTS_vect = null;
 			dumpTS_vect = NWSRFS_Util.run_dump_ts();
 			//update output window		
 			int exitstat = -999;
@@ -3011,13 +3008,13 @@ public void actionPerformed( ActionEvent event ) {
 				else {
 					//remove the "==> " and " <=="
 					String file_sel = null;
-					List v = null;
+					List<String> v = null;
 					//break up based on spaces
 					v = StringUtil.breakStringList( selected_item, " ", StringUtil.DELIM_SKIP_BLANKS );
 				
 					//should be 3 pieces, with middle piece being the file path.
 					if ( v.size() == 3 ) {
-						file_sel = (String)v.get( 1 );
+						file_sel = v.get( 1 );
 						if (( file_sel != null ) && ( IOUtil.fileExists( file_sel )) ) {
 							try {
 							//view file only

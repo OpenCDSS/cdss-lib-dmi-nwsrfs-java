@@ -1486,8 +1486,8 @@ throws Exception
 
 	// Get a vector of Data Types and put into a Vector of Strings! 
 	// TODO -- sat 2004-11-24 Should do globally at startup!
-	List dtVect = DataType.getDataTypesData();
-	List dtVectString = new Vector();
+	List<DataType> dtVect = DataType.getDataTypesData();
+	List<String> dtVectString = new Vector<String>();
 	for(i = 0; i < dtVect.size(); i++) {
 		dtVectString.add(((DataType)dtVect.get(i)).getAbbreviation());
 	}
@@ -8236,9 +8236,9 @@ basically regurgetate the fcrcptr file which creates a list of RC ids and a reco
 @return Vector of Strings containing the list of all RC ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readRatingCurveList() throws Exception
+public List<String> readRatingCurveList() throws Exception
 {
-	List rcList = new Vector();
+	List<String> rcList = new Vector<String>();
 	
 	// Check to see if the rating curve pointer object exists. If not create it.
 	if (_fcrcptr == null) {
@@ -8250,14 +8250,15 @@ public List readRatingCurveList() throws Exception
 		return rcList;
 	}
 	// Enumerate through the pointer/index file for rating curves
-	List enIRC = _fcrcptr.getRCID();
+	List<String> enIRC = _fcrcptr.getRCID();
 	for ( int i = 0; i < enIRC.size(); i++ ) { 
-		rcList.add((String)enIRC.get(i));
+		rcList.add(enIRC.get(i));
 	}
 	
 	// Return Vector of rc ids
 	return rcList;
 }
+
 /** 
 Reads values from the FCSEGSTS NWSRFS processed database file into 
 the data members of the NWSRFS_Segment class. 

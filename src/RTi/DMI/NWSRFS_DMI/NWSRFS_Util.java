@@ -613,7 +613,7 @@ future, it may actually perform a query for data that are present in the databas
 public static List<String> getDataTypeIntervals ( NWSRFS_DMI dmi, String datatype )
 {	// TODO SAM 2004-09-01 - need to determine if performance will
 	// allow determining the intervals that are actually defined for the data type.
-	List<String> intervals = new Vector ( 8 );
+	List<String> intervals = new Vector<String>( 8 );
 	//intervals.addElement ( "*" );
 	intervals.add ( "1Hour" );
 	intervals.add ( "3Hour" );
@@ -634,7 +634,7 @@ query for data that are present in the database files.
 @param dmi An open NWSRFS_DMI instance.
 @param include_desc If true, include the data type description using the format "Type - Description".
 */
-public static List getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc )
+public static List<String> getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean include_desc )
 {	return getTimeSeriesDataTypes ( dmi, include_desc,
 					true,	// Preprocessor DB
 					true );	// Processed DB
@@ -659,7 +659,7 @@ public static List<String> getTimeSeriesDataTypes ( NWSRFS_DMI dmi, boolean incl
 {	// TODO SAM 2004-09-01 - need to determine if performance will
 	// allow determining the data types that are actually defined in the database.
 	String routine = "NWSRFS_Util.getTimeSeriesDataTypes";
-	List<String> datatypes = new Vector ( 100 );
+	List<String> datatypes = new Vector<String>( 100 );
 	int size = 0;
 	if ( include_preprocessor_db ) {
 		// The simplest way to add these is manually...
@@ -1643,7 +1643,7 @@ private static String get_token(String request, String appsDefaultsFile)
 	char comment = '#';	/* comment character */
 	String line = null;
 	String checkString = null;
-	List parseString;
+	List<String> parseString;
 	FileInputStream appDFS;
 	InputStreamReader appDISR;
 	BufferedReader appDBR;
@@ -1689,8 +1689,7 @@ private static String get_token(String request, String appsDefaultsFile)
 				if(checkString.charAt(0) == '#')
 					continue;
 
-				parseString =
-				StringUtil.breakStringList(checkString," ",3);
+				parseString = StringUtil.breakStringList(checkString," ",3);
 				checkString = ((String)
 					parseString.get(0)).trim();
 				isDone = true;
@@ -1747,7 +1746,7 @@ public static String getenv(String request)
 	int dl = 1;    // Debug level - probably want to see this because it may be config-related.
 	String env_val = null;
 	String cmd = null;
-	List value_list = new Vector();
+	List<String> value_list = new Vector<String>();
 	ProcessManager pm;
 	
 	if ( Message.isDebugOn ) {
@@ -1803,22 +1802,22 @@ public static String getenv(String request)
                 return null;
             }
 			// Try to parse the strings returned for the environment
-	        List env_var_tokens;
+	        List<String> env_var_tokens;
 	        String env_var;
 	        for ( i=0; i<size; i++ ) {
 	            if ( Message.isDebugOn ) {
 	                Message.printDebug(dl, routine, "Env var " + (String)value_list.get(i) );
 	            }
 	            env_var_tokens = StringUtil.breakStringList(
-	                    (String)value_list.get(i),"=",StringUtil.DELIM_ALLOW_STRINGS);
-	            env_var = ((String)env_var_tokens.get(0)).trim();
+	                    value_list.get(i),"=",StringUtil.DELIM_ALLOW_STRINGS);
+	            env_var = env_var_tokens.get(0).trim();
 	            if ( env_var.equalsIgnoreCase(request) ) {
 	                if ( env_var_tokens.size() < 2 ) {
 	                    // No value on the end (why would this happen?)
 	                    return null;
 	                }
 	                else {
-        	            env_val = ((String)env_var_tokens.get(1)).trim();
+        	            env_val = env_var_tokens.get(1).trim();
         	            if ( Message.isDebugOn ) {
         	                Message.printDebug(dl, routine, "Environment variable \"" + request +
         				        "\"=\"" + env_val + "\"");
@@ -1842,7 +1841,7 @@ public static String getenv(String request)
 	}
 }
 
-static List _translated_lines = null;
+static List<String> _translated_lines = null;
 
 static String _output_dir = null;
 
@@ -2719,9 +2718,8 @@ public static String get_pun_path_from_log( String log_file ) {
 	//first remove "==>" and "<=="
 	String log_name = null;
 	String pun_name = null;
-	List v = null;
 	//break up based on spaces 
-	v = StringUtil.breakStringList( log_file, " ",
+	List<String> v = StringUtil.breakStringList( log_file, " ",
 		StringUtil.DELIM_SKIP_BLANKS );
 	//vector should be 3 pieces.
 	int size = 0;
@@ -2729,7 +2727,7 @@ public static String get_pun_path_from_log( String log_file ) {
 		size = v.size();
 	}
 	if( size == 3 ) {
-		log_name = (String)v.get(1);
+		log_name = v.get(1);
 
 		//now change "_log" to "_pun"
 		int index = -1;
@@ -2895,7 +2893,7 @@ the string is appended to the end of the time series identifier.
 @exception Exception if there is an error displaying the plot.
 */
 public static void plotTimeSeries (	NWSRFS_DMI dmi,
-					List tsident_string_Vector,
+					List<String> tsident_string_Vector,
 					DateTime start_DateTime,
 					DateTime end_DateTime )
 throws Exception
@@ -2908,13 +2906,12 @@ throws Exception
 
 	// Read the time series for each identifier...
 
-	List ts_Vector = new Vector();
+	List<TS> ts_Vector = new Vector<TS>();
 
 	TS ts = null;
 	String tsident_string = null;
 	for ( int i = 0; i < size; i++ ) {
-		try {	tsident_string =
-				(String)tsident_string_Vector.get(i);
+		try {	tsident_string = tsident_string_Vector.get(i);
 			if (	StringUtil.indexOfIgnoreCase( tsident_string,
 				"~NWSRFS_FS5Files", 0 ) < 0 ) {
 				// The TSID apparently does not have the input
@@ -2973,12 +2970,12 @@ are for HistSim, Start Date and End Date.
 histsim("YES" or "No")startdate ("MMdd/yyyy/"), and enddate("MMdd/yyyy/").
 */
 //***********editESP************
-public static List retrieve_ESPfile_values() {
+public static List<String> retrieve_ESPfile_values() {
 
 	String routine =  _class + ".retrieve_ESPfile_values";
 
 	//Vector to hold the strings we need
-	List esp_vect = new Vector();
+	List<String> esp_vect = new Vector<String>();
 	
 	//get ESP.GUI local
 	String fileToEdit = null;
@@ -3098,8 +3095,7 @@ public static List retrieve_ESPfile_values() {
 
 							//add start date 
 							//to vector.
-							esp_vect.add(
-								start_str );
+							esp_vect.add( start_str );
 						
 							end_str = (s.substring (
 								ind_1+13)).
@@ -3327,14 +3323,14 @@ user's path.
 @return  Vector containing output of running the RFSArchive command:
 "xterm -e RFSarchive -f".
 */
-public static List run_archive() {
+public static List<String> run_archive() {
 	String routine = _class + ".run_archive";
 	
 	String cmd = "xterm -e RFSarchive -f";
 	String[] arrCmd = {"xterm -e RFSarchive -f"};
 	//String cmd = "RFSarchive -f";
 	int exitstat = -999;
-	List arch_vect = null;
+	List<String> arch_vect = null;
 	ProcessManager pm = new ProcessManager( arrCmd );
 	try {
 		pm.saveOutput( true );
@@ -3347,10 +3343,6 @@ public static List run_archive() {
 			Message.printWarning( 
 			2, routine,	
 			"Unable to run \"RFSarchive\" ");
-			
-			if ( arch_vect == null ) {
-				arch_vect = new Vector();
-			}
 			arch_vect.set( 0, "Command: \"" + cmd + "\" failed" );
 		}
 	}
@@ -3359,7 +3351,7 @@ public static List run_archive() {
 		"Unable to run \"RFSarchive\" via command: \"" +
 		cmd + "\"." );
 		if ( arch_vect == null ) {
-			arch_vect = new Vector();
+			arch_vect = new Vector<String>();
 		}
 			arch_vect.set( 0, "Command: \"" + cmd + "\" failed" );
 		if ( Message.isDebugOn ) {
@@ -3375,7 +3367,7 @@ public static List run_archive() {
 Runs the detel_is_running script that is assumed to be in the user's
 path.
 */
-public static List run_delete_failed_ifp() {
+public static List<String> run_delete_failed_ifp() {
 	String routine = _class + ".run_delete_failed_ifp";
 
 	//ofs command
@@ -3383,7 +3375,7 @@ public static List run_delete_failed_ifp() {
 	String[] cmd_arr = {"delete_is_running"};
 
 	//vector to hold output
-	List delIFP_vect = null;
+	List<String> delIFP_vect = null;
 
 	int exitstat = -999;
 
@@ -3406,7 +3398,7 @@ public static List run_delete_failed_ifp() {
 		Message.printWarning( 2, routine, 
 		"Command: \"" + cmd + "\". FAILED. " ); 
 		if ( delIFP_vect == null ) {
-			delIFP_vect = new Vector();
+			delIFP_vect = new Vector<String>();
 			delIFP_vect.add( "Unable to run \"" + cmd + "\"" );
 		}
 	}
@@ -3426,11 +3418,11 @@ Runs the ofs script:
 "ofs -p fcinit -i DELETERC.GUI -o DELETERC.GUI.out" fails or
 a vector containing the output from the OFS comand if the command succeeds.
 */
-public static List run_delete_ratingCurve( String rcid ) {
+public static List<String> run_delete_ratingCurve( String rcid ) {
 	String routine = _class + ".run_delete_ratingCurve";
 	
 	//vector to return
-	List delRC_vect = null;
+	List<String> delRC_vect = null;
 
 	//command to run
 	String cmd = "ofs -p fcinit -i DELETERC.GUI -o DELETERC.GUI.out";
@@ -3576,7 +3568,7 @@ public static String run_dump_station_or_area(
 	}
 		
 	//vector to hold output
-	List dump_vect = null;
+	List<String> dump_vect = null;
 
 	//boolean indicates if DUMPXXX.GUI file is edited.
 	boolean file_edited = true;
@@ -3592,15 +3584,14 @@ public static String run_dump_station_or_area(
 	if (( path_to_ppinit_stn != null ) && ( 
 		IOUtil.fileExists( path_to_ppinit_stn ) )) {
 		//cut off file name (last item)
-		List v = null;
-		v = StringUtil.breakStringList( path_to_ppinit_stn,
+		List<String> v = StringUtil.breakStringList( path_to_ppinit_stn,
 			fs, StringUtil.DELIM_SKIP_BLANKS );
 		int size = 0;
 		if ( v !=null ) {
 			size = v.size();
 		}
 		for ( int i=0; i<size-1; i++ ) {
-			b.append( (String) v.get(i) + fs );
+			b.append( v.get(i) + fs );
 		}
 		v = null;
 	}
@@ -3700,7 +3691,7 @@ public static String run_dump_station_or_area(
 		catch (Exception e) {
 			Message.printWarning( 2, routine, "Command: \"" + cmd + "\". FAILED. " ); 
 			if ( dump_vect == null ) {
-				dump_vect = new Vector();
+				dump_vect = new Vector<String>();
 				dump_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -3723,7 +3714,7 @@ public static String run_dump_station_or_area(
 		}
 		String s = null;
 		for ( int i=0; i<size; i++ ) {
-			s = ((String)dump_vect.get( i )).trim();
+			s = dump_vect.get( i ).trim();
 			//line with output file name:
 			//has this in it:
 			//"==> output_file_name <=="
@@ -3736,12 +3727,11 @@ public static String run_dump_station_or_area(
 		//now have log file in format:
 		//==> /path/file/ <==
 		//get rid of the ==> and <==
-		List v = null;
-		v = StringUtil.breakStringList( s, " ",
+		List<String> v = StringUtil.breakStringList( s, " ",
 			StringUtil.DELIM_SKIP_BLANKS );
 		//vector should have 3 pieces and path is mid one	
 		if (( v != null ) && ( v.size() == 3 ) ) {
-			logfile = (String)v.get(1);
+			logfile = v.get(1);
 		}
 		v = null;
 
@@ -3793,7 +3783,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p ppdutil -i DUMPOBS.GUI -o DUMPOBS.GUI.out".
 */
-public static List run_dump_obs() {
+public static List<String> run_dump_obs() {
 	String routine = _class + ".run_dump_obs";
 
 	//ofs command
@@ -3803,7 +3793,7 @@ public static List run_dump_obs() {
 	String[] cmd_arr = {"ofs -p ppdutil -i DUMPOBS.GUI -o DUMPOBS.GUI.out -u " + _output_dir };
 
 	//vector to hold output
-	List obs_vect = null;
+	List<String> obs_vect = null;
 	
 	String obs_gui_file = null;
 	obs_gui_file = IOUtil.getPropValue( "DUMPOBS.GUI" );
@@ -3834,7 +3824,7 @@ public static List run_dump_obs() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( obs_vect == null ) {
-				obs_vect = new Vector();
+				obs_vect = new Vector<String>();
 				obs_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -3845,7 +3835,7 @@ public static List run_dump_obs() {
 		"The \"DUMPOBS.GUI\" file: \"" + obs_gui_file +
 		"\" can not be used.  The ofs command: \"" + cmd + 
 		"\" will not be run." ); 
-		obs_vect = new Vector();
+		obs_vect = new Vector<String>();
 		obs_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -3859,7 +3849,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p prdutil -i DUMPTS.GUI -o DUMPTS.GUI.out".
 */
-public static List run_dump_ts() {
+public static List<String> run_dump_ts() {
 	String routine = _class + ".run_dump_ts";
 
 	//ofs command
@@ -3869,7 +3859,7 @@ public static List run_dump_ts() {
 	String[] cmd_arr = {"ofs -p prdutil -i DUMPTS.GUI -o DUMPTS.GUI.out -u " + _output_dir};
 
 	//vector to hold output
-	List ts_vect = null;
+	List<String> ts_vect = null;
 	
 	String ts_gui_file = null;
 	ts_gui_file = IOUtil.getPropValue( "DUMPTS.GUI" );
@@ -3900,9 +3890,8 @@ public static List run_dump_ts() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( ts_vect == null ) {
-				ts_vect = new Vector();
-				ts_vect.add( 
-				"Unable to run \"" + cmd + "\"" );
+				ts_vect = new Vector<String>();
+				ts_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
 		pm = null;
@@ -3912,7 +3901,7 @@ public static List run_dump_ts() {
 		"The \"DUMPTS.GUI\" file: \"" + ts_gui_file +
 		"\" can not be used.  The ofs command: \"" + cmd + 
 		"\" will not be run." ); 
-		ts_vect = new Vector();
+		ts_vect = new Vector<String>();
 		ts_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -3925,7 +3914,7 @@ Runs esp via the ofs script:
 @return  Vector of line output from running:
 "ofs -p fcst -i ESP.GUI -o ESP.GUI.out"
 */
-public static List run_esp() {
+public static List<String> run_esp() {
 	String routine = _class + ".run_esp";
 
 	//ofs command
@@ -3935,7 +3924,7 @@ public static List run_esp() {
 	String[] cmd_arr = {"ofs -p fcst -i ESP.GUI -o ESP.GUI.out -u " + _output_dir};
 
 	//vector to hold output
-	List esp_vect = null;
+	List<String> esp_vect = null;
 	
 	String esp_gui_file = null;
 	esp_gui_file = IOUtil.getPropValue( "ESP.GUI" );
@@ -3967,7 +3956,7 @@ public static List run_esp() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( esp_vect == null ) {
-				esp_vect = new Vector();
+				esp_vect = new Vector<String>();
 				esp_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -3978,7 +3967,7 @@ public static List run_esp() {
 		"The \"ESP.GUI\" file: \"" + esp_gui_file +
 		"\" can not be used.  The ofs command: \"" + cmd + 
 		"\" will not be run." ); 
-		esp_vect = new Vector();
+		esp_vect = new Vector<String>();
 		esp_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -3991,7 +3980,7 @@ Opens up a new xterm window and runs ESPADP from there.
 @return  Vector containing lines output from running command: 
 "xterm -e espadp" .
 */
-public static List run_espadp() {
+public static List<String> run_espadp() {
 	String routine = _class + ".run_espadp";
 
 	String cmd = "xterm -e espadp"; 
@@ -3999,7 +3988,7 @@ public static List run_espadp() {
 	//Does not help the Strings if you use: +ls or -ls 
 	String[] arrCmd = {"xterm -e espadp"}; 
 	int exitstat = -999;
-	List espadp_vect = null;
+	List<String> espadp_vect = null;
 
 	ProcessManager pm = new ProcessManager( arrCmd );
 	//ProcessManager pm = new ProcessManager( cmd );
@@ -4023,7 +4012,7 @@ public static List run_espadp() {
 		"Unable to run espadp via command: \"" +
 		cmd + "\"." );
 		if ( espadp_vect == null ) {
-			espadp_vect = new Vector();
+			espadp_vect = new Vector<String>();
 			espadp_vect.add( "Unable to run command: \"" + cmd + "\"" );
 		}
 		if ( Message.isDebugOn ) {
@@ -4042,7 +4031,7 @@ created running the command through the ProcessManager.
 @return  Vector containing output of running the ofs command:
 "ofs -p fcst -i FCEXEC.GUI -o FCEXEC.GUI.out".
 */
-public static List run_forecast() {
+public static List<String> run_forecast() {
 	String routine = _class + ".run_forecast";
 
 	//ofs command
@@ -4054,7 +4043,7 @@ public static List run_forecast() {
 	//String[] arrCmd = { "ofs", "-p", "fcst", "-i", "FCEXEC.GUI", "-o", "FCEXEC.GUI.out", "-u", _output_dir };
 
 	//vector to hold output
-	List fcexec_vect = null;
+	List<String> fcexec_vect = null;
 	
 	//change start and run dates in FCEXEC.GUI
 	//pass the full filename into editStartandRunDates( name );
@@ -4091,7 +4080,7 @@ public static List run_forecast() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( fcexec_vect == null ) {
-				fcexec_vect = new Vector();
+				fcexec_vect = new Vector<String>();
 				fcexec_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -4101,7 +4090,7 @@ public static List run_forecast() {
 		Message.printWarning( 2, routine, 
 		"Start and Run dates were not edited in the FCEXEC.GUI " +
 		"file so the ofs command: \"" + cmd + "\" will not be run." ); 
-		fcexec_vect = new Vector();
+		fcexec_vect = new Vector<String>();
 		fcexec_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -4116,7 +4105,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p fcinit -i FCINIT.STATUS.GUI -o FCINIT.STATUS.GUI.out".
 */
-public static List run_forecastDB_status() {
+public static List<String> run_forecastDB_status() {
 	String routine = _class + ".run_forecastDB_status";
 
 	//ofs command
@@ -4128,7 +4117,7 @@ public static List run_forecastDB_status() {
 
 
 	//vector to hold output
-	List fcstDB_vect = null;
+	List<String> fcstDB_vect = null;
 	
 	//the ofs command should be run.
 	//exitstat
@@ -4154,7 +4143,7 @@ public static List run_forecastDB_status() {
 		Message.printWarning( 2, routine, 
 		"Command: \"" + cmd + "\". FAILED. " ); 
 		if ( fcstDB_vect == null ) {
-			fcstDB_vect = new Vector();
+			fcstDB_vect = new Vector<String>();
 			fcstDB_vect.add( "Unable to run \"" + cmd + "\"" );
 		}
 	}
@@ -4170,7 +4159,7 @@ IFP must be the user's path (.profile).
 @return  Vector containing lines output from running command: 
 "xterm -e IFP_Map.
 */
-public static List run_ifp() {
+public static List<String> run_ifp() {
 	String routine = _class + ".run_ifp";
 
 	//// A  -using XENVIRONMENT and 1 file alone, does not
@@ -4209,7 +4198,7 @@ public static List run_ifp() {
 	"xrdb -remove /awips/hydroapps/lx/rfc/nwsrfs/ifp/app-defaults/IFP_map"}; 
 
 	int exitstat = -999;
-	List ifp_vect = null;
+	List<String> ifp_vect = null;
 
 	ProcessManager pm = new ProcessManager( arrCmd );
 	try {
@@ -4231,7 +4220,7 @@ public static List run_ifp() {
 		"Unable to run IFP via command: \"" +
 		cmd + "\"." );
 		if ( ifp_vect == null ) {
-			ifp_vect = new Vector();
+			ifp_vect = new Vector<String>();
 			ifp_vect.add( "Unable to run command: \"" + cmd + "\"" );
 		}
 		if ( Message.isDebugOn ) {
@@ -4250,7 +4239,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p ppinit -i NETWORK_ORDER.GUI -o NETWORK_ORDER.GUI.out"
 */
-public static List run_network_order() {
+public static List<String> run_network_order() {
 	String routine = _class + ".run_network_order";
 
 	//ofs command
@@ -4261,7 +4250,7 @@ public static List run_network_order() {
 	String[] cmd_arr = {"ofs -p ppinit -i NETWORK_ORDER.GUI -o NETWORK_ORDER.GUI.out -u " + _output_dir};
 
 	//vector to hold output
-	List ntw_vect = null;
+	List<String> ntw_vect = null;
 	
 	//just try and run this command.  File should be present.
 	//the ofs command should be run.
@@ -4287,7 +4276,7 @@ public static List run_network_order() {
 		Message.printWarning( 2, routine, 
 		"Command: \"" + cmd + "\". FAILED. " ); 
 		if ( ntw_vect == null ) {
-			ntw_vect = new Vector();
+			ntw_vect = new Vector<String>();
 			ntw_vect.add( "Unable to run \"" + cmd + "\"" );
 		}
 	}
@@ -4303,7 +4292,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p fcinit -i NEWRC.GUI -o NEWRC.GUI.out".
 */
-public static List run_newRatingCurve() {
+public static List<String> run_newRatingCurve() {
 	String routine = _class + ".run_newRatingCurve";
 
 	//ofs command
@@ -4313,7 +4302,7 @@ public static List run_newRatingCurve() {
 	String[] cmd_arr = {"ofs -p fcinit -i NEWRC.GUI -o NEWRC.GUI.out " + "-u "+ _output_dir};
 
 	//vector to hold output
-	List newrc_vect = null;
+	List<String> newrc_vect = null;
 	
 		//exitstat for ofs command
 		int exitstat = -999;
@@ -4338,7 +4327,7 @@ public static List run_newRatingCurve() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( newrc_vect == null ) {
-				newrc_vect = new Vector();
+				newrc_vect = new Vector<String>();
 				newrc_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -4353,7 +4342,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p ppinit -i NEWSTATION.GUI -o NEWSTATION.GUI.out".
 */
-public static List run_newstation() {
+public static List<String> run_newstation() {
 	String routine = _class + ".run_newstation";
 
 	//ofs command
@@ -4378,7 +4367,7 @@ public static List run_newstation() {
 	String[] cmd_arr = {"ofs -p ppinit -i NEWSTATION.GUI -o NEWSTATION.GUI.out " + "-u "+ _output_dir};
 
 	//vector to hold output
-	List newstn_vect = null;
+	List<String> newstn_vect = null;
 	
 	String newstn_gui_file = null;
 	newstn_gui_file = IOUtil.getPropValue( "NEWSTATION.GUI" );
@@ -4409,7 +4398,7 @@ public static List run_newstation() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( newstn_vect == null ) {
-				newstn_vect = new Vector();
+				newstn_vect = new Vector<String>();
 				newstn_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -4420,7 +4409,7 @@ public static List run_newstation() {
 		"The \"NEWSTATION.GUI\" file: \"" + newstn_gui_file +
 		"\" can not be used.  The ofs command: \"" + cmd + 
 		"\" will not be run." ); 
-		newstn_vect = new Vector();
+		newstn_vect = new Vector<String>();
 		newstn_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -4434,7 +4423,7 @@ Runs the ofs command:
 @return  Vector of line output from running:
 "ofs -p ppinit -i PPINIT.STATUS.GUI -o PPNINT.STATUS.GUI.out".
 */
-public static List run_preprocessDB_status() {
+public static List<String> run_preprocessDB_status() {
 	String routine = _class + ".run_preprocessDB_status";
 
 	//ofs command
@@ -4445,7 +4434,7 @@ public static List run_preprocessDB_status() {
 	String [] cmd_arr = {"ofs -p ppinit -i PPINIT.STATUS.GUI -o PPNINT.STATUS.GUI.out -u " + _output_dir };
 
 	//vector to hold output
-	List preDB_vect = null;
+	List<String> preDB_vect = null;
 	
 	//the ofs command should be run.
 	//exitstat
@@ -4472,7 +4461,7 @@ public static List run_preprocessDB_status() {
 		Message.printWarning( 2, routine, 
 		"Command: \"" + cmd + "\". FAILED. " ); 
 		if ( preDB_vect == null ) {
-			preDB_vect = new Vector();
+			preDB_vect = new Vector<String>();
 			preDB_vect.add( "Unable to run \"" + cmd + "\"" );
 		}
 	}
@@ -4494,7 +4483,7 @@ file is included in the PREPROCESS.GUI by the line:
 @return  Vector containing output of running the ofs command:
 "ofs -p fcst -i PREPROCESS.GUI -o PREPROCESS.GUI.out".
 */
-public static List run_preprocessors()  {
+public static List<String> run_preprocessors()  {
 	String routine = _class + ".run_preprocessors";
 
 	//ofs command
@@ -4504,7 +4493,7 @@ public static List run_preprocessors()  {
 	String[] cmd_arr = {"ofs -p fcst -i PREPROCESS.GUI -o PREPROCESS.GUI.out -u "+ _output_dir};
 
 	//vector to hold output
-	List preproc_vect = null;
+	List<String> preproc_vect = null;
 
 	//boolean indicates whether the ofs command should be run
 	boolean ran_successfully = true;
@@ -4523,7 +4512,7 @@ public static List run_preprocessors()  {
 		Message.printWarning( 2, routine, 
 			"Unable to locate file \"PREPROCESS.GUI\"." );
 		if ( preproc_vect == null ) {
-			preproc_vect = new Vector();
+			preproc_vect = new Vector<String>();
 		}
 		preproc_vect.add( 
 			"Unable to locate file \"PREPROCESS.GUI\"." );
@@ -4556,7 +4545,7 @@ public static List run_preprocessors()  {
 				Message.printWarning( 2, routine, 
 				"Command: \"" + cmd + "\". FAILED. " ); 
 				if ( preproc_vect == null ) {
-					preproc_vect = new Vector();
+					preproc_vect = new Vector<String>();
 				}
 				preproc_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
@@ -4569,7 +4558,7 @@ public static List run_preprocessors()  {
 		preproc_gui_file + 
 		"\".  Will not run command: \"" + cmd + "\"." );
 		if ( preproc_vect == null ) {
-			preproc_vect = new Vector();
+			preproc_vect = new Vector<String>();
 		}
 		preproc_vect.add( "Unable to run Preprocessors" );
 
@@ -4586,7 +4575,7 @@ Method runs one of the two the ofs commands:
 "ofs -p fcinit -i PUNCHFG.GUI -o PUNCHFG.GUI.out" to
 "ofs -p fcinit -i PUNCHCG.GUI -o PUNCHCG.GUI.out" 
 create a display of the current ForecastGroup definition or
-to create a display for the current CarryoverGroup definiitaion, using 
+to create a display for the current CarryoverGroup definition, using 
 the _pun file output from the ofs command run. 
 Creates the PUNCHFG.GUI or PUNCHCG.GUI file on the fly.
 @param id  Name of forecast group or carryover group to see definition.
@@ -4634,7 +4623,7 @@ public static String run_print_cgs_or_fgs( String id,
 	}
 		
 	//vector to hold output
-	List print_vect = null;
+	List<String> print_vect = null;
 
 	//boolean indicates if PUNCHXG.GUI file is edited.
 	boolean file_edited = true;
@@ -4648,15 +4637,14 @@ public static String run_print_cgs_or_fgs( String id,
 	if (( path_to_fcinit_seg != null ) && ( 
 		IOUtil.fileExists( path_to_fcinit_seg ) )) {
 		//cut off file name (last item)
-		List v = null;
-		v = StringUtil.breakStringList( path_to_fcinit_seg,
+		List<String> v = StringUtil.breakStringList( path_to_fcinit_seg,
 			fs, StringUtil.DELIM_SKIP_BLANKS );
 		int size = 0;
 		if ( v !=null ) {
 			size = v.size();
 		}
 		for ( int i=0; i<size-1; i++ ) {
-			b.append( (String) v.get(i) + fs );
+			b.append( v.get(i) + fs );
 		}
 		v = null;
 	}
@@ -4748,7 +4736,7 @@ public static String run_print_cgs_or_fgs( String id,
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( print_vect == null ) {
-				print_vect = new Vector();
+				print_vect = new Vector<String>();
 				print_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -4771,9 +4759,9 @@ public static String run_print_cgs_or_fgs( String id,
 		String output_file = null;
 		String fcinit_file = null;
 		String s = null;
-		List v = null;
+		List<String> v = null;
 		for ( int i=0; i<size; i++ ) {
-			s = ((String)print_vect.get( i )).trim();
+			s = print_vect.get( i ).trim();
 			//line with output file name:
 			//has this in it:
 			//"==> output_file_name <=="
@@ -4881,7 +4869,7 @@ public static String run_print_ratingCurves( String ratingCurve_id ) {
 	String[] cmd_arr = { "ofs -p fcinit -i PRINTRC.GUI -o PRINTRC.GUI.out -u "+ _output_dir};
 
 	//vector to hold output of running ofs command
-	List printrc_vect = null;
+	List<String> printrc_vect = null;
 
 	//boolean to indicate if ofs command should be run- it will
 	//not be run if the editing of the file fails.
@@ -4941,13 +4929,6 @@ public static String run_print_ratingCurves( String ratingCurve_id ) {
 			
 				br.close();
 				pw.close();	
-
-				//clean up
-				fis = null;
-				isr = null;
-				br = null;
-				s = null;
-
 			}	
 			catch (Exception e ) {
 				//use debug here, not warning
@@ -5028,7 +5009,7 @@ public static String run_print_ratingCurves( String ratingCurve_id ) {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( printrc_vect == null ) {
-				printrc_vect = new Vector();
+				printrc_vect = new Vector<String>();
 				printrc_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -5047,9 +5028,9 @@ public static String run_print_ratingCurves( String ratingCurve_id ) {
 		String output_file = null;
 		String fcinit_file = null;
 		String s = null;
-		List v = null;
+		List<String> v = null;
 		for ( int i=0; i<size; i++ ) {
-			s = ((String)printrc_vect.get( i )).trim();
+			s = printrc_vect.get( i ).trim();
 			//line with output file name:
 			//has this in it: "The output file"
 			//"==> output_file_name <=="
@@ -5058,7 +5039,7 @@ public static String run_print_ratingCurves( String ratingCurve_id ) {
 					s, " ", StringUtil.DELIM_SKIP_BLANKS );
 				//should be 3 pieces -we need middle one.
 				if ( v.size() == 3 ) {
-					fcinit_file = (String)v.get(1);
+					fcinit_file = v.get(1);
 
 					//now we have the output_log file:
 					//ex, .../fcinit_log.20020314.132919 
@@ -5132,7 +5113,7 @@ public static String run_print_segs( String segment_id ) {
 	String[] cmd_arr = {"ofs -p fcinit -i PRINTSEGS.GUI -o PRINTSEGS.GUI.out -u " + _output_dir };
 		
 	//vector to hold output
-	List printsegs_vect = null;
+	List<String> printsegs_vect = null;
 
 	//boolean indicates if PRINTSEGS.GUI file is edited.
 	boolean file_edited = true;
@@ -5281,7 +5262,7 @@ public static String run_print_segs( String segment_id ) {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( printsegs_vect == null ) {
-				printsegs_vect = new Vector();
+				printsegs_vect = new Vector<String>();
 				printsegs_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -5304,9 +5285,9 @@ public static String run_print_segs( String segment_id ) {
 		String output_file = null;
 		String fcinit_file = null;
 		String s = null;
-		List v = null;
+		List<String> v = null;
 		for ( int i=0; i<size; i++ ) {
-			s = ((String)printsegs_vect.get( i )).trim();
+			s = printsegs_vect.get( i ).trim();
 			//line with output file name:
 			//has this in it: "The output file"
 			//"==> output_file_name <=="
@@ -5370,7 +5351,7 @@ method.  Once the file is edited, the ofs command is run
 @return vector containing the output from running command:
 "ofs -p fcinit -i PUNCHRC.GUI -o PUNCHRC.GUI.out".
 */
-public static List run_punch_ratingCurves( String ratingCurve_id ) {
+public static List<String> run_punch_ratingCurves( String ratingCurve_id ) {
 	String routine = _class + ".run_punch_ratingCurves";
 
 	//ofs command
@@ -5381,7 +5362,7 @@ public static List run_punch_ratingCurves( String ratingCurve_id ) {
 	String[] cmd_arr = { "ofs -p fcinit -i PUNCHRC.GUI -o PUNCHRC.GUI.out -u " + _output_dir};
 
 	//vector to hold output
-	List punch_vect = null;
+	List<String> punch_vect = null;
 
 	//boolean to indicate if ofs command should be run- it will
 	//not be run if the editing of the file fails.
@@ -5535,7 +5516,7 @@ public static List run_punch_ratingCurves( String ratingCurve_id ) {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( punch_vect == null ) {
-				punch_vect = new Vector();
+				punch_vect = new Vector<String>();
 				punch_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -5545,7 +5526,7 @@ public static List run_punch_ratingCurves( String ratingCurve_id ) {
 		Message.printWarning( 2, routine, 
 		"Rating Curve ID was not edited in the PUNCHRC.GUI " +
 		"file so the ofs command: \"" + cmd + "\" will not be run." ); 
-		punch_vect = new Vector();
+		punch_vect = new Vector<String>();
 		punch_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -5564,7 +5545,7 @@ method.  Once the file is edited, the ofs command is run
 @return vector containing the output from running command:
 "ofs -p fcinit -i PUNCHSEGS.GUI -o PUNCHSEGS.GUI.out".
 */
-public static List run_punch_segments( String segment_id ) {
+public static List<String> run_punch_segments( String segment_id ) {
 	String routine = _class + ".run_punch_segments";
 
 	//ofs command
@@ -5575,7 +5556,7 @@ public static List run_punch_segments( String segment_id ) {
 	String[] cmd_arr = { "ofs -p fcinit -i PUNCHSEGS.GUI -o PUNCHSEGS.GUI.out -u " + _output_dir };
 
 	//vector to hold output
-	List punch_vect = null;
+	List<String> punch_vect = null;
 
 	//boolean to indicate if ofs command should be run- it will
 	//not be run if the editing of the file fails.
@@ -5730,7 +5711,7 @@ public static List run_punch_segments( String segment_id ) {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( punch_vect == null ) {
-				punch_vect = new Vector();
+				punch_vect = new Vector<String>();
 				punch_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -5740,7 +5721,7 @@ public static List run_punch_segments( String segment_id ) {
 		Message.printWarning( 2, routine, 
 		"Station ID was not edited in the PUNCHSEGS.GUI " +
 		"file so the ofs command: \"" + cmd + "\" will not be run." ); 
-		punch_vect = new Vector();
+		punch_vect = new Vector<String>();
 		punch_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -5757,7 +5738,7 @@ method.  Once the file is edited, the ofs command is run:
 @return vector containing the output from running command:
 "ofs -p ppinit -i PUNCH.STATIONS.GUI -o PUNCH.STATIONS.GUI.out".
 */
-public static List run_punch_stations( String station_id ) {
+public static List<String> run_punch_stations( String station_id ) {
 	String routine = _class + ".run_punch_stations";
 
 	//units to use in input file
@@ -5775,7 +5756,7 @@ public static List run_punch_stations( String station_id ) {
 	String[] cmd_arr = { "ofs -p ppinit -i PUNCH.STATIONS.GUI -o PUNCH.STATIONS.GUI.out -u " + _output_dir };
 
 	//vector to hold output
-	List punch_vect = null;
+	List<String> punch_vect = null;
 
 	//boolean to indicate if ofs command should be run- it will
 	//not be run if the editing of the file fails.
@@ -5940,7 +5921,7 @@ public static List run_punch_stations( String station_id ) {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( punch_vect == null ) {
-				punch_vect = new Vector();
+				punch_vect = new Vector<String>();
 				punch_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -5950,7 +5931,7 @@ public static List run_punch_stations( String station_id ) {
 		Message.printWarning( 2, routine, 
 		"Station ID was not edited in the PUNCH.STATIONS.GUI " +
 		"file so the ofs command: \"" + cmd + "\" will not be run." ); 
-		punch_vect = new Vector();
+		punch_vect = new Vector<String>();
 		punch_vect.add( "Unable to run \"" + cmd + "\"" );
 	}
 
@@ -5964,7 +5945,7 @@ Runs the ofs command:
 @return Vector containing output of running the ofs command:
 "ofs -p fcinit -i DEFRC.GUI -o DEFRC.GUI.out" 
 */
-public static List run_redefine_ratingCurves() {
+public static List<String> run_redefine_ratingCurves() {
 	String routine = _class + ".run_redefine_ratingCurves";
 
 	//ofs command
@@ -5975,7 +5956,7 @@ public static List run_redefine_ratingCurves() {
 	String[] cmd_arr = { "ofs -p fcinit -i DEFRC.GUI -o DEFRC.GUI.out -u " + _output_dir };
 
 	//vector to hold output
-	List redefrc_vect = null;
+	List<String> redefrc_vect = null;
 	
 		//exitstat
 		int exitstat = -999;
@@ -6001,7 +5982,7 @@ public static List run_redefine_ratingCurves() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( redefrc_vect  == null ) {
-				redefrc_vect  = new Vector();
+				redefrc_vect  = new Vector<String>();
 				redefrc_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -6019,7 +6000,7 @@ Runs the ofs command:
 @return Vector containing output of running the ofs command:
 "ofs -p fcinit -i RESEGDEF.GUI -o RESEGDEF.GUI.out" 
 */
-public static List run_redefine_segments() {
+public static List<String> run_redefine_segments() {
 	String routine = _class + ".run_redefine_segments";
 
 	//ofs command
@@ -6030,7 +6011,7 @@ public static List run_redefine_segments() {
 	String[] cmd_arr = { "ofs -p fcinit -i RESEGDEF.GUI -o RESEGDEF.GUI.out -u " + _output_dir };
 
 	//vector to hold output
-	List redefseg_vect = null;
+	List<String> redefseg_vect = null;
 	
 		//exitstat
 		int exitstat = -999;
@@ -6055,7 +6036,7 @@ public static List run_redefine_segments() {
 		catch (Exception e) {
 			Message.printWarning( 2, routine, "Command: \"" + cmd + "\". FAILED. " ); 
 			if ( redefseg_vect  == null ) {
-				redefseg_vect = new Vector();
+				redefseg_vect = new Vector<String>();
 				redefseg_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -6070,7 +6051,7 @@ Runs the ofs command:
 @return Vector containing output of running the ofs command:
 "ofs -p ppinit -i REDEFINE.STATIONS.GUI -o REDEFINE.STATIONS.GUI.out" 
 */
-public static List run_redefine_stations() {
+public static List<String> run_redefine_stations() {
 	String routine = _class + ".run_redefine_stations";
 
 	//ofs command
@@ -6081,7 +6062,7 @@ public static List run_redefine_stations() {
 	String[] cmd_arr = {"ofs -p ppinit -i REDEFINE.STATIONS.GUI -o REDEFINE.STATIONS.GUI.out " + "-u " + _output_dir };
 
 	//vector to hold output
-	List redefstn_vect = null;
+	List<String> redefstn_vect = null;
 	
 		//exitstat
 		int exitstat = -999;
@@ -6107,7 +6088,7 @@ public static List run_redefine_stations() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( redefstn_vect  == null ) {
-				redefstn_vect = new Vector();
+				redefstn_vect = new Vector<String>();
 				redefstn_vect.add( "Unable to run \"" + cmd + "\"" );
 			}
 		}
@@ -6124,7 +6105,7 @@ created running the command through the ProcessManager.
 @return  Vector containing output of running the ofs command:
 "ofs -p fcst -i COSAVE.GUI -o COSAVE.GUI.out".
 */
-public static List run_saveCarryover() {
+public static List<String> run_saveCarryover() {
 	String routine = _class + ".run_saveCarryover";
 
 	//ofs command
@@ -6134,7 +6115,7 @@ public static List run_saveCarryover() {
 	String[] cmd_arr ={ "ofs -p fcst -i COSAVE.GUI -o COSAVE.GUI.out -u " + _output_dir};
 
 	//vector to hold output
-	List cosave_vect = null;
+	List<String> cosave_vect = null;
 	
 	//change start and run dates in COSAVE.GUI
 	//pass the full filename into editStartandRunDates( name );
@@ -6171,7 +6152,7 @@ public static List run_saveCarryover() {
 		catch (Exception e) {
 			Message.printWarning( 2, routine, "Command: \"" + cmd + "\". FAILED. " ); 
 			if ( cosave_vect == null ) {
-				cosave_vect = new Vector();
+				cosave_vect = new Vector<String>();
 				cosave_vect.add( "Unable to run command: \"" + cmd + "\"" );
 			}
 		}
@@ -6181,7 +6162,7 @@ public static List run_saveCarryover() {
 		Message.printWarning( 2, routine, 
 		"Start and Run dates were not edited in the COSAVE.GUI " +
 		"file so the ofs command: \"" + cmd + "\" will not be run." ); 
-		cosave_vect = new Vector();
+		cosave_vect = new Vector<String>();
 		cosave_vect.add( "Unable to run command: \"" + cmd + "\"" );
 	}
 
@@ -6200,7 +6181,7 @@ through the ofs command: shefpars.
 @param fs  file seperator to use for concatenating paths.
 @return Vector containing all the output from the ofs shefpars command.
 */
-public static List run_shefpars( String shef_file, String fs ) {
+public static List<String> run_shefpars( String shef_file, String fs ) {
 	String routine = _class + ".run_shefpars";
 
 	//used to determine if the ofs command should be run
@@ -6344,7 +6325,7 @@ public static List run_shefpars( String shef_file, String fs ) {
 
 	//now should be able to run ofs command
 	//holds output of shefpars command 
-	List shefpars_vect = null;
+	List<String> shefpars_vect = null;
 	if ( run_command ) {
 		//run the ofs commands!
 		int exitstat = -999;
@@ -6378,7 +6359,7 @@ public static List run_shefpars( String shef_file, String fs ) {
 				"Command: \"" +
 				"shefpars_cmd + \" FAILED." );
 			if ( shefpars_vect == null ) {
-				shefpars_vect = new Vector();
+				shefpars_vect = new Vector<String>();
 				shefpars_vect.add( "Unable to run command: \"" + shefpars_cmd + "\"" );
 			}
 		}
@@ -6395,12 +6376,12 @@ Runs the OFS command: shefpost.  Before the command
 is run, it is assumed that the shefpars command has been run. 
 @return Vector containing all the output from the ofs shefpost command.
 */
-public static List run_shefpost( ) {
+public static List<String> run_shefpost( ) {
 	String routine = _class + ".run_shefpost";
 
 	//should be able to run ofs command
 	//holds output of shefpost command 
-	List shefpost_vect = null;
+	List<String> shefpost_vect = null;
 
 		//run the ofs command
 		int exitstat = -999;
@@ -6433,7 +6414,7 @@ public static List run_shefpost( ) {
 				"Command: \"" +
 				"shefpost_cmd + \" FAILED." );
 			if ( shefpost_vect == null ) {
-				shefpost_vect = new Vector();
+				shefpost_vect = new Vector<String>();
 				shefpost_vect.add( "Unable to run command: \"" + shefpost_cmd + "\"" );
 			}
 		}
@@ -6450,7 +6431,7 @@ the ofs prdutil DUMPSHEF.GUI command is run.
 @return vector containing output lines from running command:
 "ofs -p prdutil -i DUMPSHEF.GUI -o DUMPSHEF.GUI.out".
 */
-public static List run_updateResults() {
+public static List<String> run_updateResults() {
 	String routine = _class + ".run_updateResults";
 
 	//command we ultimately want to run
@@ -6460,7 +6441,7 @@ public static List run_updateResults() {
 	String[] cmd_arr = {"ofs -p prdutil -i DUMPSHEF.GUI -o DUMPSHEF.GUI.out -u "+ _output_dir };
 
 	//holds output of running the ofs command
-	List update_vect = null;
+	List<String> update_vect = null;
 	int exitstat = -999;
 
 	//boolean to indicate if the OFS command should be run 
@@ -6644,7 +6625,7 @@ public static List run_updateResults() {
 			Message.printWarning( 2, routine, 
 			"Command: \"" + cmd + "\". FAILED. " ); 
 			if ( update_vect == null ) {
-				update_vect = new Vector();
+				update_vect = new Vector<String>();
 				update_vect.add( "Unable to run command: \"" + cmd + "\"" );
 			}
 		}
@@ -6666,7 +6647,7 @@ If this is null, vi is used.
 for editing ( true ) or just for viewing ( false ).  This is ONLY relevant for
 the VI  and NEDIT editors, since we know that vi has a -R flag 
 and nedit has -READ flag (for read-only). 
-@execption Error thrown if file to be edited can not be found.
+@exception Error thrown if file to be edited can not be found.
 */
 public static void runEditor( String editor, 
 				String file_name,
@@ -6739,7 +6720,7 @@ public static void runEditor( String editor,
 	
 
 	//now we should be ready to edit the file.
-	List edit_vect = null;
+	List<String> edit_vect = null;
 	int exitstat = -99;
 	ProcessManager pm = new ProcessManager( arrCommand );
 	Thread thread = new Thread (pm );
@@ -6756,7 +6737,7 @@ public static void runEditor( String editor,
 		Message.printWarning( 2, routine, e );
 	}
 
-	//if the ProcessManger run alright, continue
+	//if the ProcessManger run allright, continue
 	if (( exitstat == 0 ) && ( edit_vect != null )) {
 		//things are good.
 	}
@@ -7117,7 +7098,7 @@ public static void setDefaultDates( NWSRFS_CarryoverGroup cg ) {
 	/********************************************************/
 	
 	//use carryoverGroup object passed in to get date list.
-	List dates_vect = null;
+	List<DateTime> dates_vect = null;
 	if ( cg != null ) {
 		dates_vect = cg.getCarryoverDates();
 	}
@@ -7133,7 +7114,7 @@ public static void setDefaultDates( NWSRFS_CarryoverGroup cg ) {
 	}
 	else {
 		Message.printWarning( 2, routine, "No carryover dates found" );
-		dates_vect = new Vector();
+		dates_vect = new Vector<DateTime>();
 	}
 
 	//now we have a vector of DateTime dates.
@@ -7154,7 +7135,7 @@ public static void setDefaultDates( NWSRFS_CarryoverGroup cg ) {
 		return;
 	}
 
-	List formatted_dates_vect = new Vector();
+	List<String> formatted_dates_vect = new Vector<String>();
 	boolean found_sd = false;
 	for ( int i=0; i<size; i++ ) {
 		d = (DateTime) dates_vect.get(i);
@@ -7254,7 +7235,7 @@ public static void setDefaultDates( NWSRFS_CarryoverGroup cg ) {
 	//And, enddate is RUNDATE + 7
 
 	//Vector will hold dates for rundate dropdown list
-	List rd_list= new Vector();
+	List<String> rd_list= new Vector<String>();
 
 	//Again, the rundate list consists of the startdate to startdate + 20
 	DateTime tmp_startdate = new DateTime( startdate, DateTime.FORMAT_YYYY_MM_DD_HH_mm );
@@ -7367,20 +7348,20 @@ a String object in a vector.
 @return Vector containing all lines of the file or null 
 if can not read the file.
 */
-public static List translationFileToVector( String fileToRead ) {
+public static List<String> translationFileToVector( String fileToRead ) {
 	String routine = _class + ".translationFileToVector";
 
 	//vector to return
-	_translated_lines = new Vector();
+	_translated_lines = new Vector<String>();
 
 	//test to see that fileToRead is valid file
 	if ( IOUtil.fileExists( fileToRead ) ) {
 		//good, continue on to read it
 		//open file, read in
 		File inputFile = null;
-		FileInputStream fis;
-		InputStreamReader isr;
-		BufferedReader br;
+		FileInputStream fis = null;
+		InputStreamReader isr = null;
+		BufferedReader br = null;
 		String s = null;
 		try {
 			inputFile = new File( fileToRead );
@@ -7406,6 +7387,14 @@ public static List translationFileToVector( String fileToRead ) {
 		catch ( Exception e ) {
 			Message.printWarning( 2, routine, e );
 		}
+		finally {
+			try {
+				br.close();
+			}
+			catch ( IOException e ) {
+				
+			}
+		}
 	} //if file exists
 	else {
 		Message.printWarning( 2, routine, "Unable to read: \"" +
@@ -7428,7 +7417,7 @@ for a Full day, so we need to divide each value by 4 to get a value for a
 	order in the same way as the fmap_names_vect so that there is 
 	a one-to-one correspondence.
 */
-public static void write_fmap_file( List fmap_names_vect, List fmap_values_vect ) {
+public static void write_fmap_file( List<String> fmap_names_vect, List<String[]> fmap_values_vect ) {
 	String routine = _class + ".write_fmap_file";
 
 	//boolean to determine if the file should be written
@@ -7456,10 +7445,10 @@ public static void write_fmap_file( List fmap_names_vect, List fmap_values_vect 
 		"Unable to determine values for fmap data, will use \"0\" " );
 
 		if ( fmap_values_vect == null ) {
-			fmap_values_vect = new Vector();
+			fmap_values_vect = new Vector<String []>();
 		}
 		for ( int i=0; i< numb_areas; i++ ){
-			fmap_values_vect.add( "O" );
+			//fmap_values_vect.add( "O" );
 		}
 	}
 	else { //fmap_values_vect is not null, so get Number of days by
@@ -7800,7 +7789,7 @@ public static boolean  update_resegdef_file( String reseg_file ) {
 				fos = new FileOutputStream( outputFile );
 				pw = new PrintWriter( fos );
 				
-				List v = new Vector();
+				List<String> v = new Vector<String>();
 				do {
 					s = br.readLine();
 					if ( s== null ) {

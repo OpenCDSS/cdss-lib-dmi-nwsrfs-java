@@ -245,9 +245,9 @@ protected float _RPTSM;
 protected int _SDATE;
 protected float _RPT2SM;
 protected int _S2DATE;
-protected List _OBSTIME;
-protected List _DATAVAL;
-protected List _DATATIMEINT;
+protected List<Integer> _OBSTIME;
+protected List<Float> _DATAVAL;
+protected List<Integer> _DATATIMEINT;
 protected int _NXTREC;
 protected int _NVALSFP;
 
@@ -495,7 +495,7 @@ public int getNVALSFP() {
 	return _NVALSFP; 
 }
 
-public List getOBSTIME() {
+public List<Integer> getOBSTIME() {
 	return _OBSTIME; 
 }  
 
@@ -503,7 +503,7 @@ public int getOBSTIME(int OBSTIMEindex) {
 	return (int)((Integer)_OBSTIME.get(OBSTIMEindex)).intValue();
 }
 
-public List getDATAVAL() {
+public List<Float> getDATAVAL() {
 	return _DATAVAL; 
 }  
 
@@ -511,7 +511,7 @@ public float getDATAVAL(int DATAVALindex) {
 	return (float)((Float)_DATAVAL.get(DATAVALindex)).floatValue();
 }
 
-public List getDATATIMEINT() {
+public List<Integer> getDATATIMEINT() {
 	return _DATATIMEINT; 
 }  
 
@@ -561,9 +561,9 @@ private void initialize() {
 	_SDATE		= -1;
 	_RPT2SM		= -1;
 	_S2DATE		= -1;
-	_OBSTIME	= new Vector();
-	_DATAVAL	= new Vector();
-	_DATATIMEINT	= new Vector();
+	_OBSTIME	= new Vector<Integer>();
+	_DATAVAL	= new Vector<Float>();
+	_DATATIMEINT	= new Vector<Integer>();
 	_NXTREC		= -1;
 	_NVALSFP	= -1;
 }
