@@ -1121,8 +1121,8 @@ that the expected directory is being used.
 @return a Vector of String containing database properties.
 @param level A level indicating the amount of information to provide - currently not implemented.
 */
-public List getDatabaseProperties( int level )
-{	List v = new Vector();
+public List<String> getDatabaseProperties( int level )
+{	List<String> v = new Vector<String>();
 	if ( __fs5FilesLocation == null ) {
 		v.add ( "No FS5Files directory has been specified." );
 	}
