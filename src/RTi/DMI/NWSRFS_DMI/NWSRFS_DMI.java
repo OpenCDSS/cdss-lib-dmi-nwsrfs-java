@@ -1,87 +1,4 @@
-//-----------------------------------------------------------------------------
 // NWSRFS_DMI - class to interact with NWSRFS databases
-//-----------------------------------------------------------------------------
-// History:
-//
-// 2004-02-18	Shawn chen, RTi		Initial version.
-// 2004-03-09	Scott Townsend, RTi	Updated to produce javadoc
-//						and cleaned up code.
-// 2004-03-10	SAT, RTi		Started to modify code to meet 
-//						the design.
-// 2004-03-30	SAT, RTi		Revised to meet RTi coding
-//						standards
-// 2004-05-26	SAT, RTi		Cleaned up code based on peer
-//						review
-// 2004-07-21	SAT, RTi		Added code to read in data from
-//						the prepocessor parameter DB.
-//						Also cleaned up comments and
-//						documentation.
-// 2004-07-27	A. Morgan Love, RTi	Commented out references to
-//						NWSRFS_PPPINDEX to get 
-//						class to compile.  
-//
-// 2004-08-18	J. Thomas Sapienza, RTi	* Revised to match RTi DMI code 
-//					  standards.
-//					* Began implementing get() and set() 
-//					  methods for data classes.
-// 2004-08-24	SAT			Cleaned up code and added reading from
-//					the preprocessor parameteric DB. Also
-//					addressing preformance problems.
-// 2004-09-02	SAT			Modifying for TSTool support.
-// 2004-09-11	SAM, RTi		* Add getDatabaseProperties().
-//					* Add __opened_with_AppsDefaults and
-//					  openedWithAppsDefaults().  This
-//					  information is used by TSTool, for
-//					  example, to properly format time
-//					  series identifiers.
-// 2004-09-15	SAM, RTi		* Fix bug in readTimeSeriesList() - was
-//					  not handling a specific ID (returned
-//					  all).
-// 2004-09-16	SAM, RTi		* Fix bug in readTimeSeriesList() - null
-//					  time series were being added to the
-//					  returned list.
-// 2004-09-17	SAT, RTi		Modified readStation to read from the
-//					preproccessed parameteric database and
-//					added readStationList methods.
-// 2004-10-13	SAT, RTi		Added MAP/MAT... USER, BASN, NTWK, and
-//					ORRS preprocessed parameteric DB data.
-// 2004-10-13	SAT, RTi		Determined that a problem with both
-//					IPCO and Mexico CPRCN fs5files was an
-//					endian problem. Made appropriate fix.
-// 2004-10-15	SAT, RTi		Added readPDBINDEX to read the pre-
-//					processor database index. Also moved the
-//                                      call to the readPPPINDEX from 
-//					readGlobalData to readStationHashtable
-//					and readStation to improve performance.
-//					Also did the same for the readPRDINDEX.
-// 2004-11-1	SAT, RTi		Adding methods to read from the 
-//					preprocessed database.
-// 2004-11-23	SAT, RTi		Modified code in parseOperationsRecord
-//					to fix a bug in the printing of TS names
-//					in plot-tul operations
-// 2004-11-24	SAT, RTi		Modified code in ParseOperationsRecord
-//					to check to see if MAPX TS found in
-//					operations table truely exists or is
-//					of a different time step. If different
-//					return the TS name of the TS that does
-//					exist.
-// 2004-12-02	SAT, RTi		Modified code in readPDBDLY to only 
-//					print a warning rather than throw an 
-//					exception.
-// 2006-10-01	KAT, RTi		readTimeSeries() with requested
-//					DateTimes was resulting in returned
-//					DateTimes that were not "Z".  Change to
-//					always return "Z".
-// 2006-10-03	SAM, RTi		* Add readUSERPARM() method.
-//					* Use EndianRandomAccessFile instead
-//					  of RandomAccessFile for the binary
-//					  files.  This allows for more
-//					  flexibility when reading.
-// 2006-11-22	SAM, RTi		Clean up the readTimeSeries() method to
-//					not be so convoluted.  Add more Javadoc
-//					to benefit other developers.
-//-----------------------------------------------------------------------------
-// EndHeader
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -94,12 +11,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import java.lang.reflect.Array;
-
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+/*
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Carryover;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_CarryoverGroup;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_ESPTraceEnsemble;
@@ -121,6 +39,7 @@ import RTi.DMI.NWSRFS_DMI.NWSRFS_Segment;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Station;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_USER;
 import RTi.DMI.NWSRFS_DMI.NWSRFS_Util;
+*/
 
 import RTi.TS.TS;
 import RTi.TS.HourTS;
@@ -469,12 +388,12 @@ private boolean __useFS5Files;
 /**
 Hashtable for TS tsid values to check for existence in a very fast manner.
 */
-private Hashtable __tsHashtable = null;
+private Hashtable<String,NWSRFS_TimeSeries> __tsHashtable = null;
 
 /**
 Hashtable for TS Data Type and Logical Unit values to check for existence in a very fast manner.
 */
-private Hashtable __tsDTUHashtable = null;
+private Hashtable<String,Integer> __tsDTUHashtable = null;
 
 /**
 A boolean specifying whether to cache the Time Series values or not.
@@ -959,7 +878,7 @@ throws Exception {
 			}
 		}
 
-		__tsDTUHashtable.put(tsDT,new Integer(unitNum));
+		__tsDTUHashtable.put(tsDT,Integer.valueOf(unitNum));
 		EDIS.close();
 	}
 	
@@ -968,7 +887,7 @@ throws Exception {
 	// Equals the IUNIT value from the PRDPARM file then have the right Time Series file to read the TS into.
 	for (i = 0; i < 5; i++) {
 		// FIXME SAM 2008-04-07 What is the following?  Simplify
-		prdIndex = (int)new Integer(String.valueOf(__PRDTS1 + i)).intValue();
+		prdIndex = Integer.valueOf(String.valueOf(__PRDTS1 + i)).intValue();
 		/* TODO SAM 2008-05-02 Evaluate if needed - are paths full always?
 		if (__useFS5Files && true) {
 			prdtsDataFile = __fs5FilesLocation + __dbFileNames[prdIndex]; 
@@ -1064,14 +983,12 @@ throws Exception {
 /**
 Close the NWSRFS processed database files. It will loop through the 
 __NWSRFS_DBFiles EndianRandomAccessFile objects and close them.
-@throws Exception if there is a problem closing any of the files.  The method
-will attempt to close all files, and if any them could not be closed, an
-exception will be thrown.
+@throws Exception if there is a problem closing any of the files.
+The method will attempt to close all files, and if any them could not be closed, an exception will be thrown.
 */ 
 public void close() 
-throws Exception
-{
-	List filenames = new Vector();
+throws Exception {
+	List<String> filenames = new ArrayList<>();
 
 	for (int i = 0; i < __dbFileNames.length; i++) {
 		if (__isOpen[i]) {
@@ -1240,7 +1157,7 @@ public NWSRFS_PRDINDEX getPRDIndex() {
 Returns the time series hashtable.
 @return the time series hashtable.
 */
-public Hashtable getTSHashtable() {
+public Hashtable<String,NWSRFS_TimeSeries> getTSHashtable() {
 	return __tsHashtable;
 }
 
@@ -1248,7 +1165,7 @@ public Hashtable getTSHashtable() {
 Returns the time series Data Type and Logical Unit hashtable.
 @return the time series Data Type and Logical Unit hashtable.
 */
-public Hashtable getTSDTUHashtable() {
+public Hashtable<String,Integer> getTSDTUHashtable() {
 	return __tsDTUHashtable;
 }
 
@@ -1260,8 +1177,8 @@ private void initialize() {
 	__isBigEndian = false;
 	__NWSRFS_DBFiles = new EndianRandomAccessFile[__dbFileNames.length];
 	__NWSRFS_properties = null;
-	__tsHashtable = new Hashtable();
-	__tsDTUHashtable = new Hashtable();
+	__tsHashtable = new Hashtable<>();
+	__tsDTUHashtable = new Hashtable<>();
 	__useFS5Files = true;
 	_fcrcptr = null;
 	_fcsegptr = null;
@@ -1346,7 +1263,8 @@ throws Exception
 	int nextOP = 0;
 	String[] opName = new String[nc];
 	String parseChar = null;
-	List[] coCarryoverValues = new List[nc];
+	@SuppressWarnings("unchecked")
+	List<Float>[] coCarryoverValues = new List[nc];
 	while (cIndex * 5 < nc) {
 		try {
 			// Field 1 - operation number
@@ -1372,9 +1290,9 @@ throws Exception
 			coOperationPointer[cIndex] = (int)EDIS.readEndianInt();
 
 			// Field 5 - co carryover values - This array of floats will be placed directly into a Vector.
-			coCarryoverValues[cIndex] = new Vector();
+			coCarryoverValues[cIndex] = new ArrayList<>();
 			for (j = 4; j < nextOP; j++) {
-				coCarryoverValues[cIndex].add(	new Float((float)EDIS.readEndianFloat()));
+				coCarryoverValues[cIndex].add(Float.valueOf((float)EDIS.readEndianFloat()));
 			}
 			
 			// SAT 8/24/2004 Ok since exceptions are expensive 
@@ -1480,9 +1398,11 @@ throws Exception
 	String parseDT = null;
 	String parseTemp = null;
 	String parseTS = null;
-	List[] opTSDT = new List[np];
-	List[] opTSID = new List[np];
-	List poArray = null;
+	@SuppressWarnings("unchecked")
+	List<String>[] opTSDT = new List[np];
+	@SuppressWarnings("unchecked")
+	List<String>[] opTSID = new List[np];
+	List<String> poArray = null;
 
 	// Get a vector of Data Types and put into a Vector of Strings! 
 	// TODO -- sat 2004-11-24 Should do globally at startup!
@@ -1499,12 +1419,11 @@ throws Exception
 	// the number of ops exceeds 50 is very rarely and only on broken segment 
 	// definitions (I.E. where an operation is defined identically 200 times) 
 	// does the number of ops exceed 100. If the number ops exceeds 100 here we stop the loop.
-	while (pSize < np && pIndex <= 100) 
-	{
+	while (pSize < np && pIndex <= 100) {
 		try {
 		// Allocate Vector arrays
-		opTSID[pIndex] = new Vector();
-		opTSDT[pIndex] = new Vector();
+		opTSID[pIndex] = new ArrayList<>();
+		opTSDT[pIndex] = new ArrayList<>();
 
 		// Set thisOPRecord to the current P array value.
 		thisOPRecord = nextOPRecord;
@@ -1513,8 +1432,7 @@ throws Exception
 		opNumberP[pIndex] = (int)EDIS.readEndianFloat();
 		// This was the last operation and need to break loop. It
 		// should be at j = segObj.NP-1 anyway but do this as a precaution.
-		if (opNumberP[pIndex] == -1) 
-		{
+		if (opNumberP[pIndex] == -1) {
 			break;
 		}
 
@@ -1523,33 +1441,27 @@ throws Exception
 
 		//Field 3 - [type field name here]
 		charValue = new char[8];
-		for (j = 0; j < 8; j++) 
-		{
+		for (j = 0; j < 8; j++) {
 			charValue[j] = EDIS.readEndianChar1();
 		}
 		parseChar = new String(charValue).trim();
-		if (parseChar.length() != 0) 
-		{
+		if (parseChar.length() != 0) {
 			opName[pIndex] = parseChar;
 		}
-		else 
-		{
+		else {
 			opName[pIndex] = null;
 		}
 
 		//Field 4 - [type field name here]
 		charValue = new char[8];
-		for (j = 0; j < 8; j++) 
-		{
+		for (j = 0; j < 8; j++) {
 			charValue[j] = EDIS.readEndianChar1();
 		}
 		parseChar = new String(charValue).trim();
-		if (parseChar.length() != 0) 
-		{
+		if (parseChar.length() != 0) {
 			opRedefName[pIndex] = parseChar;
 		}
-		else 
-		{
+		else {
 			opRedefName[pIndex] = null;
 		}
 
@@ -1558,39 +1470,35 @@ throws Exception
 
 		//Field 6- - [type field name here]
 		// The rating curve name  and tsIDs will be found here pull them out if they exist.
-		// Place all strings of the PO array into a vector for parsing later.
-		poArray = new Vector();
-		// TODO (JTS - 2004-08-21) explain the magic number 7
-		for (j = thisOPRecord + 7; j < nextOPRecord; j++) 
-		{
+		// Place all strings of the PO array into a list for parsing later.
+		poArray = new ArrayList<>();
+		// TODO (JTS - 2004-08-21) explain the magic number 7.
+		for (j = thisOPRecord + 7; j < nextOPRecord; j++) {
 			charValue = new char[4];
-			for (i = 0; i < 4; i++) 
-			{
+			for (i = 0; i < 4; i++) {
 				charValue[i] = EDIS.readEndianChar1();
 			}
 
-			// Hold the first 4 bytes in a temp String
+			// Hold the first 4 bytes in a temp String.
 			parseChar = new String(charValue).trim();
 
 			// Now put the string into a Vector
 			poArray.add(parseChar);
 		}
 
-		// Now parse the PO array Vector for RC and TSIDs
+		// Now parse the PO array Vector for RC and TSIDs.
 		opIndex = 0;
 		for (j = 0; j < poArray.size(); j++) 
 		{
 
-		// now do special formatting for Mean-Q, LAG/K, ADD/SUB, 
+		// Now do special formatting for Mean-Q, LAG/K, ADD/SUB, 
 		// Change-T op since it does not follow the way every other operation seems to be formatted.
 			if (opNumberP[pIndex] == __OP_MEAN_Q || 
 				opNumberP[pIndex] == __OP_LAG_K ||
 				opNumberP[pIndex] == __OP_ADD_SUB || 
-				opNumberP[pIndex] == __OP_CHANGE_T ) 
-			{
+				opNumberP[pIndex] == __OP_CHANGE_T ) {
 				// Always skip array elements 0 since for these operations the 0 element always contains a NULL.
-				if (j == 0) 
-				{
+				if (j == 0) {
 					parseChar = "";
 					parseTS = "";
 					tsExists = 0;
@@ -1601,31 +1509,27 @@ throws Exception
 
 				// This operation has no description or RC it just goes into TSIDs.
 				// Get the TS identifiers for the operation Check to see if the value in the PO
-				// array are a true string if so it is a most likely a TS name
-				if (StringUtil.isASCII(	(String)poArray.get(j))) 
-				{
-					// Hold the 4 bytes in a temp String
-					parseTemp = (String)poArray.get(j);
+				// array are a true string if so it is a most likely a TS name.
+				if (StringUtil.isASCII(	poArray.get(j))) {
+					// Hold the 4 bytes in a temp String.
+					parseTemp = poArray.get(j);
 					parseTemp = parseTemp.trim();
 					tsExists++;
 
 					// TODO (JTS - 2004-08-21) what do the different values of tsExists mean??
 
-					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) 
-					{
+					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) {
 						// TSID part 1
 						parseTS = parseTemp;
 						parseTS = parseTS.trim();
 						loopCheck = j;
 					}
-					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) 
-					{
+					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) {
 						 // TSID part 2
 						parseTS += parseTemp;
 						parseTS = parseTS.trim();
 					}
-					else if (tsExists == 3 && parseTemp != null	&& parseTemp.length() != 0) 
-					{
+					else if (tsExists == 3 && parseTemp != null	&& parseTemp.length() != 0) {
 					 	// TS DataType
 						parseDT = parseTemp;
 						parseDT = parseDT.trim();
@@ -1638,34 +1542,29 @@ throws Exception
 				// determine which part is which and the loopCheck is used to make sure
 				// they are consecutive elements.
 				if (loopCheck == j-2 && tsExists == 3 && parseTS != null
-					&& parseTS.length() != 0 && parseDT != null && parseDT.length() != 0) 
-				{
+					&& parseTS.length() != 0 && parseDT != null && parseDT.length() != 0) {
 					opTSID[pIndex].add(	parseTS);
 					opTSDT[pIndex].add(	parseDT);
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j && tsExists == 1) 
-				{
+				else if (loopCheck < j && tsExists == 1) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j-1 && tsExists == 2) 
-				{
+				else if (loopCheck < j-1 && tsExists == 2) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j-2 && tsExists == 3) 
-				{
+				else if (loopCheck < j-2 && tsExists == 3) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (tsExists > 3) 
-				{
+				else if (tsExists > 3) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
@@ -1676,13 +1575,11 @@ throws Exception
 
 			// Now do special formatting for PLOT-TUL op since it does not follow the way every other
 			// operation seems to be formatted.		
-			if (opNumberP[pIndex] == __OP_PLOT_TUL) 
-			{
+			if (opNumberP[pIndex] == __OP_PLOT_TUL) {
 //Message.printWarning(2,routine,"PO Array at "+j+" = "+(String)poArray.elementAt(j));
 
 				// Always skip array elements 0-19 Since element 0 - 19 contain non useful data.
-				if (j <= 19) 
-				{
+				if (j <= 19) {
 					parseChar = "";
 					parseTS = "";
 					tsExists = 0;
@@ -1691,15 +1588,13 @@ throws Exception
 					continue;
 				}
 //				else if ((j == 20 || j == 21) && deepRead)
-				else if (j == 20 || j == 21)
-				{
-					// If this operation has a rating curve it will be here at array element 20
-					// Get the rating curve identifier if it exists
+				else if (j == 20 || j == 21) {
+					// If this operation has a rating curve it will be here at array element 20.
+					// Get the rating curve identifier if it exists.
 					rcExists = false;
-					if (StringUtil.isASCII((String)poArray.get(j))) 
-					{
-						// Hold the 4 bytes in a temp String
-						parseTemp = new String((String)poArray.get(j));
+					if (StringUtil.isASCII(poArray.get(j))) {
+						// Hold the 4 bytes in a temp String.
+						parseTemp = poArray.get(j);
 						parseTemp = parseTemp.trim();
 
 						parseChar += parseTemp;
@@ -1707,72 +1602,61 @@ throws Exception
 						rcExists = true;
 					}
 
-					if (j == 21 && rcExists && parseChar.indexOf(' ') < 0 && parseChar.length() > 2) 
-					{
+					if (j == 21 && rcExists && parseChar.indexOf(' ') < 0 && parseChar.length() > 2) {
 						rcID[pIndex] = parseChar;
 						parseChar = "";
 					}
-					else if (j == 21) 
-					{
+					else if (j == 21) {
 						parseChar = "";
 					}
 				}
 //				else if ((j >= 25 && j < 40) && deepRead)
-				else if (j >= 25 && j < 40)
-				{
+				else if (j >= 25 && j < 40) {
 					// Array Elements 25 - 39 holds the operation description!
-					// At element 39 stop. Get the operation description
-					if (StringUtil.isASCII((String)poArray.get(j))) 
-					{
+					// At element 39 stop. Get the operation description.
+					if (StringUtil.isASCII((String)poArray.get(j))) {
 						// Hold the 4 bytes in a temp String
-						parseTemp = new String((String)poArray.get(j));
+						parseTemp = poArray.get(j);
 						parseTemp = parseTemp.trim();
 						parseChar += parseTemp;
 						parseChar = parseChar.trim();
 					}
 
-					if (j == 39) 
-					{
+					if (j == 39) {
 						opDesc[pIndex] = parseChar;
 						parseChar = "";
 					}
 				}
-				else 
-				{
+				else {
 					// Get the TS identifiers for the operation
 					// Check to see if the value in the PO array are a true string if so it is a
 					// most likely a TS name
-					if (StringUtil.isASCII(	(String)poArray.get(j))) 
-					{
+					if (StringUtil.isASCII(	poArray.get(j))) {
 						// Hold the 4 bytes in a temp String
 						parseTemp = new String(	(String)poArray.get(j));
 						parseTemp = parseTemp.trim();
 
 						// It seems that if parseTemp equals "BEFORE" then need to skip.
-						if (parseTemp.equalsIgnoreCase(	"BEFO")) 
-						{
+						if (parseTemp.equalsIgnoreCase(	"BEFO")) {
 							continue;
 						}
 
-						// Time Series exists
+						// Time Series exists.
 						tsExists++;
 
-						if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0)
-						{
-						    // TSID part 1
+						if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) {
+						    // TSID part 1.
 							parseTS = parseTemp;
 							parseTS = parseTS.trim();
 							loopCheck = j;
 						}
-						else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0)
-						{
-						 	// TSID part 2
+						else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) {
+						 	// TSID part 2.
 							parseTS += parseTemp;
 							parseTS = parseTS.trim();
 						}
-						else if (tsExists == 3 && parseTemp != null && parseTemp.length() !=0) 
-						{
-							// TS DataType
+						else if (tsExists == 3 && parseTemp != null && parseTemp.length() !=0) {
+							// TS DataType.
 							parseDT = parseTemp;
 							parseDT = parseDT.trim();
 						}
@@ -1788,8 +1672,7 @@ throws Exception
 					if (loopCheck == j-2 && tsExists == 3 
 						&& parseTS != null && parseTS.length() != 0
 						&& parseDT != null && parseDT.length() != 0
-						&& StringUtil.indexOf( dtVectString,parseDT) >= 0) 
-					{
+						&& StringUtil.indexOf( dtVectString,parseDT) >= 0) {
 						opTSID[pIndex].add(parseTS);
 						opTSDT[pIndex].add(parseDT);
 
@@ -1800,26 +1683,22 @@ throws Exception
 						// If get an OP need to skip 10 array spots
 						j += 10;
 					}
-					else if (loopCheck < j && tsExists == 1) 
-					{
+					else if (loopCheck < j && tsExists == 1) {
 						parseTS = "";
 						parseDT = "";
 						tsExists = 0;
 					}
-					else if (loopCheck < j-1 && tsExists == 2) 
-					{
+					else if (loopCheck < j-1 && tsExists == 2) {
 						parseTS = "";
 						parseDT = "";
 						tsExists = 0;
 					}
-					else if (loopCheck < j-2 && tsExists == 3) 
-					{
+					else if (loopCheck < j-2 && tsExists == 3) {
 						parseTS = "";
 						parseDT = "";
 						tsExists = 0;
 					}
-					else if (tsExists > 3) 
-					{
+					else if (tsExists > 3) {
 						parseTS = "";
 						parseDT = "";
 						tsExists = 0;
@@ -1831,11 +1710,9 @@ throws Exception
 
 			// now do special formatting for MERGE-TS op since it does not follow the way every other
 			// operation seems to be formatted.
-			if (opNumberP[pIndex] == __OP_MERGE_TS) 
-			{
+			if (opNumberP[pIndex] == __OP_MERGE_TS) {
 				// Always skip array elements 0 since element 0 is NULL.
-				if (j == 0) 
-				{
+				if (j == 0) {
 					parseChar = "";
 					parseTS = "";
 					tsExists = 0;
@@ -1845,33 +1722,28 @@ throws Exception
 				}
 
 				// This operation has no description or RC it just goes into TSIDs.
-				// Get the TS identifiers for the operation
-				// Check to see if the value in the PO array are a true string if so it is a
-				// most likely a TS name
-				if (StringUtil.isASCII((String)poArray.get(j))) 
-				{
-					// Hold the 4 bytes in a temp String
+				// Get the TS identifiers for the operation.
+				// Check to see if the value in the PO array are a true string if so it is a most likely a TS name.
+				if (StringUtil.isASCII((String)poArray.get(j))) {
+					// Hold the 4 bytes in a temp String.
 					parseTemp = (String)poArray.get(j);
 					parseTemp = parseTemp.trim();
 					tsExists++;
 					// TODO (JTS - 2004-08-21) what do the different values of tsExists mean??
 
-					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) 
-					{
-					 	// TSID part 1
+					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) {
+					 	// TSID part 1.
 						parseTS = parseTemp;
 						parseTS = parseTS.trim();
 						loopCheck = j;
 					}
-					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) 
-					{
-						// TSID part 2
+					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) {
+						// TSID part 2.
 						parseTS += parseTemp;
 						parseTS = parseTS.trim();
 					}
-					else if (tsExists == 3 && parseTemp != null && parseTemp.length() != 0) 
-					{
-						// TS DataType
+					else if (tsExists == 3 && parseTemp != null && parseTemp.length() != 0) {
+						// TS DataType.
 						parseDT = parseTemp;
 						parseDT = parseDT.trim();
 					}
@@ -1884,8 +1756,7 @@ throws Exception
 				// they are consecutive elements.
 				if (loopCheck == j-2 && tsExists == 3 
 					&& parseTS != null && parseTS.length() != 0
-					&& parseDT != null && parseDT.length() != 0) 
-				{
+					&& parseDT != null && parseDT.length() != 0) {
 					opTSID[pIndex].add(parseTS);
 					opTSDT[pIndex].add(parseDT);
 					parseTS = "";
@@ -1896,26 +1767,22 @@ throws Exception
 					// TODO (JTS - 2004-08-19) explain WHY
 					j++;
 				}
-				else if (loopCheck < j && tsExists == 1) 
-				{
+				else if (loopCheck < j && tsExists == 1) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j-1 && tsExists == 2) 
-				{
+				else if (loopCheck < j-1 && tsExists == 2) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (loopCheck < j-2 && tsExists == 3) 
-				{
+				else if (loopCheck < j-2 && tsExists == 3) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
 				}
-				else if (tsExists > 3) 
-				{
+				else if (tsExists > 3) {
 					parseTS = "";
 					parseDT = "";
 					tsExists = 0;
@@ -1925,19 +1792,17 @@ throws Exception
 			}
 
 			// Do special formatting for FFG op since it does not follow the way every other
-			// operation seems to be formatted
-			if (opNumberP[pIndex] == __OP_FFG) 
-			{
-				// No TS so just continue so it does not fall through
+			// operation seems to be formatted.
+			if (opNumberP[pIndex] == __OP_FFG) {
+				// No TS so just continue so it does not fall through>
 				rcID[pIndex] = null;
 				continue;
 			}
 
 			// Most of the OPs have the same format so below is the general format for operations.
-			if (j == 0) 
-			{
+			if (j == 0) {
 				// First element always skip Since element 0 is NULL.
-				// TODO SAM 2008-04-09 explain WHY
+				// TODO SAM 2008-04-09 explain WHY.
 				parseChar = "";
 				parseTS = "";
 				tsExists = 0;
@@ -1945,33 +1810,28 @@ throws Exception
 				rcID[pIndex] = null;
 				continue;
 			}
-			else if ((j <= 5) && deepRead) 
-			{
-			 	// The 1-5 element is OP desc Get the operation description
-				if (StringUtil.isASCII( (String)poArray.get(j))) 
-				{
-					// Hold the 4 bytes in a temp String
+			else if ((j <= 5) && deepRead) {
+			 	// The 1-5 element is OP desc Get the operation description.
+				if (StringUtil.isASCII( (String)poArray.get(j))) {
+					// Hold the 4 bytes in a temp String.
 					parseTemp = (String)poArray.get(j);
 					parseTemp = parseTemp.trim();
 					parseChar += parseTemp;
 					parseChar = parseChar.trim();
 				}
 
-				if (j == 5) 
-				{
+				if (j == 5) {
 					opDesc[pIndex] = parseChar;
 					parseChar = "";
 				}
 			}
-			else if ((j == 15 || j == 16) && opNumberP[pIndex] == __OP_STAGE_Q) 
+			else if ((j == 15 || j == 16) && opNumberP[pIndex] == __OP_STAGE_Q)  {
 //				opNumberP[pIndex] == __OP_STAGE_Q && deepRead) 
-			{
 				// For StageQ array elements 15 and 16 hold the RCID. If a RC exists it will be here
 				// Get the rating curve identifier if it exists
 				rcExists = false;
-				if (StringUtil.isASCII((String)poArray.get(j))) 
-				{
-					// Hold the 4 bytes in a temp String
+				if (StringUtil.isASCII((String)poArray.get(j))) {
+					// Hold the 4 bytes in a temp String.
 					parseTemp = (String)poArray.get(j);
 					parseTemp = parseTemp.trim();
 					parseChar += parseTemp;
@@ -1979,39 +1839,32 @@ throws Exception
 					rcExists = true;
 				}
 
-				if (j == 16 && rcExists) 
-				{
+				if (j == 16 && rcExists) {
 					rcID[pIndex] = parseChar;
 					parseChar = "";
 				}
-				else if (j == 16) 
-				{
+				else if (j == 16) {
 					parseChar = "";
 				}
 			}
-			else 
-			{
-				// check for TSIDs and TS DataTypes
-				// Get the TS identifiers for the operation
-				// Check to see if the value in the PO array are a true string if so it is a
-				// most likely a TS name
-				if (StringUtil.isASCII((String)poArray.get(j))) 
-				{
-					// Hold the 4 bytes in a temp String
+			else {
+				// Check for TSIDs and TS DataTypes.
+				// Get the TS identifiers for the operation.
+				// Check to see if the value in the PO array are a true string if so it is a most likely a TS name.
+				if (StringUtil.isASCII((String)poArray.get(j))) {
+					// Hold the 4 bytes in a temp String.
 					parseTemp = (String)poArray.get(j);
 					parseTemp = parseTemp.trim();
 					tsExists++;
 //Message.printStatus(1, "", "ParseTemp \"" + parseTemp + "\" (" 
 //	+ tsExists + ")");
-					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) 
-					{
+					if (tsExists == 1 && parseTemp != null && parseTemp.length() != 0) {
 						// TSID part 1
 						parseTS = parseTemp;
 						parseTS = parseTS.trim();
 						loopCheck = j;
 					}
-					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) 
-					{
+					else if (tsExists == 2 && parseTemp != null && parseTemp.length() != 0) {
 						// TSID part 2
 						parseTS += parseTemp;
 						parseTS = parseTS.trim();
@@ -2275,8 +2128,10 @@ Message.printDebug(1,routine,IOe);
 	String[] tsDataFileCode = new String[nts];
 	String[] tsDataType = new String[nts];	
 	String[] tsID = new String[nts];
-	List[] tsAddInformation = new List[nts];
-	List[] tsExtLocInformation = new List[nts];
+	@SuppressWarnings("unchecked")
+	List<Float>[] tsAddInformation = new List[nts];
+	@SuppressWarnings("unchecked")
+	List<String>[] tsExtLocInformation = new List[nts];
 	nextOPRecord = 0;
 	int m = 0;
 	int opIndex1 = 0;
@@ -2393,42 +2248,35 @@ Message.printDebug(1,routine,IOe);
 		
 // TODO (JTS - 2004-08-21) explain the magic number 4
 			
-			if (tsIndicator[tsIndex] == 4) 
-			{
+			if (tsIndicator[tsIndex] == 4) {
 				tsDataFileCode[tsIndex] = null;
 				tsWhenWriteIndicator[tsIndex] = -1;
 				tsExtNVAL[tsIndex] = -1;
-				tsExtLocInformation[tsIndex] = new Vector();
+				tsExtLocInformation[tsIndex] = new ArrayList<>();
 				tsExtLocInformation[tsIndex].add(null);
 				tsNADD[tsIndex] = (int)EDIS.readEndianFloat();
 
-				// This Array of floats will be placed directly 
-				// into a Vector.
-				tsAddInformation[tsIndex] = new Vector();
+				// This Array of floats will be placed directly into a List.
+				tsAddInformation[tsIndex] = new ArrayList<>();
 				opIndex1 = 0;
 // TODO (JTS - 2004-08-21) explain the magic number 10
-				for (j = thisOPRecord + 10; j < nextOPRecord; j++) 
-				{
-					tsAddInformation[tsIndex].add( new Float(EDIS.readEndianFloat()));
+				for (j = thisOPRecord + 10; j < nextOPRecord; j++) {
+					tsAddInformation[tsIndex].add( Float.valueOf(EDIS.readEndianFloat()));
 					opIndex1++;
 				}
 			}
-			else 
-			{
+			else {
 				charValue = new char[4];
-				for (j = 0; j < 4; j++) 
-				{
+				for (j = 0; j < 4; j++) {
 					charValue[j] = EDIS.readEndianChar1();
 				}
 
 				parseChar = new String(charValue).trim();
  
-				if (parseChar.length() != 0) 
-				{
+				if (parseChar.length() != 0) {
 					tsDataFileCode[tsIndex] = parseChar;
 				}
-				else 
-				{
+				else {
 					tsDataFileCode[tsIndex] = null;
 				}
 
@@ -2438,41 +2286,35 @@ Message.printDebug(1,routine,IOe);
 
 				// This array of floats will be placed directly into a Vector.
 
-				tsExtLocInformation[tsIndex] = new Vector();
+				tsExtLocInformation[tsIndex] = new ArrayList<>();
 				opIndex1 = 0;
 
-				for (j = 0; j < tsExtNVAL[tsIndex]; j++) 
-				{
-					// TODO (JTS - 2004-08-19) the next line needs an explanation
-					if ((j - 2) <= 0) 
-					{
+				for (j = 0; j < tsExtNVAL[tsIndex]; j++) {
+					// TODO (JTS - 2004-08-19) the next line needs an explanation.
+					if ((j - 2) <= 0) {
 						int csize = 4;
-						if (j == 0) 
-						{
+						if (j == 0) {
 							csize = 8;
 							j++;
 						}
 
 						charValue = new char[csize];
-						for (int k = 0; k < csize; k++) 
-						{
+						for (int k = 0; k < csize; k++) {
 							charValue[k] = EDIS.readEndianChar1();
 						}
 
 						parseChar = new String(charValue).trim();
 
-						if (parseChar.length() != 0) 
-						{
+						if (parseChar.length() != 0) {
 							tsExtLocInformation[tsIndex].add(parseChar);
 						}
-						else 
-						{
+						else {
 							tsExtLocInformation[tsIndex].add(null);
 						}
 					}
-					else 
-					{
-						tsExtLocInformation[tsIndex].add( new Float(EDIS.readEndianFloat()));
+					else {
+						// TODO smalers 2025-3-20 the following typing needs fixed.
+						//tsExtLocInformation[tsIndex].add( Float.valueOf(EDIS.readEndianFloat()));
 					}
 					opIndex1++;
 				}
@@ -2481,20 +2323,17 @@ Message.printDebug(1,routine,IOe);
 
 				// This array of floats will be placed directly into a Vector.
 
-				tsAddInformation[tsIndex] = new Vector();
+				tsAddInformation[tsIndex] = new ArrayList<>();
 				opIndex2 = 0;
 // TODO (JTS - 2004-08-21)explain the magic number 13			
-				for (j = (thisOPRecord + 13 + tsExtNVAL[tsIndex]);
-					j<nextOPRecord; j++) 
-				{
-					tsAddInformation[tsIndex].add( new Float(EDIS.readEndianFloat()));
+				for (j = (thisOPRecord + 13 + tsExtNVAL[tsIndex]); j<nextOPRecord; j++) {
+					tsAddInformation[tsIndex].add( Float.valueOf(EDIS.readEndianFloat()));
 					opIndex1++;
 				}
 			}
 //		}
 		}
-		catch (IOException IOe) 
-		{
+		catch (IOException IOe) {
 			parseOperationExceptionCount++;
 			// Should never get here
 			// At end of stream.
@@ -2523,8 +2362,7 @@ Message.printDebug(1,routine,IOe);
 	// number of ts exceed 100. If the number ts exceeds 100 here we stop the loop.
 	String tsIdentCheck;
 	int[] tsIntCheck = {1,3,6,12,18,24};
-	for (i = 0; i < tsIndex && tsIndex <= 100; i++) 
-	{
+	for (i = 0; i < tsIndex && tsIndex <= 100; i++) {
 		// TODO SAT 2004-11-24 Here is a time consuming loop that is
 		// very neccessary. Since not all of the Time Series found in op
 		// table contain data we need to check to see if the op table
@@ -2551,9 +2389,8 @@ Message.printDebug(1,routine,IOe);
 		}
 		}
 		
-		// Need to have the data interval Deep read or shallow
-		if (tsDTInterval[i] < 1) 
-		{
+		// Need to have the data interval Deep read or shallow.
+		if (tsDTInterval[i] < 1) {
 			TS.setTSDTInterval(segObj.getMINDT());
 			tsDTInterval[i] = segObj.getMINDT();
 		}
@@ -2562,8 +2399,7 @@ Message.printDebug(1,routine,IOe);
 		TS = new NWSRFS_TimeSeries(tsID[i],tsDataType[i], tsDTInterval[i]);
 
 		// Check to see if the header is being read.  If so, skip to the next timeseries and continue.
-		if (deepRead) 
-		{
+		if (deepRead) {
 			// NOTE ***********************************************
 			// 
 			// Get the Process database TSID. This will fix a huge bug.
@@ -2577,15 +2413,12 @@ Message.printDebug(1,routine,IOe);
 			// "FPDB". Most of the time the TSIDs are the same but to 
 			// handle the small number of cases use the external 
 			// location information if the condition is true.
-			if (tsDataFileCode[i] != null && tsDataFileCode[i].equalsIgnoreCase("FPDB")) 
-			{
+			if (tsDataFileCode[i] != null && tsDataFileCode[i].equalsIgnoreCase("FPDB")) {
 				TS.setTSDataFileCode(tsDataFileCode[i]);
 
-				// Set tsID to be external location which will 
-				// be at element 0 if the above conditions are true
+				// Set tsID to be external location which will be at element 0 if the above conditions are true.
 
-				if (tsExtNVAL[i] > 0) 
-				{
+				if (tsExtNVAL[i] > 0) {
 					TS.setTSID(	(String)tsExtLocInformation[i].get(0));
 				}
 			}
@@ -2608,16 +2441,13 @@ Message.printDebug(1,routine,IOe);
 
 		// Now check to make sure that pIndex does not exceed the actual 
 		// length of the vector arrays
-		if(opTSID == null || opTSDT == null)
-		{
+		if(opTSID == null || opTSDT == null) {
 			continue; // continue the outerloop if either of the vector arrays are null!
 		}
-		else if(Array.getLength(opTSID) < pIndex - 1)
-		{
+		else if(Array.getLength(opTSID) < pIndex - 1) {
 			pIndex = Array.getLength(opTSID);
 		}
-		else if(Array.getLength(opTSDT) < pIndex - 1)
-		{
+		else if(Array.getLength(opTSDT) < pIndex - 1) {
 			pIndex = Array.getLength(opTSDT);
 		}
 
@@ -2625,10 +2455,8 @@ Message.printDebug(1,routine,IOe);
 		for (j = 0;j < pIndex; j++) {
 			// Compare tsID[i] to opTSID.elementAt(j) and tsDataType[i] to opTSDT.elementAt(j). If true
 			// then add TS to segObj.getOperation(j).
-			try 
-			{			
-			for (m = 0; m < opTSID[j].size(); m++) 
-			{
+			try {			
+			for (m = 0; m < opTSID[j].size(); m++) {
 /*
 if (j == 3) {
 	Message.printStatus(1, "", "OPTSID[" + j + "][" + m + "]: \"" 
@@ -2639,9 +2467,8 @@ if (j == 3) {
 		+ tsDataType[i] + "\"");
 }
 */
-				if (tsID[i].equalsIgnoreCase((String)opTSID[j].get(m)) 
-					&& tsDataType[i].equalsIgnoreCase((String)opTSDT[j].get(m))) 
-				{
+				if (tsID[i].equalsIgnoreCase(opTSID[j].get(m)) 
+					&& tsDataType[i].equalsIgnoreCase(opTSDT[j].get(m))) {
 
 //Message.printStatus(1,routine, "Operation Number: "+(segObj.getOperation(j)).getOpNumber()+" adding TS");
 //Message.printStatus(1,routine,"TSID = "+TS.getTSID());
@@ -2658,8 +2485,7 @@ if (j == 3) {
 					}
 					break;
 				}
-				else if ((segObj.getOperation(j)).getOpNumber() == __OP_PLOT_TUL && i == 0) 
-				{
+				else if ((segObj.getOperation(j)).getOpNumber() == __OP_PLOT_TUL && i == 0) {
 				 	// A Plot-Tul operation; only do once. If this is a Plot-Tul operation then
 					// the time series needs to be added since the TS in that operation is not included 
 					// in the TS array.  Could come back to haunt me here.
@@ -2668,12 +2494,10 @@ if (j == 3) {
 //Message.printStatus(1,routine, "PLOT_TUL Operation adding TS");
 //Message.printStatus(1,routine,"TSID = "+(String)opTSID[j].elementAt(m));
 //Message.printStatus(1,routine,"i = "+i+" j = "+j+" m = "+m);
-					TS1 = new NWSRFS_TimeSeries((String)opTSID[j].get(m),
-						(String)opTSDT[j].get(m), tsDTInterval[i]);
+					TS1 = new NWSRFS_TimeSeries(opTSID[j].get(m), opTSDT[j].get(m), tsDTInterval[i]);
 
 					// Need to have the data interval
-					if (tsDTInterval[i] < 1) 
-					{
+					if (tsDTInterval[i] < 1) {
 						TS1.setTSDTInterval(segObj.getMINDT());
 					}
 
@@ -2683,8 +2507,7 @@ if (j == 3) {
 				}
 			} // end of opTSID Vector loop
 			}
-			catch (Exception e) 
-			{
+			catch (Exception e) {
 				parseOperationExceptionCount++;
 				// Should never get here. Somehow it is throwing an outOfBoundsException!
 //Message.printStatus(1,routine,"At the exception for opTSID loop: "+parseOperationExceptionCount);
@@ -3814,13 +3637,12 @@ throws Exception
 		}
 		
 		// Field 22 -- Grid point definition
-		List gpDef;
-		for(i = 0; i < basin.getBASNNSEGS(); i++) 
-		{
-			gpDef = new Vector();
-			gpDef.add(new Integer(EDIS.readEndianInt()));
-			gpDef.add(new Integer(EDIS.readEndianInt()));
-			gpDef.add(new Integer(EDIS.readEndianInt()));
+		List<Integer> gpDef;
+		for(i = 0; i < basin.getBASNNSEGS(); i++) {
+			gpDef = new ArrayList<>();
+			gpDef.add(Integer.valueOf(EDIS.readEndianInt()));
+			gpDef.add(Integer.valueOf(EDIS.readEndianInt()));
+			gpDef.add(Integer.valueOf(EDIS.readEndianInt()));
 			basin.addBASNGridPointDef(gpDef);
 		}
 		
@@ -3832,7 +3654,7 @@ throws Exception
 		// Close the EDIS
 		EDIS.close();
 	}
-	else if(paramType.equalsIgnoreCase("MAP")) { // Areal Parameter
+	else if(paramType.equalsIgnoreCase("MAP")) { // Areal Parameter.
 		NWSRFS_MAP map = (NWSRFS_MAP)NWSRFS_Object;
 		logicalUnitNum=map.getLogicalUnitNum();
 		recordNum=map.getRecordNum();
@@ -6870,8 +6692,7 @@ throws Exception
 		// Now get the Station Hash Indexes
 //		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,2*NHASHR);
 //		for (i = 0; i < NHASHR; i++) {
-//			pdbindex.IPDHSC.addElement(
-//				new Integer(EDIS.readEndianShort()));
+//			pdbindex.IPDHSC.addElement( Integer.valueOf(EDIS.readEndianShort()));
 //		}
 
 		// Close the EndianDataInputStream
@@ -6879,15 +6700,13 @@ throws Exception
 
 //		EDIS = read(__NWSRFS_DBFiles[__PDBINDEX],0,2*NHASHR);
 //		for (i = 0; i < NHASHR; i++) {
-//			pdbindex.IPDHSI.addElement(
-//				new Integer(EDIS.readEndianShort()));
+//			pdbindex.IPDHSI.addElement( Integer.valueOf(EDIS.readEndianShort()));
 //		}
 
 		// Close the EndianDataInputStream
 //		EDIS.close();
 
-// Test read the first 512 bytes at record number to see what is really
-// happening.
+// Test read the first 512 bytes at record number to see what is really happening.
 //__NWSRFS_DBFiles[__PDBINDEX].seek(0);
 //__NWSRFS_DBFiles[__PDBINDEX].seek((INFREC)*64);
 //EDIS = read(__NWSRFS_DBFiles[__PDBINDEX], 0, 512);
@@ -6987,7 +6806,7 @@ throws Exception
 				parseChar = parseChar.trim();
 				tempADDDTPVect.add(parseChar);
 
-				tempADTPTRVect.add(new Integer((int)EDIS.readEndianShort()));
+				tempADTPTRVect.add(Integer.valueOf((int)EDIS.readEndianShort()));
 			}
 			
 			// Add the temp Vectors to the pdbindex object
@@ -7048,23 +6867,23 @@ necessary that the data type be supplied to get a unique set of Time Series from
 @return an NWSRFS_PDBRRS object which holds all of the information and data from the PDBRRS file.
 @throws Exception if there is an error reading from the database.
 */
-private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boolean readData) throws Exception
-{
+private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boolean readData) throws Exception {
 	char[] charValue = null;
-	EndianDataInputStream EDIS;
+	EndianDataInputStream EDIS = null;
 	int i=0, j=0, recNum=-1, pdbAddDT=0, numObs=0;
 	int checkInterval = 0;
 	int checkObsTime = 0;
 	float checkDataValue = 0;
 	String parseChar = null;
-	NWSRFS_PDBRRS pdbFile;
+	NWSRFS_PDBRRS pdbFile = null;
 	NWSRFS_PDBINDEX pdbIndex = null;
 	//NWSRFS_Station station = null;
 	
-	// If we have not previously retreived this time series create a new NWSRFS_PDBRRS object
+	try {
+	// If we have not previously retrieved this time series create a new NWSRFS_PDBRRS object.
 	pdbFile = new NWSRFS_PDBRRS(tsID);
 
-	// Check if the the database binary file is open as a Random Access object
+	// Check if the the database binary file is open as a Random Access object.
 	if (!checkRandomAccessFileOpen(__PDBRRS, true)) {
 		throw new Exception("Cannot open the " + __dbFileNames[__PDBRRS] + " binary database file");
 	}
@@ -7072,40 +6891,40 @@ private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boo
 	// Now read the Time Series parameter file to get the parameters
 	// for the Time series in the PRDTSn binary file.
 
-	// Read the first record to get the global values
+	// Read the first record to get the global values.
 	EDIS = read(__NWSRFS_DBFiles[__PDBRRS], 0,__byteLength[__PDBRRS]);
 
-	// Field 1 - Maximum primary record
+	// Field 1 - Maximum primary record.
 	pdbFile.setMAXREC(EDIS.readEndianInt());
 	
-	// Field 2 - Next available primary record
+	// Field 2 - Next available primary record.
 	pdbFile.setNEXTRC(EDIS.readEndianInt());
 	
-	// Field 3 - Rec number of first free pool record
+	// Field 3 - Rec number of first free pool record.
 	pdbFile.setFREE1(EDIS.readEndianInt());
 	
-	// Field 4 - Rec number of next free pool record
+	// Field 4 - Rec number of next free pool record.
 	pdbFile.setFREEN(EDIS.readEndianInt());
 	
-	// Field 5 - Number of words in a free pool record
+	// Field 5 - Number of words in a free pool record.
 	pdbFile.setFREEL(EDIS.readEndianInt());
 	
 	// Field 6 - Ordinal number of daily data file in which free records are stored.
 	pdbFile.setLUFREE(EDIS.readEndianInt());
 	
-	// Field 7 - Maximum free pool records
+	// Field 7 - Maximum free pool records.
 	pdbFile.setMAXFRE(EDIS.readEndianInt());
 	
-	// Field 8 - Length of longest observation period
+	// Field 8 - Length of longest observation period.
 	pdbFile.setMAXPD(EDIS.readEndianInt());
 	
-	// Field 9 - Number of daily and RRS stations defined
+	// Field 9 - Number of daily and RRS stations defined.
 	pdbFile.setNUMSET(EDIS.readEndianInt());
 	
-	// Field 10 - In use indicator
+	// Field 10 - In use indicator.
 	pdbFile.setINUSE(EDIS.readEndianInt());
 	
-	// Field 11 - User name
+	// Field 11 - User name.
 	charValue = new char[8];
 	for (i = 0; i < 8; i++) {
 		charValue[i] = EDIS.readEndianChar1();
@@ -7117,10 +6936,10 @@ private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boo
 		pdbFile.setUSER(parseChar);
 	}
 
-	// Close the Stream since the first record is read
+	// Close the Stream since the first record is read.
 	EDIS.close();
 	
-	// Now pull the station data. We loop through PDBINDEX Station Vector till we find the correct station.
+	// Now pull the station data. We loop through PDBINDEX Station Vector till we find the correct station..
 	pdbIndex = getPDBIndex();
 	//station = readStation(tsID,true);
 	
@@ -7143,11 +6962,11 @@ private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boo
 					}
 				}
 			}
-			break; // Outer loop
+			break; // Outer loop.
 		}
 	}
 
-	// Set pdbIndex to null to free up memory
+	// Set pdbIndex to null to free up memory.
 	pdbIndex = null;
 	
 	// We now check to see if we have a valid record number if not
@@ -7460,6 +7279,13 @@ private NWSRFS_PDBRRS readPDBRRS(String tsID, String tsDT, int tsDTInterval, boo
 		// Close Stream
 		EDIS.close();
 	}
+	}
+	finally {
+		// Put close here to avoid warnings.
+		if ( EDIS != null ) {
+			EDIS.close();
+		}
+	}
 
 	// Return the NWSRFS_PDBRRS object!
 	return pdbFile;
@@ -7724,6 +7550,7 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 	String parseChar = null, tsident_string;
 	DateTime dtTemp, dtTempStart, dtTempEnd;
 
+	try {
 	// Read the header record. Remember that recordNum is the record number
 	// read from the PRDINDEX file. First must get the length of the header prior to the full read.
 // TODO (JTS - 2004-08-21)
@@ -7993,8 +7820,13 @@ NWSRFS_TimeSeries tsFile, boolean readData) throws Exception {
 //Message.printWarning(10,routine,i+": Future Data["+dtTemp.toString()+"] = "+floatValue);
 		}
 	}
-
-	EDIS.close();
+	}
+	finally {
+		// Use this to avoid a warning about leaked resource.
+		if ( EDIS != null ) {
+			EDIS.close();
+		}
+	}
 	
 	return true;
 }
@@ -8019,7 +7851,7 @@ throws Exception {
 		_fcrcptr = readFCRCPTR();
 	}
 
-	List enIREC = _fcrcptr.getIREC();
+	List<Integer> enIREC = _fcrcptr.getIREC();
 	NWSRFS_RatingCurve rcFile = new NWSRFS_RatingCurve(ratingCurveID);
 
 	// Check if the the database binary file is open as a Random Access object
@@ -8033,10 +7865,10 @@ throws Exception {
 	long recordNum = -1;
 	long tempIREC = -1;
 	String tempIRC = null;
-	List enIRC = _fcrcptr.getRCID();
+	List<String> enIRC = _fcrcptr.getRCID();
 	for ( int i = 0; i < enIRC.size(); i++ ) { 
-		tempIRC = (String)enIRC.get(i);
-		tempIREC = ((Integer)enIREC.get(i)).longValue();
+		tempIRC = enIRC.get(i);
+		tempIREC = enIREC.get(i).longValue();
 
 		if (tempIRC.equalsIgnoreCase(rcFile.getRCID())) {
 			// TODO SAM 2008-12-01 Break?
@@ -8048,14 +7880,14 @@ throws Exception {
 		throw new Exception("NWSRFS_RatingCurve: Rating Curve ID: " + rcFile.getRCID() + " not found");
 	}
 	else {	
-		// keep reading until an EOFException is caught
+		// keep reading until an EOFException is caught.
 		char[] charValue = null;
 		int i = 0;
 		int j = 0;
 		String parseChar = null;
 		rewind(__NWSRFS_DBFiles[__FCRATING]);
 		
-		// Get the record which holds the members of the RC definition status
+		// Get the record which holds the members of the RC definition status.
 		EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCRATING], recordNum - 1, __byteLength[__FCRATING]);
 		
 		// Field 1 - [type field name here]
@@ -8325,12 +8157,12 @@ throws Exception
 
 	long recordNum = -1;
 	long tempIREC = -1;
-	List enIREC = _fcsegptr.getIREC();
-	List enISEG = _fcsegptr.getISEG();
-	//Get the records from FCSEGPTR file
+	List<Integer> enIREC = _fcsegptr.getIREC();
+	List<String> enISEG = _fcsegptr.getISEG();
+	//Get the records from FCSEGPTR file.
 	for ( int i = 0; i < enISEG.size(); i++ ) {
 		String tempISEG = (String)enISEG.get(i);
-		tempIREC = ((Integer)enIREC.get(i)).longValue();
+		tempIREC = enIREC.get(i).longValue();
 
 		if (tempISEG.equalsIgnoreCase(segmentID)) {
 			recordNum = tempIREC;
@@ -8351,10 +8183,10 @@ throws Exception
 		int bytesToSkip;
 		String parseChar = null;
 
-		// First create an instance of NWSRFS_Segment
+		// First create an instance of NWSRFS_Segment.
 		segFile = new NWSRFS_Segment(segmentID);
 
-		// Check if the the database binary file is open as a Random Access object
+		// Check if the the database binary file is open as a Random Access object.
 		boolean readOFSFS5Files = true;
 		if (!checkRandomAccessFileOpen(__FCSEGSTS, readOFSFS5Files)) {
 			throw new Exception("Cannot open the " + __dbFileNames[__FCSEGSTS] + " binary database file");
@@ -8362,10 +8194,10 @@ throws Exception
 
 		rewind(__NWSRFS_DBFiles[__FCSEGSTS]);
 		
-		// Get the record which holds the members of the segment definition status
+		// Get the record which holds the members of the segment definition status.
 		EndianDataInputStream EDIS = read(__NWSRFS_DBFiles[__FCSEGSTS],	recordNum-1, __byteLength[__FCSEGSTS]);
 		
-		// Field 1 - [type field name here]
+		// Field 1 - [type field name here].
 		charValue = new char[8];
 		for (j = 0; j < 8; j++) {
 			charValue[j] = EDIS.readEndianChar1();
@@ -8588,14 +8420,13 @@ from the PPDB or just general parameters.
 @throws Exception if an error is detected.
 */
 public NWSRFS_Station readStation(NWSRFS_Station station, boolean deepRead) 
-throws Exception
-{
+throws Exception {
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
-	Integer logicalUnitNumGENL = new Integer(-1), 
-		logicalUnitNumPCPN = new Integer(-1), 
-		logicalUnitNumPE   = new Integer(-1), 
-		logicalUnitNumRRS  = new Integer(-1), 
-		logicalUnitNumTEMP = new Integer(-1);
+	Integer logicalUnitNumGENL = Integer.valueOf(-1), 
+		logicalUnitNumPCPN = Integer.valueOf(-1), 
+		logicalUnitNumPE   = Integer.valueOf(-1), 
+		logicalUnitNumRRS  = Integer.valueOf(-1), 
+		logicalUnitNumTEMP = Integer.valueOf(-1);
 	boolean luDoneGENL=false, luDonePCPN=false, luDonePE=false, luDoneRRS=false, luDoneTEMP=false;
 
 	// Check to see if the pppindex file exists! If not return station.
@@ -8610,64 +8441,64 @@ throws Exception
 	// this routine. If not, we must set initial data!
 	if(station.getLogicalUnitNum("GENL") == -1) {
 		// Get the logical unit for the parameter type.
-		for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-			if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("GENL") && !luDoneGENL) {
-				logicalUnitNumGENL = (Integer)pppindex.getLUFILE().get(i);
+		for(int i=0;i<pppindex.getPARMTP().size();i++) {
+			if(pppindex.getPARMTP().get(i).equalsIgnoreCase("GENL") && !luDoneGENL) {
+				logicalUnitNumGENL = pppindex.getLUFILE().get(i);
 					luDoneGENL = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("PCPN") && !luDonePCPN) {
-				logicalUnitNumPCPN = (Integer)pppindex.getLUFILE().get(i);
+			else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("PCPN") && !luDonePCPN) {
+				logicalUnitNumPCPN = pppindex.getLUFILE().get(i);
 					luDonePCPN = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("PE") && !luDonePE) {
-				logicalUnitNumPE = (Integer)pppindex.getLUFILE().get(i);
+			else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("PE") && !luDonePE) {
+				logicalUnitNumPE = pppindex.getLUFILE().get(i);
 					luDonePE = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("RRS") && !luDoneRRS) {
-				logicalUnitNumRRS = (Integer)pppindex.getLUFILE().get(i);
+			else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("RRS") && !luDoneRRS) {
+				logicalUnitNumRRS = pppindex.getLUFILE().get(i);
 					luDoneRRS = true;
 					continue;
 			}
-			else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
-				logicalUnitNumTEMP = (Integer)pppindex.getLUFILE().get(i);
+			else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
+				logicalUnitNumTEMP = pppindex.getLUFILE().get(i);
 					luDoneTEMP = true;
 					continue;
 			}
 		}
 		
 		// Next loop through the ID.size number of records
-		for(int i=0;i<(pppindex.getID()).size();i++) {
+		for(int i=0;i<pppindex.getID().size();i++) {
 			// If the type is GENL add to the PropList
-			if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("GENL") && 
+			if(pppindex.getITYPE().get(i).equalsIgnoreCase("GENL") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
 				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("GENL", pppindex.getIREC().get(i));
 			}
-			else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("PCPN") && 
+			else if(pppindex.getITYPE().get(i).equalsIgnoreCase("PCPN") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
 				station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
-				station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("PCPN",pppindex.getIREC().get(i));
 				station.setIsPCPN(true);
 			}
-			else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("PE") && 
+			else if(pppindex.getITYPE().get(i).equalsIgnoreCase("PE") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
 				station.addLogicalUnitNum("PE",logicalUnitNumPE);
-				station.addRecordNum("PE", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("PE", pppindex.getIREC().get(i));
 				station.setIsPE(true);
 			}
-			else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("RRS") && 
+			else if(pppindex.getITYPE().get(i).equalsIgnoreCase("RRS") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
 				station.addLogicalUnitNum("RRS",logicalUnitNumRRS);
-				station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("RRS", pppindex.getIREC().get(i));
 				station.setIsRRS(true);
 			}
-			else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("TEMP") && 
+			else if(pppindex.getITYPE().get(i).equalsIgnoreCase("TEMP") && 
 			pppindex.getID(i).equalsIgnoreCase(station.getID())) {
 				station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
-				station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("TEMP", pppindex.getIREC().get(i));
 				station.setIsTEMP(true);
 			}
 		}
@@ -8720,16 +8551,15 @@ identifier, the logical unit number for the PPPPARM<i>n</i> file, and the
 parameter types available for the station. The Hashtable key is the station identifier
 @throws Exception if an error is detected.
 */
-public Hashtable readStationHashtable() throws Exception
-{
+public Hashtable<String,NWSRFS_Station> readStationHashtable() throws Exception {
 	NWSRFS_Station station = null;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
-	Hashtable stationList = new Hashtable();
-	Integer logicalUnitNumGENL = new Integer(-1), 
-		logicalUnitNumPCPN = new Integer(-1), 
-		logicalUnitNumPE   = new Integer(-1), 
-		logicalUnitNumRRS  = new Integer(-1), 
-		logicalUnitNumTEMP = new Integer(-1);
+	Hashtable<String,NWSRFS_Station> stationList = new Hashtable<>();
+	Integer logicalUnitNumGENL = Integer.valueOf(-1), 
+		logicalUnitNumPCPN = Integer.valueOf(-1), 
+		logicalUnitNumPE   = Integer.valueOf(-1), 
+		logicalUnitNumRRS  = Integer.valueOf(-1), 
+		logicalUnitNumTEMP = Integer.valueOf(-1);
 	boolean luDoneGENL=false, luDonePCPN=false, luDonePE=false,
 		luDoneRRS=false, luDoneTEMP=false;
 
@@ -8743,128 +8573,126 @@ public Hashtable readStationHashtable() throws Exception
 	
 	// Get the logical unit for the parameter type.
 	for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-		if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("GENL") && !luDoneGENL) {
-			logicalUnitNumGENL = (Integer)pppindex.getLUFILE().get(i);
+		if(pppindex.getPARMTP().get(i).equalsIgnoreCase("GENL") && !luDoneGENL) {
+			logicalUnitNumGENL = pppindex.getLUFILE().get(i);
 			luDoneGENL = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("PCPN") && !luDonePCPN) {
-			logicalUnitNumPCPN = (Integer)pppindex.getLUFILE().get(i);
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("PCPN") && !luDonePCPN) {
+			logicalUnitNumPCPN = pppindex.getLUFILE().get(i);
 			luDonePCPN = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("PE") && !luDonePE) {
-			logicalUnitNumPE = (Integer)pppindex.getLUFILE().get(i);
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("PE") && !luDonePE) {
+			logicalUnitNumPE = pppindex.getLUFILE().get(i);
 			luDonePE = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("RRS") && !luDoneRRS) {
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("RRS") && !luDoneRRS) {
 			logicalUnitNumRRS = (Integer)pppindex.getLUFILE().get(i);
 			luDoneRRS = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
 			logicalUnitNumTEMP = (Integer)pppindex.getLUFILE().get(i);
 			luDoneTEMP = true;
 			continue;
 		}
 	}
 	
-	// Next loop through the ID.size number of records
-	for(int i=0;i<(pppindex.getID()).size();i++) {
-		// If the type is GENL add to the PropList
+	// Next loop through the ID.size number of records.
+	for(int i=0;i<pppindex.getID().size();i++) {
+		// If the type is GENL add to the PropList.
 		if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("GENL")) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+			if(!stationList.containsKey( pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).get(i));
-				stationList.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				station.addRecordNum("GENL", pppindex.getIREC().get(i));
+				stationList.put(pppindex.getID().get(i),station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).get(i));
+				station = stationList.get(pppindex.getID().get(i));
 				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("GENL", pppindex.getIREC().get(i));
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("PCPN")) {
-			if(!stationList.containsKey((String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+		else if(pppindex.getITYPE().get(i).equalsIgnoreCase("PCPN")) {
+			if(!stationList.containsKey(pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
-				station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("PCPN", pppindex.getIREC().get(i));
 				station.setIsPCPN(true);
-				stationList.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				stationList.put(pppindex.getID().get(i),(NWSRFS_Station) station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).get(i));
+				station = stationList.get(pppindex.getID().get(i));
 				if(!station.getIsPCPN()) {
 					station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
-					station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("PCPN", pppindex.getIREC().get(i));
 					station.setIsPCPN(true);
 				}
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("PE")) {
-			if(!stationList.containsKey((String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+		else if(pppindex.getITYPE().get(i).equalsIgnoreCase("PE")) {
+			if(!stationList.containsKey(pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("PE",logicalUnitNumPE);
-				station.addRecordNum("PE", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("PE", pppindex.getIREC().get(i));
 				station.setIsPE(true);
-				stationList.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				stationList.put(pppindex.getID().get(i),station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).get(i));
+				station = stationList.get(pppindex.getID().get(i));
 				if(!station.getIsPE()) {
 					station.addLogicalUnitNum("PE",logicalUnitNumPE);
-					station.addRecordNum("PE", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("PE", pppindex.getIREC().get(i));
 					station.setIsPE(true);
 				}
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("RRS")) {
-			if(!stationList.containsKey((String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+		else if(pppindex.getITYPE().get(i).equalsIgnoreCase("RRS")) {
+			if(!stationList.containsKey(pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("RRS",logicalUnitNumRRS);
-				station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("RRS", pppindex.getIREC().get(i));
 				station.setIsRRS(true);
-				stationList.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				stationList.put(pppindex.getID().get(i),station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).get(i));
+				station = stationList.get(pppindex.getID().get(i));
 				if(!station.getIsRRS()) {
 					station.addLogicalUnitNum("RRS",logicalUnitNumRRS);
-					station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("RRS", pppindex.getIREC().get(i));
 					station.setIsRRS(true);
 				}
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("TEMP")) {
-			if(!stationList.containsKey(
-				(String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+		else if(pppindex.getITYPE().get(i).equalsIgnoreCase("TEMP")) {
+			if(!stationList.containsKey( pppindex.getID().get(i) )) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
-				station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum("TEMP", pppindex.getIREC().get(i));
 				station.setIsTEMP(true);
-				stationList.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				stationList.put(pppindex.getID().get(i),station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get((String)(pppindex.getID()).get(i));
+				station = stationList.get(pppindex.getID().get(i));
 				if(!station.getIsTEMP()) {
 					station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
-					station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("TEMP", pppindex.getIREC().get(i));
 					station.setIsTEMP(true);
 				}
 			}
 		}
 	}
 
-	// return the proplist
+	// Return the proplist.
 	return stationList;
 }
 
 /**
 Reads into a Hashtable the complete list of station identifiers found in
-the PPDB binary database files PPPINDEX. The Hastable will use the station ID 
+the PPDB binary database files PPPINDEX. The Hashtable will use the station ID 
 value found in the PPPINDEX file for the "input" parameter type as the String key
 and a NWSRFS_Station as the contents. The contents will hold NWSRFS_Station values 
 for the logical unit (to read the actual station parameter values from the 
@@ -8879,46 +8707,45 @@ identifier, the logical unit number for the PPPPARM<i>n</i> file, and the
 parameter types available for the station. The Hashtable key is the station identifier.
 @throws Exception if an error is detected.
 */
-public Hashtable readStationHashtable(String paramType) throws Exception
-{
+public Hashtable<String,NWSRFS_Station> readStationHashtable(String paramType) throws Exception {
 	NWSRFS_Station station = null;
 	NWSRFS_Station stationTemp = null;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
-	Hashtable stationList = new Hashtable();
-	Hashtable stationListTemp = new Hashtable();
-	Integer logicalUnitNumGENL = new Integer(-1), 
-		logicalUnitNumPCPN = new Integer(-1), 
-		logicalUnitNumPE   = new Integer(-1), 
-		logicalUnitNumRRS  = new Integer(-1), 
-		logicalUnitNumTEMP = new Integer(-1),
-		logicalUnitNum     = new Integer(-1);
+	Hashtable<String,NWSRFS_Station> stationList = new Hashtable<>();
+	Hashtable<String,NWSRFS_Station> stationListTemp = new Hashtable<>();
+	Integer logicalUnitNumGENL = Integer.valueOf(-1), 
+		logicalUnitNumPCPN = Integer.valueOf(-1), 
+		logicalUnitNumPE   = Integer.valueOf(-1), 
+		logicalUnitNumRRS  = Integer.valueOf(-1), 
+		logicalUnitNumTEMP = Integer.valueOf(-1),
+		logicalUnitNum     = Integer.valueOf(-1);
 	boolean luDoneGENL=false, luDonePCPN=false, luDonePE=false,
 		luDoneRRS=false, luDoneTEMP=false;
 	
 	// Get the logical unit for the parameter type.
-	for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-		if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("GENL") && !luDoneGENL) {
-			logicalUnitNumGENL = (Integer)pppindex.getLUFILE().get(i);
+	for(int i=0;i<pppindex.getPARMTP().size();i++) {
+		if(pppindex.getPARMTP().get(i).equalsIgnoreCase("GENL") && !luDoneGENL) {
+			logicalUnitNumGENL = pppindex.getLUFILE().get(i);
 			luDoneGENL = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("PCPN") && !luDonePCPN) {
-			logicalUnitNumPCPN = (Integer)pppindex.getLUFILE().get(i);
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("PCPN") && !luDonePCPN) {
+			logicalUnitNumPCPN = pppindex.getLUFILE().get(i);
 			luDonePCPN = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("PE") && !luDonePE) {
-			logicalUnitNumPE = (Integer)pppindex.getLUFILE().get(i);
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("PE") && !luDonePE) {
+			logicalUnitNumPE = pppindex.getLUFILE().get(i);
 			luDonePE = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("RRS") && !luDoneRRS) {
-			logicalUnitNumRRS = (Integer)pppindex.getLUFILE().get(i);
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("RRS") && !luDoneRRS) {
+			logicalUnitNumRRS = pppindex.getLUFILE().get(i);
 			luDoneRRS = true;
 			continue;
 		}
-		else if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
-			logicalUnitNumTEMP = (Integer)pppindex.getLUFILE().get(i);
+		else if(pppindex.getPARMTP().get(i).equalsIgnoreCase("TEMP") && !luDoneTEMP) {
+			logicalUnitNumTEMP = pppindex.getLUFILE().get(i);
 			luDoneTEMP = true;
 			continue;
 		}
@@ -8944,40 +8771,40 @@ public Hashtable readStationHashtable(String paramType) throws Exception
 	}
 	
 	// Next loop through the ID.size number of records
-	for(int i=0;i<(pppindex.getID()).size();i++) {
+	for(int i=0;i<pppindex.getID().size();i++) {
 		// If the type is GENL add to the PropList
 		if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("GENL")) { 
-			if(!stationListTemp.containsKey((String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+			if(!stationListTemp.containsKey(pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).get(i));
-				stationListTemp.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				station.addRecordNum("GENL", pppindex.getIREC().get(i));
+				stationListTemp.put(pppindex.getID().get(i), station);
 			}
 		}
 	}
 	
 	// Next loop through the ID.size number of records
-	for(int i=0;i<(pppindex.getID()).size();i++) {
+	for(int i=0;i<pppindex.getID().size();i++) {
 		// If the type is GENL add to the PropList
-		if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase("GENL") && paramType.equalsIgnoreCase("GENL")) {
-			if(!stationList.containsKey((String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+		if(pppindex.getITYPE().get(i).equalsIgnoreCase("GENL") && paramType.equalsIgnoreCase("GENL")) {
+			if(!stationList.containsKey(pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
-				station.addRecordNum("GENL", (Integer)(pppindex.getIREC()).get(i));
-				stationList.put((String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				station.addRecordNum("GENL", pppindex.getIREC().get(i));
+				stationList.put(pppindex.getID().get(i), station);
 			}
 		}
-		else if(((String)(pppindex.getITYPE()).get(i)).equalsIgnoreCase(paramType) && stationListTemp.size() > 0) {
-			if(!stationList.containsKey((String)(pppindex.getID()).get(i))) {
-				station = new NWSRFS_Station((String)(pppindex.getID()).get(i));
+		else if(pppindex.getITYPE().get(i).equalsIgnoreCase(paramType) && stationListTemp.size() > 0) {
+			if(!stationList.containsKey(pppindex.getID().get(i))) {
+				station = new NWSRFS_Station(pppindex.getID().get(i));
 				station.addLogicalUnitNum("GENL",logicalUnitNumGENL);
-				stationTemp = ((NWSRFS_Station)stationListTemp.get((String)(pppindex.getID()).get(i)));
+				stationTemp = stationListTemp.get(pppindex.getID().get(i));
 				try {
-				station.addRecordNum("GENL",new Integer(stationTemp.getRecordNum("GENL")));
+				station.addRecordNum("GENL",Integer.valueOf(stationTemp.getRecordNum("GENL")));
 				} catch (NullPointerException NPe) {
 				}
 				station.addLogicalUnitNum(paramType,logicalUnitNum);
-				station.addRecordNum(paramType, (Integer)(pppindex.getIREC()).get(i));
+				station.addRecordNum(paramType, pppindex.getIREC().get(i));
 				if(paramType.equalsIgnoreCase("PCPN")) {
 					station.setIsPCPN(true);
 				}
@@ -8991,35 +8818,35 @@ public Hashtable readStationHashtable(String paramType) throws Exception
 					station.setIsTEMP(true);
 				}
 
-				stationList.put( (String)(pppindex.getID()).get(i),(NWSRFS_Station) station);
+				stationList.put( pppindex.getID().get(i), station);
 			}
 			else {
-				station = (NWSRFS_Station)stationList.get( (String)(pppindex.getID()).get(i));
+				station = stationList.get( pppindex.getID().get(i));
 				if(paramType.equalsIgnoreCase("PCPN") && !station.getIsPCPN()) {
 					station.addLogicalUnitNum("PCPN",logicalUnitNumPCPN);
-					station.addRecordNum("PCPN", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("PCPN", pppindex.getIREC().get(i));
 					station.setIsPCPN(true);
 				}
 				else if(paramType.equalsIgnoreCase("PE") && !station.getIsPE()) {
 					station.addLogicalUnitNum("PE",logicalUnitNumPE);
-					station.addRecordNum("PE", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("PE", pppindex.getIREC().get(i));
 					station.setIsPE(true);
 				}
 				else if(paramType.equalsIgnoreCase("RRS") && !station.getIsRRS()) {
 					station.addLogicalUnitNum("RRS", logicalUnitNumRRS);
-					station.addRecordNum("RRS", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("RRS", pppindex.getIREC().get(i));
 					station.setIsRRS(true);
 				}
 				else if(paramType.equalsIgnoreCase("TEMP") && !station.getIsTEMP()) {
 					station.addLogicalUnitNum("TEMP",logicalUnitNumTEMP);
-					station.addRecordNum("TEMP", (Integer)(pppindex.getIREC()).get(i));
+					station.addRecordNum("TEMP", pppindex.getIREC().get(i));
 					station.setIsTEMP(true);
 				}
 			}
 		}
 	}
 
-	// return the proplist
+	// Return the proplist.
 	return stationList;
 }
 
@@ -9028,7 +8855,7 @@ Read a single time series matching a time series identifier.
 @return a time series or null if the time series is not defined.
 If no data records are available within the requested period, a call to
 hasData() on the returned time series will return false.
-@param tsident_string TSIdent string indentifying the time series. This String
+@param tsident_string TSIdent string identifying the time series. This String
 must be of the form:
 <pre>
 	LOCATION.SOURCE.DATATYPE.TIMESTEP.SCENARIO.INPUT_TYPE~DIRECTORY
@@ -9304,20 +9131,22 @@ throws Exception
 			ts.setDescription(observedTS.getDescription());
 			ts.addToComments ( observedTS.getComments() );
 		}
+		/* TODO smalers 2025-03-20 Eclipse says this is dead code.
 		else if ( futureTS != null ) {
 			ts.setDataUnits ( futureTS.getDataUnits() );
 			ts.setDataUnits ( futureTS.getDataUnits() );
 			ts.setDataInterval( futureTS.getDataIntervalBase(), futureTS.getDataIntervalMult());
 			ts.setDescription(futureTS.getDescription());
 		}
-		// Always append this if available...
+		*/
+		// Always append this if available.
 		if ( futureTS != null ) {
 			ts.addToComments ( futureTS.getComments() );
 		}
 
 		// The observed time series was needed for header information
-		// above but don't need it anymore if it was not requested.  Set
-		// it to null so that it is not processed below.
+		// above but don't need it anymore if it was not requested.
+		// Set it to null so that it is not processed below.
 		// TODO SAM 2006-11-22 Need to get the header information for above, considering
 		// observed and future, not just observed.
 		
@@ -9435,14 +9264,14 @@ throws Exception
 }
 
 /**
-Return a Vector of TS objects given a time series identifier, optionally
+Return a List of TS objects given a time series identifier, optionally
 containing wild cards.  It will pull
 the data from the PRDINDEX, PRDPARM, and PRDTSn processed database binary files
 to get the all of the times series for the given the parsed identifier.
 @return a Vector of time series or null if no time series is defined.
 If no data records are available within the requested period, a call to
 hasData() on the returned time series will return false.
-@param tsident_string TSIdent string indentifying the time series. This String
+@param tsident_string TSIdent string identifying the time series. This String
 must be of the form:
 <pre>
 	LOCATION.SOURCE.DATATYPE.TIMESTEP.SCENARIO.INPUT_TYPE~DIRECTORY
@@ -9478,13 +9307,13 @@ return units from the database).
 only read header information).
 @exception if there is an error reading the time series.
 */
-public List readTimeSeriesList(String tsident_string, DateTime req_date1,
+public List<TS> readTimeSeriesList(String tsident_string, DateTime req_date1,
 DateTime req_date2, String req_units, boolean read_data) 
-throws Exception
-{	String routine = "NWSRFS_DMI.readTimeSeriesList";
+throws Exception {
+	String routine = "NWSRFS_DMI.readTimeSeriesList";
 	int i, j, k, tsDTInterval = -1;
-	List tsList = new Vector();
-	List tsIdentList = new Vector();
+	List<TS> tsList = new ArrayList<>();
+	List<TSIdent> tsIdentList = new ArrayList<>();
 	TimeInterval timeInt = null;
 	String parseDataType;
 	
@@ -9525,8 +9354,7 @@ throws Exception
 
 		ts = new HourTS();
 		ts.allocateDataSpace();
-		ts = new HourTS((HourTS)espTE.readTimeSeries(tsident_string,
-			req_date1, req_date2, req_units, read_data));
+		ts = new HourTS((HourTS)espTE.readTimeSeries(tsident_string, req_date1, req_date2, req_units, read_data));
 		tsList.add(ts);
 	}
 	else if (inputType.equalsIgnoreCase("NWSRFS_FS5Files") ||
@@ -9534,33 +9362,33 @@ throws Exception
 
 		// This is the NWSRFS TimeSeries implementation.
 		if (dataScenario == null || dataScenario.equalsIgnoreCase("")) {
-		    // Read observed and future data
+		    // Read observed and future data.
 			dataScenario = "Both";
 		}
 		
-		// Get the Vector of TSIdentList returned from the database
+		// Get the Vector of TSIdentList returned from the database.
 		if(subDataType.equalsIgnoreCase("PPDB")) {
-		    // Preprocessor database for observations...
-			tsIdentList=readTSIdentListPDB(dataLoc,dataType,interval);
+		    // Preprocessor database for observations.
+			tsIdentList = readTSIdentListPDB(dataLoc,dataType,interval);
 		}
 		else {
 			if(dataType.equals("*")) {
 //				readDataTypeList();
-				List v = DataType.getDataTypesData();
+				List<DataType> v = DataType.getDataTypesData();
 				int size = 0;
 				if ( v != null ) {
 					size = v.size();
 				}
 				DataType dt = null;
-				List parseIdentList = null;
-				for (i = 0; i < size; i++ ) {
-					parseIdentList = new Vector();
-					dt = (DataType)v.get(i);
+				List<TSIdent> parseIdentList = null;
+				for ( i = 0; i < size; i++ ) {
+					parseIdentList = new ArrayList<>();
+					dt = v.get(i);
 					parseDataType = dt.getAbbreviation();
 
-					// If interval is * we need to loop through some default inetervals
-					// like 1Hour,3Hour, 6Hour,12Hour, 18Hour, and 24Hour
-					if(interval.equalsIgnoreCase("*")) {
+					// If interval is * we need to loop through some default intervals
+					// like 1Hour,3Hour, 6Hour,12Hour, 18Hour, and 24Hour.
+					if ( interval.equalsIgnoreCase("*") ) {
 						int intervalArray[] = new int[6];
 						intervalArray[0] = 1;
 						intervalArray[1] = 3;
@@ -9598,14 +9426,13 @@ throws Exception
 			size = tsIdentList.size();
 		}
 		Message.printStatus ( 10, routine, "Read " + size + " time series identifiers." );
-		boolean transfer_all = false;	// Should all time series be
-						// transferred?  Allows wildcard check to be skipped.
-		String parseString = null;	// Java-style wildcard string
+		boolean transfer_all = false; // Should all time series be transferred?  Allows wildcard check to be skipped.
+		String parseString = null; // Java-style wildcard string
 		if ( dataLoc.equals("*") ) {
 			transfer_all = true;
 		}
 		else {	
-			parseString =StringUtil.replaceString(dataLoc,"*",".*");
+			parseString = StringUtil.replaceString(dataLoc,"*",".*");
 		}
 		for ( i = 0; i < size; i++ ) {			
 			// The try/catch here so that an error on one time
@@ -9615,17 +9442,14 @@ throws Exception
 				if ( transfer_all || StringUtil.matchesIgnoreCase(
 					((TSIdent)tsIdentList.get(i)).getLocation(),parseString)) {
 					if(((TSIdent)tsIdentList.get(i)).getIdentifier() == null) {
-						Message.printWarning (2, routine,
-								"Unable to read time series - the TS Ident String is null." );
+						Message.printWarning (2, routine, "Unable to read time series - the TS Ident String is null." );
 						continue;
 					}
 					
-					ts = readTimeSeries( ((TSIdent)
-						tsIdentList.get(i)).getIdentifier(), req_date1, req_date2, req_units, read_data);
+					ts = readTimeSeries( tsIdentList.get(i).getIdentifier(), req_date1, req_date2, req_units, read_data);
 					if ( ts == null ) {
 						Message.printWarning (20, routine, "Unable to read time series for \"" +
-						((TSIdent)tsIdentList.get(i)).getIdentifier() +
-						"\" - not adding to returned list." );
+						tsIdentList.get(i).getIdentifier() + "\" - not adding to returned list." );
 					}
 					else {	
 						tsList.add(ts);
@@ -9641,23 +9465,23 @@ throws Exception
 }
 
 /**
-Return a Vector of time series identifiers (TSIdent instances) given a data type
+Return a List of time series identifiers (TSIdent instances) given a data type
 and interval.  Data are read from the PDBINDEX preprocessed database binary files.
 @param tsID the time series location identifier to read.
 @param requestedDataType the data type identifier in which to pull data (e.g., "STG").
 The -PPDB needs to be removed prior to calling.
 @param requestedInterval Data interval in hours, or <= zero to retrieve all time series
 identifiers for the data type.
-@return a Vector of time series identifiers (TSIdent instances) given a data type and interval.
+@return a List of time series identifiers (TSIdent instances) given a data type and interval.
 */
-public List readTSIdentListPDB(String tsID, String requestedDataType, String requestedInterval)
-throws Exception
-{   String routine = "NWSRFS_DMI.readTSIdentListPDB";
+public List<TSIdent> readTSIdentListPDB(String tsID, String requestedDataType, String requestedInterval)
+throws Exception {
+    String routine = "NWSRFS_DMI.readTSIdentListPDB";
 	int pdbAddDT;
 	String timeInt = null;
 	NWSRFS_PDBINDEX pdbIndex = getPDBIndex();
 	String tsIdentString = null;
-	List tsidVector = new Vector();
+	List<TSIdent> tsidVector = new ArrayList<>();
 	if ( Message.isDebugOn ) {
 	    Message.printDebug( 2, routine, "Requesting preprocessor DB time series read for station \"" + tsID +
 	        "\" data type \"" + requestedDataType + "\" requested interval \"" + requestedInterval + "\"" );
@@ -9889,12 +9713,12 @@ identifiers for the data type.
 both data from the database. This value is appended to the TSIdent String.
 @return a Vector of time series identifiers (TSIdent instances) given a data type and interval.
 */
-public List readTSIdentListPRD(String dataType, int interval, String dataScenario) 
-throws Exception
-{	String routine = "NWSRFS_DMI.readTSIdentListPRD";
+public List<TSIdent> readTSIdentListPRD(String dataType, int interval, String dataScenario) 
+throws Exception {
+	//String routine = "NWSRFS_DMI.readTSIdentListPRD";
 	int prdIndex = 1;
 	
-	// Check if the the database binary file is open as a Random Access object
+	// Check if the the database binary file is open as a Random Access object.
 	if (!checkRandomAccessFileOpen(__PRDPARM, true)) {
 		throw new Exception("Cannot open the " + __dbFileNames[__PRDPARM] + " binary database file");
 	}
@@ -9951,7 +9775,7 @@ throws Exception
 	EndianDataInputStream EDISData = null;
 	//String prdtsDataFile = null;
 	for (i = 0; i < 5; i++) {
-		prdIndex = (int)new Integer(String.valueOf(__PRDTS1 + i)).intValue();
+		prdIndex = Integer.valueOf(String.valueOf(__PRDTS1 + i)).intValue();
 		/* TODO SAM 2008-04-07 What are these used for?
 		if (__useFS5Files) {
 			prdtsDataFile = __fs5FilesLocation + __dbFileNames[prdIndex] + i; 
@@ -9961,7 +9785,7 @@ throws Exception
 		}
 		*/
 
-		// Check if the the database binary file is open as a Random Access object
+		// Check if the the database binary file is open as a Random Access object.
 		if (!checkRandomAccessFileOpen(prdIndex, true)) {
 			throw new Exception("Cannot open the " + __dbFileNames[prdIndex] + " binary database file");
 		}
@@ -9989,7 +9813,7 @@ throws Exception
 	String dataIntString = null;
 	String tsid = null;
 	String tsIdentString = null;
-	List tsidVector = new Vector();
+	List<TSIdent> tsidVector = new ArrayList<>();
 	while (true) {
 		// Read until EOF or break.
 		try {
@@ -10103,8 +9927,8 @@ from the PDBRRS and PDBLYn binary files.
 @throws NullPointerException if the time series identifier is null.
 */
 private NWSRFS_TimeSeries readTimeSeriesPDB( String tsID, String tsDT, int tsDTInterval, boolean readData) 
-throws Exception
-{   String routine = "NWSRFS_TimeSeries readTimeSeriesPDB";
+throws Exception {
+    String routine = "NWSRFS_TimeSeries readTimeSeriesPDB";
 	int i=0;
 	String tsIdentKey, tsident_string;
 	NWSRFS_TimeSeries tsFile = null;
@@ -10631,7 +10455,7 @@ throws Exception {
 	// Set the TS Data Type and Logical Unit Number into the _tsDTUHashtable for
 	// reuse if it is not there already!
 	if(!__tsDTUHashtable.containsKey(tsDT)) {
-		__tsDTUHashtable.put(tsDT,new Integer(tsFile.getIUNIT()));
+		__tsDTUHashtable.put(tsDT,Integer.valueOf(tsFile.getIUNIT()));
 	}
 	
 	// Create the tsDataFile String. Need to loop through all 5 of the
@@ -10639,7 +10463,7 @@ throws Exception {
 	// Equals the IUNIT value from the PRDPARM file then have the right
 	// Time Series file to read the TS into.
 	for (i = 0; i <= 5; i++) {
-		prdIndex = (int)new Integer(String.valueOf(__PRDTS1 + i)).intValue();
+		prdIndex = Integer.valueOf(String.valueOf(__PRDTS1 + i)).intValue();
 		if(i == 5) {
 			Message.printWarning(10, routine, "No Time Series for: " + tsIdentKey + " was found.");
 			return (NWSRFS_TimeSeries)null;
@@ -10813,18 +10637,16 @@ throws Exception
 }
 
 /**
-Reads in to a Vector of Strings the list of USER param identifiers. It will
-basically regurgetate the PPPINDEX file which creates a list of USER param ids 
+Reads in to a list of Strings the list of USER param identifiers. It will
+basically regurgitate the PPPINDEX file which creates a list of USER param ids 
 and a record number. Please note that the USER parameter record is different
 in that it only has one record in the PPPPARAM<i>n</i> file and is not listed
 in the PPPINDEX records except in the "FIRST" and "LAST" record of the index!
-@return Vector of Strings containing the list of all USER param ids in the 
-database.
+@return List of Strings containing the list of all USER param ids in the database.
 @throws Exception if something goes wrong.
 */
-public List readUSERParamList() throws Exception
-{
-	List userParamList = new Vector();
+public List<NWSRFS_USER> readUSERParamList() throws Exception {
+	List<NWSRFS_USER> userParamList = new ArrayList<>();
 	int logicalUnitNum = -1;
 	int numberOFParamRecs = -1;
 	NWSRFS_PPPINDEX pppindex = getPPPIndex();
@@ -10839,10 +10661,10 @@ public List readUSERParamList() throws Exception
 	}
 	
 	// Get the logical unit for the parameter type.
-	for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-		if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("USER")) {
-			logicalUnitNum = ((Integer)pppindex.getLUFILE().get(i)).intValue();
-			numberOFParamRecs = ((Integer)pppindex.getNUMPRM().get(i)).intValue();
+	for(int i=0;i<pppindex.getPARMTP().size();i++) {
+		if(pppindex.getPARMTP().get(i).equalsIgnoreCase("USER")) {
+			logicalUnitNum = pppindex.getLUFILE().get(i).intValue();
+			numberOFParamRecs = pppindex.getNUMPRM().get(i).intValue();
 			break;
 		}
 	}
@@ -10854,32 +10676,31 @@ public List readUSERParamList() throws Exception
 	}
 	else if(numberOFParamRecs == 1) {
 		// Get the logical unit for the parameter type.
-		for(int i=0;i<(pppindex.getPARMTP()).size();i++) {
-			if(((String)(pppindex.getPARMTP()).get(i)).equalsIgnoreCase("USER")) {
-				logicalUnitNum = ((Integer)pppindex.getLUFILE().get(i)).intValue();
+		for(int i=0;i<pppindex.getPARMTP().size();i++) {
+			if(pppindex.getPARMTP().get(i).equalsIgnoreCase("USER")) {
+				logicalUnitNum = pppindex.getLUFILE().get(i).intValue();
 				user = new NWSRFS_USER();
 				user.setLogicalUnitNum(logicalUnitNum);
-				user.setRecordNum(((Integer)(pppindex.getFIRST()).get(i)).intValue());
-				userParamList.add((NWSRFS_USER)user);
+				user.setRecordNum(pppindex.getFIRST().get(i).intValue());
+				userParamList.add(user);
 				break;
 			}
 		}
 	}
 	else {
-		// Loop through the ID.size number of records
+		// Loop through the ID.size number of records.
 		for(int i=0;i<(pppindex.getID()).size();i++) {
-			// If the type is BASN add to the Vector
-			if(((String)(pppindex.getITYPE()).get(i)).
-			equalsIgnoreCase("USER")) {
-				user = new NWSRFS_USER((String)(pppindex.getID()).get(i));
+			// If the type is BASN add to the list.
+			if(pppindex.getITYPE().get(i).equalsIgnoreCase("USER")) {
+				user = new NWSRFS_USER(pppindex.getID().get(i));
 				user.setLogicalUnitNum(logicalUnitNum);
-				user.setRecordNum(((Integer)(pppindex.getIREC()).get(i)).intValue());
-				userParamList.add((NWSRFS_USER)user);
+				user.setRecordNum(pppindex.getIREC().get(i).intValue());
+				userParamList.add(user);
 			}
 		}
 	}
 	
-	// Return Vector of USER param ids
+	// Return list of USER param ids
 	return userParamList;
 }
 
@@ -10890,8 +10711,8 @@ file, which contain general user parameters for the operational system.
 @exception Exception if the USERPARM record cannot be read.
 */
 public NWSRFS_USERPARM readUSERPARM ()
-throws Exception
-{	// TODO SAM 2006-10-03 Not sure why Scott was doing things the way he did.  It seems like
+throws Exception {
+	// TODO SAM 2006-10-03 Not sure why Scott was doing things the way he did.  It seems like
 	// the following is easier to understand.  Maybe he thought that reading
 	// the bytes and then parsing performed better?
 	if (!checkRandomAccessFileOpen(__USERPARM, true)) {

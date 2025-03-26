@@ -23,10 +23,6 @@ package RTi.DMI.NWSRFS_DMI;
 import java.util.List;
 import java.util.Vector;
 
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Carryover;
-import RTi.DMI.NWSRFS_DMI.NWSRFS_ForecastGroup;
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Operation;
-
 import RTi.Util.Message.Message;
 
 /**
@@ -308,27 +304,6 @@ is defined on this Segment object.
 */
 public void addOperation(NWSRFS_Operation op) {
 		__operations.add( op );
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	__cg = null;
-	__fg = null;
-	__segmentID = null;
-	__carryover = null;
-	__operations = null;
-	_ICRDTE = null;
-	_INCSEG = null;
-	_ICGID = null;
-	_IDNSEG = null;
-	_IUPSEG = null;
-	_IDSEG = null;
-	_IFGID = null;
-	_SGDSCR = null;
 }
 
 /**

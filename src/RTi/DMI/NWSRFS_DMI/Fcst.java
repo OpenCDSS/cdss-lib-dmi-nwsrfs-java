@@ -195,8 +195,8 @@ into values in the DayTS.
 @param its the IrregularTS containing data to be placed in the DayTS object.
 @return a DayTS object filled with the data from the IrregularTS passed in.
 */
-private DayTS buildDayTS ( IrregularTS its )
-{	DateTime date1 = its.getDate1();
+private DayTS buildDayTS ( IrregularTS its ) {
+	DateTime date1 = its.getDate1();
 	DateTime date2 = its.getDate2();
 
 	DayTS dts = new DayTS();
@@ -206,7 +206,7 @@ private DayTS buildDayTS ( IrregularTS its )
 		dts.setIdentifier(tsid);
 	}
 	catch ( Exception e ) {
-		// Should not happen...
+		// Should not happen.
 		Message.printWarning ( 2, "Fcst.buildDayTS", e );
 	}
 	dts.setDate1(date1);
@@ -221,7 +221,7 @@ private DayTS buildDayTS ( IrregularTS its )
 	    itsi = its.iterator();
 	}
 	catch ( Exception e ) {
-		// Should not happen...
+		// Should not happen.
 		Message.printWarning ( 2, "Fcst.buildDayTS", e );
 	}
 
@@ -236,15 +236,15 @@ private DayTS buildDayTS ( IrregularTS its )
 /**
 Fill an existing DayTS object with data stored inside an IrregularTS object.
 @param dts the DayTS to fill with data,
-@param its the IrregularTS from which the data are pulled.  It is assumed that
-the irregular data are daily values that can be placed in the corresponding
+@param its the IrregularTS from which the data are pulled.
+It is assumed that the irregular data are daily values that can be placed in the corresponding
 positions in the daily time series.
 @return a DayTS object filled with the data from the IrregularTS.
 @throws Exception thrown by DayTS.changePeriodOfRecord()
 */
 private DayTS fillDayTS ( DayTS dts, IrregularTS its ) 
-throws Exception
-{	DateTime iDate1 = its.getDate1();
+throws Exception {
+	DateTime iDate1 = its.getDate1();
 	DateTime iDate2 = its.getDate2();
 	DateTime dDate1 = dts.getDate1();
 	DateTime dDate2 = dts.getDate2();
@@ -252,10 +252,10 @@ throws Exception
 	DateTime date1;
 	DateTime date2;
 
-	// The DayTS object needs to accommodate all the dates from earliest to
-	// latest, so check to see if the date extremes read in the existing
-	// time series lie outside of the dates in the DayTS.  If so, resize the
-	// DayTS to accommodate them.
+	// The DayTS object needs to accommodate all the dates from earliest to latest,
+	// so check to see if the date extremes read in the existing
+	// time series lie outside of the dates in the DayTS.
+	// If so, resize the DayTS to accommodate them.
 
 	if (iDate1.lessThan(dDate1)) {
 		date1 = iDate1;
@@ -271,12 +271,12 @@ throws Exception
 
 	dts.changePeriodOfRecord(date1, date2);
 
-	// Now transfer the data from the irregular to regular time series...
+	// Now transfer the data from the irregular to regular time series.
 
 	TSIterator itsi = its.iterator();
 
-	// Make sure the daily time series has data flags turned on.  Data read
-	// from an existing file may not have data flags, for some reason.
+	// Make sure the daily time series has data flags turned on.
+	// Data read from an existing file may not have data flags, for some reason.
 
 	dts.hasDataFlags(true,true);
 	
@@ -289,76 +289,69 @@ throws Exception
 }
 
 /**
-Returns the last line read from the file.  This is useful for warning messages
-if there has been an error processing a file.
+Returns the last line read from the file.
+This is useful for warning messages if there has been an error processing a file.
 @return the last line read from the file.
 @deprecated Information is not useful now the multiple errors are ignored during
 processing in order to let as much processing occur as possible.
 */
-public String getCurrentLine()
-{	return __line;
+public String getCurrentLine() {
+	return __line;
 }
 
 /**
-Returns the line number of the line last read from the file.  This is useful for
-warning messages if there has been an error processing a file.
+Returns the line number of the line last read from the file.
+This is useful for warning messages if there has been an error processing a file.
 @return the line number of the line last read from the file.
 @deprecated Information is not useful now the multiple errors are ignored during
 processing in order to let as much processing occur as possible.
 */
-public int getCurrentLineNumber()
-{	return __lineNumber;
+public int getCurrentLineNumber() {
+	return __lineNumber;
 }
 
 /**
-Processes a data section block from a MAP function output file and reads all the
-data into IrregularTS objects, which are stored in a Hashtable using the station
-identifier as the key.
-A data section block is a segment of a MAP file in which either data for
-stations with daily data, or stations with less then 24 hour data are stored.
-It consists of a number of lines with 1, 2 or 3 stations, their name and
-identifier, and data values on it.
-@param br the BufferedReader opened on a file to use for reading through 
-the lines of the MAP file.
+Processes a data section block from a MAP function output file and reads all the data into IrregularTS objects,
+which are stored in a Hashtable using the station identifier as the key.
+A data section block is a segment of a MAP file in which either data for stations with daily data,
+or stations with less then 24 hour data are stored.
+It consists of a number of lines with 1, 2 or 3 stations, their name and identifier, and data values on it.
+@param br the BufferedReader opened on a file to use for reading through the lines of the MAP file.
 @param ht the Hashtable into which to read the data.
-@param date the DateTime for which the data in this section of the MAP file
-is valid.  Taken from the line that delineates the beginning of a MAP
-data section.
-@param last_header_string A string at the beginning of a line that indicates
-that the last header line has been read.  Subsequent lines will then be data
-lines.
-@param format the format in which the data are stored (for use by 
-StringUtil.fixedRead().
+@param date the DateTime for which the data in this section of the MAP file is valid.
+Taken from the line that delineates the beginning of a MAP data section.
+@param last_header_string A string at the beginning of a line that indicates that the last header line has been read.
+Subsequent lines will then be data lines.
+@param format the format in which the data are stored (for use by StringUtil.fixedRead().
 @param nameFields an array containing the position of all the fields in the
-Vector returned by StringUtil.fixedRead() in which a Station name is stored.
+List returned by StringUtil.fixedRead() in which a Station name is stored.
 @param idFields an array containing the position of all the fields in the
-Vector returned by StringUtil.fixedRead() in which a Station identifier is
-stored.
+List returned by StringUtil.fixedRead() in which a Station identifier is stored.
 @param dataFields an array containing the position of all the data fields in the
-Vector returned by StringUtil.fixedRead() in which a data value is stored.
-@return the last line read, which will be evaluated to determine if another
-data section is starting.
+List returned by StringUtil.fixedRead() in which a data value is stored.
+@return the last line read, which will be evaluated to determine if another data section is starting.
 @throws Exception thrown if the end of file is encountered unexpectedly.
 */
-private String processMAPDataSection (	BufferedReader br, Hashtable ht, 
-					DateTime date,
-					String last_header_string,
-					String format,
-					int [] nameFields, int [] idFields,
-					int [] dataFields, String filename,
-					String units )
-throws Exception
-{	String routine = "Fcst.processMAPDataSection";
+private String processMAPDataSection (
+	BufferedReader br,
+	Hashtable<String,IrregularTS> ht, 
+	DateTime date,
+	String last_header_string,
+	String format,
+	int [] nameFields, int [] idFields,
+	int [] dataFields, String filename,
+	String units )
+throws Exception {
+	String routine = "Fcst.processMAPDataSection";
 	int dl = 10;
 	// Skip all the lines that occur between the header for this section of
-	// data and the actual start of the data values.  Do so by searching
-	// for a specific string at the start of the line.
+	// data and the actual start of the data values.
+	// Do so by searching for a specific string at the start of the line.
 
 	while (true) {
 		String line = br.readLine();
 		if(line == null) {
-			throw new Exception ("EOF Encountered early while "
-				+ "reading file");
+			throw new Exception ("EOF Encountered early while reading file");
 		}
 		__line = line;
 		__lineNumber++;
@@ -369,7 +362,7 @@ throws Exception
 		}
 
 		if ( line.startsWith(last_header_string) ) {
-			// Last header line has been read...
+			// Last header line has been read.
 			if ( Message.isDebugOn ) {
 				Message.printDebug ( dl, routine,
 				"Last line of MAP section header." );
@@ -379,7 +372,7 @@ throws Exception
 	}
 	// The next line will be a data line to parse.
 	
-	// get the number of data fields stored on one line of the file
+	// Get the number of data fields stored on one line of the file.
 	int num = nameFields.length;
 	IrregularTS its;
 
@@ -392,25 +385,23 @@ throws Exception
 	double data;
 	String flag;
 	int i = 0;
-	List read = null;
+	List<Object> read = null;
 	String line = null;
 
-	// start looping through and reading the lines of text
+	// Start looping through and reading the lines of text.
 	while (true) {
 		line = br.readLine();
 		__lineNumber++;
 		__line = line;
 		
-		// lines should never be null while reading this section
+		// Lines should never be null while reading this section
 		// of the file.  A null line means EOF encountered early.
 		if (line == null) {
-			throw new Exception("Error reading " + filename + 
-				"at line: " + __lineNumber);
+			throw new Exception("Error reading " + filename + "at line: " + __lineNumber);
 		}
 
-		// List of occurences that mark the valid end of the data.  This
-		// line must be returned to the calling code to evaluate for
-		// another section.
+		// List of occurrences that mark the valid end of the data.
+		// This line must be returned to the calling code to evaluate for another section.
 
 		if ( line.startsWith("1") || line.startsWith("0")) {
 			Message.printDebug ( dl, routine,
@@ -425,15 +416,15 @@ throws Exception
 			": \"" + line + "\"...");
 		}
 
-		// split up the line of text according to the formatting rules.
+		// Split up the line of text according to the formatting rules.
 		read = StringUtil.fixedRead(line, format);
 
-		// there can from 1 to 3 data values on a line
+		// There can from 1 to 3 data values on a line.
 		for ( i = 0; i < num; i++) {
 			namePos = nameFields[i];
 			idPos = idFields[i];
 			dataPos = dataFields[i];
-			// Data flag is always one after the data value...
+			// Data flag is always one after the data value.
 			flagPos = dataPos + 1;
 
 			name = ((String)read.get(namePos)).trim();
@@ -441,13 +432,10 @@ throws Exception
 			data  = ((Double)read.get(dataPos)).doubleValue();
 			flag = ((String)read.get(flagPos)).trim();
 			if ( id.equals("") && (i == 0) ) {
-				// Unexpected.  Assume that the data section
-				// is incomplete.  This normally occurs when
-				// one of the columns in a multi-column
-				// output is blank because the number of
-				// stations is not evenly divisible by the
-				// number of columns.  It should not happen for
-				// the first column.
+				// Unexpected.  Assume that the data section is incomplete.
+				// This normally occurs when one of the columns in a multi-column
+				// output is blank because the number of stations is not evenly divisible by the number of columns.
+				// It should not happen for the first column.
 				Message.printWarning ( 2,
 				"Fcst.processMAPDataSection",
 				"No ID in data section.  " +
@@ -457,8 +445,7 @@ throws Exception
 				return line;
 			}
 
-			// Get the IrregularTS stored in the Hashtable and
-			// associated with the identifier value just read out.
+			// Get the IrregularTS stored in the Hashtable and associated with the identifier value just read out.
 			its = (IrregularTS)ht.get(id);
 			if (its == null) {
 				// A new time series needs to be created and populated with the base information.
@@ -477,24 +464,23 @@ throws Exception
 }
 
 /**
-Process fcst program MAP function output file(s) into daily DateValue TS files
-(one per time series), saving the time series in the directory indicated by the
-"outputDir" parameter.  Available daily values and data flags are
-written to the time series files.  Time series file names are the same as
-the time series identifiers.  Note that no special care is taken to deal with
-the start of the hydrologic day - the dates in the daily files do not have the
+Process fcst program MAP function output file(s) into daily DateValue TS files (one per time series),
+saving the time series in the directory indicated by the "outputDir" parameter.
+Available daily values and data flags are written to the time series files.
+Time series file names are the same as the time series identifiers.
+Note that no special care is taken to deal with the start of the hydrologic day -
+the dates in the daily files do not have the
 hour and simply correspond to the daily values available in the MAP output files.
-@param fileList a Vector of MAP function output files to process (not to be
-confused with MAP time series files).
+@param fileList a List of MAP function output files to process (not to be confused with MAP time series files).
 @param outputDir the directory to which time series data files should be
 written (typically the OFS or user output directory).
 @param append if true, the new data will be appended to the existing time series
 files data.  If false, old time series files will be overwritten with new data. 
 @throws Exception thrown if there is a problem writing out the time series to a file.
 */
-public void processMAPOutput ( List fileList, String outputDir, boolean append )
-throws Exception
-{	String routine = "Fcst.processMAPOutput";
+public void processMAPOutput ( List<String> fileList, String outputDir, boolean append )
+throws Exception {
+	String routine = "Fcst.processMAPOutput";
 	int dl = 10;
 	/////////////////////////////////////////////////////////////
 	// Constants
@@ -534,8 +520,8 @@ throws Exception
 	// time series to hold the data value can be brought up easily 
 	// and the value inserted.
 
-	Hashtable htDaily = new Hashtable();	// Hash table for daily stations
-	Hashtable htLess24 = new Hashtable();	// Hash table for stations
+	Hashtable<String,IrregularTS> htDaily = new Hashtable<>();	// Hash table for daily station time series.
+	Hashtable<String,IrregularTS> htLess24 = new Hashtable<>();	// Hash table for stations time series.
 						// reporting < 24 hours.  Note
 						// than in this case, the values
 						// in the MAP output are still
@@ -671,7 +657,7 @@ throws Exception
 		}
 
 		int version = __VERSION_UNKNOWN;
-		List fixedRead = StringUtil.fixedRead(firstLine, "s53s25");
+		List<Object> fixedRead = StringUtil.fixedRead(firstLine, "s53s25");
 		String ver = ((String)fixedRead.get(1)).trim();
 		if (ver.endsWith(")")) {
 	 		ver = ver.substring(0, ver.length() -1);
@@ -810,7 +796,7 @@ throws Exception
 		// Set up some variables for increased performance.
 		// They will be reused a lot.
 
-		List read;
+		List<Object> read;
 		DateTime tsd;
 		String line;
 
@@ -975,9 +961,9 @@ may have contributed to each time series.
 the resulting string is longer than zero characters, the calling method will
 print a warning.
 */
-private void writeFile ( Hashtable ht, String outputDir, boolean append, List fileList, String warning )
-{	String routine = "Fcst.writeFile";
-	Enumeration en = ht.keys();
+private void writeFile ( Hashtable<String,IrregularTS> ht, String outputDir, boolean append, List<String> fileList, String warning ) {
+	String routine = "Fcst.writeFile";
+	Enumeration<String> en = ht.keys();
 	IrregularTS its;
 	String key;
 	String filename;
@@ -991,9 +977,9 @@ private void writeFile ( Hashtable ht, String outputDir, boolean append, List fi
 	// through the hashtable.
 	while(en.hasMoreElements()) {
 		// find the key stored in Enumeration's current element
-		key = (String)en.nextElement();
-		// use the key to get the IrregularTS out from the Hashtable
-		its = (IrregularTS)ht.get(key);
+		key = en.nextElement();
+		// Use the key to get the IrregularTS out from the Hashtable.
+		its = ht.get(key);
 		tsident = its.getIdentifier();
 		// Create the filename for writing (or appending) the time
 		// series by using the output directory and the time series

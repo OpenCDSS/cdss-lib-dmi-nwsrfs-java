@@ -1,14 +1,4 @@
-//-----------------------------------------------------------------------------
-// NWSRFS_ORRS - class to store the organizational information about an 
-//               NWSRFS alphabetical order RRS station parameters.
-//-----------------------------------------------------------------------------
-// History:
-//
-// 
-// 2004-10-12	Scott Townsend, RTi	Initial version.
-//-----------------------------------------------------------------------------
-// Endheader
-
+// NWSRFS_ORRS - class to store the organizational information about an NWSRFS alphabetical order RRS station parameters.
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -212,21 +202,7 @@ for RRS parameters in PPDB.
 @param orrsIRECNum ORRS recoird number.
 */
 public void addORRSIREC(int orrsIRECNum) {
-	_orrsIREC.add(new Integer(orrsIRECNum));
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_ID                 = null;
-	_logicalUnitNum     = -1;
-	_recordNum          = -1;
-	_orrsListInd        = -1;
-	_orrsNSTA           = -1;
-	_orrsIREC           = null;
+	_orrsIREC.add(Integer.valueOf(orrsIRECNum));
 }
 
 // GET Member methods for general ORRS variables

@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import RTi.Util.IO.DataUnits;
 import RTi.Util.IO.FileCollector;
@@ -24,23 +23,21 @@ public class NWSRFS_Mod_Reader
 Mod file to be read.
 */
 private String _filename = null;
-private List _modList = new ArrayList();	
+private List<NWSRFS_Mod> _modList = new ArrayList<>();	
+
 /**
 Constructor that takes a file name.
 */
 public NWSRFS_Mod_Reader ( String filename )
-throws IOException
-{
+throws IOException {
   _filename = filename;
   File f = new File ( filename );
-  if ( !f.canRead() )
-    {
+  if ( !f.canRead() ) {
       throw new IOException ( "File is not readable: \"" + filename + "\"");
-    }
-  else 
-    {
+  }
+  else {
       read();
-    }
+  }
 }
 
 /**
@@ -48,10 +45,9 @@ Parse a List of strings for a Mod.  The first line will contain the mod type.
 TODO SAM 2008-01-14 Evaluate moving to factory or other.  This is good enough for now.
 @param modstrings List of strings for the mod.
 */
-private NWSRFS_Mod parseMod ( List modstrings, int modLineStart )
-{	
-  String routine = "NWSRFS_Mod_Reader.parseMod";
-	String line = (String)modstrings.get(0);
+private NWSRFS_Mod parseMod ( List<String> modstrings, int modLineStart ) {	
+  String routine = getClass().getSimpleName() + ".parseMod";
+	String line = modstrings.get(0);
 	try {
 		// TODO: needs dot in  front! if ( line.startsWith(NWSRFS_ModType.TSCHNG.toString()) ) {
     if ( line.startsWith(".TSCHNG")){
@@ -79,7 +75,7 @@ throws IOException
 	f = new LineNumberReader( new InputStreamReader( IOUtil.getInputStream ( _filename )));
 	String line;
   int modLineStart = 1; // Line # for start of mod
-	List modstrings= new Vector();
+	List<String> modstrings= new ArrayList<>();
   boolean inMod = false;
 	/*
 	 * Scan for mod, all mods begin w/ dot
@@ -133,10 +129,10 @@ throws IOException
 
 } // eof read
 
-private void emitMod(List modStrings, int line)
+private void emitMod(List<String> modStrings, int line)
 {
   // Only able to process TSCHNG mods so...
-  if (!((String)modStrings.get(0)).startsWith(".TSCHNG")) 
+  if (!modStrings.get(0).startsWith(".TSCHNG")) 
     {
       return;
     }
@@ -184,23 +180,24 @@ public static void main(String args[])
   System.out.println("AppsDefault " +OFS_MODS_DIR + ": "+ modsDirString);
   
   // check !null check exists, check readable, check directory
-  if(modsDirString == null)throw new RuntimeException("AppsDefaultNull: " 
-      + OFS_MODS_DIR);
+  //if(modsDirString == null) {
+	  //throw new RuntimeException("AppsDefaultNull: " + OFS_MODS_DIR);
+  //}
   File modsDir = new File(modsDirString);
   if (!modsDir.isDirectory()) throw new RuntimeException("NotADirectory: modsDirString");
   if (!modsDir.canRead()) throw new RuntimeException("NotADirectory: modsDirString");
   
   // Get files
-  FileCollector fileCollector =new FileCollector(modsDirString, "", false);
-  List fileNames =fileCollector.getFiles();
-List modList = new ArrayList();
+  FileCollector fileCollector = new FileCollector(modsDirString, "", false);
+  List<String> fileNames = fileCollector.getFiles();
+List<NWSRFS_Mod> modList = new ArrayList<>();
   NWSRFS_Mod_Reader _modReader = null;
   //iterate over the files
   for (int i = 0; i < fileNames.size(); i++)
     {
       try
         {
-          _modReader = new NWSRFS_Mod_Reader((String)fileNames.get(i));
+          _modReader = new NWSRFS_Mod_Reader(fileNames.get(i));
           modList.addAll(_modReader.getMods());
         }
       catch (IOException e)
@@ -239,8 +236,7 @@ List modList = new ArrayList();
   //NWSRFS_Mod_Util.writeTSCHNG_MAT_ModsToTSEDIT(fMAPMods, now,
   //"test/unit/results/FMAPMODS.IFP");
 }
-private static void outputXXX(String modsDirString,List modList)
-{
+private static void outputXXX(String modsDirString, List<NWSRFS_Mod> modList) {
   String outputFile = modsDirString + "/TSEDIT.MAT"; 
   File f = new File(outputFile);
   //if (!f.canWrite())throw new RuntimeException("NotWritable: " + outputFile);
@@ -323,10 +319,10 @@ private static void outputFMAP(String modsDirString, List fMAPMods)
 /**
  * @return
  */
-private List getMods()
-{
+private List<NWSRFS_Mod> getMods() {
   return _modList;
 }
+
 /**
 Read the DATAUNIT NWSRFS system file, located with the apps defaults token: rfs_sys_dir.
 The data units are then stored in memory and are used for displays.

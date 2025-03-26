@@ -1,132 +1,9 @@
-// ----------------------------------------------------------------------------
-// ESPTraceEnsemble - Class for reading/writing/creating/converting/managing
-//			ESP Trace Ensemble files.
+// ESPTraceEnsemble - Class for reading/writing/creating/converting/managing ESP Trace Ensemble files.
 //
 // The original code was ported to Java from C++ using code in the Linux
 // /awips/hydroapps/lx/rfc/nwsrfs/ens/src/ESPTS/TEXT directory
 // for AWIPS build v23.
 // Java from Hank Herr's "batch builder" program was also consulted.
-// ----------------------------------------------------------------------------
-// Copyright:  See the COPYRIGHT file.
-// ----------------------------------------------------------------------------
-// History:
-//
-// 2003-01-23	J. Thomas Sapienza, RTi	Initial version
-// 2003-01-27	JTS, RTi		Completed initial version of all code.
-// 2003-01-28	JTS, RTi		Corrected some errors in data sizes and
-//					renamed all variables to match their
-//					C++ equivalents.  Javadoc'd.
-// 2003-01-29	JTS, RTi		Converted all the char[] variables to
-//					Strings.  Started transitioning 
-//					variables from similar to the C++ names 
-//					to being more comprehensible.
-// 2003-02-03	JTS, RTi		Eliminated the use of a holding array
-//					between when data were read from the
-//					file and when they were put into the
-//					time series objects.
-// 2003-07-21	JTS, RTi		Updated to no longer use TSDate.
-// 2003-07-23	Steven A. Malers, RTi	* Review code.
-//					* Move from test package to
-//					  RTi.DMI.NWSRFS.
-//					* Change private data commens to be
-//					  right-justified instead of javadoc -
-//					  easier to read.
-//					* Change the constructor to NOT have as
-//					  parameter the simulation type (this
-//					  can be determined from the file) or
-//					  the record lengths (these are standard
-//					  and if they change some trick can be
-//					  used to figure it out).
-//					* When opening the random access file,
-//					  determine how the file was written by
-//					  evaluating the header data.  This
-//					  allows this code to always read the
-//					  file correctly whether it was written
-//					  on HP-UX (big-endian) or Linux
-//					  (little-endian) can be read.  Files
-//					  may be transferred between machines.
-//					* Change data member names to those that
-//					  agree with C++ to make it easier to
-//					  compare code, even if the names are
-//					  not very intuitive.
-//					* Add local versions of what is in the
-//					  extended NWS TSIdent so that data are
-//					  not lost.
-//					* Change the names of the read methods
-//					  to just readData() and readHeader().
-// 2003-11-20	SAM, RTi		* Add a constructor to take a Vector of
-//					  TS, to create a conditional simulation
-//					  trace ensemble, for writing with
-//					  writeESPTraceEnsemble().
-// 2003-12-04	SAM, RTi		* Update to use julda and mdyh1 rather
-//					  that "1900" methods - were not getting
-//					  results consistent with the NWSRFS
-//					  FORTRAN with the old routines.
-//					* Overload the constructor to allow the
-//					  file to remain open even when data are
-//					  not read.
-//					* Add convertESPTraceEnsembleToText()
-//					  to convert an ESP trace ensemble file
-//					  to a human-readable file, for
-//					  troubleshooting.
-//					* Add a few accessor methods like
-//					  getIrec() to support the conversion
-//					  method.
-// 2003-12-12	SAM, RTi		* After discussions with Jay Day, clean
-//					  up the code to finalize functionality.
-//					* Delete the __hdr_* data that are not
-//					  needed.
-//					* Remove floatToString() - there is a
-//					  more direct way to read the strings.
-// 2003-12-15	SAM, RTi		* Starting version read code seems OK
-//					  and writer is very close but does not
-//					  produce traces that ESPADP can read.
-//					  Troubleshoot and resolve.
-// 2004-04-06	SAM, RTi		Was not able to resolve problem writing
-//					the trace file.  Clean up the code and
-//					Javadoc as much as possible and turn
-//					over to Scott to resolve.
-// 2004-04-07	Scott Townsend, RTi	Modify to fit with in the new NWSRFS_DMI
-//					framework.
-// 2004-08-05	SAM, RTi		Fix bug in convertESPTraceEnsembleToText
-//					where zero length output units caused an
-//					exception - it is now allowed, as null
-//					was allowed before.
-// 2004-11-29	SAM, RTi		Updates related to TSIdent now using the
-//					sequence number as part of the
-//					identifier.
-//					* Clean up some code that wraps over
-//					  80 characters to simplify review.
-//					* Test with new TSIdent.
-// 2004-11-30	SAT, RTi		Clarified issues with the two write
-//					methods.
-// 2004-12-01	SAM, RTi		* Revert to the old
-//					  writeESPTraceEnsembleFile() code and
-//					  figure out what the problem is with
-//					  that code.
-//					* The above method was modifying some
-//					  instance data (trimming strings, etc.)
-//					  so remove that code - only manipulate
-//					  local data when writing.  Also,
-//					  hopefully strings are trimmed at read
-//					  time.
-//					* Use StringUtil.formatString() to pad
-//					  strings at write time, thereby
-//					  reducing the number of lines of code.
-//					* In the read code, where integers are
-//					  read as floats, add .01 to each to
-//					  make sure that the truncation does not
-//					  undercut the value.  This used to be
-//					  in the code but was apparently
-//					  removed.
-// 2005-10-25	SAM, RTi		When reading the binary trace file, open
-//					the file in read-only mode.  This allows
-//					the code to run properly on read-only
-//					CDs and other protected files.  This is
-//					not in conflict with the write code,
-//					which opens the file separately.
-// ----------------------------------------------------------------------------
-// EndHeader
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -138,8 +15,6 @@ import java.lang.Float;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Util;
 
 import RTi.TS.DateValueTS;
 import RTi.TS.HourTS;
@@ -1310,12 +1185,6 @@ throws Exception
 	}
 }
 
-/** Finalize the object.
-*/
-public void finalize()
-{
-}
-
 /**
 Return the data interval in hours.
 @return the data interval in hours.
@@ -1789,14 +1658,12 @@ throws Exception
 
 	// Check to see if there is an endianess problem! The format version
 	// should be between 1 and 10. Current version seems to be "1.01".
-	if(new Float(floatValue).isNaN() || floatValue <= 0 || floatValue > 10) {
-		// Change the value of the endianess
-		if(__big_endian)
-		{
+	if(Float.valueOf(floatValue).isNaN() || floatValue <= 0 || floatValue > 10) {
+		// Change the value of the endianess.
+		if(__big_endian) {
 			__big_endian = false;
 		}
-		else
-		{
+		else {
 			__big_endian = true;
 		}
 
@@ -1810,7 +1677,7 @@ throws Exception
 		floatValue = EDIS.readEndianFloat();
 
 		// Check again.
-		if(	new Float(floatValue).isNaN() || (floatValue <= 0) || (floatValue > 10 ) )
+		if(	Float.valueOf(floatValue).isNaN() || (floatValue <= 0) || (floatValue > 10 ) )
 		{
 			throw new Exception("Can't read ESP trace file \""+__filename+"\" because of byte order problems.");
 		}
@@ -2334,11 +2201,10 @@ property list at the ensemble level.
 @param ts time series to being processed.
 @param i index of time series in ensemble
 */
-private void setTimeSeriesProperties ( TS ts, int i )
-{
-    ts.setProperty("format_ver", new Float(__format_ver));
-    ts.setProperty("index", new Integer(i));
-    ts.setProperty("index1", new Integer(i + 1));
+private void setTimeSeriesProperties ( TS ts, int i ) {
+    ts.setProperty("format_ver", Float.valueOf(__format_ver));
+    ts.setProperty("index", Integer.valueOf(i));
+    ts.setProperty("index1", Integer.valueOf(i + 1));
     ts.setProperty("sequence_number", new Integer(ts.getSequenceID()));
     ts.setProperty("seg_id", __seg_id);
     ts.setProperty("seg_desc", __segdesc);
@@ -2346,14 +2212,14 @@ private void setTimeSeriesProperties ( TS ts, int i )
     ts.setProperty("cg", __cg);
     ts.setProperty("fg", __fg);
     ts.setProperty("ts_type", __ts_type);
-    ts.setProperty("ts_dt", new Integer(__ts_dt) );
-    ts.setProperty("simflag", new Integer(__simflag));
+    ts.setProperty("ts_dt", Integer.valueOf(__ts_dt) );
+    ts.setProperty("simflag", Integer.valueOf(__simflag));
     ts.setProperty("ts_unit", __ts_unit);
-    ts.setProperty("now_0", new Integer(__now[0]));
-    ts.setProperty("now_1", new Integer(__now[1]));
-    ts.setProperty("now_2", new Integer(__now[2]));
-    ts.setProperty("now_3", new Integer(__now[3]));
-    ts.setProperty("now_4", new Integer(__now[4]));
+    ts.setProperty("now_0", Integer.valueOf(__now[0]));
+    ts.setProperty("now_1", Integer.valueOf(__now[1]));
+    ts.setProperty("now_2", Integer.valueOf(__now[2]));
+    ts.setProperty("now_3", Integer.valueOf(__now[3]));
+    ts.setProperty("now_4", Integer.valueOf(__now[4]));
     // Create a DateTime that is more convenient to use as a property
     DateTime now = new DateTime(DateTime.DATE_CURRENT|DateTime.PRECISION_SECOND);
     now.setMonth(__now[0]);
@@ -2366,43 +2232,43 @@ private void setTimeSeriesProperties ( TS ts, int i )
     ts.setProperty("now", new DateTime(now));
     ts.setProperty("hdr_id_creationdate", new DateTime(__hdr_id_creationdate));
 
-    ts.setProperty("idarun", new Integer(__idarun));
+    ts.setProperty("idarun", Integer.valueOf(__idarun));
     //ts.setProperty("idarunParts = " + start_year + "-" + start_month + "-" + start_day );
-    ts.setProperty("im", new Integer(__im));
-    ts.setProperty("iy", new Integer(__iy));
+    ts.setProperty("im", Integer.valueOf(__im));
+    ts.setProperty("iy", Integer.valueOf(__iy));
     //ts.setProperty("start_date = " + start_date );
-    ts.setProperty("ldarun", new Integer(__ldarun));
+    ts.setProperty("ldarun", Integer.valueOf(__ldarun));
     //ts.setProperty("ldarunParts = " +
         //StringUtil.formatString(end_year,"%4d") + "-" +
         //StringUtil.formatString(end_month,"%02d") + "-" +
         //StringUtil.formatString(end_day,"%02d") );
     //ts.setProperty("end_date = " + end_date );
 
-    ts.setProperty("ijdlst", new Integer(__ijdlst));
-    ts.setProperty("ihlst", new Integer(__ihlst));
+    ts.setProperty("ijdlst", Integer.valueOf(__ijdlst));
+    ts.setProperty("ihlst", Integer.valueOf(__ihlst));
     //ts.setProperty("CarryoverDateLocal = " + NWSRFS_Util.toDateTime24(__carryover_date,false));
     //ts.setProperty("ForecastStartLocal = " + NWSRFS_Util.toDateTime24(__start_date,false));
 
-    ts.setProperty("ljdlst", new Integer(__ljdlst));
-    ts.setProperty("lhlst", new Integer(__lhlst));
+    ts.setProperty("ljdlst", Integer.valueOf(__ljdlst));
+    ts.setProperty("lhlst", Integer.valueOf(__lhlst));
     //ts.setProperty("ForecastEndLocal = "+ NWSRFS_Util.toDateTime24(__end_date,false));
 
-    ts.setProperty("n_traces", new Integer(__n_traces));
-    ts.setProperty("ncm", new Integer(__ncm));
-    ts.setProperty("nlstz", new Integer(__nlstz));
-    ts.setProperty("noutds", new Integer(__noutds));
-    ts.setProperty("irec", new Integer(__irec));
+    ts.setProperty("n_traces", Integer.valueOf(__n_traces));
+    ts.setProperty("ncm", Integer.valueOf(__ncm));
+    ts.setProperty("nlstz", Integer.valueOf(__nlstz));
+    ts.setProperty("noutds", Integer.valueOf(__noutds));
+    ts.setProperty("irec", Integer.valueOf(__irec));
     ts.setProperty("dim", __dim);
 
     ts.setProperty("tscale", __tscale);
-    ts.setProperty("xlat", new Float(__xlat));
-    ts.setProperty("xlong", new Float(__xlong));
+    ts.setProperty("xlat", Float.valueOf(__xlat));
+    ts.setProperty("xlong", Float.valueOf(__xlong));
     
     ts.setProperty("rfcname", __rfcname);
     ts.setProperty("espfname", __espfname);
-    ts.setProperty("prsf_flag", new Integer(__prsf_flag) );
+    ts.setProperty("prsf_flag", Integer.valueOf(__prsf_flag) );
     ts.setProperty("esptext", __esptext);
-    ts.setProperty("adjcount", new Integer(__adjcount));
+    ts.setProperty("adjcount", Integer.valueOf(__adjcount));
 
     // TODO SAM 2004-04-07 - need to evaluate whether the following
     // make sense or just make the information more confusing.
@@ -2689,12 +2555,10 @@ throws Exception
 
 	// The prsf flag string. An 80 byte String
 	String prsf_string = "";
-	if(__prsf_flag == 1) 
-	{
+	if(__prsf_flag == 1) {
 		prsf_string = "PRSF";
 	}
-	else 
-	{	
+	else {	
 		prsf_string = "";
 	}
 	Message.printStatus ( 2, routine, "Writing prsf string \"" + prsf_string + "\"" );

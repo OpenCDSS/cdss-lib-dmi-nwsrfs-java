@@ -1,20 +1,9 @@
-//------------------------------------------------------------------------------
-// NWSRFS_PPPINDEX - class to contain the parametric preprocessor 
-// index/record pointers
-//------------------------------------------------------------------------------
-// History:
-//
-// 2004-08-17	Scott Townsend, RTi	Initial version.
-// 2004-08-19	J. Thomas Sapienza, RTi	* Revised for RTi standards.
-//					* Added get*() and set*() methods.
-// 2004-08-23	JTS, RTi		Added finalize().
-//------------------------------------------------------------------------------
-// Endheader
+// NWSRFS_PPPINDEX - class to contain the parametric preprocessor index/record pointers
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
 The NWSRFS_PPPINDEX - class to contain the preprocessor parametric record 
@@ -217,39 +206,39 @@ public NWSRFS_PPPINDEX() {
 }
 
 /**
-Adds a value to the _FIRST Vector.
+Adds a value to the _FIRST list.
 @param i the int to add (added as an Integer).
 */
 public void addFIRST(int i) {
-	addFIRST(new Integer(i));
+	addFIRST(Integer.valueOf(i));
 }
 
 /**
-Adds a value to the _FIRST Vector.
+Adds a value to the _FIRST list.
 @param I the Integer to add.
 */
 public void addFIRST(Integer I) {
 	if (_FIRST == null) {
-		_FIRST = new Vector<Integer>();
+		_FIRST = new ArrayList<>();
 	}
 	_FIRST.add(I);
 }
 
 /**
-Adds a value to the _IREC Vector.
+Adds a value to the _IREC list.
 @param i the int to add (added as an Integer).
 */
 public void addIREC(int i) {
-	addIREC(new Integer(i));
+	addIREC(Integer.valueOf(i));
 }
 
 /**
-Adds a value to the _IREC Vector.
+Adds a value to the _IREC list.
 @param I the Integer to add.
 */
 public void addIREC(Integer I) {
 	if (_IREC == null) {
-		_IREC = new Vector<Integer>();
+		_IREC = new ArrayList<>();
 	}
 	_IREC.add(I);
 }
@@ -259,7 +248,7 @@ Adds a value to the _ISNGL Vector.
 @param i the int to add (added as an Integer).
 */
 public void addISNGL(int i) {
-	addISNGL(new Integer(i));
+	addISNGL(Integer.valueOf(i));
 }
 
 /**
@@ -268,7 +257,7 @@ Adds a value to the _ISNGL Vector.
 */
 public void addISNGL(Integer I) {
 	if (_ISNGL == null) {
-		_ISNGL = new Vector<Integer>();
+		_ISNGL = new ArrayList<>();
 	}
 	_ISNGL.add(I);
 }
@@ -278,7 +267,7 @@ Adds a value to the _LAST Vector.
 @param i the int to add (added as an Integer).
 */
 public void addLAST(int i) {
-	addLAST(new Integer(i));
+	addLAST(Integer.valueOf(i));
 }
 
 /**
@@ -287,7 +276,7 @@ Adds a value to the _LAST Vector.
 */
 public void addLAST(Integer I) {
 	if (_LAST == null) {
-		_LAST = new Vector<Integer>();
+		_LAST = new ArrayList<>();
 	}
 	_LAST.add(I);
 }
@@ -297,7 +286,7 @@ Adds a value to the _LUFILE Vector.
 @param i the int to add (added as an Integer).
 */
 public void addLUFILE(int i) {
-	addLUFILE(new Integer(i));
+	addLUFILE(Integer.valueOf(i));
 }
 
 /**
@@ -306,7 +295,7 @@ Adds a value to the _LUFILE Vector.
 */
 public void addLUFILE(Integer I) {
 	if (_LUFILE == null) {
-		_LUFILE = new Vector<Integer>();
+		_LUFILE = new ArrayList<>();
 	}
 	_LUFILE.add(I);
 }
@@ -316,7 +305,7 @@ Adds a value to the _NUMPRM Vector.
 @param i the int to add (added as an Integer).
 */
 public void addNUMPRM(int i) {
-	addNUMPRM(new Integer(i));
+	addNUMPRM(Integer.valueOf(i));
 }
 
 /**
@@ -325,7 +314,7 @@ Adds a value to the _NUMPRM Vector.
 */
 public void addNUMPRM(Integer I) {
 	if (_NUMPRM == null) {
-		_NUMPRM = new Vector<Integer>();
+		_NUMPRM = new ArrayList<>();
 	}
 	_NUMPRM.add(I);
 }
@@ -336,7 +325,7 @@ Adds a value to the _ID Vector.
 */
 public void addID(String s) {
 	if (_ID == null) {
-		_ID = new Vector<String>();
+		_ID = new ArrayList<>();
 	}
 	_ID.add(s);
 }
@@ -347,7 +336,7 @@ Adds a value to the _ITYPE Vector.
 */
 public void addITYPE(String s) {
 	if (_ITYPE == null) {
-		_ITYPE = new Vector<String>();
+		_ITYPE = new ArrayList<>();
 	}
 	_ITYPE.add(s);
 }
@@ -358,26 +347,9 @@ Adds a value to the _PARMTP Vector.
 */
 public void addPARMTP(String s) {
 	if (_PARMTP == null) {
-		_PARMTP = new Vector<String>();
+		_PARMTP = new ArrayList<>();
 	}
 	_PARMTP.add(s);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() {
-	_USERID = null;
-	_FIRST = null;
-	_IREC = null;
-	_ISNGL = null;
-	_LAST = null;
-	_LUFILE = null;
-	_NUMPRM = null;
-	_ID = null;
-	_ITYPE = null;
-	_PARMTP = null;
 }
 
 /**

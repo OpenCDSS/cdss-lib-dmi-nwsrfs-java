@@ -1,12 +1,4 @@
-//------------------------------------------------------------------------------
-// NWSRFS_PDBRRS - class to contain the preprocessor 
-// index/record Data for RRS data
-//------------------------------------------------------------------------------
-// History:
-//
-// 2004-11-1	Scott Townsend, RTi	Initial version.
-//------------------------------------------------------------------------------
-// Endheader
+// NWSRFS_PDBRRS - class to contain the preprocessor index/record Data for RRS data
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -261,65 +253,15 @@ public NWSRFS_PDBRRS(String ID) {
 
 // Add methods for Vector structures
 public void addOBSTIME(int OBSTIME) {
-	_OBSTIME.add(new Integer(OBSTIME)); 
+	_OBSTIME.add(Integer.valueOf(OBSTIME)); 
 }
 
 public void addDATAVAL(float DATAVAL) {
-	_DATAVAL.add(new Float(DATAVAL)); 
+	_DATAVAL.add(Float.valueOf(DATAVAL)); 
 }
 
 public void addDATATIMEINT(int DATATIMEINT) {
-	_DATATIMEINT.add(new Integer(DATATIMEINT)); 
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() {
-	_MAXREC		= -1;
-	_NEXTRC		= -1;
-	_FREE1		= -1;
-	_FREEN		= -1;
-	_FREEL		= -1;
-	_LUFREE		= -1;
-	_MAXFRE		= -1;
-	_MAXPD		= -1;
-	_NUMSET		= -1;
-	_INUSE		= -1;
-	_USER		= null;
-	_NWRDS		= -1;
-	_STAID		= null;
-	_NUMID		= -1;
-	_DTYPE		= null;
-	_MINDAY		= -1;
-	_MAXOBS		= -1;
-	_NUMOBS		= -1;
-	_EVAL		= -1;
-	_REVAL		= -1;
-	_LVAL		= -1;
-	_RLVAL		= -1;
-	_IFREC1		= -1;
-	_NVALS		= -1;
-	_FTIME		= -1;
-	_LSTHR		= -1;
-	_NSTAT		= -1;
-	_BDATE		= -1;
-	_RDATE		= -1;
-	_NTOTAL		= -1;
-	_RPTLG		= -1;
-	_LDATE		= -1;
-	_RPT2LG		= -1;
-	_L2DATE		= -1;
-	_RPTSM		= -1;
-	_SDATE		= -1;
-	_RPT2SM		= -1;
-	_S2DATE		= -1;
-	_OBSTIME	= null;
-	_DATAVAL	= null;
-	_DATATIMEINT	= null;
-	_NXTREC		= -1;
-	_NVALSFP	= -1;
+	_DATATIMEINT.add(Integer.valueOf(DATATIMEINT)); 
 }
 
 /**

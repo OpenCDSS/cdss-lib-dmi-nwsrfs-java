@@ -1,17 +1,9 @@
-//------------------------------------------------------------------------------
-// NWSRFS_PDBINDEX - class to contain the preprocessor 
-// index/record pointers
-//------------------------------------------------------------------------------
-// History:
-//
-// 2004-10-14	Scott Townsend, RTi	Initial version.
-//------------------------------------------------------------------------------
-// Endheader
+// NWSRFS_PDBINDEX - class to contain the preprocessor index/record pointers
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
 The NWSRFS_PDBINDEX - class to contain the preprocessor record 
@@ -348,11 +340,11 @@ public NWSRFS_PDBINDEX() {
 }
 
 public void addACDCP(float ACDCP) {
-	_ACDCP.add(new Float(ACDCP)); 
+	_ACDCP.add(Float.valueOf(ACDCP)); 
 }
 
 public void addACPSQ(float ACPSQ) {
-	_ACPSQ.add(new Float(ACPSQ)); 
+	_ACPSQ.add(Float.valueOf(ACPSQ)); 
 }
 
 public void addADDDTP(List<String> ADDDTP) {
@@ -364,11 +356,11 @@ public void addADTPTR(List<Integer> ADTPTR) {
 }
 
 public void addBDATE(int BDATE) {
-	_BDATE.add(new Integer(BDATE)); 
+	_BDATE.add(Integer.valueOf(BDATE)); 
 }
 
 public void addDATAR1(int DATAR1) {
-	_DATAR1.add(new Integer(DATAR1)); 
+	_DATAR1.add(Integer.valueOf(DATAR1)); 
 }
 
 public void addDTYPE(String DTYPE) {
@@ -376,135 +368,135 @@ public void addDTYPE(String DTYPE) {
 }
 
 public void addECRECN(int ECRECN) {
-	_ECRECN.add(new Integer(ECRECN)); 
+	_ECRECN.add(Integer.valueOf(ECRECN)); 
 }
 
 public void addEDATE(int EDATE) {
-	_EDATE.add(new Integer(EDATE)); 
+	_EDATE.add(Integer.valueOf(EDATE)); 
 }
 
 public void addL2DATE(int L2DATE) {
-	_L2DATE.add(new Integer(L2DATE)); 
+	_L2DATE.add(Integer.valueOf(L2DATE)); 
 }
 
 public void addLDATE(int LDATE) {
-	_LDATE.add(new Integer(LDATE)); 
+	_LDATE.add(Integer.valueOf(LDATE)); 
 }
 
 public void addLDATEDDT(int LDATEDDT) {
-	_LDATEDDT.add(new Integer(LDATEDDT)); 
+	_LDATEDDT.add(Integer.valueOf(LDATEDDT)); 
 }
 
 public void addLDDFRC(int LDDFRC) {
-	_LDDFRC.add(new Integer(LDDFRC)); 
+	_LDDFRC.add(Integer.valueOf(LDDFRC)); 
 }
 
 public void addLDRECN(int LDRECN) {
-	_LDRECN.add(new Integer(LDRECN)); 
+	_LDRECN.add(Integer.valueOf(LDRECN)); 
 }
 
 public void addLSTDTA(int LSTDTA) {
-	_LSTDTA.add(new Integer(LSTDTA)); 
+	_LSTDTA.add(Integer.valueOf(LSTDTA)); 
 }
 
 public void addLSTPTR(int LSTPTR) {
-	_LSTPTR.add(new Integer(LSTPTR)); 
+	_LSTPTR.add(Integer.valueOf(LSTPTR)); 
 }
 
 public void addLUFILE(int LUFILE) {
-	_LUFILE.add(new Integer(LUFILE)); 
+	_LUFILE.add(Integer.valueOf(LUFILE)); 
 }
 
 public void addMAXDAY(int MAXDAY) {
-	_MAXDAY.add(new Integer(MAXDAY)); 
+	_MAXDAY.add(Integer.valueOf(MAXDAY)); 
 }
 
 public void addMAXSTA(int MAXSTA) {
-	_MAXSTA.add(new Integer(MAXSTA)); 
+	_MAXSTA.add(Integer.valueOf(MAXSTA)); 
 }
 
 public void addMDDFRC(int MDDFRC) {
-	_MDDFRC.add(new Integer(MDDFRC)); 
+	_MDDFRC.add(Integer.valueOf(MDDFRC)); 
 }
 
 public void addNADDTP(int NADDTP) {
-	_NADDTP.add(new Integer(NADDTP)); 
+	_NADDTP.add(Integer.valueOf(NADDTP)); 
 }
 
 public void addNDATA(int NDATA) {
-	_NDATA.add(new Integer(NDATA)); 
+	_NDATA.add(Integer.valueOf(NDATA)); 
 }
 
 public void addNDAYS(int NDAYS) {
-	_NDAYS.add(new Integer(NDAYS)); 
+	_NDAYS.add(Integer.valueOf(NDAYS)); 
 }
 
 public void addNPNTRS(int NPNTRS) {
-	_NPNTRS.add(new Integer(NPNTRS)); 
+	_NPNTRS.add(Integer.valueOf(NPNTRS)); 
 }
 
 public void addNREC1D(int NREC1D) {
-	_NREC1D.add(new Integer(NREC1D)); 
+	_NREC1D.add(Integer.valueOf(NREC1D)); 
 }
 
 public void addNSTATS(int NSTATS) {
-	_NSTATS.add(new Integer(NSTATS)); 
+	_NSTATS.add(Integer.valueOf(NSTATS)); 
 }
 
 public void addNTOTAL(int NTOTAL) {
-	_NTOTAL.add(new Integer(NTOTAL)); 
+	_NTOTAL.add(Integer.valueOf(NTOTAL)); 
 }
 
 public void addNUMID(int NUMID) {
-	_NUMID.add(new Integer(NUMID)); 
+	_NUMID.add(Integer.valueOf(NUMID)); 
 }
 
 public void addNUMSTA(int NUMSTA) {
-	_NUMSTA.add(new Integer(NUMSTA)); 
+	_NUMSTA.add(Integer.valueOf(NUMSTA)); 
 }
 
 public void addNWRDSDDT(int NWRDSDDT) {
-	_NWRDSDDT.add(new Integer(NWRDSDDT)); 
+	_NWRDSDDT.add(Integer.valueOf(NWRDSDDT)); 
 }
 
 public void addNWRDSSTI(int NWRDSSTI) {
-	_NWRDSSTI.add(new Integer(NWRDSSTI)); 
+	_NWRDSSTI.add(Integer.valueOf(NWRDSSTI)); 
 }
 
 public void addNWRDSO(int NWRDSO) {
-	_NWRDSO.add(new Integer(NWRDSO)); 
+	_NWRDSO.add(Integer.valueOf(NWRDSO)); 
 }
 
 public void addNZERO(int NZERO) {
-	_NZERO.add(new Integer(NZERO)); 
+	_NZERO.add(Integer.valueOf(NZERO)); 
 }
 
 public void addPCPPTR(int PCPPTR) {
-	_PCPPTR.add(new Integer(PCPPTR)); 
+	_PCPPTR.add(Integer.valueOf(PCPPTR)); 
 }
 
 public void addPNTR(int PNTR) {
-	_PNTR.add(new Integer(PNTR)); 
+	_PNTR.add(Integer.valueOf(PNTR)); 
 }
 
 public void addPRMPTR(int PRMPTR) {
-	_PRMPTR.add(new Integer(PRMPTR)); 
+	_PRMPTR.add(Integer.valueOf(PRMPTR)); 
 }
 
 public void addRDATE(int RDATE) {
-	_RDATE.add(new Integer(RDATE)); 
+	_RDATE.add(Integer.valueOf(RDATE)); 
 }
 
 public void addRPT2LG(int RPT2LG) {
-	_RPT2LG.add(new Integer(RPT2LG)); 
+	_RPT2LG.add(Integer.valueOf(RPT2LG)); 
 }
 
 public void addRPTLG(int RPTLG) {
-	_RPTLG.add(new Integer(RPTLG)); 
+	_RPTLG.add(Integer.valueOf(RPTLG)); 
 }
 
 public void addSMNOZO(int SMNOZO) {
-	_SMNOZO.add(new Integer(SMNOZO)); 
+	_SMNOZO.add(Integer.valueOf(SMNOZO)); 
 }
 
 public void addSTAID(String STAID) {
@@ -512,72 +504,7 @@ public void addSTAID(String STAID) {
 }
 
 public void addTMPPTR(int TMPPTR) {
-	_TMPPTR.add(new Integer(TMPPTR)); 
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() {
-	_ACDCP 		= null;
-	_ACPSQ 		= null;
-	_ADDDTP 	= null;
-	_ADTPTR 	= null;
-	_BDATE 		= null;
-	_DATAR1 	= null;
-	_DTYPE 		= null;
-	_ECRECN 	= null;
-	_EDATE 		= null;
-	_H8CREC 	= -1;
-	_HINTRC 	= -1;
-	_INFREC 	= -1;
-	_L2DATE 	= null;
-	_LDATE 		= null;
-	_LDATEDDT 	= null;
-	_LDDFRC 	= null;
-	_LDRECN 	= null;
-	_LFILE 		= -1;
-	_LRECL1 	= -1;
-	_LRECL2 	= -1;
-	_LRECL3 	= -1;
-	_LSTDTA 	= null;
-	_LSTPTR 	= null;
-	_LUFILE 	= null;
-	_LURRS 		= -1;
-	_MAXDAY 	= null;
-	_MAXDDF 	= -1;
-	_MAXSTA 	= null;
-	_MAXTYP 	= -1;
-	_MDDFRC 	= null;
-	_MFILE 		= -1;
-	_NADDTP 	= null;
-	_NDATA 		= null;
-	_NDAYS 		= null;
-	_NHASHR 	= -1;
-	_NPNTRS 	= null;
-	_NREC1D 	= null;
-	_NSTATS 	= null;
-	_NTOTAL 	= null;
-	_NUMDDF 	= -1;
-	_NUMID 		= null;
-	_NUMSTA 	= null;
-	_NUMTYP 	= -1;
-	_NWRDS 		= -1;
-	_NWRDSDDT 	= null;
-	_NWRDSSTI 	= null;
-	_NWRDSO 	= null;
-	_NZERO 		= null;
-	_PCPPTR 	= null;
-	_PNTR 		= null;
-	_PRMPTR 	= null;
-	_RDATE 		= null;
-	_RPT2LG 	= null;
-	_RPTLG 		= null;
-	_SMNOZO 	= null;
-	_STAID 		= null;
-	_TMPPTR 	= null;
-	_TYPREC 	= -1;
+	_TMPPTR.add(Integer.valueOf(TMPPTR)); 
 }
 
 public int getH8CREC() {
@@ -1049,63 +976,63 @@ public int getTMPPTR(int TMPPTRindex) {
 Initialize global objects.
 */
 private void initialize() {
-	_ACDCP 		= new Vector();
-	_ACPSQ 		= new Vector();
-	_ADDDTP 	= new Vector();
-	_ADTPTR 	= new Vector();
-	_BDATE 		= new Vector();
-	_DATAR1 	= new Vector();
-	_DTYPE 		= new Vector();
-	_ECRECN 	= new Vector();
-	_EDATE 		= new Vector();
+	_ACDCP 		= new ArrayList<>();
+	_ACPSQ 		= new ArrayList<>();
+	_ADDDTP 	= new ArrayList<>();
+	_ADTPTR 	= new ArrayList<>();
+	_BDATE 		= new ArrayList<>();
+	_DATAR1 	= new ArrayList<>();
+	_DTYPE 		= new ArrayList<>();
+	_ECRECN 	= new ArrayList<>();
+	_EDATE 		= new ArrayList<>();
 	_H8CREC 	= -1;
 	_HINTRC 	= -1;
 	_INFREC 	= -1;
-	_L2DATE 	= new Vector<Integer>();
-	_LDATE 		= new Vector<Integer>();
-	_LDATEDDT 	= new Vector<Integer>();
-	_LDDFRC 	= new Vector<Integer>();
-	_LDRECN 	= new Vector<Integer>();
+	_L2DATE 	= new ArrayList<>();
+	_LDATE 		= new ArrayList<>();
+	_LDATEDDT 	= new ArrayList<>();
+	_LDDFRC 	= new ArrayList<>();
+	_LDRECN 	= new ArrayList<>();
 	_LFILE 		= -1;
 	_LRECL1 	= -1;
 	_LRECL2 	= -1;
 	_LRECL3 	= -1;
-	_LSTDTA 	= new Vector<Integer>();
-	_LSTPTR 	= new Vector<Integer>();
-	_LUFILE 	= new Vector<Integer>();
+	_LSTDTA 	= new ArrayList<>();
+	_LSTPTR 	= new ArrayList<>();
+	_LUFILE 	= new ArrayList<>();
 	_LURRS 		= -1;
-	_MAXDAY 	= new Vector<Integer>();
+	_MAXDAY 	= new ArrayList<>();
 	_MAXDDF 	= -1;
-	_MAXSTA 	= new Vector<Integer>();
+	_MAXSTA 	= new ArrayList<>();
 	_MAXTYP 	= -1;
-	_MDDFRC 	= new Vector<Integer>();
+	_MDDFRC 	= new ArrayList<>();
 	_MFILE 		= -1;
-	_NADDTP 	= new Vector<Integer>();
-	_NDATA 		= new Vector<Integer>();
-	_NDAYS 		= new Vector<Integer>();
+	_NADDTP 	= new ArrayList<>();
+	_NDATA 		= new ArrayList<>();
+	_NDAYS 		= new ArrayList<>();
 	_NHASHR 	= -1;
-	_NPNTRS 	= new Vector<Integer>();
-	_NREC1D 	= new Vector<Integer>();
-	_NSTATS 	= new Vector<Integer>();
-	_NTOTAL 	= new Vector<Integer>();
+	_NPNTRS 	= new ArrayList<>();
+	_NREC1D 	= new ArrayList<>();
+	_NSTATS 	= new ArrayList<>();
+	_NTOTAL 	= new ArrayList<>();
 	_NUMDDF 	= -1;
-	_NUMID 		= new Vector<Integer>();
-	_NUMSTA 	= new Vector<Integer>();
+	_NUMID 		= new ArrayList<>();
+	_NUMSTA 	= new ArrayList<>();
 	_NUMTYP 	= -1;
 	_NWRDS 		= -1;
-	_NWRDSDDT 	= new Vector<Integer>();
-	_NWRDSSTI 	= new Vector<Integer>();
-	_NWRDSO 	= new Vector<Integer>();
-	_NZERO 		= new Vector<Integer>();
-	_PCPPTR 	= new Vector();
-	_PNTR 		= new Vector();
-	_PRMPTR 	= new Vector();
-	_RDATE 		= new Vector();
-	_RPT2LG 	= new Vector();
-	_RPTLG 		= new Vector();
-	_SMNOZO 	= new Vector();
-	_STAID 		= new Vector();
-	_TMPPTR 	= new Vector();
+	_NWRDSDDT 	= new ArrayList<>();
+	_NWRDSSTI 	= new ArrayList<>();
+	_NWRDSO 	= new ArrayList<>();
+	_NZERO 		= new ArrayList<>();
+	_PCPPTR 	= new ArrayList<>();
+	_PNTR 		= new ArrayList<>();
+	_PRMPTR 	= new ArrayList<>();
+	_RDATE 		= new ArrayList<>();
+	_RPT2LG 	= new ArrayList<>();
+	_RPTLG 		= new ArrayList<>();
+	_SMNOZO 	= new ArrayList<>();
+	_STAID 		= new ArrayList<>();
+	_TMPPTR 	= new ArrayList<>();
 	_TYPREC 	= -1;
 }
 

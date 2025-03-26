@@ -1,16 +1,4 @@
-//------------------------------------------------------------------------------
 // NWSRFS_FCRCPTR - class to contain the rating curve file index/record pointers
-//------------------------------------------------------------------------------
-// History:
-//
-// 2004-03-11	Scott Townsend, RTi	Initial version.
-// 2004-03-30	SAT, RTi		Revising to adhere to RTi coding
-//					standards
-// 2004-08-18	J. Thomas Sapienza, RTi	* Revised to fit RTi standards.
-//					* Added get*() and set*() methods.
-// 2004-08-23	JTS, RTi		Added finalize().
-//------------------------------------------------------------------------------
-// Endheader
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -108,7 +96,7 @@ Adds an int to the _IREC Vector.  It is converted to an Integer first.
 @param i the int to add.
 */
 public void addIREC(int i) {
-	addIREC(new Integer(i));
+	addIREC(Integer.valueOf(i));
 }
 
 /**
@@ -131,16 +119,6 @@ public void addRCID(String s) {
 		_RCID = new Vector<String>();
 	}
 	_RCID.add(s);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize()
-throws Throwable {
-	_IREC = null;
-	_RCID = null;
 }
 
 /**

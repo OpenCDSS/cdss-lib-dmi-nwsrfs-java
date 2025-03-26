@@ -262,24 +262,6 @@ public NWSRFS_MAT(String id) {
 	}
 }
 
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_ID     = null;
-	_logicalUnitNum     = -1;
-	_description        = null;
-	_basinBoundaryID    = null;
-	_centroidX          = 0;
-	_centroidY          = 0;
-	_exponent           = 0;
-	_NTEMP              = 0;
-	_recordNum          = 0;
-	_typeStationWeights = 0;
-}
-
 // GET Member methods for general MAP Area variables
 /**
 Returns the MAT Area's identifier.

@@ -188,20 +188,6 @@ private void convert ()
 }
 
 /**
-Free memory for garbage collection.
-*/
-protected void finalize ()
-throws Throwable
-{	__cancel_JButton = null;
-	__input_JTextField = null;
-	__datetime_JTextField = null;
-	__julday_JTextField = null;
-	__julhour_JTextField = null;
-	__convert_JButton = null;
-	super.finalize ();
-}
-
-/**
 Instantiates the GUI components.
 @param parent JFrame class instantiating this class.
 */
