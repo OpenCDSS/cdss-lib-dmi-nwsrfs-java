@@ -18,8 +18,6 @@
 
 package RTi.DMI.NWSRFS_DMI;
 
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Operation;
-
 /**
 The NWSRFS_RatingCurve class stores the organizational information about an
 NWSRFS Rating Curves. This class reads and stores data from the 
@@ -582,25 +580,6 @@ public NWSRFS_RatingCurve (String id, NWSRFS_Operation parent) {
 	if (parent != null) {
 		__op = parent;
 	}
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	__rcid = null;
-	__op = null;
-	_EMPTY = null;
-	_XRC = null;
-	_FPTYPE = null;
-	_RFCOMPT = null;
-	_OPTION = null;
-	_PVISFS = null;
-	_RIVERN = null;
-	_RIVSTA = null;
-	_RTCVID = null;
 }
 
 /**

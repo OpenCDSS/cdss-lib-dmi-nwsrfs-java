@@ -39,14 +39,6 @@ public NWSRFS_USERPARM()
 }
 
 /**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() {
-	__time3	 = null;
-}
-
-/**
 Return the default time zone code TIME(3).
 @return the default time zone code TIME(3).
 */

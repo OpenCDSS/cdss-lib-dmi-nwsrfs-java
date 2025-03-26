@@ -1,17 +1,4 @@
-//-----------------------------------------------------------------------------
-// NWSRFS_FCSEGPTR - class to contain the segment definition file record 
-//	pointers
-//-----------------------------------------------------------------------------
-// History:
-//
-// 2004-03-12	Scott Townsend, RTi	Initial version.
-// 2004-03-30	SAT, RTi		Revised to adhere to the RTi
-//					coding standards.
-// 2004-08-18	J. Thomas Sapienza, RTi * Fit to RTi code standards.
-//					* Added get*() and set*() methods.
-// 2004-08-23	JTS, RTi		Added finalize().
-//-----------------------------------------------------------------------------
-// Endheader
+// NWSRFS_FCSEGPTR - class to contain the segment definition file record pointers
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -135,7 +122,7 @@ Adds a value to the IREC Vector.
 @param i the int to add to the IREC Vector -- will be added as an Integer.
 */
 public void addIREC(int i) {
-	addIREC(new Integer(i));
+	addIREC(Integer.valueOf(i));
 }
 
 /**
@@ -158,16 +145,6 @@ public void addISEG(String s) {
 		_ISEG = new Vector<String>();
 	}
 	_ISEG.add(s);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_IREC = null;
-	_ISEG = null;
 }
 
 /**

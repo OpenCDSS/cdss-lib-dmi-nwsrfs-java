@@ -1,22 +1,16 @@
-// ----------------------------------------------------------------------------
 // NWSRFS_Station_TableModel - table model for a list of NWSRFS stations.
-// ----------------------------------------------------------------------------
-// Copyright:   See the COPYRIGHT file
-// ----------------------------------------------------------------------------
-// History:
-// 2004-11-01	J. Thomas Sapienza, RTi	Initial version.
-// ----------------------------------------------------------------------------
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import RTi.Util.GUI.JWorksheet_AbstractRowTableModel;
 
 /**
 This class is a table model for displaying stations in the NWSRFS GUI.
 */
+@SuppressWarnings({ "serial", "rawtypes" })
 public class NWSRFS_Station_TableModel 
 extends JWorksheet_AbstractRowTableModel {
 
@@ -40,9 +34,10 @@ public static final int
 Constructor.  
 @param stations the stations that will be displayed in the table.
 */
-public NWSRFS_Station_TableModel(List stations) {
+@SuppressWarnings("unchecked")
+public NWSRFS_Station_TableModel(List<NWSRFS_Station> stations) {
 	if (stations == null) {
-		_data = new Vector();
+		_data = new ArrayList<>();
 	}
 	else {
 		_data = stations;
@@ -55,6 +50,7 @@ public NWSRFS_Station_TableModel(List stations) {
 Returns the class of the data stored in a given column.  
 @param columnIndex the column for which to return the data class.
 */
+@SuppressWarnings({ "unchecked" })
 public Class getColumnClass (int columnIndex) {
 	switch (columnIndex) {
 		case COL_STATION_ID:	return String.class;
@@ -148,10 +144,10 @@ public Object getValueAt(int row, int col) {
 	switch (col) {
 		case COL_STATION_ID:	return station.getID();
 		case COL_STATION_DESC:	return station.getDescription();
-		case COL_PCPN:		return new Boolean(station.getIsPCPN());
-		case COL_PE:		return new Boolean(station.getIsPE());
-		case COL_RRS:		return new Boolean(station.getIsRRS());
-		case COL_TEMP:		return new Boolean(station.getIsTEMP());
+		case COL_PCPN:		return Boolean.valueOf(station.getIsPCPN());
+		case COL_PE:		return Boolean.valueOf(station.getIsPE());
+		case COL_RRS:		return Boolean.valueOf(station.getIsRRS());
+		case COL_TEMP:		return Boolean.valueOf(station.getIsTEMP());
 		default:		return "";
 	}
 }

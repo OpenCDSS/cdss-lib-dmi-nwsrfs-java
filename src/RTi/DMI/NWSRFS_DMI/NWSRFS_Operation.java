@@ -23,9 +23,6 @@ package RTi.DMI.NWSRFS_DMI;
 import java.util.List;
 import java.util.Vector;
 
-import RTi.DMI.NWSRFS_DMI.NWSRFS_RatingCurve;
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Segment;
-
 /**
 The NWSRFS_Operation class stores the organizational information about an
 NWSRFS Operations which are defined by parameters, carryover states, and time 
@@ -462,28 +459,6 @@ is defined on this Operation object.
 */
 public void addTimeSeries(NWSRFS_TimeSeries ts) {
 		__timeseries.add(ts);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	__segment = null;
-	__rcIDs = null;
-	__ratingCurves = null;
-	__sysID = null;
-	__tsDTs = null;
-	__tsIDs = null;
-	__timeseries = null;
-	__userID = null;
-	__opParameters = null;
-	__opParameterTable = null;
-	__IDSEG = null;
-	__opName = null;
-	__opRedefName = null;
-	__opTypeName = null;
 }
 
 /**

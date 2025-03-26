@@ -1,14 +1,4 @@
-//-----------------------------------------------------------------------------
-// NWSRFS_BASN - class to store the organizational information about an 
-//               NWSRFS Basin boundary parameters.
-//-----------------------------------------------------------------------------
-// History:
-//
-// 
-// 2004-09-30	Scott Townsend, RTi	Initial version.
-//-----------------------------------------------------------------------------
-// Endheader
-
+// NWSRFS_BASN - class to store the organizational information about an NWSRFS Basin boundary parameters.
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -265,7 +255,7 @@ Basin description.
 protected String _description;
 
 /**
-Basin grid point definition. A Vector of 3-value Vectors.
+Basin grid point definition. A List of 3-value List.
 */
 protected List _gridDef;
 
@@ -333,7 +323,7 @@ Member method for Basin parameter variables
 @param latitude the latitude for a basin boundary point.
 */
 public void addBASNLatitude(float latitude) {
-	_basinLatitude.add(new Float(latitude));
+	_basinLatitude.add(Float.valueOf(latitude));
 }
 
 /**
@@ -343,7 +333,7 @@ Member method for Basin parameter variables
 @param longitude the longitude for a basin boundary point.
 */
 public void addBASNLongitude(float longitude) {
-	_basinLongitude.add(new Float(longitude));
+	_basinLongitude.add(Float.valueOf(longitude));
 }
 
 /**
@@ -355,34 +345,6 @@ Member method for Basin parameter variables
 */
 public void addBASNGridPointDef(List gpDef) {
 	_gridDef.add(gpDef);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_ID                 = null;
-	_logicalUnitNum     = -1;
-	_basinArea          = -1;
-	_basinLatitude      = null;
-	_basinLongitude     = null;
-	_centroidX          = -1;
-	_centroidY          = -1;
-	_computedBasinArea  = -1;
-	_description        = null;
-	_gridDef            = null;
-	_mapID              = null;
-	_mapUpdateInd       = -1;
-	_mapxID             = null;
-	_matID              = null;
-	_matUpdateInd       = -1;
-	_meanElevation      = -1;
-	_NBPTS              = -1;
-	_NSEGS              = -1;
-	_recordNum          = -1;
-	_spacingFactor      = -1;
 }
 
 // GET Member methods for general Basin variables

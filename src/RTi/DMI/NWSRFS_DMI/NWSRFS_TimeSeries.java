@@ -327,11 +327,6 @@ NOTES:
 public class NWSRFS_TimeSeries
 {
 
-/*
-REVISIT (JTS - 2004-08-18)
-- add finalize()
-*/
-
 /**
 The boolean value for TimeSeries indicating whether the TS
 contains data.
@@ -598,13 +593,14 @@ protected TS _observedTS;
 /**
 The String for TimeSeries additional information.
 */
+@SuppressWarnings("rawtypes")
 protected List _tsAddInformation;
 
 /**
 The String for external location information
 for TimeSeries and depends on type data file used.
 */
-protected List _tsExtLocInformation;
+protected List<String> _tsExtLocInformation;
 
 /**
 Construct an NWSRFS_TimeSeries instance using TimeSeries identifier and data 
@@ -631,27 +627,6 @@ public NWSRFS_TimeSeries(String tsID, String tsDataType, int tsDTInterval)  {
 	if (tsDTInterval > 0) {
 		_tsDTInterval = tsDTInterval;
 	}
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize()
-throws Throwable {
-	_isDataFilled = false;
-	__operation = null;
-	_IDSEG = null;
-	_NAMERF = null;
-	_tsDataFileCode = null;
-	_tsDataType = null;
-	_TSDESC = null;
-	_TSID = null;
-	_TSUNIT = null;
-	_futureTS = null;
-	_observedTS = null;
-	_tsAddInformation = null;
-	_tsExtLocInformation = null;
 }
 
 /**
@@ -961,6 +936,7 @@ public String getSegmentID() {
 Returns additional time series information.
 @return additional time series information.
 */
+@SuppressWarnings("rawtypes")
 public List getTSAddInformation() {
 	return _tsAddInformation;
 }
@@ -1001,7 +977,7 @@ public int getTSDTInterval() {
 Returns time series external location information.
 @return time series external location information.
 */
-public List getTSExtLocInformation() {
+public List<String> getTSExtLocInformation() {
 	return _tsExtLocInformation;
 }
 
@@ -1471,6 +1447,7 @@ public void setSegmentID(String IDSEG) {
 Sets additional time series information.
 @param tsAddInformation additional time series information.
 */
+@SuppressWarnings("rawtypes")
 public void setTSAddInformation(List tsAddInformation) {
 	_tsAddInformation = tsAddInformation;
 }
@@ -1511,7 +1488,7 @@ public void setTSDTInterval(int tsDTInterval) {
 Sets time series external location information.
 @param tsExtLocInformation time series external location information.
 */
-public void setTSExtLocInformation(List tsExtLocInformation) {
+public void setTSExtLocInformation(List<String> tsExtLocInformation) {
 	_tsExtLocInformation = tsExtLocInformation;
 }
 

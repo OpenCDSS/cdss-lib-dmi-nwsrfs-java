@@ -1,17 +1,9 @@
-//------------------------------------------------------------------------------
-// NWSRFS_PRDINDEX - class to contain the processed database 
-// index/record pointers
-//------------------------------------------------------------------------------
-// History:
-//
-// 2004-08-26	Scott Townsend, RTi	Initial version.
-//------------------------------------------------------------------------------
-// Endheader
+// NWSRFS_PRDINDEX - class to contain the processed database index/record pointers
 
 package RTi.DMI.NWSRFS_DMI;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
 The NWSRFS_PRDINDEX - class to contain the processed database record 
@@ -67,85 +59,73 @@ public class NWSRFS_PRDINDEX {
 /**
 The Time Series ID
 */
-protected List _TSID; 
+protected List<String> _TSID; 
 
 /**
 The Time Series Data Type.
 */
-protected List _TSDataType; 
+protected List<String> _TSDataType; 
 
 /**
-The Record Number in the PRDTSn file containing 
-the Time Series data.
+The Record Number in the PRDTSn file containing the Time Series data.
 */
-protected List _IREC; 
+protected List<Integer> _IREC; 
 
 /**
 Constructor.
-If the calling class uses this constructor then it will need to call the 
-readFile method manually.  This constructor is needed to allow multiple calls 
-through the same DMI object.
+If the calling class uses this constructor then it will need to call the readFile method manually.
+This constructor is needed to allow multiple calls through the same DMI object.
 */
 public NWSRFS_PRDINDEX() {
 	initialize();
 }
 
 /**
-Adds a value to the _IREC Vector.
+Adds a value to the _IREC list.
 @param i the int to add (added as an Integer).
 */
 public void addIREC(int i) {
-	addIREC(new Integer(i));
+	addIREC(Integer.valueOf(i));
 }
 
 /**
-Adds a value to the _IREC Vector.
+Adds a value to the _IREC list.
 @param I the Integer to add.
 */
 public void addIREC(Integer I) {
 	if (_IREC == null) {
-		_IREC = new Vector();
+		_IREC = new ArrayList<>();
 	}
 	_IREC.add(I);
 }
 
 /**
-Adds a value to the _TSDataType Vector.
+Adds a value to the _TSDataType list.
 @param s the value to add.
 */
 public void addTSDT(String s) {
 	if (_TSDataType == null) {
-		_TSDataType = new Vector();
+		_TSDataType = new ArrayList<>();
 	}
 	_TSDataType.add(s);
 }
 
 /**
-Adds a value to the _TSID Vector.
+Adds a value to the _TSID list.
 @param s the value to add.
 */
 public void addTSID(String s) {
 	if (_TSID == null) {
-		_TSID = new Vector();
+		_TSID = new ArrayList<>();
 	}
 	_TSID.add(s);
 }
 
 /**
-Cleans up member variables.
-@throws Throwable if an error occurs.
+Returns the list of record numbers.
+@return the list of record numbers.
 */
-public void finalize() {
-	_IREC = null;
-	_TSDataType = null;
-	_TSID = null;
-}
-
-/**
-Returns the Vector of record numbers.
-@return the Vector of record numbers.
-*/
-public List getIREC() {
+public List<Integer> getIREC() {
 	return _IREC;
 }
 
@@ -155,14 +135,14 @@ Return the Record Number at an index.
 @return the Record Number at an index.
 */
 public int getIREC(int index) {
-	return ((Integer)_IREC.get(index)).intValue();
+	return _IREC.get(index).intValue();
 }
 
 /**
-Returns the Vector of Data Types.
-@return the Vector of Data Types.
+Returns the list of Data Types.
+@return the list of Data Types.
 */
-public List getTSDT() {
+public List<String> getTSDT() {
 	return _TSDataType;
 }
 
@@ -172,14 +152,14 @@ Return the Data Type at an index.
 @return the Data Type at an index.
 */
 public String getTSDT(int index) {
-	return (String)_TSDataType.get(index);
+	return _TSDataType.get(index);
 }
 
 /**
-Returns the Vector of Time Series Identifiers.
-@return the Vector of Time Series Identifiers.
+Returns the list of Time Series Identifiers.
+@return the list of Time Series Identifiers.
 */
-public List getTSID() {
+public List<String> getTSID() {
 	return _TSID;
 }
 
@@ -189,7 +169,7 @@ Return the Time Series ID at an index.
 @return the Time Series ID at an index.
 */
 public String getTSID(int index) {
-	return (String)_TSID.get(index);
+	return _TSID.get(index);
 }
 
 /**

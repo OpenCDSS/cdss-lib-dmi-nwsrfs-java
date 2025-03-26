@@ -1,14 +1,4 @@
-//-----------------------------------------------------------------------------
-// NWSRFS_NTWK - class to store the organizational information about an 
-//               NWSRFS Network parameters.
-//-----------------------------------------------------------------------------
-// History:
-//
-// 
-// 2004-10-12	Scott Townsend, RTi	Initial version.
-//-----------------------------------------------------------------------------
-// Endheader
-
+// NWSRFS_NTWK - class to store the organizational information about an NWSRFS Network parameters.
 
 package RTi.DMI.NWSRFS_DMI;
 
@@ -371,40 +361,6 @@ public NWSRFS_NTWK(String id) {
 	}
 }
 
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_ID				= null;
-	_logicalUnitNum			= -1;
-	_networkDateTime		= null;
-	_networkMonth			= -1;
-	_networkDay			= -1;
-	_networkYear			= -1;
-	_networkHourMin			= -1;
-	_networkNumberInd		= -1;
-	_networkFivePCPNInd		= -1;
-	_networkThreePCPNInd		= -1;
-	_networkThreeMaxMinTEMPInd	= -1;
-	_networkThreeInstTEMPInd	= -1;
-	_networkTwoForecastTEMPInd	= -1;
-	_networkMAPTimeDistWeights	= -1;
-	_networkMAPGridPointWeights	= -1;
-	_networkMATGridPointWeights	= -1;
-	_networkMAPParamBasnBound	= -1;
-	_networkMATParamBasnBound	= -1;
-	_networkMAPEWeights		= -1;
-	_networkOP24UpdateInd		= -1;
-	_networkOPVRUpdateInd		= -1;
-	_networkOT24UpdateInd		= -1;
-	_networkOE24UpdateInd		= -1;
-	_networkORRSUpdateInd		= -1;
-	_networkGPOG24UpdateInd		= -1;
-	_recordNum			= -1;
-}
-
 // GET Member methods for general Network variables
 /**
 Returns the Network identifier.
@@ -701,8 +657,8 @@ public void setNTWKDateTime(
 	_networkDateTime.setDay(networkDay);
 	_networkDateTime.setYear(networkYear);
 	String HourMin = String.valueOf(networkHourMin);
-	int hour = (int) (new Integer(HourMin.substring(0,2)).intValue());
-	int min = (int) (new Integer(HourMin.substring(2)).intValue());
+	int hour = Integer.valueOf(HourMin.substring(0,2)).intValue();
+	int min = Integer.valueOf(HourMin.substring(2)).intValue();
 	_networkDateTime.setHour(hour);
 	_networkDateTime.setMinute(min);
 }

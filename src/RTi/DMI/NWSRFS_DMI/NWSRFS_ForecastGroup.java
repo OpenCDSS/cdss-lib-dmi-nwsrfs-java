@@ -18,9 +18,6 @@ package RTi.DMI.NWSRFS_DMI;
 import java.util.List;
 import java.util.Vector;
 
-import RTi.DMI.NWSRFS_DMI.NWSRFS_CarryoverGroup;
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Segment;
-
 /**
 The NWSRFS_ForecastGroup class stores the organizational information about an
 NWSRFS Forecast Group (list of Segments). This class reads and stores data 
@@ -221,22 +218,6 @@ Add a Segment ID to the NWSRFS_ForecastGroup.
 */
 public void addSegmentID(String segID) {
 	__segmentID.add(segID);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize()
-throws Throwable {
-	_ICRDAT = null;
-	__cg = null;
-	_CGID = null;
-	_DESCR = null;
-	__fgid = null;
-	_FGID = null;
-	__segment = null;
-	__segmentID = null;
 }
 
 /**

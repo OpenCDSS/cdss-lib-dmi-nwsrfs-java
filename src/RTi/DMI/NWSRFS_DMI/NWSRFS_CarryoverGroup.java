@@ -17,9 +17,6 @@ package RTi.DMI.NWSRFS_DMI;
 import java.util.List;
 import java.util.Vector;
 
-import RTi.DMI.NWSRFS_DMI.NWSRFS_ForecastGroup;
-import RTi.DMI.NWSRFS_DMI.NWSRFS_Util;
-
 import RTi.Util.Message.Message;
 
 import RTi.Util.Time.DateTime;
@@ -314,28 +311,6 @@ Adds a ForecastGroup ID to the NWSRFS_CarryoverGroup.
 */
 public void addForecastGroupID(String fgID) {	
 	__fgID.add(fgID);
-}
-
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize()
-throws Throwable {
-	_ICODAY = null;
-	_ICOREC = null;
-	_ICOTIM = null;
-	_ICRDAT = null;
-	_IPC = null;
-	_ITDEF = null;
-	_LUPDAY = null;
-	_LUPTIM = null;
-	_CGIDS = null;
-	_CGID = null;
-	__cgid = null;
-	_CGNAME = null;
-	__fgID = null;
-	__forecast_groups = null;
 }
 
 /**

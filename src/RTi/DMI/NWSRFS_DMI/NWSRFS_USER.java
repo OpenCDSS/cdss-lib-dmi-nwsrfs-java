@@ -382,30 +382,6 @@ public NWSRFS_USER() {
 	initialize();
 }
 
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_ID     = null;
-	_begSummerMon       = 0;
-	_begWinterMon       = 0;
-	_elevationMax       = 0;
-	_elevationMin       = 0;
-	_latitudeNorthLimit = -999;
-	_latitudeSouthLimit = -999;
-	_longitudeEastLimit = -999;
-	_longitudeWestLimit = -999;
-	_mdrWestColumn      = 0;
-	_mdrNumColumns      = 0;
-	_mdrEastRow         = 0;
-	_mdrNumRows         = 0;
-	_userName           = null;
-	_logicalUnitNum     = -1;
-	_recordNum          = 0;
-}
-
 // GET Member methods for general USER Parameter variables
 /**
 Returns the USER parameter's identifier.

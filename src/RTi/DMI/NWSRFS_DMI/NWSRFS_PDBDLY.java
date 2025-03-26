@@ -209,16 +209,6 @@ public NWSRFS_PDBDLY(String ID) {
 
 // Add methods for Vector structures
 
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() {
-	_DTYPE		= null;
-	_NUMID		= -1;
-	_STAID		= null;
-}
-
 // Get methods
 public String getSTAID() {
 	return _STAID; 

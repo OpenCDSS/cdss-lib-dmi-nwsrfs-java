@@ -338,27 +338,6 @@ public NWSRFS_MAP(String id) {
 	}
 }
 
-/**
-Cleans up member variables.
-@throws Throwable if an error occurs.
-*/
-public void finalize() 
-throws Throwable {
-	_ID     = null;
-	_logicalUnitNum     = -1;
-	_description        = null;
-	_basinBoundaryID    = null;
-	_centroidX          = 0;
-	_centroidY          = 0;
-	_dataTimeInt        = 0;
-	_exponent           = 0;
-	_fmapAreaID         = null;
-	_NSTWT              = 0;
-	_recordNum          = 0;
-	_typeStationWeights = 0;
-	_typeTimeWeights    = 0;
-}
-
 // GET Member methods for general MAP Area variables
 /**
 Returns the MAP Area's identifier.
