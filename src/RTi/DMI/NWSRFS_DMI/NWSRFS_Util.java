@@ -1509,24 +1509,23 @@ ofs_yyy    : #yyy		# invalid t-r, no resource
 @return is the value of the apps-defaults String token if found or null.
 @deprecated Use getAppsDefaults().
 */
-public static String get_apps_defaults(String request)
-{
+@Deprecated
+public static String get_apps_defaults(String request) {
 	int appDFileIndex;
 	String[] appDFile;
 	String appDFileValue = null;
 	String requestValue  = null;
 
-	// Load the appDFile environment variable tokens for the various
-	// app-defaults files to pull from the users enviornment.
+	// Load the appDFile environment variable tokens for the various app-defaults files to pull from the users environment.
 	appDFile = new String[4];
-	appDFile[0] = "APPS_DEFAULTS_USER";	// apps-defaults personal file
-	appDFile[1] = "APPS_DEFAULTS_PROG";	// apps-defaults for specific program
-	appDFile[2] = "APPS_DEFAULTS_SITE";	// apps-defaults for local site	file
-	appDFile[3] = "APPS_DEFAULTS";		// apps-defaults default file
+	appDFile[0] = "APPS_DEFAULTS_USER";	// apps-defaults personal file.
+	appDFile[1] = "APPS_DEFAULTS_PROG";	// apps-defaults for specific program.
+	appDFile[2] = "APPS_DEFAULTS_SITE";	// apps-defaults for local site	file.
+	appDFile[3] = "APPS_DEFAULTS";		// apps-defaults default file.
 
 	// Check to see if this is a UNIX/Linux machine. If not return null.
 	if ( !IOUtil.isUNIXMachine() ) {
-		// This is not UNIX/Linux
+		// This is not UNIX/Linux.
 		return null;
 	}
 	
@@ -1571,13 +1570,12 @@ public static String get_apps_defaults(String request)
 Runs 'get_apps_defaults' using the ProcessManager with the token passed 
 in and returns the results.
 @param token  apps defaults token to run.
-@return  Value returned from running "get_apps_defaults" with the token
-passed in.  If nothing is returned from the get_apps_defaults command, 
-the method will return null.
+@return  Value returned from running "get_apps_defaults" with the token passed in.
+If nothing is returned from the get_apps_defaults command, the method will return null.
 @deprecated Use getAppsDefaults().
 */
-public static String keyFromAppsDefaults( String token )
-{
+@Deprecated
+public static String keyFromAppsDefaults( String token ) {
 	return __AppsDefaults.getToken( token );
 	/* FIXME SAM 2008-01-07 Rely on the AppsDefaults class and evaluate whether 
 	 * old RTi code can be phased out
@@ -1728,19 +1726,18 @@ private static String get_token(String request, String appsDefaultsFile)
 		return null;
 	}
 
-	// If we get here we return null
+	// If we get here we return null.
 	return null;
 }
 
-// TODO SAM 2004-09-01 This should be in IOUtil, etc., if it is useful
+// TODO SAM 2004-09-01 This should be in IOUtil, etc., if it is useful.
 /**
 This method is a replacement method for the System.getenv, which was deprecated in Java 1.4.2 (back in 1.5).
 On UNIX, "env" is used to get the environment.  On Windows, "set" is used.
 @param request is the request string to search the users environment.
 @return is the value of the return String token if found or null.
 */
-public static String getenv(String request)
-{
+public static String getenv(String request) {
 	int i, exitstat = -999;
 	String routine = "NWSRFS_Util.getenv";
 	int dl = 1;    // Debug level - probably want to see this because it may be config-related.

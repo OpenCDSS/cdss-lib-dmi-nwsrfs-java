@@ -295,6 +295,7 @@ This is useful for warning messages if there has been an error processing a file
 @deprecated Information is not useful now the multiple errors are ignored during
 processing in order to let as much processing occur as possible.
 */
+@Deprecated
 public String getCurrentLine() {
 	return __line;
 }
@@ -306,6 +307,7 @@ This is useful for warning messages if there has been an error processing a file
 @deprecated Information is not useful now the multiple errors are ignored during
 processing in order to let as much processing occur as possible.
 */
+@Deprecated
 public int getCurrentLineNumber() {
 	return __lineNumber;
 }
